@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICLO · HomeDen Employer Analytics — Sample</title>
+<style>
+  :root{
+    --coral:#FF7A79; --teal:#007A87;
+    --ground:#FFFFFF; --panel:#FFFFFF; --field:#F7F8FA; --line:#E3E8F0;
+    --ink:#1B2A4A; --ink2:#5B6B85; --band:#EDF1F7;
+    --barLow:#D9E1EE; --barMid:#8FB8BE;
+    --strong:#1B2A4A; --onStrong:#FFFFFF; --data:#007A87;
+    --shadow:0 1px 2px rgba(27,42,74,.06);
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0E1526; --panel:#152038; --field:#0F1930; --line:#28324C;
+      --ink:#E7ECF5; --ink2:#95A2BE; --band:#182541;
+      --barLow:#2B3956; --barMid:#3E7A82; --strong:#C9D4EA; --onStrong:#0E1526;
+      --data:#3FB6C0; --coral:#FF8E8D; --shadow:0 1px 2px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#FFFFFF; --panel:#FFFFFF; --field:#F7F8FA; --line:#E3E8F0;
+    --ink:#1B2A4A; --ink2:#5B6B85; --band:#EDF1F7; --barLow:#D9E1EE; --barMid:#8FB8BE;
+    --strong:#1B2A4A; --onStrong:#FFFFFF; --data:#007A87; --coral:#FF7A79; --shadow:0 1px 2px rgba(27,42,74,.06);
+  }
+  :root[data-theme="dark"]{
+    --ground:#0E1526; --panel:#152038; --field:#0F1930; --line:#28324C;
+    --ink:#E7ECF5; --ink2:#95A2BE; --band:#182541; --barLow:#2B3956; --barMid:#3E7A82;
+    --strong:#C9D4EA; --onStrong:#0E1526; --data:#3FB6C0; --coral:#FF8E8D; --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5}
+  .wrap{max-width:none;margin:0 auto;padding:0 28px}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  h1,h2{margin:0;text-wrap:balance}
+  a{color:var(--data)}
+  /* header */
+  header{border-bottom:1px solid var(--line);background:var(--panel)}
+  .hrow{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;padding:14px 0}
+  .logo{font-size:20px;font-weight:800;letter-spacing:-.02em}
+  .sub{color:var(--ink2);font-size:13px}
+  .demo-pill{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--coral);
+    border:1px solid var(--coral);border-radius:3px;padding:3px 8px}
+  .themebtn{font-family:var(--mono);font-size:11px;color:var(--ink2);background:none;
+    border:1px solid var(--line);border-radius:3px;padding:3px 8px;cursor:pointer}
+  /* tabs */
+  nav.tabs{border-bottom:1px solid var(--line);background:var(--panel)}
+  .tabrow{display:flex;gap:18px;overflow-x:auto}
+  .tab{appearance:none;background:none;border:none;cursor:pointer;font-size:14px;
+    color:var(--ink2);padding:11px 0;border-bottom:2px solid transparent;white-space:nowrap;font-family:var(--sans)}
+  .tab[aria-selected="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--strong)}
+  .tab:focus-visible{outline:2px solid var(--data);outline-offset:2px}
+  /* context bar */
+  .ctx{background:var(--field);border-bottom:1px solid var(--line)}
+  .ctxrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 0}
+  select,.seg button,.togglebtn{font-family:var(--mono);font-size:12px;color:var(--ink);
+    background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:5px 8px;cursor:pointer}
+  select{max-width:100%}
+  .seg{display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .seg button{border:none;border-radius:0}
+  .seg button[aria-pressed="true"],.togglebtn[aria-pressed="true"]{background:var(--strong);color:var(--onStrong)}
+  .freshness{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink2)}
+  main{padding:22px 0 8px}
+  /* cards */
+  .grid{display:grid;gap:12px}
+  .g5{grid-template-columns:repeat(2,1fr)}
+  @media(min-width:760px){.g5{grid-template-columns:repeat(5,1fr)}}
+  .g4{grid-template-columns:1fr}
+  @media(min-width:760px){.g4{grid-template-columns:repeat(4,1fr)}}
+  .card{border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:13px;box-shadow:var(--shadow)}
+  .card .lab{font-size:12px;color:var(--ink2)}
+  .card .val{font-family:var(--mono);font-size:24px;color:var(--ink);margin-top:4px;line-height:1.15}
+  .card .val .u{font-size:13px;color:var(--ink2);margin-left:4px}
+  .denom{font-size:12px;color:var(--ink2);margin-top:2px;display:inline-block;border-bottom:2px solid transparent}
+  .denom.hot{color:var(--data);border-bottom-color:var(--data)}
+  .chip{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:10.5px;color:var(--data);
+    border:1px solid var(--data);border-radius:3px;padding:2px 6px;line-height:1.3}
+  .supp{border:1px solid var(--line);background:var(--field);border-radius:3px;padding:8px 10px}
+  .supp .t{font-family:var(--mono);font-size:13px;color:var(--ink2)}
+  .supp .d{font-size:12px;color:var(--ink2);margin-top:2px}
+  .lead{font-size:12.5px;color:var(--ink2);max-width:62ch;margin:14px 0 0}
+  .lead b{color:var(--ink)}
+  h2.vt{font-size:19px;font-weight:600;margin-bottom:2px}
+  .vsub{font-size:12.5px;color:var(--ink2);margin:4px 0 16px;max-width:66ch}
+  .vsub.mono{font-family:var(--mono)}
+  .col2{display:grid;gap:24px}
+  @media(min-width:820px){.col2{grid-template-columns:1fr 1fr}}
+  .narrow{max-width:820px}
+  /* bar rows */
+  .bar{margin-bottom:14px}
+  .bar .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .bar .bl{font-size:14px;color:var(--ink)}
+  .bar .bv{font-family:var(--mono);font-size:13px;color:var(--ink)}
+  .track{height:12px;border-radius:3px;background:var(--field);margin-top:5px;overflow:hidden}
+  .fill{height:12px;border-radius:3px}
+  .bar .note{font-size:12px;color:var(--ink2);margin-top:4px}
+  /* charts */
+  .chart{width:100%;height:auto;display:block}
+  .legend{font-size:12px;color:var(--ink2);margin-top:6px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .swatch{display:inline-block;width:16px;height:0;border-top-width:2px;border-top-style:solid;vertical-align:middle;margin-right:5px}
+  .tip{position:fixed;pointer-events:none;z-index:20;background:var(--strong);color:var(--onStrong);
+    font-family:var(--mono);font-size:11px;padding:5px 8px;border-radius:4px;opacity:0;transition:opacity .08s;white-space:nowrap}
+  /* data & snowflake */
+  .box{border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:12px}
+  .box h3{margin:0;font-size:12px;font-weight:600;color:var(--ink)}
+  .box ul{margin:6px 0 0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+  .box li{font-size:12px;color:var(--ink2);line-height:1.4}
+  .flow{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  @media(min-width:860px){.flow{flex-direction:row;align-items:stretch}}
+  .flow .srcs{display:flex;flex-direction:column;gap:8px;flex:0 0 22%}
+  .flow .srcs .s{border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:8px 10px;font-size:12px}
+  .flow .arrow{display:none;align-items:center;color:var(--ink2);font-size:20px}
+  @media(min-width:860px){.flow .arrow{display:flex}}
+  .flow .plane{flex:1;border:1.5px solid var(--strong);border-radius:5px;padding:13px;background:var(--panel)}
+  .plane .ph{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+  .plane .ph .t{font-size:14px;font-weight:600}
+  .plane .grid2{display:grid;gap:8px;grid-template-columns:1fr;margin-top:10px}
+  @media(min-width:560px){.plane .grid2{grid-template-columns:1fr 1fr}}
+  .flow .outs{display:flex;flex-direction:column;gap:8px;flex:0 0 24%}
+  .out{border:1px solid var(--line);border-radius:4px;padding:8px 10px;font-size:12px;background:var(--panel)}
+  .out.hot{border-color:var(--data)}
+  .out b{color:var(--ink)}
+  .notes{display:grid;gap:12px;margin-top:16px;grid-template-columns:1fr}
+  @media(min-width:760px){.notes{grid-template-columns:1fr 1fr}}
+  .notes .n{border:1px solid var(--line);border-radius:4px;padding:12px;font-size:12px;color:var(--ink2);line-height:1.5}
+  .notes .n b{color:var(--ink)}
+  /* footer */
+  footer{border-top:1px solid var(--line);background:var(--panel)}
+  .frow{display:flex;flex-wrap:wrap;gap:6px 18px;padding:14px 0;font-family:var(--mono);font-size:11px;color:var(--ink2)}
+  .frow .r{margin-left:auto;color:var(--coral)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap hrow">
+  <span class="logo">ICLO</span>
+  <span class="sub">HomeDen Employer Analytics</span>
+  <span class="demo-pill">DEMO · Synthetic data — illustrative only</span>
+  <button class="themebtn" id="themebtn" type="button" aria-label="Toggle theme">◐ Theme</button>
+</div></header>
+
+<nav class="tabs"><div class="wrap"><div class="tabrow" id="tabrow" role="tablist"></div></div></nav>
+
+<div class="ctx"><div class="wrap ctxrow">
+  <select id="scen" aria-label="Employer scenario"></select>
+  <select id="dept" aria-label="Department or site filter"></select>
+  <div class="seg" role="group" aria-label="Denominator lens">
+    <button id="lensE" type="button" aria-pressed="true">Employees lens</button>
+    <button id="lensM" type="button" aria-pressed="false">Members lens</button>
+  </div>
+  <button class="togglebtn" id="srcbtn" type="button" aria-pressed="true">Data sources: on</button>
+  <span class="freshness">eligibility 2026-07 · claims thru 2026-05 (60-day lag) · completeness 98.4% (synthetic)</span>
+</div></div>
+
+<main><div class="wrap" id="view"></div></main>
+
+<footer><div class="wrap frow">
+  <span>Aggregate only</span><span>cell size n ≥ 20</span><span>no individual PHI</span>
+  <span class="r">Synthetic data — illustrative only</span>
+</div></footer>
+
+<div class="tip" id="tip"></div>
+
+<script>
+"use strict";
+const C = {
+  navy:"var(--strong)", coral:"var(--coral)", teal:"var(--data)",
+  ink2:"var(--ink2)", line:"var(--line)", band:"var(--band)",
+  barLow:"var(--barLow)", barMid:"var(--barMid)"
+};
+const SCEN = {
+  A:{label:"Employer A · 10,000 (baseline)", employees:10000, pmpm:31.4},
+  B:{label:"Employer B · 2,500 (small)", employees:2500, pmpm:32.8},
+  C:{label:"Employer C · 25,000 (large)", employees:25000, pmpm:30.9},
+};
+const DEP_RATIO = 2.2;
+const FRAC = {activated:0.38, valid:0.28, gap:0.095, closed:0.042};
+const SIGNALS = [
+  {key:"Low", share:52, color:"var(--barLow)", note:"keep current routine"},
+  {key:"Moderate", share:33, color:"var(--barMid)", note:"guided self-care + benefit navigation"},
+  {key:"Priority", share:15, color:"var(--coral)", note:"general dental consult suggested — not a clinical finding"},
+];
+const TREND = [
+  {m:"M0",intervention:42,control:42},{m:"M4",intervention:45,control:43},
+  {m:"M8",intervention:49,control:44},{m:"M12",intervention:55,control:46},
+];
+const SRC = {
+  eligible:{chip:"HRIS · 834 eligibility", via:"SFTP monthly → staged load"},
+  members:{chip:"HRIS · 834 dependents", via:"SFTP monthly → staged load"},
+  app:{chip:"App · consent + events", via:"API event stream"},
+  gap:{chip:"App events + TPA claims-confirmed", via:"API + 837D/835"},
+  claims:{chip:"TPA · 837D/835 allowed", via:"SFTP / Secure Data Sharing"},
+  preventive:{chip:"TPA · CDT D1000-series", via:"837D/835"},
+  signal:{chip:"App · photo-derived signals (versioned)", via:"derived features only"},
+};
+const DEPTS = (emp, scen) => {
+  const tiny = {A:14,B:8,C:16}[scen];
+  return [
+    {key:"All departments", n:emp},
+    {key:"Operations", n:Math.round(emp*0.42)},
+    {key:"Sales", n:Math.round(emp*0.26)},
+    {key:"Engineering", n:Math.round(emp*0.19)},
+    {key:"Finance", n:Math.round(emp*0.08)},
+    {key:"Facilities (pilot site)", n:tiny},
+  ];
+};
+const TABS = [["overview","Overview"],["signals","Signals"],["funnel","Funnel"],
+  ["trend","Trend vs control"],["data","Data & Snowflake"]];
+const fmt = n => n.toLocaleString("en-US");
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let S = {scen:"A", tab:"overview", dept:"All departments", lens:"employees", showSrc:true};
+
+// ---- atoms ----
+function chip(s){ return S.showSrc ? `<span class="chip" title="Ingestion: ${esc(s.via)}">${esc(s.chip)}</span>` : ""; }
+function suppressed(n){
+  return `<div class="supp"><div class="t">Suppressed (n&lt;20)</div>
+    <div class="d">Group size ${n} is below the minimum cell size. Values are withheld by policy.</div></div>`;
+}
+function card({lab,val,unit,denom,src,hot,supp,n}){
+  const body = supp
+    ? `<div style="margin-top:4px">${suppressed(n)}</div>`
+    : `<div class="val">${val}${unit?`<span class="u">${unit}</span>`:""}</div>
+       <div class="denom${hot?" hot":""}">${denom}</div>`;
+  return `<div class="card"><div class="lab">${lab}</div>${body}${supp?"":(src?chip(src):"")}</div>`;
+}
+function barRow({label,pct,count,color,note,src,supp,n}){
+  const head = `<div class="top"><span class="bl">${label}</span>${supp?"":`<span class="bv">${pct}% · ${fmt(count)}</span>`}</div>`;
+  if(supp) return `<div class="bar">${head}${suppressed(n)}</div>`;
+  return `<div class="bar">${head}
+    <div class="track"><div class="fill" style="width:${pct}%;background:${color}"></div></div>
+    <div class="note">${note}</div>${label==="Priority"?chip(src):""}</div>`;
+}
+function box(title, items){
+  return `<div class="box"><h3>${title}</h3><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul></div>`;
+}
+
+// ---- line chart (Trend / guardrail) ----
+function lineChart(series, opts){
+  // series: [{key,label,data:[{x,y}],color,dash}] ; opts {yMin,yMax,xLabels,fmtY,band}
+  const W=480,H=230, padL=42,padR=12,padT=10,padB=26;
+  const pw=W-padL-padR, ph=H-padT-padB;
+  const xs = opts.xLabels;
+  const X = i => padL + (xs.length<2?0:(i/(xs.length-1))*pw);
+  const Y = v => padT + (1-(v-opts.yMin)/(opts.yMax-opts.yMin))*ph;
+  const grid = [0,.25,.5,.75,1].map(t=>{const y=padT+t*ph;const v=opts.yMax-(opts.yMax-opts.yMin)*t;
+    return `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="${C.line}" stroke-width="1"/>
+      <text x="${padL-6}" y="${y+3}" text-anchor="end" font-size="10" fill="${C.ink2}" font-family="var(--mono)">${opts.fmtY(v)}</text>`;}).join("");
+  const xlab = xs.map((l,i)=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="${C.ink2}" font-family="var(--mono)">${l}</text>`).join("");
+  let band = "";
+  if(opts.band){
+    const top = opts.band.map((d,i)=>`${X(i)},${Y(d.hi)}`).join(" ");
+    const bot = opts.band.slice().reverse().map((d,i,arr)=>{const idx=opts.band.length-1-i;return `${X(idx)},${Y(d.lo)}`;}).join(" ");
+    band = `<polygon points="${top} ${bot}" fill="${C.band}" stroke="none"/>`;
+  }
+  const paths = series.map(s=>{
+    const d = s.data.map((p,i)=>`${i?"L":"M"}${X(i)},${Y(p.y)}`).join(" ");
+    const dots = s.data.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.y)}" r="3" fill="${s.color}"
+      data-tip="${s.label}: ${opts.fmtY(p.y)} · ${xs[i]}"/>`).join("");
+    return `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2"
+      ${s.dash?`stroke-dasharray="5 4"`:""} stroke-linecap="round" stroke-linejoin="round"/>${dots}`;
+  }).join("");
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${grid}${band}${paths}${xlab}</svg>`;
+}
+
+// ---- render ----
+function render(){
+  const sc = SCEN[S.scen];
+  const depts = DEPTS(sc.employees, S.scen);
+  const D = depts.find(d=>d.key===S.dept) || depts[0];
+  const scale = D.n / sc.employees;
+  const supp = D.n < 20;
+  const employees = D.n;
+  const members = Math.round(employees*DEP_RATIO);
+  const valid = Math.round(sc.employees*FRAC.valid*scale);
+  const hotE = S.lens==="employees", hotM = S.lens==="members";
+  const v = document.getElementById("view");
+  let html = "";
+
+  if(S.tab==="overview"){
+    const cards = [
+      card({lab:"Eligible employees", val:fmt(employees), denom:"funnel denominator", src:SRC.eligible, hot:hotE}),
+      card({lab:"Covered members", val:fmt(members), unit:"est. ×2.2", denom:"cost denominator (member-months)", src:SRC.members, hot:hotM}),
+      card({lab:"Activated", val:"38%", denom:"of eligible employees", src:SRC.app, hot:hotE, supp, n:D.n}),
+      card({lab:"Repeat participation", val:"61%", denom:"of activated", src:SRC.app, supp, n:D.n}),
+      card({lab:"Dental PMPM (allowed)", val:"$"+sc.pmpm.toFixed(2), denom:"per covered member-month", src:SRC.claims, hot:hotM, supp, n:D.n}),
+    ].join("");
+    html = `<div class="grid g5">${cards}</div>
+      <p class="lead">Denominator discipline: participation uses <b>eligible employees</b> (the app user);
+      cost uses <b>covered member-months</b> (employees + enrolled dependents). The two are never mixed —
+      the lens above highlights which one each figure stands on.</p>`;
+  }
+
+  if(S.tab==="signals"){
+    const rows = SIGNALS.map(s=>barRow({label:s.key, pct:s.share, count:Math.round(valid*s.share/100),
+      color:s.color, note:s.note, src:SRC.signal, supp, n:D.n})).join("");
+    html = `<div class="narrow"><h2 class="vt">Oral-health signal distribution</h2>
+      <p class="vsub">Non-specific wellness signals derived from guided photos and questionnaires.
+      Aggregate only — no individual results exist anywhere in this product for employers.</p>
+      ${rows}
+      <p class="vsub" style="margin-top:8px">Counts are of valid captures. Any consult is employee-initiated
+      (opt-in) — the product never routes anyone to care automatically.</p></div>`;
+  }
+
+  if(S.tab==="funnel"){
+    const funnel = [
+      {label:"Eligible employees", v:employees, src:SRC.eligible},
+      {label:"Activated (registered + first questionnaire)", v:Math.round(sc.employees*FRAC.activated*scale), src:SRC.app},
+      {label:"Valid capture (passed photo-quality gate)", v:valid, src:SRC.app},
+      {label:"Open care actions", v:Math.round(sc.employees*FRAC.gap*scale), src:SRC.gap},
+      {label:"Completed actions", v:Math.round(sc.employees*FRAC.closed*scale), src:SRC.gap},
+    ];
+    const rows = supp ? suppressed(D.n) : funnel.map((f,i)=>{
+      const col = i===0?C.barLow:i<3?C.barMid:C.teal;
+      return `<div class="bar"><div class="top"><span class="bl">${f.label}</span>
+        <span class="bv">${fmt(f.v)}</span></div>
+        <div class="track"><div class="fill" style="width:${(f.v/employees)*100}%;background:${col}"></div></div>
+        ${chip(f.src)}</div>`;
+    }).join("");
+    html = `<div class="narrow"><h2 class="vt">Intervention funnel</h2>
+      <p class="vsub mono">denominator: eligible employees</p>${rows}
+      <p class="vsub" style="margin-top:8px">"Completed" splits into self-reported vs claims-confirmed in the
+      pilot analysis plan; only claims-confirmed completion counts toward outcome claims.</p></div>`;
+  }
+
+  if(S.tab==="trend"){
+    const trendChart = lineChart([
+      {key:"i",label:"Intervention",data:TREND.map((d,i)=>({x:i,y:d.intervention})),color:C.coral},
+      {key:"c",label:"Control",data:TREND.map((d,i)=>({x:i,y:d.control})),color:C.ink2,dash:true},
+    ],{yMin:40,yMax:60,xLabels:TREND.map(d=>d.m),fmtY:v=>v.toFixed(0)+"%"});
+    const band = [0,2,4,6,8,10,12].map((m,i)=>({lo:sc.pmpm, hi:+(sc.pmpm*1.04).toFixed(2)}));
+    const obs = [0,2,4,6,8,10,12].map((m,i)=>({x:i,y:+(sc.pmpm*(1+0.028*(i/6))).toFixed(2)}));
+    const guardChart = lineChart([
+      {key:"o",label:"Observed",data:obs,color:C.navy},
+    ],{yMin:sc.pmpm*0.98,yMax:sc.pmpm*1.06,xLabels:["M0","M2","M4","M6","M8","M10","M12"],
+       fmtY:v=>"$"+v.toFixed(1),band});
+    html = `<div class="col2">
+      <div><h2 class="vt">Preventive-visit rate — intervention vs control</h2>
+        <p class="vsub">Intent-to-treat, concurrent control, pre-registered outcome. Population-level only.</p>
+        ${trendChart}
+        <div class="legend"><span><i class="swatch" style="border-color:${C.coral}"></i>Intervention</span>
+          <span><i class="swatch" style="border-color:${C.ink2};border-top-style:dashed"></i>Control</span></div>
+        ${S.showSrc?`<div style="margin-top:6px">${chip(SRC.preventive)}</div>`:""}</div>
+      <div><h2 class="vt">Allowed PMPM — guardrail view</h2>
+        <p class="vsub">A small early rise is the designed path: preventive visits are used more before mix
+        effects can appear (months 12–36). The band is the planned range.</p>
+        ${guardChart}
+        <div class="legend"><span><i class="swatch" style="border-color:var(--band);border-top-width:10px"></i>expected range (preventive uptake)</span>
+          <span><i class="swatch" style="border-color:${C.navy}"></i>Observed (synthetic)</span></div>
+        ${S.showSrc?`<div style="margin-top:6px">${chip(SRC.claims)}</div>`:""}</div></div>`;
+  }
+
+  if(S.tab==="data"){
+    html = `<h2 class="vt">Where each number comes from</h2>
+      <p class="vsub">Four source systems, one governed model. Every metric in this demo carries its source chip
+      (toggle in the bar above). Access to dental claims is a contract matter — a data-rights clause in the
+      employer–TPA agreement is the hard filter for customer selection.</p>
+      <div class="grid g4">
+        ${box("Employee app",["Consent, questionnaire, photo metadata, participation events","Ingestion: API event stream","Feeds: Activated · Valid capture · Signals · Care actions"])}
+        ${box("Employer HRIS",["Eligibility (834), benefit design","Ingestion: SFTP monthly → staged load","Feeds: Eligible employees (funnel denom) · Covered member-months (cost denom)"])}
+        ${box("Dental TPA / ASO",["837D / 835 or agreed claims extract — CDT, service dates, allowed · paid · OOP","Ingestion: SFTP or Secure Data Sharing where supported","Feeds: PMPM · Preventive-visit rate · Claims-confirmed completion"])}
+        ${box("Clinical partner",["Employee-requested consult outcomes, referrals, completion","Ingestion: API","Feeds: Completed actions (confirmed)"])}
+      </div>
+      <div class="flow">
+        <div class="srcs">${["Employee app","Employer HRIS","Dental TPA / ASO","Clinical partner"].map(s=>`<div class="s">${s}</div>`).join("")}</div>
+        <div class="arrow">→</div>
+        <div class="plane">
+          <div class="ph"><span class="t">Snowflake governed health data plane</span>
+            <span class="chip" style="margin-top:0">US region · Business Critical · signed BAA</span></div>
+          <div class="grid2">
+            ${box("PHI boundary",["Raw intraoral photos never enter Snowflake — controlled object storage / PHI vault","Snowflake holds secure URIs, metadata, derived signals only"])}
+            ${box("Unified model",["member-month · CDT · intervention · outcome","single definition set across employer, TPA, app"])}
+            ${box("Governance",["RBAC · row access · masking · access history","n ≥ 20 cell suppression (as demoed live)"])}
+            ${box("Collaboration",["Secure Data Sharing · Clean Rooms","no cross-org raw copies"])}
+          </div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="outs">
+          <div class="out hot"><b>Employer aggregate</b> — this demo. No individual PHI, ever.</div>
+          <div class="out"><b>ICLO care operations</b> — minimum-necessary only</div>
+          <div class="out"><b>Employee &amp; dentist</b> — own results · consult on request</div>
+        </div>
+      </div>
+      <div class="notes">
+        <div class="n">Edition and a signed BAA are necessary, not sufficient. HIPAA operation is completed by
+          configuration and controls — RBAC, masking, access history, suppression, retention, incident response.</div>
+        <div class="n"><b>Open items (Snowflake Korea):</b> contracting entity before US incorporation [TBD] ·
+          KR program credits usable on a US-region account [TBD] · BAA execution process.</div>
+      </div>`;
+  }
+
+  v.innerHTML = html;
+  bindTips();
+}
+
+// tabs
+const tabrow = document.getElementById("tabrow");
+tabrow.innerHTML = TABS.map(([k,l])=>`<button class="tab" role="tab" data-k="${k}"
+  aria-selected="${k===S.tab}">${l}</button>`).join("");
+tabrow.addEventListener("click",e=>{const b=e.target.closest(".tab"); if(!b)return;
+  S.tab=b.dataset.k; [...tabrow.children].forEach(x=>x.setAttribute("aria-selected", x.dataset.k===S.tab)); render();});
+
+// scenario + dept
+const scenSel = document.getElementById("scen");
+scenSel.innerHTML = Object.entries(SCEN).map(([k,s])=>`<option value="${k}">${s.label}</option>`).join("");
+function fillDepts(){
+  const depts = DEPTS(SCEN[S.scen].employees, S.scen);
+  document.getElementById("dept").innerHTML = depts.map(d=>`<option value="${d.key}">${d.key} · ${fmt(d.n)}</option>`).join("");
+}
+scenSel.addEventListener("change",e=>{S.scen=e.target.value; S.dept="All departments"; fillDepts(); render();});
+document.getElementById("dept").addEventListener("change",e=>{S.dept=e.target.value; render();});
+
+// lens + source
+const lensE=document.getElementById("lensE"), lensM=document.getElementById("lensM");
+lensE.addEventListener("click",()=>{S.lens="employees"; lensE.setAttribute("aria-pressed","true"); lensM.setAttribute("aria-pressed","false"); render();});
+lensM.addEventListener("click",()=>{S.lens="members"; lensM.setAttribute("aria-pressed","true"); lensE.setAttribute("aria-pressed","false"); render();});
+const srcbtn=document.getElementById("srcbtn");
+srcbtn.addEventListener("click",()=>{S.showSrc=!S.showSrc; srcbtn.setAttribute("aria-pressed",S.showSrc);
+  srcbtn.textContent="Data sources: "+(S.showSrc?"on":"off"); render();});
+
+// theme
+const themebtn=document.getElementById("themebtn");
+themebtn.addEventListener("click",()=>{
+  const cur=document.documentElement.getAttribute("data-theme");
+  const dark = cur ? cur==="dark" : matchMedia("(prefers-color-scheme:dark)").matches;
+  document.documentElement.setAttribute("data-theme", dark?"light":"dark"); render();});
+
+// tooltips
+const tip=document.getElementById("tip");
+function bindTips(){
+  document.querySelectorAll("[data-tip]").forEach(el=>{
+    el.addEventListener("mousemove",e=>{tip.textContent=el.getAttribute("data-tip");
+      tip.style.opacity="1"; tip.style.left=(e.clientX+12)+"px"; tip.style.top=(e.clientY+12)+"px";});
+    el.addEventListener("mouseleave",()=>{tip.style.opacity="0";});
+  });
+}
+
+fillDepts(); render();
+</script>
+</body>
+</html>
