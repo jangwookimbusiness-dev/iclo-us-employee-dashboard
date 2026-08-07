@@ -42,7 +42,9 @@
   a{color:var(--data)}
   /* header */
   header{border-bottom:1px solid var(--line);background:var(--panel)}
-  .hrow{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;padding:14px 0}
+  /* padding-block, not the shorthand: `padding:14px 0` reset .wrap's 28px side
+     padding, so right-aligned text ran into the viewport edge and clipped. */
+  .hrow{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;padding-block:14px}
   .logo{font-size:20px;font-weight:800;letter-spacing:-.02em}
   .sub{color:var(--ink2);font-size:13px}
   .demo-pill{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--coral);
@@ -58,7 +60,7 @@
   .tab:focus-visible{outline:2px solid var(--data);outline-offset:2px}
   /* context bar */
   .ctx{background:var(--field);border-bottom:1px solid var(--line)}
-  .ctxrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 0}
+  .ctxrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-block:10px}
   select,.seg button,.togglebtn{font-family:var(--mono);font-size:12px;color:var(--ink);
     background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:5px 8px;cursor:pointer}
   select{max-width:100%}
@@ -132,7 +134,7 @@
   .notes .n b{color:var(--ink)}
   /* footer */
   footer{border-top:1px solid var(--line);background:var(--panel)}
-  .frow{display:flex;flex-wrap:wrap;gap:6px 18px;padding:14px 0;font-family:var(--mono);font-size:11px;color:var(--ink2)}
+  .frow{display:flex;flex-wrap:wrap;gap:6px 18px;padding-block:14px;font-family:var(--mono);font-size:11px;color:var(--ink2)}
   .frow .r{margin-left:auto;color:var(--coral)}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -219,20 +221,27 @@ let S = {scen:"A", tab:"overview", dept:"All departments", lens:"employees", sho
 
 // ---- atoms ----
 function chip(s){ return S.showSrc ? `<span class="chip" title="Ingestion: ${esc(s.via)}">${esc(s.chip)}</span>` : ""; }
-function suppressed(n){
-  return `<div class="supp"><div class="t">Suppressed (n&lt;20)</div>
-    <div class="d">Group size ${n} is below the minimum cell size. Values are withheld by policy.</div></div>`;
+const MIN_CELL = 20;
+const cellSupp = n => n < MIN_CELL;
+// Group size is the denominator and is already on screen, so naming it costs
+// nothing. A suppressed cell value must NOT be echoed here — printing it would
+// hand back exactly what the rule withholds.
+function suppressed(n, revealN){
+  const d = revealN
+    ? `Group size ${n} is below the minimum cell size of ${MIN_CELL}. Values are withheld by policy.`
+    : `This cell falls below the minimum cell size of ${MIN_CELL}. The value is withheld by policy.`;
+  return `<div class="supp"><div class="t">Suppressed (n&lt;${MIN_CELL})</div><div class="d">${d}</div></div>`;
 }
-function card({lab,val,unit,denom,src,hot,supp,n}){
+function card({lab,val,unit,denom,src,hot,supp,n,revealN}){
   const body = supp
-    ? `<div style="margin-top:4px">${suppressed(n)}</div>`
+    ? `<div style="margin-top:4px">${suppressed(n,revealN)}</div>`
     : `<div class="val">${val}${unit?`<span class="u">${unit}</span>`:""}</div>
        <div class="denom${hot?" hot":""}">${denom}</div>`;
   return `<div class="card"><div class="lab">${lab}</div>${body}${supp?"":(src?chip(src):"")}</div>`;
 }
-function barRow({label,pct,count,color,note,src,supp,n}){
+function barRow({label,pct,count,color,note,src,supp,n,revealN}){
   const head = `<div class="top"><span class="bl">${label}</span>${supp?"":`<span class="bv">${pct}% · ${fmt(count)}</span>`}</div>`;
-  if(supp) return `<div class="bar">${head}${suppressed(n)}</div>`;
+  if(supp) return `<div class="bar">${head}${suppressed(n,revealN)}</div>`;
   return `<div class="bar">${head}
     <div class="track"><div class="fill" style="width:${pct}%;background:${color}"></div></div>
     <div class="note">${note}</div>${label==="Priority"?chip(src):""}</div>`;
@@ -284,12 +293,16 @@ function render(){
   let html = "";
 
   if(S.tab==="overview"){
+    // Each rate stands on its own underlying count, so each is tested on its own.
+    // A percentage over a small group identifies people just as well as the count.
+    const nActivated = Math.round(employees*FRAC.activated);
+    const nRepeat = Math.round(nActivated*0.61);
     const cards = [
       card({lab:"Eligible employees", val:fmt(employees), denom:"funnel denominator", src:SRC.eligible, hot:hotE}),
       card({lab:"Covered members", val:fmt(members), unit:"est. ×2.2", denom:"cost denominator (member-months)", src:SRC.members, hot:hotM}),
-      card({lab:"Activated", val:"38%", denom:"of eligible employees", src:SRC.app, hot:hotE, supp, n:D.n}),
-      card({lab:"Repeat participation", val:"61%", denom:"of activated", src:SRC.app, supp, n:D.n}),
-      card({lab:"Dental PMPM (allowed)", val:"$"+sc.pmpm.toFixed(2), denom:"per covered member-month", src:SRC.claims, hot:hotM, supp, n:D.n}),
+      card({lab:"Activated", val:"38%", denom:"of eligible employees", src:SRC.app, hot:hotE, supp:supp||cellSupp(nActivated), n:D.n, revealN:supp}),
+      card({lab:"Repeat participation", val:"61%", denom:"of activated", src:SRC.app, supp:supp||cellSupp(nRepeat), n:D.n, revealN:supp}),
+      card({lab:"Dental PMPM (allowed)", val:"$"+sc.pmpm.toFixed(2), denom:"per covered member-month", src:SRC.claims, hot:hotM, supp:supp||cellSupp(members), n:D.n, revealN:supp}),
     ].join("");
     html = `<div class="grid g5">${cards}</div>
       <p class="lead">Denominator discipline: participation uses <b>eligible employees</b> (the app user);
@@ -298,8 +311,11 @@ function render(){
   }
 
   if(S.tab==="signals"){
-    const rows = SIGNALS.map(s=>barRow({label:s.key, pct:s.share, count:Math.round(valid*s.share/100),
-      color:s.color, note:s.note, src:SRC.signal, supp, n:D.n})).join("");
+    const rows = SIGNALS.map(s=>{
+      const count = Math.round(valid*s.share/100);
+      return barRow({label:s.key, pct:s.share, count, color:s.color, note:s.note, src:SRC.signal,
+        supp:supp||cellSupp(count), n:D.n, revealN:supp});
+    }).join("");
     html = `<div class="narrow"><h2 class="vt">Oral-health signal distribution</h2>
       <p class="vsub">Non-specific wellness signals derived from guided photos and questionnaires.
       Aggregate only — no individual results exist anywhere in this product for employers.</p>
@@ -316,10 +332,11 @@ function render(){
       {label:"Open care actions", v:Math.round(sc.employees*FRAC.gap*scale), src:SRC.gap},
       {label:"Completed actions", v:Math.round(sc.employees*FRAC.closed*scale), src:SRC.gap},
     ];
-    const rows = supp ? suppressed(D.n) : funnel.map((f,i)=>{
+    const rows = supp ? suppressed(D.n, true) : funnel.map((f,i)=>{
       const col = i===0?C.barLow:i<3?C.barMid:C.teal;
-      return `<div class="bar"><div class="top"><span class="bl">${f.label}</span>
-        <span class="bv">${fmt(f.v)}</span></div>
+      const head = `<div class="top"><span class="bl">${f.label}</span>${cellSupp(f.v)?"":`<span class="bv">${fmt(f.v)}</span>`}</div>`;
+      if(cellSupp(f.v)) return `<div class="bar">${head}${suppressed(f.v)}</div>`;
+      return `<div class="bar">${head}
         <div class="track"><div class="fill" style="width:${(f.v/employees)*100}%;background:${col}"></div></div>
         ${chip(f.src)}</div>`;
     }).join("");
