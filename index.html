@@ -73,8 +73,6 @@
   .grid{display:grid;gap:12px}
   .g5{grid-template-columns:repeat(2,1fr)}
   @media(min-width:760px){.g5{grid-template-columns:repeat(5,1fr)}}
-  .g4{grid-template-columns:1fr}
-  @media(min-width:760px){.g4{grid-template-columns:repeat(4,1fr)}}
   .card{border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:13px;box-shadow:var(--shadow)}
   .card .lab{font-size:12px;color:var(--ink2)}
   .card .val{font-family:var(--mono);font-size:24px;color:var(--ink);margin-top:4px;line-height:1.15}
@@ -109,25 +107,6 @@
   .tip{position:fixed;pointer-events:none;z-index:20;background:var(--strong);color:var(--onStrong);
     font-family:var(--mono);font-size:11px;padding:5px 8px;border-radius:4px;opacity:0;transition:opacity .08s;white-space:nowrap}
   /* data & snowflake */
-  .box{border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:12px}
-  .box h3{margin:0;font-size:12px;font-weight:600;color:var(--ink)}
-  .box ul{margin:6px 0 0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:4px}
-  .box li{font-size:12px;color:var(--ink2);line-height:1.4}
-  .flow{display:flex;flex-direction:column;gap:10px;margin-top:18px}
-  @media(min-width:860px){.flow{flex-direction:row;align-items:stretch}}
-  .flow .srcs{display:flex;flex-direction:column;gap:8px;flex:0 0 22%}
-  .flow .srcs .s{border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:8px 10px;font-size:12px}
-  .flow .arrow{display:none;align-items:center;color:var(--ink2);font-size:20px}
-  @media(min-width:860px){.flow .arrow{display:flex}}
-  .flow .plane{flex:1;border:1.5px solid var(--strong);border-radius:5px;padding:13px;background:var(--panel)}
-  .plane .ph{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
-  .plane .ph .t{font-size:14px;font-weight:600}
-  .plane .grid2{display:grid;gap:8px;grid-template-columns:1fr;margin-top:10px}
-  @media(min-width:560px){.plane .grid2{grid-template-columns:1fr 1fr}}
-  .flow .outs{display:flex;flex-direction:column;gap:8px;flex:0 0 24%}
-  .out{border:1px solid var(--line);border-radius:4px;padding:8px 10px;font-size:12px;background:var(--panel)}
-  .out.hot{border-color:var(--data)}
-  .out b{color:var(--ink)}
   .notes{display:grid;gap:12px;margin-top:16px;grid-template-columns:1fr}
   @media(min-width:760px){.notes{grid-template-columns:1fr 1fr}}
   .notes .n{border:1px solid var(--line);border-radius:4px;padding:12px;font-size:12px;color:var(--ink2);line-height:1.5}
@@ -223,8 +202,7 @@ const DEPTS = (emp, scen) => {
 // "Trend vs control" is deliberately absent from v1. It needs a control arm,
 // and experiment assignment has no consent basis, allocation rule or protocol
 // owner agreed yet. The tab returns when that is settled — not before.
-const TABS = [["overview","Overview"],["signals","Signals"],["funnel","Funnel"],
-  ["data","Data & Snowflake"]];
+const TABS = [["overview","Overview"],["signals","Signals"],["funnel","Funnel"]];
 const fmt = n => n.toLocaleString("en-US");
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
@@ -255,9 +233,6 @@ function barRow({label,pct,count,color,note,src,supp,n,revealN}){
   return `<div class="bar">${head}
     <div class="track"><div class="fill" style="width:${pct}%;background:${color}"></div></div>
     <div class="note">${note}</div>${label==="Priority"?chip(src):""}</div>`;
-}
-function box(title, items){
-  return `<div class="box"><h3>${title}</h3><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul></div>`;
 }
 
 // ---- line chart (Trend / guardrail) ----
@@ -331,44 +306,6 @@ function render(){
       pilot analysis plan; only claims-confirmed completion counts toward outcome claims.</p></div>`;
   }
 
-  if(S.tab==="data"){
-    html = `<h2 class="vt">Where each number comes from</h2>
-      <p class="vsub">Four source systems, one governed model. Every metric in this demo carries its source chip
-      (toggle in the bar above). Access to dental claims is a contract matter — a data-rights clause in the
-      employer–TPA agreement is the hard filter for customer selection.</p>
-      <div class="grid g4">
-        ${box("Employee app",["Consent, questionnaire, photo metadata, participation events","Ingestion: API event stream","Feeds: Activated · Valid capture · Signals · Care actions"])}
-        ${box("Employer HRIS",["Eligibility (834), benefit design","Ingestion: SFTP monthly → staged load","Feeds: Eligible employees (funnel denom) · Covered member-months (cost denom)"])}
-        ${box("Dental TPA / ASO",["837D / 835 or agreed claims extract — CDT, service dates, allowed · paid · OOP","Ingestion: SFTP or Secure Data Sharing where supported","Feeds: PMPM · Preventive-visit rate · Claims-confirmed completion"])}
-        ${box("Clinical partner",["Employee-requested consult outcomes, referrals, completion","Ingestion: API","Feeds: Completed actions (confirmed)"])}
-      </div>
-      <div class="flow">
-        <div class="srcs">${["Employee app","Employer HRIS","Dental TPA / ASO","Clinical partner"].map(s=>`<div class="s">${s}</div>`).join("")}</div>
-        <div class="arrow">→</div>
-        <div class="plane">
-          <div class="ph"><span class="t">Snowflake governed health data plane</span>
-            <span class="chip" style="margin-top:0">US region · Business Critical · signed BAA</span></div>
-          <div class="grid2">
-            ${box("PHI boundary",["Raw intraoral photos never enter Snowflake — controlled object storage / PHI vault","Snowflake holds secure URIs, metadata, derived signals only"])}
-            ${box("Unified model",["member-month · CDT · intervention · outcome","single definition set across employer, TPA, app"])}
-            ${box("Governance",["RBAC · row access · masking · access history",`n ≥ ${MIN_CELL} cell suppression (as demoed live)`])}
-            ${box("Collaboration",["Secure Data Sharing · Clean Rooms","no cross-org raw copies"])}
-          </div>
-        </div>
-        <div class="arrow">→</div>
-        <div class="outs">
-          <div class="out hot"><b>Employer aggregate</b> — this demo. No individual PHI, ever.</div>
-          <div class="out"><b>ICLO care operations</b> — minimum-necessary only</div>
-          <div class="out"><b>Employee &amp; dentist</b> — own results · consult on request</div>
-        </div>
-      </div>
-      <div class="notes">
-        <div class="n">Edition and a signed BAA are necessary, not sufficient. HIPAA operation is completed by
-          configuration and controls — RBAC, masking, access history, suppression, retention, incident response.</div>
-        <div class="n"><b>Open items (Snowflake Korea):</b> contracting entity before US incorporation [TBD] ·
-          KR program credits usable on a US-region account [TBD] · BAA execution process.</div>
-      </div>`;
-  }
 
   v.innerHTML = html;
   bindTips();
