@@ -305,9 +305,11 @@ function render(){
       card({lab:"Dental PMPM (allowed)", val:"$"+sc.pmpm.toFixed(2), denom:"per covered member-month", src:SRC.claims, hot:hotM, supp:supp||cellSupp(members), n:D.n, revealN:supp}),
     ].join("");
     html = `<div class="grid g5">${cards}</div>
-      <p class="lead">Denominator discipline: participation uses <b>eligible employees</b> (the app user);
-      cost uses <b>covered member-months</b> (employees + enrolled dependents). The two are never mixed —
-      the lens above highlights which one each figure stands on.</p>`;
+      <p class="lead">Denominator discipline: participation uses <b>eligible employees</b> — staff at
+      contracted employers who are plan-eligible in the period, per HRIS 834. That is the population,
+      not the app users; the app users are the <b>Activated</b> share of it. Cost uses
+      <b>covered member-months</b> (employees + enrolled dependents, counted per month). The two are
+      never mixed — the lens above highlights which one each figure stands on.</p>`;
   }
 
   if(S.tab==="signals"){
