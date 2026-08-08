@@ -139,8 +139,6 @@
   .chart{width:100%;height:auto;display:block}
   .legend{font-size:12px;color:var(--ink2);margin-top:6px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
   .swatch{display:inline-block;width:16px;height:0;border-top-width:2px;border-top-style:solid;vertical-align:middle;margin-right:5px}
-  .tip{position:fixed;pointer-events:none;z-index:20;background:var(--strong);color:var(--onStrong);
-    font-family:var(--mono);font-size:11px;padding:5px 8px;border-radius:4px;opacity:0;transition:opacity .08s;white-space:nowrap}
   /* data & snowflake */
   .notes{display:grid;gap:12px;margin-top:16px;grid-template-columns:1fr}
   @media(min-width:760px){.notes{grid-template-columns:1fr 1fr}}
@@ -157,7 +155,7 @@
 <header><div class="wrap hrow">
   <h1 class="brand"><span class="logo">ICLO</span> <span class="sub">HomeDen Employer Analytics</span></h1>
   <span class="demo-pill">DEMO · Synthetic data — illustrative only</span>
-  <button class="themebtn" id="themebtn" type="button" aria-label="Toggle theme">◐ Theme</button>
+  <button class="themebtn" id="themebtn" type="button" aria-pressed="false">◐ Dark mode</button>
 </div></header>
 
 <nav class="tabs"><div class="wrap"><div class="tabrow" id="tabrow" role="tablist"></div></div></nav>
@@ -180,7 +178,6 @@
   <span class="r">Synthetic data — illustrative only</span>
 </div></footer>
 
-<div class="tip" id="tip"></div>
 
 <script>
 "use strict";
@@ -344,7 +341,6 @@ function render(){
 
 
   v.innerHTML = html;
-  bindTips();
 }
 
 // tabs
@@ -378,20 +374,21 @@ srcbtn.addEventListener("click",()=>{S.showSrc=!S.showSrc; srcbtn.setAttribute("
 
 // theme
 const themebtn=document.getElementById("themebtn");
+// 버튼이 무엇을 하는지와 지금 어느 모드인지를 둘 다 말해야 한다.
+function syncTheme(){
+  const cur=document.documentElement.getAttribute("data-theme");
+  const dark = cur ? cur==="dark" : matchMedia("(prefers-color-scheme:dark)").matches;
+  themebtn.textContent = dark ? "◑ Light mode" : "◐ Dark mode";
+  themebtn.setAttribute("aria-pressed", String(dark));
+  themebtn.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+}
 themebtn.addEventListener("click",()=>{
   const cur=document.documentElement.getAttribute("data-theme");
   const dark = cur ? cur==="dark" : matchMedia("(prefers-color-scheme:dark)").matches;
-  document.documentElement.setAttribute("data-theme", dark?"light":"dark"); render();});
+  document.documentElement.setAttribute("data-theme", dark?"light":"dark");
+  syncTheme(); render();});
+syncTheme();
 
-// tooltips
-const tip=document.getElementById("tip");
-function bindTips(){
-  document.querySelectorAll("[data-tip]").forEach(el=>{
-    el.addEventListener("mousemove",e=>{tip.textContent=el.getAttribute("data-tip");
-      tip.style.opacity="1"; tip.style.left=(e.clientX+12)+"px"; tip.style.top=(e.clientY+12)+"px";});
-    el.addEventListener("mouseleave",()=>{tip.style.opacity="0";});
-  });
-}
 
 fillDepts(); render();
 </script>
