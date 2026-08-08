@@ -157,13 +157,13 @@
     <button id="lensM" type="button" aria-pressed="false">Members lens</button>
   </div>
   <button class="togglebtn" id="srcbtn" type="button" aria-pressed="true">Data sources: on</button>
-  <span class="freshness">eligibility 2026-07 · claims thru 2026-05 (60-day lag) · completeness 98.4% (synthetic)</span>
+  <span class="freshness" id="freshness"></span>
 </div></div>
 
 <main><div class="wrap" id="view"></div></main>
 
 <footer><div class="wrap frow">
-  <span>Aggregate only</span><span>cell size n ≥ 20</span><span>no individual PHI</span>
+  <span>Aggregate only</span><span id="mincell"></span><span>no individual PHI</span>
   <span class="r">Synthetic data — illustrative only</span>
 </div></footer>
 
@@ -181,16 +181,24 @@ const SCEN = {
   B:{label:"Employer B · 2,500 (small)", employees:2500, pmpm:32.8},
   C:{label:"Employer C · 25,000 (large)", employees:25000, pmpm:30.9},
 };
-const DEP_RATIO = 2.2;
-const FRAC = {activated:0.38, valid:0.28, gap:0.095, closed:0.042};
+// ---- single source of truth ----------------------------------------------
+// Every number on screen derives from this block. Nothing below re-states a
+// value that lives here; change it here and the whole dashboard follows.
+// test_single_source.py fails if any of these stops propagating.
+const MIN_CELL = 20;                 // employer-view minimum cell size
+const DEP_RATIO = 2.2;               // covered members per eligible employee
+const FRAC = {activated:0.38, repeat:0.61, valid:0.28, gap:0.095, closed:0.042};
+const FRESH = {                      // data currency, shown in the context bar
+  eligibilityThru:"2026-07",
+  claimsThru:"2026-05",
+  lagDays:60,
+  completenessPct:98.4,
+};
+const pct = f => Math.round(f*100)+"%";
 const SIGNALS = [
   {key:"Low", share:52, color:"var(--barLow)", note:"keep current routine"},
   {key:"Moderate", share:33, color:"var(--barMid)", note:"guided self-care + benefit navigation"},
   {key:"Priority", share:15, color:"var(--coral)", note:"general dental consult suggested — not a clinical finding"},
-];
-const TREND = [
-  {m:"M0",intervention:42,control:42},{m:"M4",intervention:45,control:43},
-  {m:"M8",intervention:49,control:44},{m:"M12",intervention:55,control:46},
 ];
 const SRC = {
   eligible:{chip:"HRIS · 834 eligibility", via:"SFTP monthly → staged load"},
@@ -212,8 +220,11 @@ const DEPTS = (emp, scen) => {
     {key:"Facilities (pilot site)", n:tiny},
   ];
 };
+// "Trend vs control" is deliberately absent from v1. It needs a control arm,
+// and experiment assignment has no consent basis, allocation rule or protocol
+// owner agreed yet. The tab returns when that is settled — not before.
 const TABS = [["overview","Overview"],["signals","Signals"],["funnel","Funnel"],
-  ["trend","Trend vs control"],["data","Data & Snowflake"]];
+  ["data","Data & Snowflake"]];
 const fmt = n => n.toLocaleString("en-US");
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
@@ -221,7 +232,6 @@ let S = {scen:"A", tab:"overview", dept:"All departments", lens:"employees", sho
 
 // ---- atoms ----
 function chip(s){ return S.showSrc ? `<span class="chip" title="Ingestion: ${esc(s.via)}">${esc(s.chip)}</span>` : ""; }
-const MIN_CELL = 20;
 const cellSupp = n => n < MIN_CELL;
 // Group size is the denominator and is already on screen, so naming it costs
 // nothing. A suppressed cell value must NOT be echoed here — printing it would
@@ -251,33 +261,6 @@ function box(title, items){
 }
 
 // ---- line chart (Trend / guardrail) ----
-function lineChart(series, opts){
-  // series: [{key,label,data:[{x,y}],color,dash}] ; opts {yMin,yMax,xLabels,fmtY,band}
-  const W=480,H=230, padL=42,padR=12,padT=10,padB=26;
-  const pw=W-padL-padR, ph=H-padT-padB;
-  const xs = opts.xLabels;
-  const X = i => padL + (xs.length<2?0:(i/(xs.length-1))*pw);
-  const Y = v => padT + (1-(v-opts.yMin)/(opts.yMax-opts.yMin))*ph;
-  const grid = [0,.25,.5,.75,1].map(t=>{const y=padT+t*ph;const v=opts.yMax-(opts.yMax-opts.yMin)*t;
-    return `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="${C.line}" stroke-width="1"/>
-      <text x="${padL-6}" y="${y+3}" text-anchor="end" font-size="10" fill="${C.ink2}" font-family="var(--mono)">${opts.fmtY(v)}</text>`;}).join("");
-  const xlab = xs.map((l,i)=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="${C.ink2}" font-family="var(--mono)">${l}</text>`).join("");
-  let band = "";
-  if(opts.band){
-    const top = opts.band.map((d,i)=>`${X(i)},${Y(d.hi)}`).join(" ");
-    const bot = opts.band.slice().reverse().map((d,i,arr)=>{const idx=opts.band.length-1-i;return `${X(idx)},${Y(d.lo)}`;}).join(" ");
-    band = `<polygon points="${top} ${bot}" fill="${C.band}" stroke="none"/>`;
-  }
-  const paths = series.map(s=>{
-    const d = s.data.map((p,i)=>`${i?"L":"M"}${X(i)},${Y(p.y)}`).join(" ");
-    const dots = s.data.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.y)}" r="3" fill="${s.color}"
-      data-tip="${s.label}: ${opts.fmtY(p.y)} · ${xs[i]}"/>`).join("");
-    return `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2"
-      ${s.dash?`stroke-dasharray="5 4"`:""} stroke-linecap="round" stroke-linejoin="round"/>${dots}`;
-  }).join("");
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${grid}${band}${paths}${xlab}</svg>`;
-}
-
 // ---- render ----
 function render(){
   const sc = SCEN[S.scen];
@@ -296,12 +279,12 @@ function render(){
     // Each rate stands on its own underlying count, so each is tested on its own.
     // A percentage over a small group identifies people just as well as the count.
     const nActivated = Math.round(employees*FRAC.activated);
-    const nRepeat = Math.round(nActivated*0.61);
+    const nRepeat = Math.round(nActivated*FRAC.repeat);
     const cards = [
       card({lab:"Eligible employees", val:fmt(employees), denom:"funnel denominator", src:SRC.eligible, hot:hotE}),
-      card({lab:"Covered members", val:fmt(members), unit:"est. ×2.2", denom:"cost denominator (member-months)", src:SRC.members, hot:hotM}),
-      card({lab:"Activated", val:"38%", denom:"of eligible employees", src:SRC.app, hot:hotE, supp:supp||cellSupp(nActivated), n:D.n, revealN:supp}),
-      card({lab:"Repeat participation", val:"61%", denom:"of activated", src:SRC.app, supp:supp||cellSupp(nRepeat), n:D.n, revealN:supp}),
+      card({lab:"Covered members", val:fmt(members), unit:"est. ×"+DEP_RATIO, denom:"cost denominator (member-months)", src:SRC.members, hot:hotM}),
+      card({lab:"Activated", val:pct(FRAC.activated), denom:"of eligible employees", src:SRC.app, hot:hotE, supp:supp||cellSupp(nActivated), n:D.n, revealN:supp}),
+      card({lab:"Repeat participation", val:pct(FRAC.repeat), denom:"of activated", src:SRC.app, supp:supp||cellSupp(nRepeat), n:D.n, revealN:supp}),
       card({lab:"Dental PMPM (allowed)", val:"$"+sc.pmpm.toFixed(2), denom:"per covered member-month", src:SRC.claims, hot:hotM, supp:supp||cellSupp(members), n:D.n, revealN:supp}),
     ].join("");
     html = `<div class="grid g5">${cards}</div>
@@ -348,33 +331,6 @@ function render(){
       pilot analysis plan; only claims-confirmed completion counts toward outcome claims.</p></div>`;
   }
 
-  if(S.tab==="trend"){
-    const trendChart = lineChart([
-      {key:"i",label:"Intervention",data:TREND.map((d,i)=>({x:i,y:d.intervention})),color:C.coral},
-      {key:"c",label:"Control",data:TREND.map((d,i)=>({x:i,y:d.control})),color:C.ink2,dash:true},
-    ],{yMin:40,yMax:60,xLabels:TREND.map(d=>d.m),fmtY:v=>v.toFixed(0)+"%"});
-    const band = [0,2,4,6,8,10,12].map((m,i)=>({lo:sc.pmpm, hi:+(sc.pmpm*1.04).toFixed(2)}));
-    const obs = [0,2,4,6,8,10,12].map((m,i)=>({x:i,y:+(sc.pmpm*(1+0.028*(i/6))).toFixed(2)}));
-    const guardChart = lineChart([
-      {key:"o",label:"Observed",data:obs,color:C.navy},
-    ],{yMin:sc.pmpm*0.98,yMax:sc.pmpm*1.06,xLabels:["M0","M2","M4","M6","M8","M10","M12"],
-       fmtY:v=>"$"+v.toFixed(1),band});
-    html = `<div class="col2">
-      <div><h2 class="vt">Preventive-visit rate — intervention vs control</h2>
-        <p class="vsub">Intent-to-treat, concurrent control, pre-registered outcome. Population-level only.</p>
-        ${trendChart}
-        <div class="legend"><span><i class="swatch" style="border-color:${C.coral}"></i>Intervention</span>
-          <span><i class="swatch" style="border-color:${C.ink2};border-top-style:dashed"></i>Control</span></div>
-        ${S.showSrc?`<div style="margin-top:6px">${chip(SRC.preventive)}</div>`:""}</div>
-      <div><h2 class="vt">Allowed PMPM — guardrail view</h2>
-        <p class="vsub">A small early rise is the designed path: preventive visits are used more before mix
-        effects can appear (months 12–36). The band is the planned range.</p>
-        ${guardChart}
-        <div class="legend"><span><i class="swatch" style="border-color:var(--band);border-top-width:10px"></i>expected range (preventive uptake)</span>
-          <span><i class="swatch" style="border-color:${C.navy}"></i>Observed (synthetic)</span></div>
-        ${S.showSrc?`<div style="margin-top:6px">${chip(SRC.claims)}</div>`:""}</div></div>`;
-  }
-
   if(S.tab==="data"){
     html = `<h2 class="vt">Where each number comes from</h2>
       <p class="vsub">Four source systems, one governed model. Every metric in this demo carries its source chip
@@ -395,7 +351,7 @@ function render(){
           <div class="grid2">
             ${box("PHI boundary",["Raw intraoral photos never enter Snowflake — controlled object storage / PHI vault","Snowflake holds secure URIs, metadata, derived signals only"])}
             ${box("Unified model",["member-month · CDT · intervention · outcome","single definition set across employer, TPA, app"])}
-            ${box("Governance",["RBAC · row access · masking · access history","n ≥ 20 cell suppression (as demoed live)"])}
+            ${box("Governance",["RBAC · row access · masking · access history",`n ≥ ${MIN_CELL} cell suppression (as demoed live)`])}
             ${box("Collaboration",["Secure Data Sharing · Clean Rooms","no cross-org raw copies"])}
           </div>
         </div>
@@ -420,6 +376,10 @@ function render(){
 
 // tabs
 const tabrow = document.getElementById("tabrow");
+document.getElementById("freshness").textContent =
+  `eligibility ${FRESH.eligibilityThru} · claims thru ${FRESH.claimsThru} (${FRESH.lagDays}-day lag) · completeness ${FRESH.completenessPct}% (synthetic)`;
+document.getElementById("mincell").textContent = `cell size n ≥ ${MIN_CELL}`;
+
 tabrow.innerHTML = TABS.map(([k,l])=>`<button class="tab" role="tab" data-k="${k}"
   aria-selected="${k===S.tab}">${l}</button>`).join("");
 tabrow.addEventListener("click",e=>{const b=e.target.closest(".tab"); if(!b)return;
