@@ -77,10 +77,27 @@
   main{padding:22px 0 8px}
   /* cards */
   .grid{display:grid;gap:12px}
-  .g5{grid-template-columns:repeat(2,1fr)}
+  /* KPI는 카드가 아니라 하나의 밴드다. 이 값들은 클릭할 수 있는 것이 아니라
+     읽는 것이므로, 다섯 개의 개별 상자로 쪼개면 SaaS 템플릿처럼 보이고
+     어느 것이 중요한지도 말해주지 않는다. 한 판 안에서 세로선으로 나눈다. */
+  .g5{grid-template-columns:repeat(2,1fr);gap:0;
+      border:1px solid var(--line);border-radius:4px;background:var(--panel);overflow:hidden}
   @media(min-width:760px){.g5{grid-template-columns:repeat(5,1fr)}}
+  .g5 .card{border:0;border-radius:0;box-shadow:none;
+      border-top:1px solid var(--line);border-left:1px solid var(--line)}
+  .g5 .card:nth-child(-n+2){border-top:0}
+  .g5 .card:nth-child(2n+1){border-left:0}
+  @media(min-width:760px){
+    .g5 .card{border-top:0}
+    .g5 .card:nth-child(2n+1){border-left:1px solid var(--line)}
+    .g5 .card:first-child{border-left:0}
+    /* 앵커: 비용은 이 화면에서 기업이 실제로 사고파는 숫자다 */
+    .g5 .card:last-child{background:var(--field)}
+  }
   .card{border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:13px;box-shadow:var(--shadow)}
   .card .lab{font-size:12px;color:var(--ink2)}
+  .g5 .card{padding:14px 16px}
+  .g5 .card:last-child .val{font-size:27px}
   .card .val{font-family:var(--mono);font-size:24px;color:var(--ink);margin-top:4px;line-height:1.15}
   .card .val .u{font-size:13px;color:var(--ink2);margin-left:4px}
   .denom{font-size:12px;color:var(--ink2);margin-top:2px;display:inline-block;border-bottom:2px solid transparent}
