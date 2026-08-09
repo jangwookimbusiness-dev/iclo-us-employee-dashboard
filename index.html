@@ -288,7 +288,11 @@ const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&g
 const Q = new URLSearchParams(location.search);
 let S = {
   scen: SCEN[Q.get("scen")] ? Q.get("scen") : "A",
-  tab: ["overview","signals","funnel"].includes(Q.get("tab")) ? Q.get("tab") : "overview",
+  // The booth employer opens on Signals: it is the only tab holding anything a
+  // visitor actually contributed. Landing them on Overview shows five invented
+  // numbers and none of their capture.
+  tab: ["overview","signals","funnel"].includes(Q.get("tab")) ? Q.get("tab")
+       : (SCEN[Q.get("scen")]?.live ? "signals" : "overview"),
   dept:"All departments", lens:"employees", showSrc:true,
 };
 
@@ -367,6 +371,9 @@ function render(){
       card({lab:"Dental PMPM (allowed)", val:"$"+sc.pmpm.toFixed(2), denom:"per covered member-month", src:isLive?SRC.synth:SRC.claims, hot:hotM, supp:supp||cellSupp(members), n:D.n, revealN:supp}),
     ].join("");
     html = `${isLive?liveBar():""}<h2 class="vt">Program overview</h2>
+      ${isLive?`<p class="vsub"><b>Nothing on this tab came from a capture.</b> This is what the screen
+      looks like once an employer supplies eligibility and claims — none of which exists at a booth.
+      Your capture is on the <b>Signals</b> tab.</p>`:""}
       <p class="vsub">Participation and cost for the period, on the eligible-employee base. Aggregate only — cells under n ≥ ${MIN_CELL} are withheld.</p>
       <div class="grid g5">${cards}</div>
       <p class="lead">Denominator discipline: participation uses <b>eligible employees</b> — staff at
@@ -419,6 +426,7 @@ function render(){
 
 
   v.innerHTML = html;
+  setFreshness();
 
   // The wholesale "Synthetic" label is false on the booth employer — its signal
   // band comes from a real mouth. PRD 5.6 forbids labelling that employer
@@ -432,8 +440,14 @@ function render(){
 
 // tabs
 const tabrow = document.getElementById("tabrow");
-document.getElementById("freshness").textContent =
-  `eligibility ${FRESH.eligibilityThru} · claims thru ${FRESH.claimsThru} (${FRESH.lagDays}-day lag) · completeness ${FRESH.completenessPct}% (synthetic)`;
+// Currency of the underlying feeds. The booth employer has no feeds at all, so
+// stating dates there would be a plain fabrication — say what is true instead.
+function setFreshness(){
+  document.getElementById("freshness").textContent = SCEN[S.scen].live
+    ? "no employer feed at this booth · captures are live · everything else synthetic"
+    : `eligibility ${FRESH.eligibilityThru} · claims thru ${FRESH.claimsThru} (${FRESH.lagDays}-day lag) · completeness ${FRESH.completenessPct}% (synthetic)`;
+}
+setFreshness();
 document.getElementById("mincell").textContent = `cell size n ≥ ${MIN_CELL}`;
 
 tabrow.innerHTML = TABS.map(([k,l])=>`<button class="tab" role="tab" data-k="${k}"
