@@ -52,7 +52,7 @@ The current demo cannot do either. It is frontend-only with hardcoded ratio cons
 
 **2.1 Concept.** Two surfaces sharing one store.
 
-- **Booth display** (wall-mounted, wired line): the existing aggregate dashboard. Three synthetic employers (A/B/C) plus a fourth, **the live booth employer**, which accumulates real captures over the day and re-renders in batches of five (§5.8) — never on a single capture.
+- **Booth display** (wall-mounted, wired line): the existing aggregate dashboard. Three synthetic employers (A/B/C) plus a fourth, **the live booth employer**. Its participation counter moves the instant a capture lands; everything carrying a band re-renders in batches of five (§5.8).
 - **Capture app** (visitor's own phone, opened from a printed QR at the booth): consent → **badge QR scan (enrolment)** → oral capture → Core AI inference → **the visitor sees their own band on their own phone, and only there**.
 
 The badge scan is the enrolment step — the booth analogue of an eligibility file. It is **hashed on read and the plaintext is discarded**, exactly as the engineering design §4 treats SSN: HMAC only, never a key. The hash prevents the same person being counted twice; it cannot be reversed to a name. Contact details are a **separate, later, optional step** (§5.9).
@@ -90,7 +90,8 @@ Springbuk and carrier reports already occupy the same quadrant — differentiati
 | **Contact capture** — a separate optional step after the result, into a separate table, **date-only timestamp** | Any join path between a contact and a capture — separate tables is not enough, second-precision timestamps join them by themselves |
 | A three-level band: LOW / MODERATE / PRIORITY | **A numeric score.** More re-identifying (72 is near-unique, LOW is not) and closer to the medical-device line |
 | **Shared store** — one Supabase table + realtime subscription to the booth display | A general backend — one table, one insert path, one subscription. Nothing else |
-| **Batched refresh** — the booth display re-renders only once at least 5 new captures have landed since the last render (§5.8) | Per-capture live refresh — it leaks the capturer to anyone watching the screen. This is not a tuning parameter |
+| **Live participation counter** — "captures today: N" increments the moment a capture lands | — |
+| **Batched distribution** — every figure that carries a band re-renders only once ≥5 new captures have landed (§5.8) | Live refresh of the signal distribution — it leaks the capturer's band to anyone watching. Not a tuning parameter |
 | Denominator discipline: funnel uses eligible employees; PMPM uses covered member-months (×2.2) — each chart labels its denominator | Real claims/eligibility integration — data rights not secured (report §11) |
 | Suppression: any cell with `n < 20` shows "Suppressed (n<20)" instead of values — **applies to the booth employer identically** | Relaxing suppression so the booth employer "shows something" — this would destroy the only reason the feature exists |
 | Per-field provenance chips: signal = real capture, everything else = synthetic | — |
@@ -208,8 +209,10 @@ Scenarios A/B/C keep their current behaviour exactly: inline constants, no netwo
 - [ ] The same badge captured twice is detected by hash; the hash cannot be reversed to any badge field
 - [ ] Contact rows carry a date, not a timestamp, and share no key with any capture row
 - [ ] The result is a band, never a numeric score
-- [ ] The booth display does **not** change on a single capture; it re-renders only after ≥5 new captures
-- [ ] Two consecutive booth-display renders never differ by fewer than 5 people in any cell
+- [ ] The participation counter increments within 3 seconds of a capture
+- [ ] No figure carrying a band changes on a single capture; those re-render only after ≥5 new captures
+- [ ] Two consecutive renders of the signal distribution never differ by fewer than 5 people
+- [ ] The visitor's own phone shows their band and the aggregate they just joined; the booth display shows neither for them individually
 - [ ] Any cell with `n < 20` masks values and prints "Suppressed (n<20)" — **including on the booth employer**
 - [ ] The visitor's own band renders on the visitor's device and appears in no booth-display DOM at any time
 - [ ] Consent gate blocks capture until explicitly accepted; declining leaves no row
@@ -231,11 +234,11 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 5. Decline. Confirm no row appears and nothing is sent.
 6. Scan your own conference badge. Confirm the app shows enrolment succeeded but displays none of your badge details back to you — if it can show them, it has them.
 6b. Capture. Your own band appears on your phone. A band, not a number.
-7. Watch the booth display. It does **not** move. Confirm nothing on it changed when you captured — this is deliberate (§5.8).
+7. Watch the booth display. The capture counter goes up. The signal distribution does **not** move — deliberate (§5.8).
 8. Search the entire booth display for yourself. You cannot find yourself. Say so out loud — this is the demo.
 9. Filter the booth employer to a small department: values are replaced by "Suppressed (n<20)".
 10. Check the provenance chips: the signal is marked real, the benefit context is marked synthetic.
-11. Capture from four more phones. On the fifth the booth display re-renders. Confirm you still cannot attribute the change to any one of the five.
+11. Capture from four more phones. The counter moves each time; on the fifth the distribution re-renders. Confirm you still cannot attribute that change to any one of the five.
 12. Resize the display to 1366px: no horizontal scroll; legible from two metres.
 
 ### 4c. Outcome metrics
@@ -289,7 +292,7 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 | **No row without consent**; declining writes nothing and sends nothing | unit test on the consent gate |
 | **No fabricated band.** Inference failure surfaces as failure | unit test on the error path |
 | Cells with `n < 20` never show values, on every employer including the live one | unit test on the suppression function |
-| **The booth display never re-renders on a single capture** — minimum batch of 5 | unit test on the refresh gate |
+| **No band-carrying figure re-renders on a single capture** — minimum batch of 5. The participation counter is exempt: it carries no band | unit test on the refresh gate |
 | **Badge plaintext is never stored** — hash on read, discard. No decoded field persisted anywhere | code review of the badge path + a test asserting no write |
 | **No join path between a contact and a capture** — separate tables, date-only on contacts | schema review; a test asserting contacts carry no time component |
 | **Band, never a numeric score** | unit test on the inference response handler |
@@ -300,7 +303,9 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 
 **5.8 Small numbers.** Tens of captures, not hundreds, changes two things.
 
-*Differencing.* If the display updated per capture, an onlooker who saw it before and after would learn the band of the person who just walked away from the capture station. That is an individual disclosure through an aggregate screen — precisely what the product claims not to do, demonstrated live, at a booth whose mini-session is relayed to every session hall. Hence the ≥5 batch. The `n < 20` cell rule does not help here: it bounds who is *in* a cell, not what a *change* in that cell reveals. Engineering design §16 item 5 already flags this as unresolved at the design level; the batch is the booth-scale answer, not the general one.
+*What is safe to show live.* A participation count carries no band, and the fact that someone captured at a booth is already visible to anyone standing there — so the counter updates immediately and gives the visitor the "it landed" feedback the demo needs. Everything that carries a band is batched. Splitting the two costs nothing and recovers most of the immediacy.
+
+*Differencing.* If the distribution updated per capture, an onlooker who saw it before and after would learn the band of the person who just walked away from the capture station. That is an individual disclosure through an aggregate screen — precisely what the product claims not to do, demonstrated live, at a booth whose mini-session is relayed to every session hall. Hence the ≥5 batch. The `n < 20` cell rule does not help here: it bounds who is *in* a cell, not what a *change* in that cell reveals. Engineering design §16 item 5 already flags this as unresolved at the design level; the batch is the booth-scale answer, not the general one.
 
 *Visible suppression.* The booth employer is pre-seeded so the aggregate is not entirely blank at 08:00, but the Priority band will likely sit under 20 for much of the day. That is not a bug to design around — it is the most honest thing on the screen, and the line to say out loud is that **the most sensitive category is the one we cannot show you at this scale**. If enough captures arrive for it to cross 20 during the day, that is a bonus beat, not a promised one. Seed size lives in `contracts/proposal-package-v11.yml`.
 

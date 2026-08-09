@@ -128,9 +128,15 @@ dashboard:
     label: "Snowflake World Tour Seoul · live capture"
     seed_members: 120       # 08:00 에 Low·Moderate 는 보이고 Priority 는 억제되는 크기.
                             # 실촬영은 하루 수십 건 규모로 잡는다 (3,000 참석자 ≠ 3,000 촬영).
-    refresh_batch: 5        # 부스 화면은 신규 5건이 쌓여야 다시 그린다. 촬영 1건마다 갱신하면
-                            # 방금 촬영한 사람의 밴드가 화면 변화로 새어나간다 (PRD §5.8).
+    refresh:                # 화면 요소마다 민감도가 다르므로 갱신 주기를 가른다 (PRD §5.8)
+      live: [participation_count]
+      # 참여 수는 밴드를 안 싣는다. 부스에서 촬영한 사실 자체는 이미 눈에 보인다.
+      # 찍자마자 올라가야 방문자가 "들어갔다"를 안다.
+      batched: [signal_distribution, band_derived_figures]
+      batch_size: 5         # 밴드를 싣는 것은 신규 5건이 쌓여야 다시 그린다. 1건마다 갱신하면
+                            # 방금 촬영한 사람의 밴드가 화면 변화로 새어나간다.
                             # 튜닝 값이 아니라 레드라인이다.
+    own_device: 본인 폰에는 자기 밴드 + 합류한 집계 + "N명 중 한 명" 까지 즉시 표시. 유출 아님.
     seed_signals: {Low: 52, Moderate: 33, Priority: 15}   # A/B/C 와 같은 시작 분포
     real_fields: [signal_band, captured_at, model_version]
     synthetic_fields: [department, tenure_band, eligibility_span, claim_lines]
