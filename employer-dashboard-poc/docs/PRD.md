@@ -174,7 +174,7 @@ WS0 gates everything. Capturing before the consent text is settled is not a sche
 |---|---|---|
 | Booth display | **Single vanilla HTML file** (`index.html` at repo root), inline CSS + JS | Vite/React/TS was the original plan and was not adopted. No `package.json`, `src/` or `dist/` exists |
 | Capture app | Second single HTML file, `capture.html` | Same discipline. `getUserMedia` for the camera; no native app, no store review |
-| Shared store | **Supabase** — one table, anon-key insert under a row-level-security policy that permits insert only, plus a realtime subscription for the display | Already an available dependency with zero prior use in this repo. Realtime removes polling. One table only |
+| Shared store | **Supabase, Seoul region (ap-northeast-2)** — one table, anon-key insert under a row-level-security policy that permits insert only, plus a realtime subscription for the display | Already an available dependency with zero prior use in this repo. Realtime removes polling. One table only. **The region is not a preference**: an overseas region makes this a cross-border transfer under PIPA §28-8, which needs its own disclosure and its own separate consent — one more screen and more drop-off. Seoul avoids the clause entirely |
 | Inference | ICLO Core AI, `POST /v1/oral-signal` per engineering design §8.2 | Response must carry `model_version`; without it past signal distributions cannot be reproduced |
 | Style | Inline CSS custom properties (Coral `#C2333A` · Navy `#1B2A4A` · Teal `#007A87`, white bg) | Coral changed from `#FF7A79` on 2026-08-08: 2.53:1 on white failed WCAG AA. `#C2333A` is 5.49:1. Dark mode `#FF8E8D` |
 | Charts | Hand-drawn CSS/SVG bars | no chart library (ponytail) |
@@ -309,6 +309,7 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 | **Badge plaintext is never stored** — hash on read, discard. No decoded field persisted anywhere | code review of the badge path + a test asserting no write |
 | **No join path between a contact and a capture** — separate tables, date-only on contacts | schema review; a test asserting contacts carry no time component |
 | **Band, never a numeric score** | unit test on the inference response handler |
+| **Store stays in a Korean region** — otherwise PIPA §28-8 cross-border consent applies | project settings review |
 | Synthetic scenarios stay labeled "Synthetic data — illustrative only"; the booth employer is labeled per field (real signal, synthetic context) — never labeled wholesale as either | screenshot test |
 | No AI-slop visual patterns | kill-ai-slop Mode B gate before `/ship` |
 | Brand Coral is `#C2333A`; every light-mode declaration uses the same value | `scripts/check-package-consistency.py` |
@@ -360,8 +361,8 @@ ICLO is a smartphone oral-imaging AI company entering the US self-funded-employe
 ### Deliverables
 | # | Deliverable | Form | Due | Owner |
 |---|---|---|---|---|
-| D0 | **Confirm what the SWT badge QR contains** (§5.9) — blocks D3 | mail to Snowflake | **8/14** | J. Kim |
-| D1 | Korean consent text, legally reviewed — must cover the badge scan as well as the oral capture | md | 8/12 | Claude Code → J. Kim |
+| D0 | **Confirm what the SWT badge QR contains** (§5.9) — blocks D3 | `docs/snowflake-mail-0814.md` — **drafted 8/9, needs names + send** | **8/14** | J. Kim |
+| D1 | Korean consent text, legally reviewed — must cover the badge scan as well as the oral capture | `docs/consent-ko.md` — **drafted 8/9, awaiting legal review** | 8/12 | Claude Code → J. Kim |
 | D2 | Supabase table + RLS insert-only policy + realtime subscription | migration | 8/17 | Codex |
 | D3 | Capture app (QR entry · consent · **badge scan, hash-only** · camera · own-band screen) | `capture.html` | 8/19 | Codex |
 | D3b | Contact capture — separate step, separate table, date-only | in D3 | 8/19 | Codex |
