@@ -39,7 +39,10 @@ artifacts:
       - path: output/proposal-v10/06_Tech/ICLO-데이터흐름도-A-원천과정본.svg      # 1240×900
       - path: output/proposal-v10/06_Tech/ICLO-데이터흐름도-B-통제와노출.svg      # 1240×880
       - path: output/proposal-v10/06_Tech/ICLO-데이터흐름도-C-경계와미결.svg      # 1240×664
-    slide_variant: 1-pager 는 B 를 슬라이드 비율(1180×670)로 압축한 판을 쓴다. 각주·6.2절 노트 제외.
+    slide_variant:
+      path: output/proposal-v10/06_Tech/ICLO-데이터흐름도-슬라이드-전체.svg   # 1180×690
+      what: 1-pager 는 전체 흐름을 한 장에 본다 — 세 장 분할은 기술문서에만 적용.
+      how: 골격(3구역 · ①~⑦)은 그대로 두고 세부 설명줄을 뺀 개요판. 슬롯 9.50in 에서 7.5pt.
     generator: scratchpad svg/gen.py — 상자 넘침과 텍스트 겹침을 생성 시 검사한다
     min_pt: A4 가로에서 최소 7.1pt (이전 3.9pt)
   report_ko:
