@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 880" width="1240" height="880">
+<defs>
+<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 z" fill="#17202b"/></marker>
+<marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 z" fill="#c9880a"/></marker>
+<marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 z" fill="#0b7a55"/></marker>
+</defs>
+<rect width="1240" height="880" fill="#ffffff"/>
+<text x="36.0" y="50.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="28.6" fill="#17202b" font-weight="700" text-anchor="start">ICLO 근거 레이어 — 정본 → 기업 화면</text>
+<text x="36.0" y="74.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="15.08" fill="#5a6b7d" font-weight="400" text-anchor="start">어떻게 통제되고, 누가 무엇을 보는가    |    기술문서 6 · 10 · 11절</text>
+<text x="1204.0" y="50.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="28.6" fill="#c8d4de" font-weight="700" text-anchor="end">B</text>
+<line x1="36" y1="90" x2="1204" y2="90" stroke="#17202b" stroke-width="1.6"/>
+<rect x="36.0" y="112.0" width="1168.0" height="44.0" rx="5" fill="#ffffff" stroke="#17202b" stroke-width="1.8"/>
+<path d="M36 117 a5 5 0 0 1 5 -5 h1158 a5 5 0 0 1 5 5 v27 h-1168 z" fill="#17202b"/>
+<text x="50.0" y="133.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="16.25" fill="#ffffff" font-weight="700" text-anchor="start">④ CANONICAL — 정본 모델 (A장에서 이어짐)</text>
+<text x="1190.0" y="133.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#c8d4de" font-weight="400" text-anchor="end">여기가 개인 레벨입니다. 기업 사용자는 접근 권한이 없습니다.</text>
+<line x1="620.0" y1="156" x2="620.0" y2="176" stroke="#17202b" stroke-width="1.7" marker-end="url(#ah)"/>
+<rect x="186.0" y="180.0" width="868.0" height="60.0" rx="5" fill="#fbfcfd" stroke="#dde3ea" stroke-width="1"/>
+<text x="202.0" y="201.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.56" fill="#17202b" font-weight="700" text-anchor="start">6.2절  span → member-month 전개</text>
+<text x="202.0" y="218.0" font-family="'SF Mono',Menlo,'D2Coding',monospace" font-size="12.74" fill="#5a6b7d" font-weight="400" text-anchor="start">전체 재구축 · superseded_by IS NULL · 부분 월은 일수로</text>
+<text x="202.0" y="234.0" font-family="'SF Mono',Menlo,'D2Coding',monospace" font-size="12.74" fill="#5a6b7d" font-weight="400" text-anchor="start">6.3절  as-of 조회 claims_as_of(seq) — 취소된 원본까지 함께 제외</text>
+<line x1="620.0" y1="240" x2="620.0" y2="262" stroke="#17202b" stroke-width="1.7" marker-end="url(#ah)"/>
+<rect x="36.0" y="266.0" width="1168.0" height="88.0" rx="5" fill="#f6f8fa" stroke="#dde3ea" stroke-width="1.1"/>
+<rect x="36" y="266" width="4" height="88" rx="2" fill="#29b5e8"/>
+<text x="56.0" y="290.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="16.64" fill="#17202b" font-weight="700" text-anchor="start">⑤ MART — 파생 지표 (6.3 · 11절)</text>
+<text x="56.0" y="314.0" font-family="'SF Mono',Menlo,'D2Coding',monospace" font-size="13.0" fill="#5a6b7d" font-weight="400" text-anchor="start">claims_by_service_month</text>
+<text x="440.0" y="314.0" font-family="'SF Mono',Menlo,'D2Coding',monospace" font-size="13.0" fill="#5a6b7d" font-weight="400" text-anchor="start">claim_lag_history — 지연 곡선</text>
+<text x="824.0" y="314.0" font-family="'SF Mono',Menlo,'D2Coding',monospace" font-size="13.0" fill="#5a6b7d" font-weight="400" text-anchor="start">party_department — 부서 이력</text>
+<text x="56.0" y="338.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.0" fill="#5a6b7d" font-weight="400" text-anchor="start">완결성 추정: 곡선 범위를 넘은 오래된 달만 100%. 곡선이 없는 최근 달은 '추정 불가'로 둡니다 — 100%로 채우면 가장 불완전한 달이 가장 완결돼 보입니다.</text>
+<line x1="620.0" y1="354" x2="620.0" y2="376" stroke="#17202b" stroke-width="1.7" marker-end="url(#ah)"/>
+<rect x="36.0" y="380.0" width="1168.0" height="168.0" rx="5" fill="#ffffff" stroke="#17202b" stroke-width="1.8"/>
+<path d="M36 385 a5 5 0 0 1 5 -5 h1158 a5 5 0 0 1 5 5 v29 h-1168 z" fill="#17202b"/>
+<text x="52.0" y="403.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="17.55" fill="#ffffff" font-weight="700" text-anchor="start">⑥ EMPLOYER — 기업 노출용. 뷰만 존재 (10 · 11절)</text>
+<text x="1188.0" y="403.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.3" fill="#c8d4de" font-weight="400" text-anchor="end">억제를 화면이 아니라 DB가 강제합니다</text>
+<rect x="50.0" y="426" width="200" height="26" rx="13.0" fill="#17202b"/>
+<text x="149.9" y="444.5" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.04" fill="#ffffff" font-weight="600" text-anchor="middle">행 접근 정책 — employer_id</text>
+<rect x="257.7" y="426" width="124" height="26" rx="13.0" fill="#17202b"/>
+<text x="319.7" y="444.5" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.04" fill="#ffffff" font-weight="600" text-anchor="middle">집계 정책 n ≥ 20</text>
+<rect x="389.6" y="426" width="175" height="26" rx="13.0" fill="#b3261e"/>
+<text x="477.2" y="444.5" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.04" fill="#ffffff" font-weight="600" text-anchor="middle">ENTITY KEY (party_sk)</text>
+<rect x="572.8" y="426" width="62" height="26" rx="13.0" fill="#17202b"/>
+<text x="603.8" y="444.5" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.04" fill="#ffffff" font-weight="600" text-anchor="middle">마스킹</text>
+<rect x="642.9" y="426" width="128" height="26" rx="13.0" fill="#17202b"/>
+<text x="706.9" y="444.5" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.04" fill="#ffffff" font-weight="600" text-anchor="middle">ACCESS_HISTORY</text>
+<text x="50.0" y="480.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.3" fill="#b3261e" font-weight="700" text-anchor="start">ENTITY KEY 가 없으면 MIN_GROUP_SIZE는 '20명'이 아니라 '20행'을 셉니다 — 한 사람의 청구 20건이 20명으로 인정됩니다.</text>
+<text x="50.0" y="504.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.26" fill="#5a6b7d" font-weight="400" text-anchor="start">정책 위반은 오류가 아니라 remainder group(GROUP BY = NULL)으로 옵니다. 화면은 그 NULL을 '억제됨'으로 표시만 합니다.</text>
+<text x="50.0" y="526.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.26" fill="#5a6b7d" font-weight="400" text-anchor="start">employer.v_overview 는 eligible · covered · member-months · PMPM 넷뿐. 나머지 지표는 grain이 달라 별도 뷰가 필요합니다.</text>
+<text x="36.0" y="586.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="16.64" fill="#17202b" font-weight="700" text-anchor="start">⑦ 노출 — 대상에 따라 다른 것을 봅니다</text>
+<line x1="226.7" y1="594" x2="226.7" y2="614" stroke="#17202b" stroke-width="1.7" marker-end="url(#ah)"/>
+<line x1="620.0" y1="594" x2="620.0" y2="614" stroke="#17202b" stroke-width="1.7" marker-end="url(#ah)"/>
+<line x1="1013.3" y1="594" x2="1013.3" y2="614" stroke="#17202b" stroke-width="1.7" marker-end="url(#ah)"/>
+<rect x="36.0" y="620.0" width="381.3" height="92.0" rx="5" fill="#f6f8fa" stroke="#17202b" stroke-width="1.4"/>
+<text x="49.0" y="644.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="16.25" fill="#17202b" font-weight="700" text-anchor="start">기업 대시보드</text>
+<text x="49.0" y="666.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">집계만 · n ≥ 20 · 개인 PHI 없음</text>
+<text x="49.0" y="683.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">Overview · Signals · Funnel</text>
+<text x="49.0" y="700.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">부서 미매칭은 UNMATCHED로 구분</text>
+<rect x="429.3" y="620.0" width="381.3" height="92.0" rx="5" fill="#f6f8fa" stroke="#0b7a55" stroke-width="1.4"/>
+<text x="442.3" y="644.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="16.25" fill="#17202b" font-weight="700" text-anchor="start">임직원 웹앱</text>
+<text x="442.3" y="666.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">본인 기록 · 급여 정보 · 상담 요청</text>
+<text x="442.3" y="683.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">회사 평균·순위는 넣지 않습니다</text>
+<text x="442.3" y="700.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">본인과 권한 받은 피부양자만</text>
+<rect x="822.7" y="620.0" width="381.3" height="92.0" rx="5" fill="#f6f8fa" stroke="#29b5e8" stroke-width="1.4"/>
+<text x="835.7" y="644.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="16.25" fill="#17202b" font-weight="700" text-anchor="start">임상 검토</text>
+<text x="835.7" y="666.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">minimum necessary 범위만</text>
+<text x="835.7" y="683.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">R_CLINICAL 롤</text>
+<text x="835.7" y="700.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">상담은 본인 요청 시에만</text>
+<line x1="36" y1="740" x2="1204" y2="740" stroke="#dde3ea" stroke-width="1"/>
+<circle cx="45" cy="762" r="8" fill="#17202b"/>
+<text x="45.0" y="766.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.0" fill="#ffffff" font-weight="700" text-anchor="middle">1</text>
+<text x="62.0" y="766.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.56" fill="#17202b" font-weight="700" text-anchor="start">레이어마다 권한이 다릅니다.</text>
+<text x="62.0" y="784.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#5a6b7d" font-weight="400" text-anchor="start">RAW·STAGED·CANONICAL은 데이터 엔지니어링 롤만, EMPLOYER는 기업 사용자 롤만 접근합니다. 기업 사용자는 CANONICAL을 아예 볼 수 없습니다 (2 · 10.1절).</text>
+<circle cx="45" cy="806" r="8" fill="#17202b"/>
+<text x="45.0" y="810.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.0" fill="#ffffff" font-weight="700" text-anchor="middle">2</text>
+<text x="62.0" y="810.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.56" fill="#17202b" font-weight="700" text-anchor="start">억제는 화면이 아니라 DB에 있습니다.</text>
+<text x="62.0" y="828.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#5a6b7d" font-weight="400" text-anchor="start">현재 데모는 n ≥ 20을 JavaScript로 판정하지만, 실데이터에서는 집계 정책이 대신합니다. 두 곳에 판정 로직을 두면 언젠가 어긋납니다.</text>
+<circle cx="45" cy="850" r="8" fill="#17202b"/>
+<text x="45.0" y="854.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.0" fill="#ffffff" font-weight="700" text-anchor="middle">3</text>
+<text x="62.0" y="854.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.56" fill="#17202b" font-weight="700" text-anchor="start">한 뷰로는 부족합니다.</text>
+<text x="62.0" y="872.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#5a6b7d" font-weight="400" text-anchor="start">Activated · 신호 분포 · care action · completeness는 grain이 서로 달라(사람 / 촬영 / 서비스월) 한 뷰에 담기지 않습니다. 지표군별로 뷰를 나누고 각각 정책을 겁니다.</text>
+</svg>

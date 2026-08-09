@@ -29,8 +29,19 @@ artifacts:
     kind: 기술 주장의 정본
     builder: scratchpad tech/build.py
   diagram:
-    path: output/proposal-v10/06_Tech/ICLO-데이터흐름도.svg
-    kind: 파생 (기술문서 기준)
+    kind: 파생 (기술문서 기준). 2026-08-09 에 한 장을 세 장으로 나눔.
+    why_split: |
+      2000px 한 장짜리는 실제 배포되는 두 곳에서 판독 한계 아래였다 —
+      기술문서 PDF(A4 가로) 본문 중앙값 4.4pt, 1-pager 슬라이드 5.0px.
+      글자 크기가 아니라 축소 배율(0.39~0.48×) 문제라 캔버스를 줄여야 했다.
+      rendered_pt = font_px × (page_inch × 72) / viewbox_width
+    sheets:
+      - path: output/proposal-v10/06_Tech/ICLO-데이터흐름도-A-원천과정본.svg      # 1240×900
+      - path: output/proposal-v10/06_Tech/ICLO-데이터흐름도-B-통제와노출.svg      # 1240×880
+      - path: output/proposal-v10/06_Tech/ICLO-데이터흐름도-C-경계와미결.svg      # 1240×664
+    slide_variant: 1-pager 는 B 를 슬라이드 비율(1180×670)로 압축한 판을 쓴다. 각주·6.2절 노트 제외.
+    generator: scratchpad svg/gen.py — 상자 넘침과 텍스트 겹침을 생성 시 검사한다
+    min_pt: A4 가로에서 최소 7.1pt (이전 3.9pt)
   report_ko:
     path: output/proposal-v10/01_KO_Internal/ICLO-Snowflake-Joint-Validation-Report-v10-KO-Internal.docx
     kind: 내부 검토본

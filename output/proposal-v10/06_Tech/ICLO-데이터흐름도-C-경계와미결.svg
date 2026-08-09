@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 664" width="1240" height="664">
+<defs>
+<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 z" fill="#17202b"/></marker>
+<marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 z" fill="#c9880a"/></marker>
+<marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 z" fill="#0b7a55"/></marker>
+</defs>
+<rect width="1240" height="664" fill="#ffffff"/>
+<text x="36.0" y="50.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="28.6" fill="#17202b" font-weight="700" text-anchor="start">ICLO 근거 레이어 — Snowflake 밖과 미결</text>
+<text x="36.0" y="74.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="15.08" fill="#5a6b7d" font-weight="400" text-anchor="start">직접 운영하는 것 · 요청하는 것 · 아직 없는 것    |    기술문서 7 · 8 · 17절</text>
+<text x="1204.0" y="50.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="28.6" fill="#c8d4de" font-weight="700" text-anchor="end">C</text>
+<line x1="36" y1="90" x2="1204" y2="90" stroke="#17202b" stroke-width="1.6"/>
+<rect x="36.0" y="112.0" width="420.0" height="356.0" rx="8" fill="#eefaf4" stroke="#0b7a55" stroke-width="1.4" stroke-dasharray="6 4"/>
+<text x="246.0" y="134.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="15.08" fill="#0b7a55" font-weight="700" text-anchor="middle">실시간 급여 조회 (7절)</text>
+<text x="246.0" y="150.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#0b7a55" font-weight="400" text-anchor="middle">창고를 거치지 않습니다</text>
+<rect x="54.0" y="160.0" width="384.0" height="56.0" rx="5" fill="#ffffff" stroke="#0b7a55" stroke-width="1.1"/>
+<text x="66.0" y="184.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.82" fill="#17202b" font-weight="700" text-anchor="start">ICLO 급여 게이트웨이</text>
+<text x="66.0" y="203.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">X12 270 · 서비스 자격증명 · 감사</text>
+<rect x="54.0" y="234.0" width="384.0" height="52.0" rx="5" fill="#ffffff" stroke="#0b7a55" stroke-width="1.1"/>
+<text x="66.0" y="258.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.82" fill="#17202b" font-weight="700" text-anchor="start">치아보험 TPA</text>
+<text x="66.0" y="277.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">실시간 심사 응답</text>
+<rect x="54.0" y="304.0" width="384.0" height="52.0" rx="5" fill="#ffffff" stroke="#0b7a55" stroke-width="1.1"/>
+<text x="66.0" y="328.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.82" fill="#17202b" font-weight="700" text-anchor="start">잔여 한도 · 공제 · 빈도</text>
+<text x="66.0" y="347.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">X12 271 — 조회 시각과 함께</text>
+<line x1="246.0" y1="218" x2="246.0" y2="232" stroke="#0b7a55" stroke-width="1.6" marker-end="url(#ahg)"/>
+<line x1="246.0" y1="288" x2="246.0" y2="302" stroke="#0b7a55" stroke-width="1.6" marker-end="url(#ahg)"/>
+<text x="54.0" y="382.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#0b7a55" font-weight="600" text-anchor="start">60일 지연 때문에 창고 값을 개인 잔여</text>
+<text x="54.0" y="398.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#0b7a55" font-weight="600" text-anchor="start">한도로 쓸 수 없습니다.</text>
+<text x="54.0" y="420.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#0b7a55" font-weight="400" text-anchor="start">지연의 큰 몫은 '치과가 아직 청구를 안 냄'</text>
+<text x="54.0" y="436.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#0b7a55" font-weight="400" text-anchor="start">이라 실시간 조회로도 못 없앱니다.</text>
+<rect x="480.0" y="112.0" width="356.0" height="356.0" rx="8" fill="#ffffff" stroke="#29b5e8" stroke-width="1.4" stroke-dasharray="6 4"/>
+<text x="658.0" y="134.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="15.34" fill="#29b5e8" font-weight="700" text-anchor="middle">Snowflake에 요청하는 것</text>
+<text x="493.0" y="161.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#29b5e8" font-weight="700" text-anchor="start">서명</text>
+<text x="493.0" y="179.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">· BAA — 미국 리전 계정</text>
+<line x1="493" y1="186" x2="823" y2="186" stroke="#dde3ea" stroke-width="1"/>
+<text x="493.0" y="206.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#29b5e8" font-weight="700" text-anchor="start">확인 필요 — 미결</text>
+<text x="493.0" y="224.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">· 계약 주체: 한국법인 / 미국</text>
+<text x="493.0" y="241.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">· KR 크레딧을 미국 리전에 쓸 수 있는지</text>
+<line x1="493" y1="248" x2="823" y2="248" stroke="#dde3ea" stroke-width="1"/>
+<text x="493.0" y="268.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#29b5e8" font-weight="700" text-anchor="start">함께 하기로 한 것</text>
+<text x="493.0" y="286.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">· 보안 기준 공동 작성·승인 (Day 31~60)</text>
+<text x="493.0" y="303.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">· 사이징 세션 2.5K / 10K / 25K</text>
+<line x1="493" y1="310" x2="823" y2="310" stroke="#dde3ea" stroke-width="1"/>
+<text x="493.0" y="330.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#29b5e8" font-weight="700" text-anchor="start">질문</text>
+<text x="493.0" y="348.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">· Secure Data Sharing 적용 가능 여부</text>
+<text x="493.0" y="365.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">· TPA도 Snowflake를 쓸 때만 해당</text>
+<line x1="493" y1="372" x2="823" y2="372" stroke="#dde3ea" stroke-width="1"/>
+<text x="493.0" y="428.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#29b5e8" font-weight="600" text-anchor="start">정책 설계와 파이프라인 구현은 ICLO가</text>
+<text x="493.0" y="444.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#29b5e8" font-weight="600" text-anchor="start">하고, 요청하는 것은 검토와 확인입니다.</text>
+<rect x="860.0" y="112.0" width="344.0" height="356.0" rx="5" fill="#f6f8fa" stroke="#dde3ea" stroke-width="1.2"/>
+<text x="1032.0" y="136.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="15.34" fill="#17202b" font-weight="700" text-anchor="middle">아직 없는 것</text>
+<text x="873.0" y="167.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#17202b" font-weight="700" text-anchor="start">임직원 웹앱</text>
+<text x="873.0" y="184.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">데모 단계는 웹앱 확정. 미구축 (A9)</text>
+<line x1="873" y1="193" x2="1191" y2="193" stroke="#dde3ea" stroke-width="1"/>
+<text x="873.0" y="219.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#17202b" font-weight="700" text-anchor="start">ICLO Core AI 연동</text>
+<text x="873.0" y="236.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">API 계약만 설계. 호출 경로 없음</text>
+<line x1="873" y1="245" x2="1191" y2="245" stroke="#dde3ea" stroke-width="1"/>
+<text x="873.0" y="271.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#17202b" font-weight="700" text-anchor="start">급여 표</text>
+<text x="873.0" y="288.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">SPD에서 사람이 옮겨야 함. 2인 검증</text>
+<line x1="873" y1="297" x2="1191" y2="297" stroke="#dde3ea" stroke-width="1"/>
+<text x="873.0" y="323.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#17202b" font-weight="700" text-anchor="start">270/271 연동</text>
+<text x="873.0" y="340.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">기업 온보딩 2단계에서 가능 여부 확인</text>
+<line x1="873" y1="349" x2="1191" y2="349" stroke="#dde3ea" stroke-width="1"/>
+<text x="873.0" y="375.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#17202b" font-weight="700" text-anchor="start">예측 모델</text>
+<text x="873.0" y="392.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">라벨도 미정. 15절</text>
+<line x1="873" y1="401" x2="1191" y2="401" stroke="#dde3ea" stroke-width="1"/>
+<text x="873.0" y="427.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#17202b" font-weight="700" text-anchor="start">신원 확인 · 동의 강제</text>
+<text x="873.0" y="444.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="12.87" fill="#5a6b7d" font-weight="400" text-anchor="start">OTP는 본인 확인이 아님. 4.9절</text>
+<line x1="36" y1="500" x2="1204" y2="500" stroke="#dde3ea" stroke-width="1"/>
+<circle cx="45" cy="522" r="8" fill="#17202b"/>
+<text x="45.0" y="526.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.0" fill="#ffffff" font-weight="700" text-anchor="middle">1</text>
+<text x="62.0" y="526.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.56" fill="#17202b" font-weight="700" text-anchor="start">왼쪽 둘은 Snowflake 밖입니다.</text>
+<text x="62.0" y="544.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#5a6b7d" font-weight="400" text-anchor="start">사진 저장소 · Core AI · 급여 게이트웨이는 ICLO가 직접 운영합니다. 축으로 들어오는 것은 파생 신호뿐입니다 (A장).</text>
+<circle cx="45" cy="566" r="8" fill="#17202b"/>
+<text x="45.0" y="570.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.0" fill="#ffffff" font-weight="700" text-anchor="middle">2</text>
+<text x="62.0" y="570.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.56" fill="#17202b" font-weight="700" text-anchor="start">개인의 잔여 한도는 추정치가 쓸모없습니다.</text>
+<text x="62.0" y="588.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#5a6b7d" font-weight="400" text-anchor="start">집계 화면의 지연은 '추정치'라고 적으면 되지만, 지난달 크라운을 모르는 채 '잔여 $1,400'을 보여주면 그 숫자로 치료 계획을 세운 사람이 금전 손해를 입습니다.</text>
+<circle cx="45" cy="610" r="8" fill="#17202b"/>
+<text x="45.0" y="614.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.0" fill="#ffffff" font-weight="700" text-anchor="middle">3</text>
+<text x="62.0" y="614.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="14.56" fill="#17202b" font-weight="700" text-anchor="start">이 장의 항목이 착수 조건입니다.</text>
+<text x="62.0" y="632.0" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" font-size="13.52" fill="#5a6b7d" font-weight="400" text-anchor="start">'아직 없는 것'은 90일 계획에 포함되지 않은 별도 트랙이고, '요청하는 것'은 회의에서 답을 받아야 하는 항목입니다 (13.1절 Step 0).</text>
+</svg>
