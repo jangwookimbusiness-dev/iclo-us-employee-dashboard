@@ -104,6 +104,7 @@ Springbuk and carrier reports already occupy the same quadrant — differentiati
 | Survives — this is the product | Seoul-only — disposable after 8/27 |
 |---|---|
 | The aggregate dashboard and scenarios A/B/C | The live booth employer as a 4th scenario |
+| The Overview tab, once its numbers are real | Its booth-only name, **"U.S. GTM sample"** — on the booth employer that tab holds no capture data, so it is named as the sample it is. It reverts to "Overview" after the pivot |
 | `n < 20` suppression and per-field provenance | The batch-of-5 refresh guard — a booth-scale patch for differencing, not the production answer (engineering design §16 item 5 owns that) |
 | Band, never a score | The Korean consent text and its PIPA §23 framing — the US version answers to HIPAA and state law instead |
 | The Core AI call contract (engineering design §8.2) | Badge-QR enrolment — US employers enrol from an eligibility file, not a conference lanyard |
