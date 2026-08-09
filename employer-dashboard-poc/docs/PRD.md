@@ -52,7 +52,7 @@ The current demo cannot do either. It is frontend-only with hardcoded ratio cons
 
 **2.1 Concept.** Two surfaces sharing one store.
 
-- **Booth display** (wall-mounted, wired line): the existing aggregate dashboard. Three synthetic employers (A/B/C) plus a fourth, **the live booth employer**. Its participation counter moves the instant a capture lands; everything carrying a band re-renders in batches of five (§5.8).
+- **Booth display** — an **iPad Pro 12.9" in landscape (1366×1024)** on the counter, on the wired line. The full Overview needs 934px, so it fits with room; a 10.9" in landscape (820px tall) would push the footer claims below the fold. This is a touch surface visitors will tap, not a screen they only look at. It runs the existing aggregate dashboard. Three synthetic employers (A/B/C) plus a fourth, **the live booth employer**. Its participation counter moves the instant a capture lands; everything carrying a band re-renders in batches of five (§5.8).
 - **Capture app** (visitor's own phone, opened from a printed QR at the booth): consent → **badge QR scan (enrolment)** → oral capture → Core AI inference → **the visitor sees their own band on their own phone, and only there**.
 
 The badge scan is the enrolment step — the booth analogue of an eligibility file. It is **hashed on read and the plaintext is discarded**, exactly as the engineering design §4 treats SSN: HMAC only, never a key. The hash prevents the same person being counted twice; it cannot be reversed to a name. Contact details are a **separate, later, optional step** (§5.9).
@@ -91,6 +91,7 @@ Springbuk and carrier reports already occupy the same quadrant — differentiati
 | A three-level band: LOW / MODERATE / PRIORITY | **A numeric score.** More re-identifying (72 is near-unique, LOW is not) and closer to the medical-device line |
 | **Shared store** — one Supabase table + realtime subscription to the booth display | A general backend — one table, one insert path, one subscription. Nothing else |
 | **Live participation counter** — "captures today: N" increments the moment a capture lands | — |
+| **Tap-to-open source chips** — each chip is a button that reveals its ingestion path inline | `title`-only tooltips. There is no hover on a tablet, so the provenance detail simply would not exist on the booth device — and provenance is the claim we are making |
 | **Batched distribution** — every figure that carries a band re-renders only once ≥5 new captures have landed (§5.8) | Live refresh of the signal distribution — it leaks the capturer's band to anyone watching. Not a tuning parameter |
 | Denominator discipline: funnel uses eligible employees; PMPM uses covered member-months (×2.2) — each chart labels its denominator | Real claims/eligibility integration — data rights not secured (report §11) |
 | Suppression: any cell with `n < 20` shows "Suppressed (n<20)" instead of values — **applies to the booth employer identically** | Relaxing suppression so the booth employer "shows something" — this would destroy the only reason the feature exists |
@@ -104,6 +105,7 @@ Springbuk and carrier reports already occupy the same quadrant — differentiati
 | Survives — this is the product | Seoul-only — disposable after 8/27 |
 |---|---|
 | The aggregate dashboard and scenarios A/B/C | The live booth employer as a 4th scenario |
+| 44px touch targets and tap-to-open chips — good on any device | — |
 | The Overview tab, once its numbers are real | Its booth-only name, **"U.S. GTM sample"** — on the booth employer that tab holds no capture data, so it is named as the sample it is. It reverts to "Overview" after the pivot |
 | `n < 20` suppression and per-field provenance | The batch-of-5 refresh guard — a booth-scale patch for differencing, not the production answer (engineering design §16 item 5 owns that) |
 | Band, never a score | The Korean consent text and its PIPA §23 framing — the US version answers to HIPAA and state law instead |
@@ -178,6 +180,8 @@ WS0 gates everything. Capturing before the consent text is settled is not a sche
 | Shared store | **Supabase, Seoul region (ap-northeast-2)** — one table, anon-key insert under a row-level-security policy that permits insert only, plus a realtime subscription for the display | Already an available dependency with zero prior use in this repo. Realtime removes polling. One table only. **The region is not a preference**: an overseas region makes this a cross-border transfer under PIPA §28-8, which needs its own disclosure and its own separate consent — one more screen and more drop-off. Seoul avoids the clause entirely |
 | Inference | ICLO Core AI, `POST /v1/oral-signal` per engineering design §8.2 | Response must carry `model_version`; without it past signal distributions cannot be reproduced |
 | Style | Inline CSS custom properties (Coral `#C2333A` · Navy `#1B2A4A` · Teal `#007A87`, white bg) | Coral changed from `#FF7A79` on 2026-08-08: 2.53:1 on white failed WCAG AA. `#C2333A` is 5.49:1. Dark mode `#FF8E8D` |
+| Signal bars | Low `#7E90AE` · Moderate `#4E8F98` · Priority `#C2333A` (dark: `#5B7099` · `#4FA0A9` · `#FF8E8D`) | Was `#D9E1EE` / `#8FB8BE`, measuring **1.24:1** and 2.02:1 against their track — the Low band carries 53% of the data and was invisible. WCAG 1.4.11 wants 3:1 for non-text content that carries meaning. Now 3.05 / 3.46 / 5.16, with luminance still descending so the ordinal reading survives |
+| Touch targets | 44px on every control, **unconditionally** | Was gated on `@media(hover:none)`. An iPad with a keyboard attached reports `hover:hover`, so the rule silently would not fire and controls stayed at 32-34px. The booth device is a touch surface; do not infer that from an input-capability query |
 | Charts | Hand-drawn CSS/SVG bars | no chart library (ponytail) |
 | State | Plain JS module-scope variables + a realtime subscription | `?scenario=A` URL state is still not implemented; drop it from the spec if 8/27 passes without needing it |
 
@@ -253,7 +257,7 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 9. Filter the booth employer to a small department: values are replaced by "Suppressed (n<20)".
 10. Check the provenance chips: the signal is marked real, the benefit context is marked synthetic.
 11. Capture from four more phones. The counter moves each time; on the fifth the distribution re-renders. Confirm you still cannot attribute that change to any one of the five.
-12. Resize the display to 1366px: no horizontal scroll; legible from two metres.
+12. On the iPad Pro 12.9" in landscape: the whole Overview fits without scrolling, every control is comfortable to tap, and tapping a source chip opens its ingestion path.
 
 ### 4c. Outcome metrics
 
@@ -314,6 +318,8 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 | Synthetic scenarios stay labeled "Synthetic data — illustrative only"; the booth employer is labeled per field (real signal, synthetic context) — never labeled wholesale as either | screenshot test |
 | No AI-slop visual patterns | kill-ai-slop Mode B gate before `/ship` |
 | Brand Coral is `#C2333A`; every light-mode declaration uses the same value | `scripts/check-package-consistency.py` |
+| Signal bars clear 3:1 against their track in both themes | contrast check in the consistency script |
+| No control under 44px, and no information reachable only by hover | review of the booth build on the actual iPad |
 | Absolute privacy claims must be scoped (`no individual PHI` → `no individual PHI in employer views`) | `scripts/check-package-consistency.py` |
 
 **5.8 Small numbers.** Tens of captures, not hundreds, changes two things.
