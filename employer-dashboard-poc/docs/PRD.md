@@ -1,47 +1,60 @@
-# employer-dashboard-poc: Aggregate oral-health dashboard click demo for self-funded employers
+# employer-dashboard-poc: Aggregate oral-health dashboard — booth demo with live capture
 
 > **Canonical values live in `contracts/proposal-package-v11.yml`.** Screen names, KPI labels, constants,
 > colors, terminology and start gates are defined there and shared with the report, the proposal decks and
-> the engineering design doc. Change that file first, run `scripts/check-package-consistency.sh`, then change
+> the engineering design doc. Change that file first, run `scripts/check-package-consistency.py`, then change
 > this one. The shipped code is `index.html` **at the repo root** — not inside this folder.
 >
 > `report §N` references below point at the **v2 report in the external Obsidian vault** (`20_Business/25_iclo/01_strategy/`,
 > 2026-07-30), not the v10 package in this repo. They do not resolve here.
 
-> **Status**: Draft v0.4 · 2026-07-30 (v0.4 = repo decision: project lives as a subfolder of the existing `iclo` monorepo; bootstrap kit seeded. v0.3 = restructured to skill v2.0, English)
-> **Product Type**: SW (web SPA, frontend-only) · **Stage**: PoC — click demo, synthetic data
+> **Status**: v0.5 · 2026-08-09 — **rewritten against the actual event.** v0.4 assumed a US stay (2026-09-06 → 10-24)
+> with US benefits consultants as the audience and a 9/5 freeze. That is not what is happening first.
+> The next live use is **Snowflake World Tour Seoul, COEX, 2026-08-27**. Audience, language, jurisdiction,
+> deadline and scope all move. v0.4's US channel plan is not cancelled — it is downstream of this event.
+> **Product Type**: SW (web) · **Stage**: PoC — booth demo, synthetic base + live real oral signal
 > **Owner**: Jangwoo Kim (CFO) — single decision-maker
 > **Audience**: Internal + AI coding agents (Codex = primary implementer · Claude Code = review/QA)
-> **Source of truth**: v2 narrative report §9–§10, §13–§14 and Snowflake 3-pager §2 (vault: `20_Business/25_iclo/01_strategy/`, saved 2026-07-30)
 
-> **⚠️ This spec needs validation — see Section 5.2.** Zero problem-validation interviews with US channel partners exist; this PoC is itself the validation instrument. Never present demo output as performance evidence.
+> **⚠️ This spec needs validation — see §5.2.** Zero problem-validation interviews with paying customers exist.
+> Never present demo output as performance evidence. This now matters more, not less: from 8/27 the screen
+> carries **real oral signals from real people**, and a real number is easier to mistake for a real result.
 
 ---
 
-## 1. Why — Channel partners judge vendors on screens, not documents
+## 1. Why — one booth day, 3,000 attendees, and the routing decision we actually need
 
-**1.1 Action title.** **Benefits consultants and self-funded employers judge vendors on screens — this PoC turns the dashboard specified in report §9 into a clickable artifact that converts Sep–Oct 2026 US channel meetings.**
+**1.1 Action title.** **Snowflake World Tour Seoul (2026-08-27, COEX) puts ICLO in front of Snowflake Korea and 3,000+ Korean data leaders for one day. The demo's job is to make the governed-evidence story physically undeniable so Snowflake routes us to US HLS GTM — and to capture leads, since the organizer provides no lead scanning.**
 
-**1.2 Situation.** The US stay (2026-09-06 → 10-24) is defined in the GTM plan as the channel / design-partner sourcing stage (M0–3 on a T+18–24-month revenue path — report §15). Meeting counterparts: benefits consultants (the RFP gate), dental TPA/ASOs, self-funded employers. Current assets: two written documents plus the deployed synthetic dashboard (`index.html`, live on GitHub Pages). The Korean HomeDen app cannot be demoed to US channels: it contains disease-specific outputs, which the FDA 2026 wellness guidance places outside the permitted boundary (intended-use firewall, no cross-contamination — report §13).
+**1.2 Situation.** ICLO is one of **7 startups** in Startup Village. Provided: one counter, two chairs, one wall-mounted display, a power strip, **one wired internet line**. Event runs 08:00–17:00; keynote from 10:00; the mini-session slots are at lunch (12:00–12:25 / 12:30–12:50, fireside format, 3–4 companies per panel, **live-relayed to every session hall**). 2025 drew 3,000+ attendees from 600+ accounts, mostly Technology → Manufacturing → Retail, mostly Manager level with a rising Director+ share. Roughly 80% are existing Snowflake customers.
 
-**1.3 Complication.** ICLO's differentiators — aggregate-only views, `n >= 20` suppression, dual denominators — are all properties of *what the screen looks like*. (The J-curve guardrail was cut with the Trend view; see §2.) Prose conveys them poorly. In a point-solution-fatigued market (report §18), consultants do not shortlist vendors without a working artifact. There is no time to build real-data integration or a backend before the first September meetings.
+These are not our buyers. US self-funded employers and benefits consultants are, and none of them are at COEX. So the booth is not a sales motion — it is a **credibility and routing motion**, aimed at three groups actually in the room: Snowflake Korea (who can route us to US HLS GTM — the Step 0 ask in the joint-validation package), Korean enterprises and VCs (the organizer offers matched meetings), and the live-relayed session audience.
 
-**1.4 Question → Answer.** Q: What must be shown in a US channel meeting to convert it into a design-partner conversation? A: a synthetic-data click demo. Four reasons (MECE):
+**1.3 Complication.** A static synthetic dashboard is indistinguishable from every other booth screen at a data conference. Everyone has charts. What nobody else has is a screen where **the privacy boundary can be tested by the person standing in front of it**. And the organizer explicitly provides no lead-scanning system, so any lead capture has to be ours.
+
+The current demo cannot do either. It is frontend-only with hardcoded ratio constants — no backend, no way for a visitor to put anything into it.
+
+**1.4 Question → Answer.** Q: What must the booth do on 8/27 that a slide deck cannot? A: **let a visitor put their own real oral capture into the evidence layer and then fail to find themselves in it.**
 
 | # | Reason | So-what |
 |---|---|---|
-| 1 | Materializes buyer language — activation, preventive visits, PMPM, restorative mix shown as buyers define them | Layer 1–2 value narrative lands in a 3-minute demo |
-| 2 | Visually proves the regulatory/privacy boundary — no individual screens, suppression that actually fires, non-disease signal labels | Compliance that runs, not compliance that is claimed |
-| 3 | Embeds the J-curve anti-misreading narrative — short-term allowed shown only as a guardrail band | Prevents the month-12 renewal own-goal (report §10) before any contract exists |
-| 4 | Collects feedback — channel reactions to metric definitions and view priorities feed pilot design | The PoC is an input to pilot design (report §17), not a one-way pitch |
+| 1 | The suppression rule stops being a claim and becomes an experience — the visitor's own row is provably in there and provably unretrievable | This is the single strongest possible answer to "how do you handle privacy", and it takes 30 seconds instead of 3 slides |
+| 2 | It demonstrates the full loop live — capture → inference → governed store → aggregate — which is exactly the Snowflake-platform story, independent of the dental vertical | Gives Snowflake Korea something concrete to route on |
+| 3 | The QR flow is the lead capture the organizer does not provide | Turns booth traffic into a contactable list |
+| 4 | Real signal + synthetic benefit context, labeled per field | Shows we know which parts we can actually evidence — the same discipline the joint-validation package is built on |
 
 ---
 
 ## 2. What — Concept and boundaries
 
-**2.1 Concept.** A single-page web app. Four views of an oral-health program from a self-funded employer's executive perspective: **Executive Overview · Oral-Health Signals · Intervention Funnel · Trend vs Control**. All data is synthetic (fixed-seed generator). No backend, no auth. Static build, runs offline. **UI language: English.** Every view carries a permanent label: "Synthetic data — illustrative only."
+**2.1 Concept.** Two surfaces sharing one store.
 
-**2.2 Positioning.** (One framework; it drives the §5.3 competition argument.)
+- **Booth display** (wall-mounted, wired line): the existing aggregate dashboard. Three synthetic employers (A/B/C) plus a fourth, **the live booth employer**, whose signal distribution moves as visitors capture.
+- **Capture app** (visitor's own phone, opened from a printed QR at the booth): consent → oral capture → Core AI inference → **the visitor sees their own band on their own phone, and only there**.
+
+Each capture writes exactly one row: band, timestamp, model version, and synthesized benefit context. **The image is never stored.** UI language stays English on the booth display (it is the US product); the capture app and its consent text are Korean.
+
+**2.2 Positioning.** Unchanged — this still drives §5.3.
 
 ```mermaid
 quadrantChart
@@ -65,28 +78,31 @@ Springbuk and carrier reports already occupy the same quadrant — differentiati
 
 | In (build) | Out (do not build — reason) |
 |---|---|
-| 3 views: Program overview (KPI band) · Oral-health signal distribution (Low/Moderate/**Priority**) · Intervention funnel | Login / roles / backend / DB — unnecessary for a PoC, pure time cost |
-| — | **Preventive-visit Trend vs Control — deferred, not cut.** It needs a control arm, and experiment assignment has no consent basis, allocation rule or protocol owner agreed yet. Returns after legal/protocol sign-off. |
-| Denominator discipline: funnel uses eligible employees (10,000); PMPM uses covered member-months (22,000 members, est. ×2.2) — each chart labels its denominator | Real-data integration — data rights not secured (report §11); scope creep |
-| Suppression demo: department/site filter; any cell with `n < 20` shows "Suppressed (n<20)" instead of values | Individual-level views — RED-class function (report §13); refuse even if requested |
-| — | **J-curve guardrail band — deferred with the Trend view above** (it lives on the allowed-trend chart) |
-| — | Any disease-specific wording — FDA 2026 red line |
-| 3 scenario presets: A baseline (10K) · B small (2.5K) · C large (25K) — §9 ratios preserved, fixed seed | PDF export, mobile optimization, i18n — not needed for a projector demo |
-| Offline execution (local `dist/` bundle) — meeting-room network distrust | Live/streaming data effects — invites misreading |
+| 3 views: Program overview (KPI band) · Oral-health signal distribution (Low/Moderate/**Priority**) · Intervention funnel | Login / roles / user accounts — the capture app is anonymous by design; accounts would create exactly the identifiability we are demonstrating against |
+| **Live booth employer** — a 4th scenario, pre-seeded with synthetic members, into which real captures land | Storing the oral image — never. Inference is call-and-discard (§5.7) |
+| **Capture app** — QR entry, Korean consent gate, camera capture, Core AI call, own-band-only result screen | Showing any individual on the booth display — including the visitor's own row, including "the last capture" |
+| **Shared store** — one Supabase table + realtime subscription to the booth display | A general backend — one table, one insert path, one subscription. Nothing else |
+| Denominator discipline: funnel uses eligible employees; PMPM uses covered member-months (×2.2) — each chart labels its denominator | Real claims/eligibility integration — data rights not secured (report §11) |
+| Suppression: any cell with `n < 20` shows "Suppressed (n<20)" instead of values — **applies to the booth employer identically** | Relaxing suppression so the booth employer "shows something" — this would destroy the only reason the feature exists |
+| Per-field provenance chips: signal = real capture, everything else = synthetic | — |
+| **Offline fallback**: if the network drops, A/B/C keep working and the booth employer degrades to a clear "live feed unavailable" state | Any design where a network failure blanks the booth screen |
+| — | **Preventive-visit Trend vs Control — still deferred.** Needs a control arm; experiment assignment has no consent basis, allocation rule or protocol owner. Returns after legal/protocol sign-off |
+| — | Any disease-specific wording — FDA 2026 red line, and now also a PIPA 민감정보 exposure |
 
-**2.4 Core hypotheses.** (A hypothesis without a verification method is not a hypothesis.)
+**2.4 Core hypotheses.**
 
 | # | Hypothesis | Verification |
 |---|---|---|
-| H1 | A working aggregate-only + suppression screen preempts privacy objections inside the meeting | Meeting log: privacy question raised → resolved on-screen (Y/N) |
-| H2 | ~~The J-curve guardrail view handles the "so costs go up?" objection~~ — **untestable in v1**; the Trend view it depends on is deferred | n/a until the Trend view ships |
-| H3 | The metric-definition view elicits concrete consultant feedback usable in pilot design | Count of feedback items captured (§4c) |
+| H1 | A visitor who captures and then cannot find themselves stops asking privacy questions | Booth log: privacy question raised → resolved on-screen (Y/N), per conversation |
+| H2 | ~~J-curve guardrail~~ — **untestable**; the Trend view it depends on is deferred | n/a until the Trend view ships |
+| H3 | The live loop gives Snowflake Korea something concrete enough to act on | ≥ 1 written follow-up toward US HLS GTM routing within 10 business days of 8/27 |
+| H4 | The QR flow works as lead capture without a scanning system | Count of completed captures; count of opted-in contacts |
 
 ---
 
 ## 3. How — Execution model
 
-**3.1 Agent workflow and roles.** This PRD is the input to gstack `/office-hours` — the first W1 task. Premises broken there flow back into this document as a PR.
+**3.1 Agent workflow and roles.** Unchanged.
 
 | Role | Actor | Tools |
 |---|---|---|
@@ -98,179 +114,219 @@ Springbuk and carrier reports already occupy the same quadrant — differentiati
 
 Cross-check rule: **the authoring agent never approves its own PR.**
 
-> **⚠️ NOTE (ponytail activation trap):** copying SKILL.md into a skills folder yields ~zero self-activation. Install as a plugin (`/plugin marketplace add DietrichGebert/ponytail` → `/plugin install ponytail@ponytail`; for Codex use the plugin or `AGENTS.md` rule file) and ensure `node` is on PATH. W1 exit verifies activation on both agents.
+**3.2 Roadmap — 18 days.** Organizer deadlines are hard and externally owned; ours are set to land before them.
 
-**3.2 Roadmap — 3 waves.** (Dates are planning values; hard anchors: departure 9/6 · Core20 week 9/7–13 · Pitch Night 9/10.)
+| Date | Owner | Item |
+|---|---|---|
+| **8/10 (Mon)** | J. Kim | **Booth back-wall content to Snowflake** — 850×300mm, .ai file or ≤30 Korean characters of slogan text |
+| 8/12 | Claude Code | Consent text drafted (PIPA §23 separate consent for 민감정보) and reviewed — **blocks all capture work** |
+| **8/14 (Fri)** | J. Kim | Mini-session speaker info + content + **DocuSign consent form**; booth staff list (≤6, all registered on the SWT site) |
+| 8/17 | Codex | Shared store + insert path + realtime subscription working end to end with a stubbed inference call |
+| 8/19 | Codex | Core AI wired in (real endpoint); capture app complete; booth employer live on the display |
+| **8/21 (Fri)** | J. Kim | Company promo video (≤2 min) to Snowflake |
+| 8/22 | Claude Code | `/qa` + `/review` + kill-ai-slop + consistency check all green; **on-venue-conditions rehearsal** (mobile network, not office wifi) |
+| **8/25 (Mon)** | — | **Freeze.** Tag the repo. Patches after this only for a demo-breaking defect |
+| **8/26 (Tue)** | J. Kim | Booth setup + operating rehearsal at COEX |
+| **8/27 (Thu)** | — | Event, 08:00–17:00. Keynote from 10:00. Mini-session 12:00–12:25 or 12:30–12:50, live-relayed |
 
-| Wave | Window | Entrance | Exit criteria |
-|---|---|---|---|
-| W1 Shape | now → 8/16 | PRD approved | gstack `/office-hours` design doc accepted · repo scaffold + CI green · ponytail active on both agents · synthetic generator runs |
-| W2 Build | 8/17 → 8/31 | W1 exit | 4 views + 3 interactions complete · §4a all ✅ · kill-ai-slop pass · `/qa` pass |
-| W3 Ship & operate | 9/1 → 10/24 | W2 exit | **Freeze 9/5** · first live use in Core20 week · meeting log accumulating · patches only on non-meeting days |
+Booth events must be shared with the organizer in advance and must not disturb neighbouring booths (operation guide). The QR capture activity counts as a booth event — **tell Snowflake before 8/14**, in the same mail as the staff list.
 
-**3.3 Task decomposition principle.** Tasks must be implementable and verifiable in isolation — "suppression masks any cell below n=20 and prints the reason" ✅, "build the dashboard" ❌. The detailed task list is delegated to the gstack plan phase; this principle governs it. Workstream dependencies:
+**3.3 Task decomposition principle.** Tasks must be implementable and verifiable in isolation. Workstream dependencies:
 
 ```mermaid
 flowchart LR
-    WS0["WS0 Repo · CI · agent setup"] --> WS1["WS1 Synthetic data engine"]
-    WS1 --> WS2["WS2 Four views"]
-    WS2 --> WS3["WS3 Interactions<br/>(toggle · suppression · presets)"]
-    WS3 --> WS4["WS4 Polish<br/>(brand tokens · de-slop)"]
-    WS4 --> WS5["WS5 Deploy<br/>(Pages + offline bundle)"]
+    WS0["WS0 Consent text<br/>(PIPA §23)"] --> WS1["WS1 Shared store<br/>one table + realtime"]
+    WS1 --> WS2["WS2 Capture app<br/>QR · consent · camera"]
+    WS2 --> WS3["WS3 Core AI call<br/>call-and-discard"]
+    WS1 --> WS4["WS4 Booth employer<br/>on the display"]
+    WS3 --> WS5["WS5 Rehearsal<br/>on mobile network"]
+    WS4 --> WS5
 ```
 
-**3.4 Stack.** (Standard agent-training-distribution stack; minimal dependencies — any new npm package requires a stated reason in the PR.)
+WS0 gates everything. Capturing before the consent text is settled is not a schedule risk, it is a legal one.
+
+**3.4 Stack.**
 
 | Layer | Choice | Note |
 |---|---|---|
-| Build/FW | **Single vanilla HTML file** (`index.html` at repo root), inline CSS + JS | Vite/React/TS was the original plan and was not adopted. No `package.json`, `src/` or `dist/` exists. |
-| Style | Inline CSS custom properties (Coral `#C2333A` · Navy `#1B2A4A` · Teal `#007A87`, white bg) | Tailwind not adopted. Coral changed from `#FF7A79` on 2026-08-08: it measured 2.53:1 on white, failing WCAG AA, and the "synthetic data" disclaimer was the least readable text on the page. `#C2333A` is 5.49:1. Dark mode uses `#FF8E8D`. |
-| Charts | Hand-drawn CSS/SVG bars | no chart library at all (ponytail) |
-| State | Plain JS module-scope variables | **`?scenario=A` URL state is not implemented.** Either build it or drop this row. |
+| Booth display | **Single vanilla HTML file** (`index.html` at repo root), inline CSS + JS | Vite/React/TS was the original plan and was not adopted. No `package.json`, `src/` or `dist/` exists |
+| Capture app | Second single HTML file, `capture.html` | Same discipline. `getUserMedia` for the camera; no native app, no store review |
+| Shared store | **Supabase** — one table, anon-key insert under a row-level-security policy that permits insert only, plus a realtime subscription for the display | Already an available dependency with zero prior use in this repo. Realtime removes polling. One table only |
+| Inference | ICLO Core AI, `POST /v1/oral-signal` per engineering design §8.2 | Response must carry `model_version`; without it past signal distributions cannot be reproduced |
+| Style | Inline CSS custom properties (Coral `#C2333A` · Navy `#1B2A4A` · Teal `#007A87`, white bg) | Coral changed from `#FF7A79` on 2026-08-08: 2.53:1 on white failed WCAG AA. `#C2333A` is 5.49:1. Dark mode `#FF8E8D` |
+| Charts | Hand-drawn CSS/SVG bars | no chart library (ponytail) |
+| State | Plain JS module-scope variables + a realtime subscription | `?scenario=A` URL state is still not implemented; drop it from the spec if 8/27 passes without needing it |
 
-**3.5 Architecture & data.** Pure client: ratio constants inline in `index.html` (`SCEN`, `FRAC`, `SIGNALS`, `FRESH`) → 3 views, computed in the browser on every render. No build step, no generator script, no JSON data files. **No API** (out of scope). Baseline scenario A reproduces report §9 values exactly: 10,000 eligible employees / 22,000 covered members / 38% activated / 61% repeat / $31.40 PMPM / signal mix 52·33·15% / funnel 3,800 → 2,800 → 950 → 420. (Trend values are held for the deferred view.)
+**3.5 Architecture & data.**
 
-**3.6 Repo.** Subfolder `employer-dashboard-poc/` inside the existing monorepo `github.com/[FILL: owner]/iclo`
-- Project layout (inside the subfolder): `/src` · `/scripts` · `/src/data` · `/docs` (this PRD as `docs/PRD.md`) · `AGENTS.md` · `CLAUDE.md` — agents run from `employer-dashboard-poc/` so the nested context files apply
-- Monorepo rule: GitHub Actions workflows live at the **repo root** (`.github/workflows/employer-dashboard-poc-ci.yml`) with `paths: ['employer-dashboard-poc/**']` filters
-- Bootstrap kit pre-seeded 2026-07-30: AGENTS.md · CLAUDE.md · SETUP.md · docs/PRD.md · docs/meeting-log.md · scripts/check-forbidden-terms.sh · root CI. Codex extends these in W1 — does not replace them
-- **AGENTS.md / CLAUDE.md stay short**: build/test commands, ponytail pointer, and a pointer to `/docs/PRD.md`. No long generated context files (measured to degrade agent performance).
-- Rules: protected `main` · PRs required · conventional commits · cross-review per §3.1 · spec changes only via PR (living document — no verbal amendments)
-- CI: build + `scripts/check-forbidden-terms.sh` (§5.6 grep) + Lighthouse CI
+```
+visitor phone                    ICLO                     booth display
+─────────────                    ────                     ─────────────
+QR → capture.html
+  consent (PIPA §23)
+  camera capture
+  POST image ──────────────► Core AI /v1/oral-signal
+                              returns band + model_version
+  image discarded ◄──────────┘   (never written anywhere)
+  INSERT one row ──────────► Supabase booth_capture ──────► realtime ──► index.html
+  own band shown                                                          aggregate only
+  on own phone only                                                       n<20 suppressed
+```
 
-**3.7 Deploy.** GitHub Pages via an Actions artifact built from the subfolder (monorepo-safe) + an offline bundle (`dist/` zipped as a release artifact; must run from local files with network off).
+Row shape: `employer_id · captured_at · signal_band · model_version` plus synthesized context (department, tenure band, eligibility span, claim lines). No image, no name, no phone, no email, no device identifier. Contact details, if the visitor opts in for follow-up, go to a **separate** table with no link to the capture row.
+
+The booth employer is pre-seeded with synthetic members so the aggregate is not fully suppressed on the first capture of the day. Seed size and pre-seeded distribution are canonical values — see `contracts/proposal-package-v11.yml`.
+
+Scenarios A/B/C keep their current behaviour exactly: inline constants, no network, 10,000 / 2,500 / 25,000 · 38% activated · 61% repeat · $31.40 PMPM · 52·33·15 signal mix · funnel 3,800 → 2,800 → 950 → 420.
+
+**3.6 Repo.** Subfolder `employer-dashboard-poc/` holds spec and scripts only. Shipped code is at the repo root. Rules: protected `main` · PRs required · conventional commits · cross-review per §3.1 · spec changes only via PR.
+
+**3.7 Deploy.** GitHub Pages. The capture app must be reachable over HTTPS from a phone on a cellular network — Pages satisfies this. The booth display runs from the wired line; the offline bundle remains the fallback if COEX networking fails (see §2.3, offline fallback).
 
 ---
 
 ## 4. Verification & Success
 
-**Success = at least 3 channel meetings convert into data-readiness-workshop follow-ups by 2026-10-24** (the M4–6 entry signal in report §15).
+**Success = (a) the live capture loop runs all day on 8/27 without a privacy incident, and (b) at least one written Snowflake follow-up toward US HLS GTM routing within 10 business days.**
 
-### 4a. Machine-verifiable acceptance (Definition of Done)
+### 4a. Machine-verifiable acceptance
 
-- [ ] All 4 views render; zero console errors
-- [ ] Denominator discipline: funnel denominator = eligible employees; PMPM denominator = covered member-months; values match §3.5 scenario-A numbers exactly
-- [ ] Filtering to any cell with `n < 20` masks values and prints "Suppressed (n<20)"
-- [ ] `scripts/check-forbidden-terms.sh` exits 0 — no forbidden terms across `src`, `dist`, and `docs` (the spec's own red-line table in `docs/PRD.md` is excluded; term list in §5.6)
-- [ ] "Synthetic data — illustrative only" label present on every view (screenshot test)
-- [ ] `dist/` opens and fully functions on a network-disabled machine
-- [ ] Entire UI in English
-- [ ] Lighthouse Performance ≥ 90; initial load < 2s local
+- [ ] All 3 views render for all 4 employers; zero console errors
+- [ ] Scenario A/B/C values match §3.5 exactly and still work with the network disabled
+- [ ] A capture inserts exactly one row; the row contains no image and no identifier
+- [ ] The booth display reflects a new capture within 3 seconds
+- [ ] Any cell with `n < 20` masks values and prints "Suppressed (n<20)" — **including on the booth employer**
+- [ ] The visitor's own band renders on the visitor's device and appears in no booth-display DOM at any time
+- [ ] Consent gate blocks capture until explicitly accepted; declining leaves no row
+- [ ] Inference failure degrades to a clear message; no row is written with a fabricated band
+- [ ] `scripts/check-forbidden-terms.sh` exits 0
+- [ ] `scripts/check-package-consistency.py` exits 0
+- [ ] Provenance label present on every booth-employer figure (real vs synthetic, per field)
+- [ ] Capture app works on iOS Safari and Android Chrome over a cellular network
 - [ ] kill-ai-slop Mode B scan pass
-- [ ] Fixed seed: two generator runs → `diff` of outputs = 0
 
-### 4b. Human verification script (non-programmer walkthrough)
+### 4b. Human verification script
 
-The Owner performs this alone; passing all 10 steps = approval. Together with §4a this covers every in-scope feature.
+The Owner performs this alone on a phone that is **not** on office wifi; passing all 12 = approval.
 
-1. Open the Pages URL — or, with Wi-Fi off, open `dist/index.html` locally.
-2. Confirm the "Synthetic data — illustrative only" label is visible on each of the 3 views.
-3. Program overview shows: 10,000 eligible employees · 22,000 covered members · 38% activated · 61% repeat · $31.40 PMPM.
-4. Toggle the denominator control: funnel figures stay employee-based; PMPM stays member-based; each chart states its denominator in its caption.
-5. Oral-health signal distribution shows exactly three bands — Low 52% / Moderate 33% / **Priority** 15% — and no disease words anywhere on screen.
-6. Intervention funnel reads 10,000 → 3,800 → 2,800 → 950 → 420.
-7. *(Trend view — deferred. No step.)*
-8. Apply a department/site filter until a small group: values are replaced by "Suppressed (n<20)".
-9. Switch presets B (2.5K) and C (25K): numbers change, ratios hold, layout does not break.
-10. Resize to a 1366-px window (projector case): no horizontal scroll; text legible.
+1. Open the booth display. Confirm A/B/C behave exactly as before.
+2. Turn wifi off on the display machine: A/B/C still work; the booth employer shows "live feed unavailable", not a blank or an error.
+3. Restore the network. Scan the printed QR with a phone on cellular.
+4. The consent screen is Korean, states that an oral image is processed and not stored, and cannot be skipped.
+5. Decline. Confirm no row appears and nothing is sent.
+6. Accept, capture. Your own band appears on your phone.
+7. Within 3 seconds the booth employer's signal distribution moves on the display.
+8. Search the entire booth display for yourself. You cannot find yourself. Say so out loud — this is the demo.
+9. Filter the booth employer to a small department: values are replaced by "Suppressed (n<20)".
+10. Check the provenance chips: the signal is marked real, the benefit context is marked synthetic.
+11. Capture again from a second phone; both rows land, the distribution moves again.
+12. Resize the display to 1366px: no horizontal scroll; legible from two metres.
 
 ### 4c. Outcome metrics
 
 | Metric | Baseline | Target | Method | Cadence | Owner |
 |---|---|---|---|---|---|
-| Demo freeze met | n/a (new) | 9/5, binary | repo tag | once | J. Kim |
-| Meetings using the demo | 0 | ≥ 8 | `/docs/meeting-log.md` | per meeting | J. Kim |
-| Workshop follow-up conversions | 0 | ≥ 3 | meeting log | per meeting | J. Kim |
-| Metric-definition feedback items | 0 | ≥ 10 | meeting log → issues | weekly | J. Kim |
-| Initial load (local) | n/a | < 2s | Lighthouse CI | per PR | Claude Code |
-| Lighthouse Performance | n/a | ≥ 90 | Lighthouse CI | per PR | Claude Code |
-| Console errors | n/a | 0 | `/qa` | per PR | Claude Code |
+| Freeze met | n/a | 8/25, binary | repo tag | once | J. Kim |
+| Completed captures on 8/27 | 0 | ≥ 60 | store count | end of day | J. Kim |
+| Opted-in contacts | 0 | ≥ 30 | contact table count | end of day | J. Kim |
+| Snowflake follow-up toward US HLS routing | 0 | ≥ 1 written | mail thread | within 10 business days | J. Kim |
+| Korean enterprise / VC meetings booked | 0 | ≥ 3 | booth log | end of day | J. Kim |
+| Privacy incidents | 0 | **0** | booth log | continuous | J. Kim |
 
-**Cost & payback (honest).** Inputs: agent subscriptions (already held, marginal cost ≈ 0), hosting $0 (static), Owner time [FILL: weekly hour budget]. This PoC is a cost center with no direct revenue; payback exists only through design-partner conversion (§4 success line) into a fixed-fee pilot (report §15 planning). Any "results" claim before that is prohibited.
+**Cost.** Agent subscriptions (already held), Pages hosting $0, Supabase free tier, Core AI inference at whatever a few hundred calls cost. The booth slot is the real expense and it is already committed.
 
 ### 4d. Anti-goals (achieving these = failure)
 
-- Any disease-specific wording appears in screens, code, or screenshots (FDA red line)
-- A screenshot without the "Synthetic" label circulates externally (performance misattribution)
-- An individual-level view gets added because someone asked
-- Chasing polish past the 9/5 freeze (the demo is a means; meetings are the end)
-- Starting real-data integration (scope creep — forbidden before the data-rights gate, report §17)
+- Any individual result appears on the booth display, in any form, at any moment
+- An oral image is persisted anywhere — server, log, browser cache, screenshot
+- A capture happens before consent, or after a decline
+- A fabricated band is written when inference fails
+- Any disease-specific wording appears on screen, in code, or in a screenshot
+- Booth aggregate numbers get presented as customer performance evidence
+- The network fails and the booth screen goes blank
+- Chasing polish past the 8/25 freeze
 
 ---
 
 ## 5. Risk & Guardrails
 
-**5.1 Pressure test.** Direct evidence that a US customer pays for this dashboard: **none** (0 US customers, 0 interviews). Indirect: consultant channels demand working artifacts as standard vendor diligence; report §15's workshop-first strategy; the Korean 위탁테스트 structural lesson (proposals without artifact + in-house data failed matching). Verdict: **⚠️ Weak** — closing this gap is the PoC's reason to exist.
+**5.1 Pressure test.** Direct evidence that a customer pays for this dashboard: **none**. The booth does not change that — it tests whether the governed-evidence story is legible to a technical audience, which is a different and lower bar. Verdict: **⚠️ Weak**, deliberately.
 
-**5.2 Problem validation.** Interviews/observation with US benefits consultants or employers: **0**. Verdict: **🚨 Blocking** — this PoC is itself the validation instrument (H1–H3). No production decision until the W3 meeting log fills this in. (Basis of the warning box at the top.)
+**5.2 Problem validation.** Interviews with US benefits consultants or employers: **0**. Verdict: **🚨 Blocking** for any production decision. The Seoul booth cannot close this gap — its audience is not the buyer. It can only produce the routing that leads to the buyer.
 
-**5.3 Competition.** In-room comparisons: polished Springbuk-class demos (medical-wide), static carrier annual reports. The single reason we win: **the only demo that shows a dental-vertical aggregate loop (signal → action → claims) with the privacy boundary visibly operating.** Risk: if our demo looks crude next to Springbuk, it backfires → brand tokens + the kill-ai-slop gate are the defense. Verdict: **✅ Passed**.
+**5.3 Competition.** In-room comparison is now every other booth at a data conference, not Springbuk. The differentiator is the same but the framing changes: **we are the only booth where the visitor can test the privacy claim themselves.** Risk: if the capture loop fails live, that inverts into the strongest possible negative demonstration. Mitigation: §2.3 offline fallback and §4b step 2. Verdict: **✅ Passed, conditional on rehearsal.**
 
-**5.4 First 10 targets.** Named list [FILL: build during August — via Core20 network, Snowflake intros, GMEP VentureDock]. Personas (from report §15 ICP):
-1. Principal at a US-West regional benefits consultancy with self-funded dental clients of 2,000–25,000 employees
-2. Total Rewards director at a 5,000–15,000-employee self-funded firm — medical and dental both self-funded
-3. BD lead at a dental TPA/ASO exploring wellness add-ons for employer clients
-Verdict: **⚠️ Weak** (persona level; converting to names is a W1–W2 parallel task).
+**5.4 First 10 targets.** For 8/27 specifically: Snowflake Korea HLS/GTM contacts, the mini-session moderator, the organizer-matched enterprise and VC meetings. The US persona list from v0.4 stands but is downstream.
 
-**5.5 Smallest validating build.** Minimum unit to test H1–H3 = 4 views + 3 interactions (denominator toggle · suppression · presets) + the meeting-log template. Everything else stays unbuilt (§2.3 Out). Verdict: **✅ Passed**.
+**5.5 Smallest validating build.** Consent gate + one capture + one row + the display moving + suppression holding. Everything else is padding. If 8/22 arrives and the loop is not solid, **ship A/B/C only** — a working static demo beats a broken live one.
 
-**5.6 Agent red lines (violation = auto-reject).** Specified as checks, not prose:
+**5.6 Agent red lines (violation = auto-reject).**
 
 | Red line | Enforcement |
 |---|---|
-| Forbidden terms: `diagnos*, cavit*, caries, decay, gingivit*, periodont*, abscess, lesion`; signal label "Review" banned (use "Priority") | `scripts/check-forbidden-terms.sh` in CI; grep must return 0 |
-| No individual-level screens; no mock person profiles | PR review checklist item; any such PR is rejected without discussion |
-| "Synthetic data — illustrative only" on every view | screenshot test in CI |
-| Cells with `n < 20` never show values | unit test on the suppression function |
-| No AI-slop visual patterns (indigo/violet gradients, glassmorphism, etc.) | kill-ai-slop Mode B gate before `/ship` |
-| Brand Coral is `#C2333A`; every light-mode declaration must use the same value | `scripts/check-package-consistency.sh` |
-| Absolute privacy claims must be scoped (`no individual PHI` → `no individual PHI in employer views`) | `scripts/check-package-consistency.sh` |
+| Forbidden terms: `diagnos*, cavit*, caries, decay, gingivit*, periodont*, abscess, lesion`; signal label "Review" banned (use "Priority") | `scripts/check-forbidden-terms.sh`; grep must return 0 |
+| No individual-level screens; no mock person profiles; **the booth display never renders a single person's result** | PR review; any such PR rejected without discussion |
+| **The oral image is never persisted** — not on a server, not in a log, not in localStorage, not in a cache | code review of the capture path + a test asserting no write |
+| **No row without consent**; declining writes nothing and sends nothing | unit test on the consent gate |
+| **No fabricated band.** Inference failure surfaces as failure | unit test on the error path |
+| Cells with `n < 20` never show values, on every employer including the live one | unit test on the suppression function |
+| Synthetic scenarios stay labeled "Synthetic data — illustrative only"; the booth employer is labeled per field (real signal, synthetic context) — never labeled wholesale as either | screenshot test |
+| No AI-slop visual patterns | kill-ai-slop Mode B gate before `/ship` |
+| Brand Coral is `#C2333A`; every light-mode declaration uses the same value | `scripts/check-package-consistency.py` |
+| Absolute privacy claims must be scoped (`no individual PHI` → `no individual PHI in employer views`) | `scripts/check-package-consistency.py` |
 
-Stage gate: this PoC has no login, PII, or payments, so vibecoding-security-audit is **not** required now — the moment any of those appear (scope escalation), the audit becomes a release condition. Agent conduct: on spec ambiguity, open a `question`-labeled issue — **guessing is prohibited**; no unrequested features or dependencies (YAGNI).
+**5.7 Personal-data handling (PIPA).** This replaces v0.4's US-jurisdiction framing. The event is in Korea and the visitors are Korean.
+
+An oral image is **민감정보 (건강정보)** under PIPA §23, which requires consent obtained **separately** from any other consent — not bundled into a general agreement. The mitigations, in order of how much they remove:
+
+1. **Do not store the image.** Call inference, take the band, discard. This removes the retention, destruction-schedule and breach-notification surface almost entirely and matches the engineering design §2.1 boundary (binaries never enter the warehouse).
+2. **Collect nothing identifying with the capture.** No name, no phone, no email, no device id on the capture row. A band and a timestamp are not personal data on their own.
+3. **Separate the contact list.** If a visitor opts in to follow-up, that contact goes to a different table with no key back to their capture.
+4. **Consent text in Korean**, stating plainly: what is captured, that it is sent for analysis, that it is not stored, what is kept (a band), and that they may decline with no consequence.
+
+Item 1 is doing most of the work here. Do not trade it away for training data without a legal review first — that is a different consent, a different retention obligation, and a different conversation.
+
+Stage gate: this PoC previously had no PII and so was exempt from a security audit. **It no longer is.** The capture path handles 민감정보, so a security review of that path is a release condition before 8/25.
 
 ---
 
 ## 📋 Handoff Brief (for AI coding agents — self-contained)
 
 ### Background
-ICLO is a smartphone oral-imaging AI company entering the US self-funded-employer market. This repo builds the **employer-facing aggregate dashboard click demo** used in California channel meetings, Sep–Oct 2026. No real data, no backend — synthetic only. The screen rules here are **regulatory requirements, not stylistic taste** (FDA 2026 wellness boundary · HIPAA aggregate principle) — do not modify them on your own judgment.
+ICLO is a smartphone oral-imaging AI company entering the US self-funded-employer market. This repo builds the **employer-facing aggregate dashboard**, shown at **Snowflake World Tour Seoul, COEX, 2026-08-27**. From this version it also captures **real oral signals from real booth visitors**. The screen rules are **regulatory requirements, not stylistic taste** (FDA 2026 wellness boundary · HIPAA aggregate principle · PIPA §23 민감정보) — do not modify them on your own judgment.
 
 ### Constraints
-- **Time**: kickoff now → W2 complete 8/31 → **freeze 9/5** (KST)
-- **Tech**: stack per §3.4 (vanilla HTML, no framework); any new dependency needs a stated reason in the PR (ponytail)
+- **Time**: today → freeze **8/25** → rehearsal 8/26 → event 8/27 (KST). Organizer deadlines 8/10, 8/14, 8/21 are external and immovable
+- **Tech**: stack per §3.4 (vanilla HTML, Supabase, no framework); any new dependency needs a stated reason in the PR (ponytail)
 - **Red lines**: §5.6 — violation = auto-reject
-- **Brand**: Coral `#C2333A` · Navy `#1B2A4A` · Teal `#007A87` · white background; AI-slop patterns banned
+- **Personal data**: §5.7 — the image is never stored; WS0 (consent text) gates all capture work
+- **Brand**: Coral `#C2333A` · Navy `#1B2A4A` · Teal `#007A87` · white background
 
 ### Deliverables
-| # | Deliverable | Form | Milestone | Owner |
+| # | Deliverable | Form | Due | Owner |
 |---|---|---|---|---|
-| D1 | Project scaffold (Vite app) + CI completion (build · Lighthouse jobs; red-line grep pre-seeded) | `employer-dashboard-poc/` | W1 | Codex |
-| D2 | Synthetic generator (fixed seed, 3 presets) | `scripts/generate.ts` | W1 | Codex |
-| D3 | Dashboard SPA (4 views + 3 interactions) | `src/` | W2 | Codex |
-| D4 | Deploy (Pages URL + offline `dist/` zip) | release | W2 | Claude Code `/ship` |
-| D5 | README (run & demo-operation guide) + `/docs/meeting-log.md` template | md | W2 | Claude Code |
+| D1 | Korean consent text, legally reviewed | md | 8/12 | Claude Code → J. Kim |
+| D2 | Supabase table + RLS insert-only policy + realtime subscription | migration | 8/17 | Codex |
+| D3 | Capture app (QR entry · consent · camera · own-band screen) | `capture.html` | 8/19 | Codex |
+| D4 | Core AI integration, call-and-discard | in D3 | 8/19 | Codex |
+| D5 | Booth employer on the display, live, with per-field provenance | `index.html` | 8/19 | Codex |
+| D6 | Printed QR + a one-page booth operating script for staff | pdf | 8/22 | Claude Code |
+| D7 | Rehearsal on a cellular network, all of §4b | — | 8/22 | J. Kim |
 
 ### Acceptance Criteria
-→ Section 4a, every checkbox. All machine-verifiable.
-
-### Human Verification
-→ Section 4b. The Owner runs the 10-step script alone; pass = approval.
+→ §4a, every checkbox. **§4b step 8 is the demo** — everything else exists to make that moment real.
 
 ### Communication & Decision
 - **Decision-maker**: Jangwoo Kim (single)
 - **Channel**: GitHub Issues/PR (ambiguity → `question` label; guessing prohibited)
 - **Workflow**: Codex PR → Claude Code `/review` + `/qa` → fixes → human merge. Claude-Code-authored changes get Codex reverse review
 - **Escalation**: `blocked` label + decision-maker mention
-- **Spec canon**: this document = `/docs/PRD.md`; changes via PR only (living document)
-
-### Payment & Contract
-Not applicable (AI-agent work; no separate contract or compensation). This PRD ships in-repo as the spec canon.
+- **Spec canon**: this document = `/docs/PRD.md`; values = `contracts/proposal-package-v11.yml`; changes via PR only
 
 ---
 
 ### Tool references
-- gstack — https://github.com/garrytan/gstack (Claude Code workflow: office-hours → plan → review → qa → ship)
-- ponytail — https://github.com/DietrichGebert/ponytail (YAGNI ruleset for Claude Code & Codex — must install as plugin; requires node on PATH)
+- gstack — https://github.com/garrytan/gstack
+- ponytail — https://github.com/DietrichGebert/ponytail
+- Event guide — `[스타트업 프로그램 코호트사용] 260827 Snowflake World Tour - Seoul - Startup Village Guide Deck.pdf` (Snowflake Korea, 25pp)
 - Source documents — v2 report & 3-pager (vault `20_Business/25_iclo/01_strategy/`, 2026-07-30)
-
-<!-- Gate: 5/6 passed + 1 conditional — (1) pressure test: indirect evidence only, stated as such (⚠️, PoC designed as the validation instrument) (2) first-10 at persona level ✅ (3) anti-goals ✅ (4) single decision-maker ✅ (5) all KPIs have baseline/target/method ✅ (6) all acceptance machine- or eye-verifiable; zero code-review-premised criteria ✅. 5.2 Blocking → warning box inserted at top -->

@@ -4,10 +4,10 @@
 # 서로 다른 말을 하기 시작한 것이 2026-08-09 정합성 감사의 결론이었고,
 # 그 원인은 정본이 셋(PRD / 기술문서 / index.html)으로 갈라져 있었던 것이다.
 #
-# 값을 바꿀 때: 여기를 먼저 바꾸고 → scripts/check-package-consistency.sh 를 돌려
+# 값을 바꿀 때: 여기를 먼저 바꾸고 → scripts/check-package-consistency.py 를 돌려
 # 어느 산출물이 어긋나는지 확인한 뒤 → 그 산출물을 고친다. 역순으로 하지 않는다.
 #
-# 검사기: scripts/check-package-consistency.sh
+# 검사기: scripts/check-package-consistency.py
 # 감사 근거: 2026-08-09 sync audit (Claude + codex)
 
 meta:
@@ -122,6 +122,23 @@ dashboard:
     eligibility_thru: "2026-07"
     claims_thru: "2026-05"
 
+  # 부스 라이브 캡처 (SWT Seoul 2026-08-27). PRD §2.1·§3.5
+  booth:
+    employer_key: LIVE
+    label: "Snowflake World Tour Seoul · live capture"
+    seed_members: 60        # 첫 촬영에 전부 억제되지 않을 만큼. n≥20 세 칸은 나오는 크기.
+    seed_signals: {Low: 52, Moderate: 33, Priority: 15}   # A/B/C 와 같은 시작 분포
+    real_fields: [signal_band, captured_at, model_version]
+    synthetic_fields: [department, tenure_band, eligibility_span, claim_lines]
+    never_stored: [oral_image]
+    row_shape: employer_id · captured_at · signal_band · model_version · 합성 컨텍스트
+    label_rule: |
+      A/B/C 는 "Synthetic data — illustrative only" 를 그대로 쓴다.
+      부스 기업은 필드별로 표시한다 — 신호는 실촬영, 급여 맥락은 합성.
+      부스 기업 전체를 합성이라고도, 실데이터라고도 부르지 않는다.
+    suppression: A/B/C 와 동일하게 n≥20 적용. 부스라고 완화하지 않는다.
+    individual_visibility: 본인 기기에만. 부스 화면 DOM 에는 어떤 시점에도 개인이 없다.
+
   colors:                   # PRD §3·§5.6 레드라인
     coral: "#C2333A"        # 원안 #FF7A79 는 흰 배경에서 2.53:1 로 WCAG AA 미달이었다.
                             # 2026-08-08 design review 에서 5.49:1 로 교체. PRD 갱신 완료.
@@ -132,7 +149,11 @@ dashboard:
     rule: 라이트 계열 정의(:root 와 :root[data-theme="light"])는 같은 coral 을 써야 한다
 
   implementation:
-    actual: 단일 vanilla HTML + 인라인 CSS/JS (index.html)
+    actual: 단일 vanilla HTML + 인라인 CSS/JS (index.html), 촬영 앱은 capture.html
+    store: Supabase 단일 테이블 + realtime 구독 (insert 전용 RLS)
+    inference: ICLO Core AI POST /v1/oral-signal — 호출 후 이미지 즉시 폐기
+    freeze: 2026-08-25
+    event: Snowflake World Tour Seoul · COEX · 2026-08-27
     not: Vite + React 18 + TypeScript + Tailwind + Recharts
     note: PRD 원안 스택은 미채택. package.json·src·dist 없음. AGENTS.md 의 npm 명령은 실행 불가.
 

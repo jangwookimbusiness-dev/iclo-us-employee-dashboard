@@ -1,6 +1,6 @@
 # employer-dashboard-poc — Agent Context
 
-Click demo of an **aggregate oral-health dashboard for US self-funded employers**. Synthetic data only, frontend-only SPA, English UI. Used live in channel meetings Sep–Oct 2026. Screen rules are **regulatory requirements, not taste** — do not modify them on your own judgment.
+Aggregate oral-health dashboard for **US self-funded employers**. Synthetic scenarios A/B/C plus a live booth employer fed by real visitor captures (PRD §2.1). Booth display English; capture app Korean. **The oral image is never stored** (PIPA §23 민감정보 — PRD §5.7). Next live use: **Snowflake World Tour Seoul, COEX, 2026-08-27** — where it also captures real oral signals from booth visitors. Freeze 8/25. US channel meetings are downstream. Screen rules are **regulatory requirements, not taste** — do not modify them on your own judgment.
 
 **Spec canon: `docs/PRD.md`, whose values come from `contracts/proposal-package-v11.yml` at the repo root. Read both before planning any change. Spec changes only via PR (living document).**
 
