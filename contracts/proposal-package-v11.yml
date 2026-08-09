@@ -126,7 +126,11 @@ dashboard:
   booth:
     employer_key: LIVE
     label: "Snowflake World Tour Seoul · live capture"
-    seed_members: 60        # 첫 촬영에 전부 억제되지 않을 만큼. n≥20 세 칸은 나오는 크기.
+    seed_members: 120       # 08:00 에 Low·Moderate 는 보이고 Priority 는 억제되는 크기.
+                            # 실촬영은 하루 수십 건 규모로 잡는다 (3,000 참석자 ≠ 3,000 촬영).
+    refresh_batch: 5        # 부스 화면은 신규 5건이 쌓여야 다시 그린다. 촬영 1건마다 갱신하면
+                            # 방금 촬영한 사람의 밴드가 화면 변화로 새어나간다 (PRD §5.8).
+                            # 튜닝 값이 아니라 레드라인이다.
     seed_signals: {Low: 52, Moderate: 33, Priority: 15}   # A/B/C 와 같은 시작 분포
     real_fields: [signal_band, captured_at, model_version]
     synthetic_fields: [department, tenure_band, eligibility_span, claim_lines]

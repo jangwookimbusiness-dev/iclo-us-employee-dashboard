@@ -28,6 +28,8 @@
 
 **1.2 Situation.** ICLO is one of **7 startups** in Startup Village. Provided: one counter, two chairs, one wall-mounted display, a power strip, **one wired internet line**. Event runs 08:00–17:00; keynote from 10:00; the mini-session slots are at lunch (12:00–12:25 / 12:30–12:50, fireside format, 3–4 companies per panel, **live-relayed to every session hall**). 2025 drew 3,000+ attendees from 600+ accounts, mostly Technology → Manufacturing → Retail, mostly Manager level with a rising Director+ share. Roughly 80% are existing Snowflake customers.
 
+**Almost none of those 3,000 will use our demo, and the plan does not assume otherwise.** Startup Village is one zone among many, we are one of seven booths in it, and putting a camera in your own mouth in a public expo hall is a high-friction ask. Plan for tens of captures, not hundreds. Every number in §4c is sized to that, and §5.8 covers what breaks when the population is small.
+
 These are not our buyers. US self-funded employers and benefits consultants are, and none of them are at COEX. So the booth is not a sales motion — it is a **credibility and routing motion**, aimed at three groups actually in the room: Snowflake Korea (who can route us to US HLS GTM — the Step 0 ask in the joint-validation package), Korean enterprises and VCs (the organizer offers matched meetings), and the live-relayed session audience.
 
 **1.3 Complication.** A static synthetic dashboard is indistinguishable from every other booth screen at a data conference. Everyone has charts. What nobody else has is a screen where **the privacy boundary can be tested by the person standing in front of it**. And the organizer explicitly provides no lead-scanning system, so any lead capture has to be ours.
@@ -39,6 +41,7 @@ The current demo cannot do either. It is frontend-only with hardcoded ratio cons
 | # | Reason | So-what |
 |---|---|---|
 | 1 | The suppression rule stops being a claim and becomes an experience — the visitor's own row is provably in there and provably unretrievable | This is the single strongest possible answer to "how do you handle privacy", and it takes 30 seconds instead of 3 slides |
+| 1b | The screen pointedly does *not* react to your capture, and we say why | Refusing an obvious demo flourish because it would leak the visitor is more convincing than any chart |
 | 2 | It demonstrates the full loop live — capture → inference → governed store → aggregate — which is exactly the Snowflake-platform story, independent of the dental vertical | Gives Snowflake Korea something concrete to route on |
 | 3 | The QR flow is the lead capture the organizer does not provide | Turns booth traffic into a contactable list |
 | 4 | Real signal + synthetic benefit context, labeled per field | Shows we know which parts we can actually evidence — the same discipline the joint-validation package is built on |
@@ -49,7 +52,7 @@ The current demo cannot do either. It is frontend-only with hardcoded ratio cons
 
 **2.1 Concept.** Two surfaces sharing one store.
 
-- **Booth display** (wall-mounted, wired line): the existing aggregate dashboard. Three synthetic employers (A/B/C) plus a fourth, **the live booth employer**, whose signal distribution moves as visitors capture.
+- **Booth display** (wall-mounted, wired line): the existing aggregate dashboard. Three synthetic employers (A/B/C) plus a fourth, **the live booth employer**, which accumulates real captures over the day and re-renders in batches of five (§5.8) — never on a single capture.
 - **Capture app** (visitor's own phone, opened from a printed QR at the booth): consent → oral capture → Core AI inference → **the visitor sees their own band on their own phone, and only there**.
 
 Each capture writes exactly one row: band, timestamp, model version, and synthesized benefit context. **The image is never stored.** UI language stays English on the booth display (it is the US product); the capture app and its consent text are Korean.
@@ -82,6 +85,7 @@ Springbuk and carrier reports already occupy the same quadrant — differentiati
 | **Live booth employer** — a 4th scenario, pre-seeded with synthetic members, into which real captures land | Storing the oral image — never. Inference is call-and-discard (§5.7) |
 | **Capture app** — QR entry, Korean consent gate, camera capture, Core AI call, own-band-only result screen | Showing any individual on the booth display — including the visitor's own row, including "the last capture" |
 | **Shared store** — one Supabase table + realtime subscription to the booth display | A general backend — one table, one insert path, one subscription. Nothing else |
+| **Batched refresh** — the booth display re-renders only once at least 5 new captures have landed since the last render (§5.8) | Per-capture live refresh — it leaks the capturer to anyone watching the screen. This is not a tuning parameter |
 | Denominator discipline: funnel uses eligible employees; PMPM uses covered member-months (×2.2) — each chart labels its denominator | Real claims/eligibility integration — data rights not secured (report §11) |
 | Suppression: any cell with `n < 20` shows "Suppressed (n<20)" instead of values — **applies to the booth employer identically** | Relaxing suppression so the booth employer "shows something" — this would destroy the only reason the feature exists |
 | Per-field provenance chips: signal = real capture, everything else = synthetic | — |
@@ -169,8 +173,9 @@ QR → capture.html
                               returns band + model_version
   image discarded ◄──────────┘   (never written anywhere)
   INSERT one row ──────────► Supabase booth_capture ──────► realtime ──► index.html
-  own band shown                                                          aggregate only
-  on own phone only                                                       n<20 suppressed
+  own band shown                                                    buffered; renders only
+  on own phone,                                                     every 5th new capture
+  immediately                                                       aggregate only, n<20 suppressed
 ```
 
 Row shape: `employer_id · captured_at · signal_band · model_version` plus synthesized context (department, tenure band, eligibility span, claim lines). No image, no name, no phone, no email, no device identifier. Contact details, if the visitor opts in for follow-up, go to a **separate** table with no link to the capture row.
@@ -194,7 +199,8 @@ Scenarios A/B/C keep their current behaviour exactly: inline constants, no netwo
 - [ ] All 3 views render for all 4 employers; zero console errors
 - [ ] Scenario A/B/C values match §3.5 exactly and still work with the network disabled
 - [ ] A capture inserts exactly one row; the row contains no image and no identifier
-- [ ] The booth display reflects a new capture within 3 seconds
+- [ ] The booth display does **not** change on a single capture; it re-renders only after ≥5 new captures
+- [ ] Two consecutive booth-display renders never differ by fewer than 5 people in any cell
 - [ ] Any cell with `n < 20` masks values and prints "Suppressed (n<20)" — **including on the booth employer**
 - [ ] The visitor's own band renders on the visitor's device and appears in no booth-display DOM at any time
 - [ ] Consent gate blocks capture until explicitly accepted; declining leaves no row
@@ -215,11 +221,11 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 4. The consent screen is Korean, states that an oral image is processed and not stored, and cannot be skipped.
 5. Decline. Confirm no row appears and nothing is sent.
 6. Accept, capture. Your own band appears on your phone.
-7. Within 3 seconds the booth employer's signal distribution moves on the display.
+7. Watch the booth display. It does **not** move. Confirm nothing on it changed when you captured — this is deliberate (§5.8).
 8. Search the entire booth display for yourself. You cannot find yourself. Say so out loud — this is the demo.
 9. Filter the booth employer to a small department: values are replaced by "Suppressed (n<20)".
 10. Check the provenance chips: the signal is marked real, the benefit context is marked synthetic.
-11. Capture again from a second phone; both rows land, the distribution moves again.
+11. Capture from four more phones. On the fifth the booth display re-renders. Confirm you still cannot attribute the change to any one of the five.
 12. Resize the display to 1366px: no horizontal scroll; legible from two metres.
 
 ### 4c. Outcome metrics
@@ -227,8 +233,8 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 | Metric | Baseline | Target | Method | Cadence | Owner |
 |---|---|---|---|---|---|
 | Freeze met | n/a | 8/25, binary | repo tag | once | J. Kim |
-| Completed captures on 8/27 | 0 | ≥ 60 | store count | end of day | J. Kim |
-| Opted-in contacts | 0 | ≥ 30 | contact table count | end of day | J. Kim |
+| Completed captures on 8/27 | 0 | ≥ 20 (floor 12) | store count | end of day | J. Kim |
+| Opted-in contacts | 0 | ≥ 15 | contact table count | end of day | J. Kim |
 | Snowflake follow-up toward US HLS routing | 0 | ≥ 1 written | mail thread | within 10 business days | J. Kim |
 | Korean enterprise / VC meetings booked | 0 | ≥ 3 | booth log | end of day | J. Kim |
 | Privacy incidents | 0 | **0** | booth log | continuous | J. Kim |
@@ -243,6 +249,7 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 - A fabricated band is written when inference fails
 - Any disease-specific wording appears on screen, in code, or in a screenshot
 - Booth aggregate numbers get presented as customer performance evidence
+- The booth display changes in a way an onlooker can tie to the person who just captured
 - The network fails and the booth screen goes blank
 - Chasing polish past the 8/25 freeze
 
@@ -270,10 +277,17 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 | **No row without consent**; declining writes nothing and sends nothing | unit test on the consent gate |
 | **No fabricated band.** Inference failure surfaces as failure | unit test on the error path |
 | Cells with `n < 20` never show values, on every employer including the live one | unit test on the suppression function |
+| **The booth display never re-renders on a single capture** — minimum batch of 5 | unit test on the refresh gate |
 | Synthetic scenarios stay labeled "Synthetic data — illustrative only"; the booth employer is labeled per field (real signal, synthetic context) — never labeled wholesale as either | screenshot test |
 | No AI-slop visual patterns | kill-ai-slop Mode B gate before `/ship` |
 | Brand Coral is `#C2333A`; every light-mode declaration uses the same value | `scripts/check-package-consistency.py` |
 | Absolute privacy claims must be scoped (`no individual PHI` → `no individual PHI in employer views`) | `scripts/check-package-consistency.py` |
+
+**5.8 Small numbers.** Tens of captures, not hundreds, changes two things.
+
+*Differencing.* If the display updated per capture, an onlooker who saw it before and after would learn the band of the person who just walked away from the capture station. That is an individual disclosure through an aggregate screen — precisely what the product claims not to do, demonstrated live, at a booth whose mini-session is relayed to every session hall. Hence the ≥5 batch. The `n < 20` cell rule does not help here: it bounds who is *in* a cell, not what a *change* in that cell reveals. Engineering design §16 item 5 already flags this as unresolved at the design level; the batch is the booth-scale answer, not the general one.
+
+*Visible suppression.* The booth employer is pre-seeded so the aggregate is not entirely blank at 08:00, but the Priority band will likely sit under 20 for much of the day. That is not a bug to design around — it is the most honest thing on the screen, and the line to say out loud is that **the most sensitive category is the one we cannot show you at this scale**. If enough captures arrive for it to cross 20 during the day, that is a bonus beat, not a promised one. Seed size lives in `contracts/proposal-package-v11.yml`.
 
 **5.7 Personal-data handling (PIPA).** This replaces v0.4's US-jurisdiction framing. The event is in Korea and the visitors are Korean.
 
