@@ -134,7 +134,17 @@ dashboard:
     seed_signals: {Low: 52, Moderate: 33, Priority: 15}   # A/B/C 와 같은 시작 분포
     real_fields: [signal_band, captured_at, model_version]
     synthetic_fields: [department, tenure_band, eligibility_span, claim_lines]
-    never_stored: [oral_image]
+    never_stored: [oral_image, badge_plaintext, badge_decoded_fields]
+    badge:                  # 명찰 QR = 자격 확인 단계. 기술문서 §4 의 SSN 규칙과 동일하게 다룬다.
+      use: 읽는 즉시 HMAC, 평문은 메모리에서 폐기. 해시만 저장.
+      why_hash: 같은 사람 중복 촬영 탐지. 해시로는 이름을 되찾을 수 없다.
+      unknown: SWT 명찰 QR 이 vCard 인지 불투명 ID 인지 미확인 — 8/14 까지 Snowflake 에 확인 (PRD §5.9)
+    contact:                # 연락처는 촬영과 절대 이어붙지 않는다
+      table: 별도
+      timestamp: 날짜까지만   # 초 단위면 테이블이 달라도 시각으로 조인된다
+      join_to_capture: 없음
+    output: band            # LOW | MODERATE | PRIORITY. 숫자 점수 금지 —
+                            # 재식별이 쉬워지고 의료기기 경계에 가까워진다.
     row_shape: employer_id · captured_at · signal_band · model_version · 합성 컨텍스트
     label_rule: |
       A/B/C 는 "Synthetic data — illustrative only" 를 그대로 쓴다.

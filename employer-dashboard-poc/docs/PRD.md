@@ -53,7 +53,9 @@ The current demo cannot do either. It is frontend-only with hardcoded ratio cons
 **2.1 Concept.** Two surfaces sharing one store.
 
 - **Booth display** (wall-mounted, wired line): the existing aggregate dashboard. Three synthetic employers (A/B/C) plus a fourth, **the live booth employer**, which accumulates real captures over the day and re-renders in batches of five (§5.8) — never on a single capture.
-- **Capture app** (visitor's own phone, opened from a printed QR at the booth): consent → oral capture → Core AI inference → **the visitor sees their own band on their own phone, and only there**.
+- **Capture app** (visitor's own phone, opened from a printed QR at the booth): consent → **badge QR scan (enrolment)** → oral capture → Core AI inference → **the visitor sees their own band on their own phone, and only there**.
+
+The badge scan is the enrolment step — the booth analogue of an eligibility file. It is **hashed on read and the plaintext is discarded**, exactly as the engineering design §4 treats SSN: HMAC only, never a key. The hash prevents the same person being counted twice; it cannot be reversed to a name. Contact details are a **separate, later, optional step** (§5.9).
 
 Each capture writes exactly one row: band, timestamp, model version, and synthesized benefit context. **The image is never stored.** UI language stays English on the booth display (it is the US product); the capture app and its consent text are Korean.
 
@@ -83,7 +85,10 @@ Springbuk and carrier reports already occupy the same quadrant — differentiati
 |---|---|
 | 3 views: Program overview (KPI band) · Oral-health signal distribution (Low/Moderate/**Priority**) · Intervention funnel | Login / roles / user accounts — the capture app is anonymous by design; accounts would create exactly the identifiability we are demonstrating against |
 | **Live booth employer** — a 4th scenario, pre-seeded with synthetic members, into which real captures land | Storing the oral image — never. Inference is call-and-discard (§5.7) |
-| **Capture app** — QR entry, Korean consent gate, camera capture, Core AI call, own-band-only result screen | Showing any individual on the booth display — including the visitor's own row, including "the last capture" |
+| **Capture app** — QR entry, Korean consent gate, badge scan (hash-only), camera capture, Core AI call, own-band-only result screen | Showing any individual on the booth display — including the visitor's own row, including "the last capture" |
+| **Badge hash** — HMAC of the badge QR payload, stored instead of it, for duplicate detection | Storing badge plaintext, or any field decoded from it (name, company, title, email, phone), anywhere — memory only, discarded after hashing |
+| **Contact capture** — a separate optional step after the result, into a separate table, **date-only timestamp** | Any join path between a contact and a capture — separate tables is not enough, second-precision timestamps join them by themselves |
+| A three-level band: LOW / MODERATE / PRIORITY | **A numeric score.** More re-identifying (72 is near-unique, LOW is not) and closer to the medical-device line |
 | **Shared store** — one Supabase table + realtime subscription to the booth display | A general backend — one table, one insert path, one subscription. Nothing else |
 | **Batched refresh** — the booth display re-renders only once at least 5 new captures have landed since the last render (§5.8) | Per-capture live refresh — it leaks the capturer to anyone watching the screen. This is not a tuning parameter |
 | Denominator discipline: funnel uses eligible employees; PMPM uses covered member-months (×2.2) — each chart labels its denominator | Real claims/eligibility integration — data rights not secured (report §11) |
@@ -198,7 +203,11 @@ Scenarios A/B/C keep their current behaviour exactly: inline constants, no netwo
 
 - [ ] All 3 views render for all 4 employers; zero console errors
 - [ ] Scenario A/B/C values match §3.5 exactly and still work with the network disabled
-- [ ] A capture inserts exactly one row; the row contains no image and no identifier
+- [ ] A capture inserts exactly one row; the row contains no image, no badge plaintext and no field decoded from it
+- [ ] Badge plaintext never leaves memory: absent from the row, from logs, from storage and from any network call except the hash input
+- [ ] The same badge captured twice is detected by hash; the hash cannot be reversed to any badge field
+- [ ] Contact rows carry a date, not a timestamp, and share no key with any capture row
+- [ ] The result is a band, never a numeric score
 - [ ] The booth display does **not** change on a single capture; it re-renders only after ≥5 new captures
 - [ ] Two consecutive booth-display renders never differ by fewer than 5 people in any cell
 - [ ] Any cell with `n < 20` masks values and prints "Suppressed (n<20)" — **including on the booth employer**
@@ -220,7 +229,8 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 3. Restore the network. Scan the printed QR with a phone on cellular.
 4. The consent screen is Korean, states that an oral image is processed and not stored, and cannot be skipped.
 5. Decline. Confirm no row appears and nothing is sent.
-6. Accept, capture. Your own band appears on your phone.
+6. Scan your own conference badge. Confirm the app shows enrolment succeeded but displays none of your badge details back to you — if it can show them, it has them.
+6b. Capture. Your own band appears on your phone. A band, not a number.
 7. Watch the booth display. It does **not** move. Confirm nothing on it changed when you captured — this is deliberate (§5.8).
 8. Search the entire booth display for yourself. You cannot find yourself. Say so out loud — this is the demo.
 9. Filter the booth employer to a small department: values are replaced by "Suppressed (n<20)".
@@ -249,6 +259,8 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 - A fabricated band is written when inference fails
 - Any disease-specific wording appears on screen, in code, or in a screenshot
 - Booth aggregate numbers get presented as customer performance evidence
+- A badge field is written anywhere, or a capture row can be traced to a named person
+- A numeric score is shown or stored in place of a band
 - The booth display changes in a way an onlooker can tie to the person who just captured
 - The network fails and the booth screen goes blank
 - Chasing polish past the 8/25 freeze
@@ -278,6 +290,9 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 | **No fabricated band.** Inference failure surfaces as failure | unit test on the error path |
 | Cells with `n < 20` never show values, on every employer including the live one | unit test on the suppression function |
 | **The booth display never re-renders on a single capture** — minimum batch of 5 | unit test on the refresh gate |
+| **Badge plaintext is never stored** — hash on read, discard. No decoded field persisted anywhere | code review of the badge path + a test asserting no write |
+| **No join path between a contact and a capture** — separate tables, date-only on contacts | schema review; a test asserting contacts carry no time component |
+| **Band, never a numeric score** | unit test on the inference response handler |
 | Synthetic scenarios stay labeled "Synthetic data — illustrative only"; the booth employer is labeled per field (real signal, synthetic context) — never labeled wholesale as either | screenshot test |
 | No AI-slop visual patterns | kill-ai-slop Mode B gate before `/ship` |
 | Brand Coral is `#C2333A`; every light-mode declaration uses the same value | `scripts/check-package-consistency.py` |
@@ -288,6 +303,14 @@ The Owner performs this alone on a phone that is **not** on office wifi; passing
 *Differencing.* If the display updated per capture, an onlooker who saw it before and after would learn the band of the person who just walked away from the capture station. That is an individual disclosure through an aggregate screen — precisely what the product claims not to do, demonstrated live, at a booth whose mini-session is relayed to every session hall. Hence the ≥5 batch. The `n < 20` cell rule does not help here: it bounds who is *in* a cell, not what a *change* in that cell reveals. Engineering design §16 item 5 already flags this as unresolved at the design level; the batch is the booth-scale answer, not the general one.
 
 *Visible suppression.* The booth employer is pre-seeded so the aggregate is not entirely blank at 08:00, but the Priority band will likely sit under 20 for much of the day. That is not a bug to design around — it is the most honest thing on the screen, and the line to say out loud is that **the most sensitive category is the one we cannot show you at this scale**. If enough captures arrive for it to cross 20 during the day, that is a bonus beat, not a promised one. Seed size lives in `contracts/proposal-package-v11.yml`.
+
+**5.9 The badge step is where this gets serious.** The oral capture on its own is close to anonymous: a band and a time are not personal data. The badge QR at a conference typically carries name, company, title, email and phone. Joining the two in one flow produces **a health record attached to a named person** — the heaviest combination PIPA recognises, and it survives the decision not to store the image. A row reading `홍길동 = PRIORITY` is roughly as bad as keeping the photograph.
+
+Confining the activity to our own booth does not change this. PIPA does not care whether processing happens at a booth or on a stage. What the booth confinement does help with is the mini-session relay: the capture activity is not on the relayed feed. Differencing is *worse* at a booth, not better — the display sits a metre from the capture station with onlookers around it, so the §5.8 batch rule stands unchanged.
+
+The design answer is that the badge is used and not kept: hash on read, discard the plaintext, store the hash. This is not a workaround, it is the same rule the production design already applies to SSN (engineering design §4).
+
+> **Open, and it blocks D3.** We do not know what an SWT badge QR actually contains. If it is a vCard or a URL, our app can read the attendee's details directly and the hashing above is mandatory. If it is an opaque ID that only the organiser's lead-retrieval system can resolve, we receive a meaningless string, the identity-linking problem does not arise, and contact details must be collected explicitly anyway. **Ask Snowflake (정은우 매니저) — fold it into the 8/14 mail that already has to disclose the booth activity.** Finding out at the 8/26 rehearsal is too late: that is the day after freeze.
 
 **5.7 Personal-data handling (PIPA).** This replaces v0.4's US-jurisdiction framing. The event is in Korea and the visitors are Korean.
 
@@ -319,9 +342,11 @@ ICLO is a smartphone oral-imaging AI company entering the US self-funded-employe
 ### Deliverables
 | # | Deliverable | Form | Due | Owner |
 |---|---|---|---|---|
-| D1 | Korean consent text, legally reviewed | md | 8/12 | Claude Code → J. Kim |
+| D0 | **Confirm what the SWT badge QR contains** (§5.9) — blocks D3 | mail to Snowflake | **8/14** | J. Kim |
+| D1 | Korean consent text, legally reviewed — must cover the badge scan as well as the oral capture | md | 8/12 | Claude Code → J. Kim |
 | D2 | Supabase table + RLS insert-only policy + realtime subscription | migration | 8/17 | Codex |
-| D3 | Capture app (QR entry · consent · camera · own-band screen) | `capture.html` | 8/19 | Codex |
+| D3 | Capture app (QR entry · consent · **badge scan, hash-only** · camera · own-band screen) | `capture.html` | 8/19 | Codex |
+| D3b | Contact capture — separate step, separate table, date-only | in D3 | 8/19 | Codex |
 | D4 | Core AI integration, call-and-discard | in D3 | 8/19 | Codex |
 | D5 | Booth employer on the display, live, with per-field provenance | `index.html` | 8/19 | Codex |
 | D6 | Printed QR + a one-page booth operating script for staff | pdf | 8/22 | Claude Code |
