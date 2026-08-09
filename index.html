@@ -116,6 +116,14 @@
   .denom.hot{color:var(--data);border-bottom-color:var(--data)}
   .chip{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:10.5px;color:var(--data);
     border:1px solid var(--data);border-radius:3px;padding:2px 6px;line-height:1.3}
+  /* 부스 기업 전용 띠. 실제/가상이 한 화면에 섞이므로 무엇이 무엇인지
+     화면 위에서 말해야 한다 — 동의문이 약속한 내용이다. */
+  .livebar{border:1px solid var(--data);border-left:3px solid var(--data);border-radius:4px;
+    background:var(--field);padding:11px 14px;margin-bottom:16px}
+  .livebar .lt{font-size:13px;color:var(--ink);font-weight:600}
+  .livebar .ld{font-size:12px;color:var(--ink2);margin-top:3px;max-width:74ch}
+  .counter{font-family:var(--mono);font-size:26px;color:var(--data);line-height:1.1}
+  .counter .cu{font-size:12px;color:var(--ink2);margin-left:6px}
   .supp{border:1px solid var(--line);background:var(--field);border-radius:3px;padding:8px 10px}
   .supp .t{font-family:var(--mono);font-size:13px;color:var(--ink2)}
   .supp .d{font-size:12px;color:var(--ink2);margin-top:2px}
@@ -175,7 +183,7 @@
 
 <footer><div class="wrap frow">
   <span>Aggregate only</span><span id="mincell"></span><span>no individual PHI in employer views</span>
-  <span class="r">Synthetic data — illustrative only</span>
+  <span class="r" id="synthlabel">Synthetic data — illustrative only</span>
 </div></footer>
 
 
@@ -190,7 +198,35 @@ const SCEN = {
   A:{label:"Employer A · 10,000 (baseline)", employees:10000, pmpm:31.4},
   B:{label:"Employer B · 2,500 (small)", employees:2500, pmpm:32.8},
   C:{label:"Employer C · 25,000 (large)", employees:25000, pmpm:30.9},
+  LIVE:{label:"Snowflake World Tour Seoul · live capture", employees:120, pmpm:31.9, live:true},
 };
+// ---- booth employer (SWT Seoul, 2026-08-27) -------------------------------
+// A fourth scenario that real booth captures land in. Everything here is
+// additive: deleting this block and the LIVE entry above leaves A/B/C intact,
+// which is the point — this is disposable after 8/27 (PRD 2.5).
+const BOOTH = {
+  seedValid: 100,                              // synthetic captures, present at 08:00
+  seedBands: {Low:52, Moderate:33, Priority:15},
+  batch: 5,                                    // PRD 5.8: bands re-render every 5th capture.
+                                               // A single capture moving a bar would tell any
+                                               // onlooker the band of whoever just stepped away.
+  captures: [],                                // real, appended by the realtime subscription
+};
+// Until the store is wired (D2), ?mock=N stands in for N captures that have
+// landed, so the booth view can be reviewed and rehearsed. Delete with the
+// realtime subscription.
+{
+  const m = Number(new URLSearchParams(location.search).get("mock") || 0);
+  const roll = i => ["Low","Low","Moderate","Low","Priority","Moderate","Low","Moderate"][i % 8];
+  for(let i=0;i<m;i++) BOOTH.captures.push({band: roll(i)});
+}
+// Only whole batches are shown. The remainder is held back deliberately.
+const boothShown = () => Math.floor(BOOTH.captures.length / BOOTH.batch) * BOOTH.batch;
+function boothBands(){
+  const b = {...BOOTH.seedBands};
+  BOOTH.captures.slice(0, boothShown()).forEach(c => { b[c.band] += 1; });
+  return b;
+}
 // ---- single source of truth ----------------------------------------------
 // Every number on screen derives from this block. Nothing below re-states a
 // value that lives here; change it here and the whole dashboard follows.
@@ -218,8 +254,18 @@ const SRC = {
   claims:{chip:"TPA · 837D/835 allowed", via:"SFTP / Secure Data Sharing"},
   preventive:{chip:"TPA · CDT D1000-series", via:"837D/835"},
   signal:{chip:"App · photo-derived signals (versioned)", via:"derived features only"},
+  live:{chip:"Booth · real capture", via:"visitor's own phone → Core AI → band only; image discarded"},
+  synth:{chip:"Synthetic · demo context", via:"no employer supplied eligibility or claims at this booth"},
 };
 const DEPTS = (emp, scen) => {
+  // The booth employer has no org chart. Departments here are invented, and the
+  // consent text says so — a visitor must not think we read their employer.
+  if(scen==="LIVE") return [
+    {key:"All departments", n:emp},
+    {key:"Group 1 (synthetic)", n:71},
+    {key:"Group 2 (synthetic)", n:37},
+    {key:"Group 3 (synthetic)", n:12},
+  ];
   const tiny = {A:14,B:8,C:16}[scen];
   return [
     {key:"All departments", n:emp},
@@ -237,7 +283,14 @@ const TABS = [["overview","Overview"],["signals","Signals"],["funnel","Funnel"]]
 const fmt = n => n.toLocaleString("en-US");
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-let S = {scen:"A", tab:"overview", dept:"All departments", lens:"employees", showSrc:true};
+// URL state, so a booth screen can be opened straight onto a view and a
+// rehearsal is reproducible. PRD 3.4 listed ?scenario=A as unimplemented.
+const Q = new URLSearchParams(location.search);
+let S = {
+  scen: SCEN[Q.get("scen")] ? Q.get("scen") : "A",
+  tab: ["overview","signals","funnel"].includes(Q.get("tab")) ? Q.get("tab") : "overview",
+  dept:"All departments", lens:"employees", showSrc:true,
+};
 
 // ---- atoms ----
 function chip(s){ return S.showSrc ? `<span class="chip" title="Ingestion: ${esc(s.via)}">${esc(s.chip)}</span>` : ""; }
@@ -266,10 +319,30 @@ function barRow({label,pct,count,color,note,src,supp,n,revealN}){
     <div class="note">${note}</div>${label==="Priority"?chip(src):""}</div>`;
 }
 
+// The booth band. Two jobs: show that captures are landing (safe — a count
+// carries no band), and say which figures came from a real mouth and which are
+// invented. The consent text promises both, so the screen has to keep them.
+function liveBar(){
+  const got = BOOTH.captures.length, shown = boothShown();
+  const held = got - shown;
+  return `<div class="livebar">
+    <div class="lt">Snowflake World Tour Seoul · live booth capture</div>
+    <div class="counter">${got}<span class="cu">captures today</span></div>
+    <div class="ld"><b>Only the signal band is real.</b> Each visitor captures on their own phone;
+      the image is analysed and discarded, never stored. Eligible employees, departments, claims and
+      PMPM on this screen are invented demo context — no employer supplied data at this booth.</div>
+    <div class="ld">The distribution below reflects <b>${shown}</b> of ${got}.
+      ${held ? `${held} held until the next group of ${BOOTH.batch}.` : ""}
+      Bands move in groups of ${BOOTH.batch} on purpose: if a bar moved the moment you captured,
+      anyone watching this screen would learn your band.</div>
+  </div>`;
+}
+
 // ---- line chart (Trend / guardrail) ----
 // ---- render ----
 function render(){
   const sc = SCEN[S.scen];
+  const isLive = !!sc.live;
   const depts = DEPTS(sc.employees, S.scen);
   const D = depts.find(d=>d.key===S.dept) || depts[0];
   const scale = D.n / sc.employees;
@@ -287,13 +360,13 @@ function render(){
     const nActivated = Math.round(employees*FRAC.activated);
     const nRepeat = Math.round(nActivated*FRAC.repeat);
     const cards = [
-      card({lab:"Eligible employees", val:fmt(employees), denom:"funnel denominator", src:SRC.eligible, hot:hotE}),
-      card({lab:"Covered members", val:fmt(members), unit:"est. ×"+DEP_RATIO, denom:"cost denominator (member-months)", src:SRC.members, hot:hotM}),
-      card({lab:"Activated", val:pct(FRAC.activated), denom:"of eligible employees", src:SRC.app, hot:hotE, supp:supp||cellSupp(nActivated), n:D.n, revealN:supp}),
-      card({lab:"Repeat participation", val:pct(FRAC.repeat), denom:"of activated", src:SRC.app, supp:supp||cellSupp(nRepeat), n:D.n, revealN:supp}),
-      card({lab:"Dental PMPM (allowed)", val:"$"+sc.pmpm.toFixed(2), denom:"per covered member-month", src:SRC.claims, hot:hotM, supp:supp||cellSupp(members), n:D.n, revealN:supp}),
+      card({lab:"Eligible employees", val:fmt(employees), denom:"funnel denominator", src:isLive?SRC.synth:SRC.eligible, hot:hotE}),
+      card({lab:"Covered members", val:fmt(members), unit:"est. ×"+DEP_RATIO, denom:"cost denominator (member-months)", src:isLive?SRC.synth:SRC.members, hot:hotM}),
+      card({lab:"Activated", val:pct(FRAC.activated), denom:"of eligible employees", src:isLive?SRC.synth:SRC.app, hot:hotE, supp:supp||cellSupp(nActivated), n:D.n, revealN:supp}),
+      card({lab:"Repeat participation", val:pct(FRAC.repeat), denom:"of activated", src:isLive?SRC.synth:SRC.app, supp:supp||cellSupp(nRepeat), n:D.n, revealN:supp}),
+      card({lab:"Dental PMPM (allowed)", val:"$"+sc.pmpm.toFixed(2), denom:"per covered member-month", src:isLive?SRC.synth:SRC.claims, hot:hotM, supp:supp||cellSupp(members), n:D.n, revealN:supp}),
     ].join("");
-    html = `<h2 class="vt">Program overview</h2>
+    html = `${isLive?liveBar():""}<h2 class="vt">Program overview</h2>
       <p class="vsub">Participation and cost for the period, on the eligible-employee base. Aggregate only — cells under n ≥ ${MIN_CELL} are withheld.</p>
       <div class="grid g5">${cards}</div>
       <p class="lead">Denominator discipline: participation uses <b>eligible employees</b> — staff at
@@ -305,12 +378,16 @@ function render(){
   }
 
   if(S.tab==="signals"){
+    // The booth employer counts real bands; A/B/C stay on their fixed ratios.
+    const lb = isLive ? boothBands() : null;
+    const total = isLive ? Object.values(lb).reduce((a,b)=>a+b,0) : valid;
     const rows = SIGNALS.map(s=>{
-      const count = Math.round(valid*s.share/100);
-      return barRow({label:s.key, pct:s.share, count, color:s.color, note:s.note, src:SRC.signal,
-        supp:supp||cellSupp(count), n:D.n, revealN:supp});
+      const count = isLive ? lb[s.key] : Math.round(valid*s.share/100);
+      const share = isLive ? Math.round(count/total*100) : s.share;
+      return barRow({label:s.key, pct:share, count, color:s.color, note:s.note,
+        src:isLive?SRC.live:SRC.signal, supp:supp||cellSupp(count), n:D.n, revealN:supp});
     }).join("");
-    html = `<div class="narrow"><h2 class="vt">Oral-health signal distribution</h2>
+    html = `<div class="narrow">${isLive?liveBar():""}<h2 class="vt">Oral-health signal distribution</h2>
       <p class="vsub">Non-specific wellness signals derived from guided photos and questionnaires.
       Aggregate only — no individual results exist anywhere in this product for employers.</p>
       ${rows}
@@ -320,11 +397,11 @@ function render(){
 
   if(S.tab==="funnel"){
     const funnel = [
-      {label:"Eligible employees", v:employees, src:SRC.eligible},
-      {label:"Activated (registered + first questionnaire)", v:Math.round(sc.employees*FRAC.activated*scale), src:SRC.app},
-      {label:"Valid capture (passed photo-quality gate)", v:valid, src:SRC.app},
-      {label:"Open care actions", v:Math.round(sc.employees*FRAC.gap*scale), src:SRC.gap},
-      {label:"Completed actions", v:Math.round(sc.employees*FRAC.closed*scale), src:SRC.gap},
+      {label:"Eligible employees", v:employees, src:isLive?SRC.synth:SRC.eligible},
+      {label:"Activated (registered + first questionnaire)", v:Math.round(sc.employees*FRAC.activated*scale), src:isLive?SRC.synth:SRC.app},
+      {label:"Valid capture (passed photo-quality gate)", v:isLive?boothShown()+BOOTH.seedValid:valid, src:isLive?SRC.live:SRC.app},
+      {label:"Open care actions", v:Math.round(sc.employees*FRAC.gap*scale), src:isLive?SRC.synth:SRC.gap},
+      {label:"Completed actions", v:Math.round(sc.employees*FRAC.closed*scale), src:isLive?SRC.synth:SRC.gap},
     ];
     const rows = supp ? suppressed(D.n, true) : funnel.map((f,i)=>{
       const col = i===0?C.barLow:i<3?C.barMid:C.teal;
@@ -334,7 +411,7 @@ function render(){
         <div class="track"><div class="fill" style="width:${(f.v/employees)*100}%;background:${col}"></div></div>
         ${chip(f.src)}</div>`;
     }).join("");
-    html = `<div class="narrow"><h2 class="vt">Intervention funnel</h2>
+    html = `<div class="narrow">${isLive?liveBar():""}<h2 class="vt">Intervention funnel</h2>
       <p class="vsub mono">denominator: eligible employees</p>${rows}
       <p class="vsub" style="margin-top:8px">"Completed" splits into self-reported vs claims-confirmed in the
       pilot analysis plan; only claims-confirmed completion counts toward outcome claims.</p></div>`;
@@ -342,6 +419,15 @@ function render(){
 
 
   v.innerHTML = html;
+
+  // The wholesale "Synthetic" label is false on the booth employer — its signal
+  // band comes from a real mouth. PRD 5.6 forbids labelling that employer
+  // wholesale as either synthetic or real, so both badges switch with it.
+  const mixed = "Real signal · synthetic context";
+  document.getElementById("synthlabel").textContent =
+    isLive ? mixed : "Synthetic data — illustrative only";
+  document.querySelector(".demo-pill").textContent =
+    isLive ? "LIVE · " + mixed : "DEMO · Synthetic data — illustrative only";
 }
 
 // tabs
@@ -357,7 +443,7 @@ tabrow.addEventListener("click",e=>{const b=e.target.closest(".tab"); if(!b)retu
 
 // scenario + dept
 const scenSel = document.getElementById("scen");
-scenSel.innerHTML = Object.entries(SCEN).map(([k,s])=>`<option value="${k}">${s.label}</option>`).join("");
+scenSel.innerHTML = Object.entries(SCEN).map(([k,s])=>`<option value="${k}"${k===S.scen?" selected":""}>${s.label}</option>`).join("");
 function fillDepts(){
   const depts = DEPTS(SCEN[S.scen].employees, S.scen);
   document.getElementById("dept").innerHTML = depts.map(d=>`<option value="${d.key}">${d.key} · ${fmt(d.n)}</option>`).join("");
