@@ -28,7 +28,7 @@
   :root[data-theme="light"]{
     --ground:#FFFFFF; --panel:#FFFFFF; --field:#F7F8FA; --line:#E3E8F0;
     --ink:#1B2A4A; --ink2:#5B6B85; --band:#EDF1F7; --barLow:#D9E1EE; --barMid:#8FB8BE;
-    --strong:#1B2A4A; --onStrong:#FFFFFF; --data:#007A87; --coral:#FF7A79; --shadow:0 1px 2px rgba(27,42,74,.06);
+    --strong:#1B2A4A; --onStrong:#FFFFFF; --data:#007A87; --coral:#C2333A; --shadow:0 1px 2px rgba(27,42,74,.06);
   }
   :root[data-theme="dark"]{
     --ground:#0E1526; --panel:#152038; --field:#0F1930; --line:#28324C;
@@ -174,7 +174,7 @@
 <main><div class="wrap" id="view"></div></main>
 
 <footer><div class="wrap frow">
-  <span>Aggregate only</span><span id="mincell"></span><span>no individual PHI</span>
+  <span>Aggregate only</span><span id="mincell"></span><span>no individual PHI in employer views</span>
   <span class="r">Synthetic data — illustrative only</span>
 </div></footer>
 
@@ -297,7 +297,8 @@ function render(){
       <p class="vsub">Participation and cost for the period, on the eligible-employee base. Aggregate only — cells under n ≥ ${MIN_CELL} are withheld.</p>
       <div class="grid g5">${cards}</div>
       <p class="lead">Denominator discipline: participation uses <b>eligible employees</b> — staff at
-      contracted employers who are plan-eligible in the period, per HRIS 834. That is the population,
+      contracted employers who are plan-eligible in the period, per the employer eligibility file
+      (typically X12 834). That is the population,
       not the app users; the app users are the <b>Activated</b> share of it. Cost uses
       <b>covered member-months</b> (employees + enrolled dependents, counted per month). The two are
       never mixed — the lens above highlights which one each figure stands on.</p>`;

@@ -1,0 +1,250 @@
+# ICLO × Snowflake 제안 패키지 — 정본 (canonical contract)
+#
+# 이 파일이 하나의 정본이다. 대시보드 코드·기술문서·Report·Proposal·PRD가
+# 서로 다른 말을 하기 시작한 것이 2026-08-09 정합성 감사의 결론이었고,
+# 그 원인은 정본이 셋(PRD / 기술문서 / index.html)으로 갈라져 있었던 것이다.
+#
+# 값을 바꿀 때: 여기를 먼저 바꾸고 → scripts/check-package-consistency.sh 를 돌려
+# 어느 산출물이 어긋나는지 확인한 뒤 → 그 산출물을 고친다. 역순으로 하지 않는다.
+#
+# 검사기: scripts/check-package-consistency.sh
+# 감사 근거: 2026-08-09 sync audit (Claude + codex)
+
+meta:
+  package: proposal-v10
+  updated: 2026-08-09
+  owner: Jangwoo Kim
+
+# ─────────────────────────────────────────────────────────────
+# 산출물 — 무엇이 정본이고 무엇이 파생인가
+# ─────────────────────────────────────────────────────────────
+artifacts:
+  dashboard:
+    path: index.html
+    kind: 배포된 데모
+    spec: employer-dashboard-poc/docs/PRD.md
+    note: 코드는 루트, 스펙은 옆 폴더. index.html 에서 PRD 를 가리키는 것이 없으므로 반드시 함께 연다.
+  tech:
+    path: output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md
+    kind: 기술 주장의 정본
+    builder: scratchpad tech/build.py
+  diagram:
+    path: output/proposal-v10/06_Tech/ICLO-데이터흐름도.svg
+    kind: 파생 (기술문서 기준)
+  report_ko:
+    path: output/proposal-v10/01_KO_Internal/ICLO-Snowflake-Joint-Validation-Report-v10-KO-Internal.docx
+    kind: 내부 검토본
+    builder: tmp/iclo-snowflake-proposal-v10/build_reports_v10.py
+    header: "ICLO × SNOWFLAKE  |  INTERNAL REVIEW"
+  report_en:
+    path: output/proposal-v10/02_EN_External/ICLO-Snowflake-Joint-Validation-Report-v10-EN-External.docx
+    kind: 대외 검토본
+    builder: tmp/iclo-snowflake-proposal-v10/build_reports_v10.py
+    header: "ICLO × SNOWFLAKE  |  JOINT VALIDATION REPORT"   # Proposal 과 같은 머리글을 쓰면 안 된다
+  proposal_ko:
+    path: output/proposal-v10/01_KO_Internal/ICLO-Snowflake-Joint-Validation-Proposal-v10-KO-Internal.pptx
+    kind: 내부 덱
+    builder: tmp/iclo-snowflake-proposal-v10/build_decks_v10.mjs
+  proposal_en:
+    path: output/proposal-v10/02_EN_External/ICLO-Snowflake-Joint-Validation-Proposal-v10-EN-External-Notes-Stripped.pptx
+    kind: 대외 덱 — 실제로 나가는 문서
+    builder: tmp/iclo-snowflake-proposal-v10/build_decks_v10.mjs
+
+# ─────────────────────────────────────────────────────────────
+# 대시보드 화면 — 코드에 있는 문자열이 정본이다
+# 문서가 대시보드를 설명할 때 이 이름을 그대로 써야 대응이 된다
+# ─────────────────────────────────────────────────────────────
+dashboard:
+  title: ICLO HomeDen Employer Analytics
+  tabs:                     # index.html TABS 상수와 1:1
+    - key: overview
+      label: Overview
+      heading: Program overview
+    - key: signals
+      label: Signals
+      heading: Oral-health signal distribution
+    - key: funnel
+      label: Funnel
+      heading: Intervention funnel
+  views_deferred:
+    - name: Preventive-visit Trend vs Control
+      reason: 실험군 배정에 동의 근거·배정 규칙·프로토콜 책임자가 없다
+      returns_when: 법무·프로토콜 승인 후
+      note: PRD 원안의 4번째 뷰. 의도적 보류이며 미구현이 아니다.
+
+  kpis:                     # 화면 라벨 = 정본. 문서는 이 문자열을 쓴다.
+    - label: Eligible employees
+      const: null
+      definition_ko: 기준 시점에 플랜 자격이 있는 임직원 수
+      source: HRIS · 834 eligibility
+    - label: Activated (registered + first questionnaire)
+      const: FRAC.activated
+      value: 0.38
+      definition_ko: 가입 + 첫 문진 완료 / 자격자
+      source: App · consent + events
+    - label: Valid capture (passed photo-quality gate)
+      const: FRAC.valid
+      value: 0.28
+      definition_ko: 품질 게이트를 통과한 촬영
+      source: App · photo-derived signals (versioned)
+      gap: 기술문서 §3 화면 지표표에 이 항목이 없다 — 추가해야 한다
+    - label: Open care actions
+      const: FRAC.gap
+      value: 0.095
+      definition_ko: 발생한 조치
+      source: App events + TPA claims-confirmed
+    - label: Completed actions
+      const: FRAC.closed
+      value: 0.042
+      definition_ko: 청구로 확인된 완료 (confidence HIGH 만)
+      source: App events + TPA claims-confirmed
+
+  repeat_participation:
+    const: FRAC.repeat
+    value: 0.61
+    definition_ko: 2회 이상 유효 촬영한 사람 / 활성 사용자
+
+  signals:                  # PRD §4b 5항과 index.html SIGNALS 가 일치해야 한다
+    - {key: Low,      share: 52}
+    - {key: Moderate, share: 33}
+    - {key: Priority, share: 15}
+
+  scenarios:                # PRD §2, index.html SCEN, 기술문서 §14.4 세 곳 일치
+    - {key: A, employees: 10000, pmpm: 31.4, label: baseline}
+    - {key: B, employees: 2500,  pmpm: 32.8, label: small}
+    - {key: C, employees: 25000, pmpm: 30.9, label: large}
+
+  constants:
+    min_cell: 20            # 기업 화면 최소 셀. 기술문서 가정 A8, PRD 레드라인
+    dep_ratio: 2.2          # 자격자당 가입 인원. 기술문서 "member_month 약 22,000행" 과 정합
+    lag_days: 60            # 데모 표시값. 실제는 분포(중앙값 45·롱테일 180) — 기술문서 §6.3
+    completeness_pct: 98.4  # 합성 데모 값. 실데이터에서는 지연 곡선 출처를 밝혀야 한다
+    eligibility_thru: "2026-07"
+    claims_thru: "2026-05"
+
+  colors:                   # PRD §3·§5.6 레드라인
+    coral: "#C2333A"        # 원안 #FF7A79 는 흰 배경에서 2.53:1 로 WCAG AA 미달이었다.
+                            # 2026-08-08 design review 에서 5.49:1 로 교체. PRD 갱신 완료.
+    coral_dark_mode: "#FF8E8D"
+    navy: "#1B2A4A"
+    teal: "#007A87"
+    background: "#FFFFFF"
+    rule: 라이트 계열 정의(:root 와 :root[data-theme="light"])는 같은 coral 을 써야 한다
+
+  implementation:
+    actual: 단일 vanilla HTML + 인라인 CSS/JS (index.html)
+    not: Vite + React 18 + TypeScript + Tailwind + Recharts
+    note: PRD 원안 스택은 미채택. package.json·src·dist 없음. AGENTS.md 의 npm 명령은 실행 불가.
+
+# ─────────────────────────────────────────────────────────────
+# 절대 표현 — 범위를 좁히지 않으면 사실과 다른 주장이 된다
+# ─────────────────────────────────────────────────────────────
+scoped_claims:
+  - wrong: "no individual PHI"
+    right: "no individual PHI in employer views"
+    why: 가입자-월·청구 항목은 개인 단위 레코드 없이 계산할 수 없다. 관리형 처리 레이어에는 개인 레벨 데이터가 존재한다. 통제 대상은 데이터의 존재가 아니라 열람 권한이다. (기술문서 §2.1)
+  - wrong: "집계만, 개인정보 없음"
+    right: "집계 전용 · 최소 셀은 고유 인물 기준 · 기업 격리"
+    why: MIN_GROUP_SIZE 는 기본적으로 행 수를 센다. ENTITY KEY (party_sk) 가 있어야 고유 인물 수로 센다. (기술문서 §10.3)
+  - wrong: "실험군 배정 + 청구로 확인한 결과"
+    right: "청구로 확인한 결과 (실험군 배정은 법무·프로토콜 승인 후)"
+    why: 배정 규칙·동의 근거·프로토콜 책임자가 없다
+
+# ─────────────────────────────────────────────────────────────
+# 용어 — 좌변을 쓰면 안 되고 우변을 쓴다
+# ─────────────────────────────────────────────────────────────
+terminology:
+  forbidden:
+    - {wrong: "보험자 지급액",  right: "플랜 지급액",  why: self-funded 에서 돈을 내는 주체는 기업이지 보험사가 아니다}
+    - {wrong: "보험사가 지급",  right: "플랜이 지급",  why: 같음}
+    - {wrong: "HRIS 834",      right: "기업 또는 benefits administrator 가 제공하는 자격 파일, 통상 X12 834", why: 834 를 HRIS 가 직접 뱉는 것이 아니다}
+    - {wrong: "Review",        right: "Priority",     why: PRD 레드라인. 신호 라벨}
+  disease_words_banned:      # PRD §5.6 · scripts/check-forbidden-terms.sh
+    [diagnos, cavit, caries, decay, gingivit, periodont, abscess, lesion]
+  pairs:                     # 두 개념을 섞어 쓰지 않는다
+    - payer / carrier:  payer 는 비용 부담 주체(self-funded 는 기업), carrier 는 보험 상품 제공자
+    - self-funded / ASO / stop-loss:  셋을 세트로 표기한다
+    - plan_paid / allowed / member_oop:  합치지 않고 분리해서 저장·표시한다
+  ko_en:
+    플랜 지급액: plan-paid
+    허용액: allowed
+    본인부담: member out-of-pocket
+    자격 파일: eligibility file
+    청구 지연: claims lag
+    최소 셀: minimum cell size
+    가입자-월: member-month
+
+# ─────────────────────────────────────────────────────────────
+# 착수 게이트 — 실데이터 적재 전에 서면으로 닫아야 하는 넷
+# 대외 문서(Report EN · Proposal EN)에 반드시 노출한다
+# ─────────────────────────────────────────────────────────────
+start_gates:
+  - id: hipaa_roles
+    ko: HIPAA 역할 규정
+    en: HIPAA roles
+    what: ICLO·기업·기업 건강플랜·TPA·Snowflake 각각이 covered entity / business associate / subcontractor 중 무엇인가. BAA 체인은 이 판정 위에 세운다.
+    if_open: PHI 를 적재할 법적 근거가 없다
+  - id: data_rights
+    ko: 데이터 권리
+    en: Data rights
+    what: 기업–TPA 계약의 데이터 권리 조항 — 원천별·필드별·목적별로 무엇을 받고 무엇에 쓸 수 있는가
+    if_open: 데이터를 받고도 쓸 수 없다. 지연의 대부분이 여기서 생긴다.
+  - id: baseline_before_consent
+    ko: 동의 이전 기준선 적재
+    en: Baseline load before consent
+    what: 기준선 적재가 동의보다 앞선다. 그 시점에 동의한 사람은 없고 파일럿에서 끝내 동의하지 않을 사람이 다수다. 집계 전용 기준선을 택하거나 별도 법적 근거를 서면으로 정한다.
+    if_open: 비동의자의 PHI 를 근거 없이 처리하게 된다. 예외가 아니라 구조적 문제다.
+  - id: common_identity_key
+    ko: 공통 식별키
+    en: Common identity key
+    what: 인사 쪽과 TPA 쪽 양쪽에 사람을 연결할 안정적 식별자가 있는가
+    if_open: 청구와 앱 이용을 연결할 수 없어 "청구로 확인된 완료" 주장 자체가 성립하지 않는다
+
+# ─────────────────────────────────────────────────────────────
+# 현재 상태 — 무엇이 돌아가고 무엇이 없는가
+# 대외 문서에 반드시 노출한다. 설계를 운영처럼 쓰지 않는다.
+# ─────────────────────────────────────────────────────────────
+status:
+  running_today:
+    - 임직원 대시보드 데모 — 합성 숫자를 브라우저 안에서 계산. 실데이터도 Snowflake 연결도 없음.
+  designed:
+    - 근거 레이어 데이터 모델, 신원 해석 규칙, 정책·품질 계약, 기업 온보딩 절차, 추론 API 계약
+  build_in_90_days:
+    - Snowflake 위의 실데이터 근거 레이어와 실데이터 대시보드
+  does_not_exist:
+    - 임직원 웹앱
+    - Core AI 호출 경로
+    - 급여 게이트웨이 (X12 270/271)
+    note: 별도 트랙이며 90일 계획에 포함되지 않는다
+  not_decided:
+    - 예측 모델의 예측 대상
+    - 실험군 배정
+    - 가족·보호자 권한의 전체 흐름
+
+# ─────────────────────────────────────────────────────────────
+# 문서별 필수 노출 — 검사기가 이걸 본다
+# ─────────────────────────────────────────────────────────────
+required_disclosure:
+  report_ko:    [status, start_gates]
+  report_en:    [status, start_gates]     # 대외 문서에서 빠지면 다 만들어진 제품처럼 읽힌다
+  proposal_ko:  [status, start_gates]
+  proposal_en:  [status, start_gates]
+  dashboard:    [synthetic_label, min_cell, aggregate_scope]
+  tech:         [assumptions_table]
+
+# ─────────────────────────────────────────────────────────────
+# 알려진 미해결 — 감사에서 나왔고 아직 안 고친 것
+# ─────────────────────────────────────────────────────────────
+open_items:
+  - id: SYNC-06
+    what: 대시보드 화면 이름·KPI 이름이 Report·Proposal 어디에도 등장하지 않는다
+    fix: 각 문서의 대시보드 절에서 이 파일의 dashboard.tabs·dashboard.kpis 라벨을 그대로 인용
+  - id: SYNC-07
+    what: PRD 의 report §9·§10·§11·§13·§15·§17·§18 참조가 전부 끊겼다 (외부 vault 의 v2 report 를 가리킴)
+    fix: PRD 상호참조를 이 저장소의 기술문서 절 번호로 교체하거나 참조 자체를 제거
+  - id: SYNC-08
+    what: stop-loss 가 Report KO 에만 1회. 나머지 4개 문서 0회
+    fix: self-funded 설명이 나오는 곳마다 ASO·stop-loss 를 세트로
+  - id: SYNC-09
+    what: PRD 가 규정한 ?scenario=A URL 상태가 index.html 에 없다
+    fix: 구현하거나 PRD 에서 제거
