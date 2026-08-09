@@ -99,6 +99,19 @@ Springbuk and carrier reports already occupy the same quadrant — differentiati
 | — | **Preventive-visit Trend vs Control — still deferred.** Needs a control arm; experiment assignment has no consent basis, allocation rule or protocol owner. Returns after legal/protocol sign-off |
 | — | Any disease-specific wording — FDA 2026 red line, and now also a PIPA 민감정보 exposure |
 
+**2.5 What survives the US pivot.** The Seoul booth is a one-day instrument. When the US work starts, the product pivots to US conditions — different law, different language, different enrolment, and no strangers capturing at a booth. Build accordingly: **invest in the left column, keep the right column cheap and deletable.**
+
+| Survives — this is the product | Seoul-only — disposable after 8/27 |
+|---|---|
+| The aggregate dashboard and scenarios A/B/C | The live booth employer as a 4th scenario |
+| `n < 20` suppression and per-field provenance | The batch-of-5 refresh guard — a booth-scale patch for differencing, not the production answer (engineering design §16 item 5 owns that) |
+| Band, never a score | The Korean consent text and its PIPA §23 framing — the US version answers to HIPAA and state law instead |
+| The Core AI call contract (engineering design §8.2) | Badge-QR enrolment — US employers enrol from an eligibility file, not a conference lanyard |
+| The demo beat: capture, then fail to find yourself | The QR-as-lead-capture workaround — a US booth or meeting has other options |
+| Hash-on-read, discard-plaintext as a habit | `capture.html` as a whole, most likely |
+
+Two consequences for how this gets built. Keep the booth code **additive and removable** — the booth employer is a fourth scenario the dashboard can lose without a rewrite, and the capture app is a separate file. And do not polish the disposable column: it has to work on 8/27, not survive review in 2027.
+
 **2.4 Core hypotheses.**
 
 | # | Hypothesis | Verification |
