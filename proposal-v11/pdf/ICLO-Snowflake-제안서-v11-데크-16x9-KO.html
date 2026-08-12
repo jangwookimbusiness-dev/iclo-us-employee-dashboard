@@ -1,0 +1,724 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<title>제안서-데크-KO</title><style>
+@page { size: 13.333in 7.5in; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+:root {
+  --coral: #C2333A;   /* 흰 배경 5.49:1. 게이트 40 */
+  --navy:  #1B2A4A;
+  --teal:  #007A87;
+  --ink:   #16202E;
+  --mute:  #5A6675;
+  --rule:  #D8DEE6;
+}
+
+/* 게이트 37·38 — 서체는 본문 하나 + 코드용 모노 하나. */
+body {
+  font-family: "Apple SD Gothic Neo", "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+code, pre { font-family: "SF Mono", Menlo, monospace; }
+
+.slide {
+  width: 13.333in; height: 7.5in;
+  page-break-after: always; break-after: page;
+  padding: 0.62in 0.78in 0.5in;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;   /* 게이트 44 — 넘치면 잘려서 바로 보인다 */
+  background: #fff;
+}
+.slide:last-child { page-break-after: auto; }
+
+/* 게이트 54 — 번호는 제목 "위 같은 열". 옆에 두지 않는다. */
+.num {
+  font-size: 12pt; letter-spacing: .14em; color: var(--mute);
+  margin-bottom: .10in;
+}
+h1.title {
+  font-size: 34pt; line-height: 1.12;    /* 게이트 55 — 1.02 이상 */
+  margin: 0 0 .26in; font-weight: 700; color: var(--navy);
+  max-width: 11in;
+}
+.rule { height: 3px; background: var(--coral); width: 1.9in; margin-bottom: .26in; }
+.body { flex: 1; min-height: 0; font-size: 17pt; line-height: 1.52;
+        display: flex; flex-direction: column; justify-content: center; }
+.body > :first-child { margin-top: 0; }
+.body p { margin: 0 0 .19in; }
+.body strong { color: var(--navy); }
+.body a { color: var(--teal); }
+
+table { border-collapse: collapse; width: 100%; margin: 0 0 .19in; font-size: 15pt; }
+th, td { text-align: left; padding: .135in .16in; border-bottom: 1px solid var(--rule);
+         vertical-align: top; line-height: 1.4; }
+th { color: var(--navy); font-weight: 700; border-bottom: 2px solid var(--navy); }
+
+ul, ol { margin: 0 0 .16in; padding-left: .26in; }
+li { margin-bottom: .1in; }
+blockquote { margin: 0 0 .16in; padding-left: .2in; border-left: 3px solid var(--coral);
+             color: var(--navy); }
+pre { background: #F4F6F9; padding: .2in; border-radius: 3px; font-size: 13pt;
+      line-height: 1.45; overflow: hidden; }
+code { font-size: .92em; background: #F0F3F7; padding: .01in .05in; border-radius: 2px; }
+pre code { background: none; padding: 0; }
+img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+sub { display: block; font-size: 9.5pt; color: var(--mute); margin-top: .06in; }
+
+/* ── 배치별 ─────────────────────────────────────────────── */
+
+/* 전면 텍스트. 게이트 6 — 전부 가운데 정렬하지 않는다. 왼쪽 정렬로 축을 깬다. */
+.statement .body { display: flex; flex-direction: column; justify-content: center; }
+.statement .body p:first-child { font-size: 30pt; line-height: 1.34; font-weight: 700;
+                                 color: var(--navy); margin-bottom: .22in; max-width: 10in; }
+.statement .body p { font-size: 19pt; max-width: 9.5in; }
+
+/* 큰 문장 + 설명 */
+.lead .body p:first-child { font-size: 25pt; line-height: 1.34; font-weight: 700;
+                            color: var(--navy); margin-bottom: .2in; max-width: 10.5in; }
+
+/* 2단. .body 의 flex 를 끄지 않으면 column-count 가 먹지 않고 제목과 겹친다. */
+.two .body { display: block; column-count: 2; column-gap: .5in; }
+.two .body > * { break-inside: avoid; }
+.two .body table { font-size: 13.5pt; }
+
+/* 4열 표는 글자를 줄여 한 장에 넣는다 */
+.wide .body table { font-size: 13pt; }
+.wide .body th, .wide .body td { padding: .11in .12in; }
+
+/* 전면 사진 — 사진이 주인공, 캡션은 아래 밴드 */
+.photo .body { justify-content: flex-start; }
+.photo .body p:has(img) { flex: 1; min-height: 0; margin-bottom: .12in; }
+.photo .body img { width: 100%; height: 100%; object-fit: cover; }
+.photo .body p:not(:has(img)) { font-size: 15pt; max-width: 11in; }
+
+/* 스크린샷 2장 나란히. 게이트 47 — 도형으로 그리지 않는다. */
+.shots .body { justify-content: flex-start; }
+.shots .body p:has(img) { display: flex; gap: .22in; align-items: flex-start; }
+.shots .body p:has(img) img { flex: 1; min-width: 0; width: 100%; height: auto;
+                              object-fit: contain; border: 1px solid var(--rule); }
+.shots .body p:not(:has(img)) { font-size: 14pt; margin-bottom: .07in; }
+
+/* 흐름도 */
+.flow .body pre { font-size: 13.5pt; line-height: 1.6; background: #fff;
+                  border: 1px solid var(--rule); }
+
+/* 인용 */
+.quote .body blockquote p { font-size: 16pt; line-height: 1.5; }
+
+/* 표지 — 제목만 크게, 나머지는 왼쪽 정렬로 축을 깬다. 게이트 6 */
+.cover .num, .cover .rule { display: none; }
+.cover h1.title { display: none; }
+.cover .body { display: flex; flex-direction: column; justify-content: center; }
+.cover .body blockquote { border: 0; padding: 0; margin-bottom: .34in; }
+.cover .body blockquote p { font-size: 40pt; line-height: 1.16; font-weight: 700;
+                            color: var(--navy); margin: 0; }
+.cover .body > p { font-size: 14pt; color: var(--mute); max-width: 8in;
+                   border-top: 2px solid var(--coral); padding-top: .16in;
+                   display: inline-block; }
+
+/* 게이트 44 — 380자 넘는 장만 한 단계 낮춘다. 지금은 S12·S16 둘뿐. */
+.dense h1.title { font-size: 29pt; margin-bottom: .2in; }
+.dense .rule { margin-bottom: .2in; }
+.dense .body { font-size: 14pt; line-height: 1.45; }
+.dense .body table { font-size: 12.5pt; }
+.dense .body th, .dense .body td { padding: .085in .12in; }
+.dense .body p { margin: 0 0 .14in; }
+.dense .body blockquote p { font-size: 13.5pt; }
+
+.foot { position: absolute; left: .78in; right: .78in; bottom: .3in;
+        display: flex; justify-content: space-between;
+        font-size: 9pt; color: var(--mute); }
+</style></head><body><section class="slide cover">
+  <div class="num">S1</div>
+  <h1 class="title">표지</h1>
+  <div class="rule"></div>
+  <div class="body"><blockquote>
+<p>미국 임직원 구강 복지 근거 설계 협업 제안</p>
+</blockquote>
+<p>ICLO × Snowflake · 2026-08</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S1 / 21</span></div>
+</section>
+<section class="slide statement">
+  <div class="num">S2</div>
+  <h1 class="title">요청</h1>
+  <div class="rule"></div>
+  <div class="body"><p><strong>현재 ICLO를 담당하는 Snowflake Korea 스타트업 담당자가, 미국
+HLS GTM 담당자와 아키텍처 담당자를 지정해 연결해 주십시오.</strong></p>
+<p>이것이 Step 0의 전부입니다. 투자, 제품 구매, 크레딧, 구축 승인,
+실데이터 제공은 요청드리지 않습니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S2 / 21</span></div>
+</section>
+<section class="slide two">
+  <div class="num">S3</div>
+  <h1 class="title">아이클로는 어떤 회사인가</h1>
+  <div class="rule"></div>
+  <div class="body"><table>
+<tbody>
+<tr>
+<td>하는 일</td>
+<td>스마트폰 구강 사진을 <strong>비진단</strong> 구강 신호로
+바꿉니다</td>
+</tr>
+<tr>
+<td>단계</td>
+<td>한국 상용 단계. B2C·B2B·B2G 모두 매출이 있습니다</td>
+</tr>
+<tr>
+<td>창업자</td>
+<td>김준배(치과 재료 유통 23년) · 공성배(서울대 치의학, 임상의)</td>
+</tr>
+</tbody>
+</table>
+<p>한국에서 쌓인 것</p>
+<ul>
+<li>앱 사용자 <strong>5만 명 이상</strong> — 마케팅비 없이
+자발적으로</li>
+<li>유료 치과 <strong>100곳</strong> — 홈덴 커넥트</li>
+<li>구강 데이터 <strong>850만 건</strong>, 전문가 라벨 <strong>250만
+건</strong></li>
+</ul>
+<p>모델 평가</p>
+<ul>
+<li>객체 검출 mAP50 <strong>98.996%</strong> — KOLAS 인정 시험</li>
+<li>8개 분류 평균 정확도 약 0.907, 전 분류 0.85 이상</li>
+</ul>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S3 / 21</span></div>
+</section>
+<section class="slide lead">
+  <div class="num">S4</div>
+  <h1 class="title">미국에서 팔 것은 임직원 웰니스입니다</h1>
+  <div class="rule"></div>
+  <div class="body"><p><strong>미국 복리후생 스택에 구강 웰니스 계층이 없습니다. 정신건강,
+피트니스, 영양에는 있는데 구강에는 없습니다.</strong></p>
+<p>첫 번째 수익 파동은 자기부담 기업에 파는 <strong>비진단 engagement와
+비식별 집계 분석</strong>입니다. 인허가 게이트가 없어서 지금 시작할 수
+있습니다. 청구 검증과 언더라이팅은 그다음이고, 각각 별도의 규제 관문
+뒤에 있습니다.</p>
+<p>기업에 팔지만 실제로 쓰는 사람은 임직원과 가족입니다. B2B2C이고,
+그래서 화면이 둘 필요합니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S4 / 21</span></div>
+</section>
+<section class="slide table">
+  <div class="num">S5</div>
+  <h1 class="title">Snowflake가 필요한 두 가지 이유</h1>
+  <div class="rule"></div>
+  <div class="body"><table>
+<thead>
+<tr>
+<th></th>
+<th>왜 필요한가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>평판</td>
+<td>미국 기업 고객이 가장 먼저 묻는 것은 "그 데이터를 어떻게
+만지느냐"입니다. 답을 구조로 보여주지 못하면 대화가 시작되지
+않습니다</td>
+</tr>
+<tr>
+<td>데이터 관리·가공</td>
+<td>자격·플랜·앱 이용·청구가 서로 다른 기관에서 옵니다. 사람 단위로 잇고
+기업 단위로 집계하면서 개인은 가리는 일을, 정책 문서가 아니라
+<strong>데이터 계층이 강제</strong>해야 합니다</td>
+</tr>
+</tbody>
+</table>
+<p>기술이 없어서 드리는 요청이 아닙니다. <strong>미국 헬스케어에서
+무엇이 통용되는지 아는 사람</strong>이 필요합니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S5 / 21</span></div>
+</section>
+<section class="slide photo">
+  <div class="num">S6</div>
+  <h1 class="title">미국 치과 접수 창구</h1>
+  <div class="rule"></div>
+  <div class="body"><p><img
+src="file:///Users/jk0307/Documents/GitHub/iclo/iclo-us-employee-dashboard/proposal-v11/images/us-dental-reception.png"
+alt="사진" /></p>
+<p>환자가 보험카드를 내면 그 자리에서 자격이 조회되고, 진료 후 청구는
+치과에서 TPA로 넘어갑니다. 이 제안이 다루는 데이터는 대부분 이 장면
+뒤에서 오갑니다.</p>
+<p><sub>생성형 이미지입니다. 실제 고객사나 제휴 치과의 사진이
+아닙니다.</sub></p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S6 / 21</span></div>
+</section>
+<section class="slide table">
+  <div class="num">S7</div>
+  <h1 class="title">한국과 다른 점 넷</h1>
+  <div class="rule"></div>
+  <div class="body"><table>
+<thead>
+<tr>
+<th></th>
+<th>한국</th>
+<th>미국 기업 치아 플랜</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>누가 돈을 내나</td>
+<td>건강보험 + 본인부담</td>
+<td>기업이 직접 부담하는 경우가 많음</td>
+</tr>
+<tr>
+<td>보장 범위</td>
+<td>급여·비급여 구분</td>
+<td>플랜마다 다름. 연간 한도가 있음</td>
+</tr>
+<tr>
+<td>어디서 받나</td>
+<td>대부분 어느 치과나</td>
+<td>네트워크 안이면 부담이 크게 달라짐</td>
+</tr>
+<tr>
+<td>잔여 한도</td>
+<td>개념이 약함</td>
+<td>연말에 소진 러시가 생길 만큼 중요</td>
+</tr>
+</tbody>
+</table>
+<p>임직원이 실제로 모르는 것은 자기 구강 상태가 아니라 <strong>자기 급여
+내용</strong>입니다. 한도가 얼마 남았는지, 이 치과가 네트워크인지.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S7 / 21</span></div>
+</section>
+<section class="slide table">
+  <div class="num">S8</div>
+  <h1 class="title">자기부담 구조에서는 회사가 payer입니다</h1>
+  <div class="rule"></div>
+  <div class="body"><table>
+<thead>
+<tr>
+<th></th>
+<th>fully insured</th>
+<th>self-funded / ASO / stop-loss</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>비용을 최종 부담하는 주체</td>
+<td>carrier</td>
+<td>기업</td>
+</tr>
+<tr>
+<td>기업이 하는 일</td>
+<td>보험료 납부</td>
+<td>진료비 실비 부담</td>
+</tr>
+<tr>
+<td>절감이 생기면</td>
+<td>carrier 몫</td>
+<td>기업 몫</td>
+</tr>
+<tr>
+<td>큰 부담 대비</td>
+<td>carrier가 위험 인수</td>
+<td>stop-loss로 상한</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>payer</strong> 비용 부담 주체. self-funded에서는 기업</li>
+<li><strong>TPA</strong> 자격 관리·청구 처리를 맡는 관리기관</li>
+<li><strong>ASO</strong> TPA와 맺는 관리 대행 계약 형태</li>
+<li><strong>carrier</strong> 보험 상품 제공자. payer와 다름</li>
+</ul>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S8 / 21</span></div>
+</section>
+<section class="slide lead">
+  <div class="num">S9</div>
+  <h1 class="title">미국 그룹 치아보험의 46%가 자기부담입니다</h1>
+  <div class="rule"></div>
+  <div class="body"><p><strong>46%. 2024년 기준이고 전년 44%에서 올랐습니다. 그만큼의 비용이
+보험사가 아니라 기업 손익에 얹힙니다.</strong></p>
+<p>NADP 2025 Dental Benefits Report 수치입니다. 미국인의 51%가 고용주
+제공 치아보험을 갖고 있고, 이는 단일 원천으로 가장 큽니다. 미국 전체
+치과 지출은 2024년 1,892억 달러입니다(CMS 국민의료비 계정).</p>
+<p>비용은 진료비만이 아닙니다. 미치료 구강질환으로 인한 연간 생산성
+손실이 450억 달러, 결근·결석이 2억 4,300만 시간으로 집계됩니다(CareQuest
+2024). 자기부담 구조에서는 이 손실과 치료비가 모두 기업 몫입니다. 반대로
+예방으로 줄어든 부분도 기업 몫입니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S9 / 21</span></div>
+</section>
+<section class="slide table">
+  <div class="num">S10</div>
+  <h1 class="title">회사에는 대시보드, 직원에게는 앱</h1>
+  <div class="rule"></div>
+  <div class="body"><table>
+<thead>
+<tr>
+<th></th>
+<th>기업 화면</th>
+<th>임직원 앱</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>누가 보나</td>
+<td>인사·복지 담당</td>
+<td>임직원 본인과 가족</td>
+</tr>
+<tr>
+<td>무엇을 보나</td>
+<td>집계된 통계와 비용</td>
+<td>자기 기록과 자기 급여</td>
+</tr>
+<tr>
+<td>개인 식별</td>
+<td>없음. 최소 셀 <code>n ≥ 20</code></td>
+<td>본인 것만</td>
+</tr>
+<tr>
+<td>목적</td>
+<td>프로그램이 작동하는지 판단</td>
+<td>진료로 연결</td>
+</tr>
+</tbody>
+</table>
+<p>같은 근거 레이어에서 나오지만 보이는 것이 다릅니다. 그 경계를
+데이터베이스가 강제하는 것이 이 제안의 핵심입니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S10 / 21</span></div>
+</section>
+<section class="slide flow">
+  <div class="num">S11</div>
+  <h1 class="title">임직원이 겪는 흐름</h1>
+  <div class="rule"></div>
+  <div class="body"><pre><code>회사가 임직원에게 앱 설치를 안내
+        ↓
+임직원이 설치하고 본인과 피부양 가족을 등록
+        ↓
+스마트폰으로 구강 촬영. 2분 이내, 병원 방문도 X-ray도 없음
+        ↓
+본인 화면에만 표시
+   · 구강 위험 스코어와 그 추이  ← 진단이 아닙니다
+   · 우리 회사 플랜이 무엇을 보장하고 한도가 얼마 남았는지
+   · 네트워크 안 치과와 예상 본인부담
+   · 요청하면 예약까지
+        ↓
+진료 발생 → 치과가 TPA에 청구</code></pre>
+<p><strong>이 화면은 회사로 넘어가지 않습니다.</strong> 회사가 보는 것은
+S13 한 장뿐입니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S11 / 21</span></div>
+</section>
+<section class="slide table">
+  <div class="num">S12</div>
+  <h1 class="title">설계로 막아둔 것</h1>
+  <div class="rule"></div>
+  <div class="body"><table>
+<thead>
+<tr>
+<th>하지 않는 것</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>자동 진단</td>
+<td>스코어는 위험 신호이지 진단이 아닙니다</td>
+</tr>
+<tr>
+<td>자동 언더라이팅 판정</td>
+<td>보험료·인수 여부를 결정하지 않습니다</td>
+</tr>
+<tr>
+<td>청구 승인·거부</td>
+<td>지급 판단에 관여하지 않습니다</td>
+</tr>
+<tr>
+<td>개인 단위 기업 리포팅</td>
+<td>기업 화면은 집계 전용입니다</td>
+</tr>
+<tr>
+<td>원본 이미지 반출</td>
+<td>사진은 플랫폼을 나가지 않습니다. 파생 신호만 나갑니다</td>
+</tr>
+</tbody>
+</table>
+<p>이 다섯 줄이 미국 기업 고객이 가장 먼저 확인하는 항목입니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S12 / 21</span></div>
+</section>
+<section class="slide table">
+  <div class="num">S12b</div>
+  <h1 class="title">앱 기능 중 지금 있는 것과 없는 것</h1>
+  <div class="rule"></div>
+  <div class="body"><table>
+<thead>
+<tr>
+<th>기능</th>
+<th>상태</th>
+<th>무엇이 필요한가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>구강 촬영과 스코어</td>
+<td><strong>한국에서 운영 중</strong></td>
+<td>미국 이관과 규제 경계 확인</td>
+</tr>
+<tr>
+<td>보장 내용·잔여 한도 조회</td>
+<td><strong>없음</strong></td>
+<td>급여 게이트웨이(<code>X12 270/271</code>). 별도 트랙</td>
+</tr>
+<tr>
+<td>네트워크 치과·예약 지원</td>
+<td><strong>없음</strong></td>
+<td>아직 설계 전</td>
+</tr>
+</tbody>
+</table>
+<p>임직원 앱 자체가 미국에는 아직 없습니다. S11은 만들려는 그림이지 오늘
+도는 물건이 아닙니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S12b / 21</span></div>
+</section>
+<section class="slide shots">
+  <div class="num">S13</div>
+  <h1 class="title">회사가 보는 것과 못 보는 것</h1>
+  <div class="rule"></div>
+  <div class="body"><p><img
+src="file:///Users/jk0307/Documents/GitHub/iclo/iclo-us-employee-dashboard/_originals/assets/iclo-world-tour-v1/employer-dashboard-overview.png"
+alt="왼쪽" /></p>
+<p><img
+src="file:///Users/jk0307/Documents/GitHub/iclo/iclo-us-employee-dashboard/_originals/assets/iclo-world-tour-v1/employer-dashboard-suppressed.png"
+alt="오른쪽" /></p>
+<p>왼쪽 설명: 자격 인원, 참여율, 재검진율, 신호 분포, 그리고 eligible →
+activated → 유효 촬영 → 조치 → 완료로 이어지는 퍼널.</p>
+<p>오른쪽 설명: 부서를 좁히면 <code>n &lt; 20</code>에서 값이
+사라집니다. 집계 전용이 정책 문구가 아니라 데이터 계층에서 강제된다는
+뜻입니다.</p>
+<p><strong>회사에 절대 도달하지 않는 것:</strong> 개인 식별, 구강
+이미지와 임상 기록, 자격·언더라이팅·보장 판정. 화면의 숫자는 전부
+합성이며 <code>Synthetic data — illustrative only</code> 라벨이
+붙습니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S13 / 21</span></div>
+</section>
+<section class="slide photo">
+  <div class="num">S14</div>
+  <h1 class="title">전체 그림</h1>
+  <div class="rule"></div>
+  <div class="body"><p><img
+src="file:///Users/jk0307/Documents/GitHub/iclo/iclo-us-employee-dashboard/proposal-v11/images/data-flow-overview.png"
+alt="사진" /></p>
+<p>가운데 축이 원천에서 기업 화면까지의 본류입니다. 왼쪽 두 레인은 그
+축을 타지 않습니다. 사진은 ICLO 저장소에만 있고 파생 신호만 돌아오며,
+잔여 한도 조회는 창고를 거치지 않습니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S14 / 21</span></div>
+</section>
+<section class="slide table">
+  <div class="num">S15</div>
+  <h1 class="title">오늘 실제로 있는 것</h1>
+  <div class="rule"></div>
+  <div class="body"><table>
+<thead>
+<tr>
+<th>구분</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>오늘 도는 것</td>
+<td>임직원 대시보드 데모 하나. 브라우저 안 합성 계산. 실데이터·Snowflake
+연결 없음</td>
+</tr>
+<tr>
+<td>설계된 것</td>
+<td>근거 레이어 데이터 모델, 신원 해석 규칙, 정책·품질 계약, 기업 온보딩
+절차, 추론 API 계약</td>
+</tr>
+<tr>
+<td>90일에 하는 것</td>
+<td>담당자 연결과 검증 상대 확정, 아키텍처 설계와 보안 기준 정렬, 네
+게이트의 책임자 지정</td>
+</tr>
+<tr>
+<td>존재하지 않는 것</td>
+<td>임직원 웹앱, Core AI 호출 경로, 급여
+게이트웨이(<code>X12 270/271</code>), 급여 표(SPD 수기), 예측 모델, 신원
+확인·동의 강제</td>
+</tr>
+<tr>
+<td>정하지 않은 것</td>
+<td>예측 모델이 무엇을 예측할지, 실험군 배정, 가족·보호자 권한의 전체
+흐름</td>
+</tr>
+</tbody>
+</table>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S15 / 21</span></div>
+</section>
+<section class="slide table">
+  <div class="num">S16</div>
+  <h1 class="title">실데이터 전에 닫아야 할 네 가지</h1>
+  <div class="rule"></div>
+  <div class="body"><p><strong>네 항목 모두 실데이터 적재 전에 결론과 책임자를 서면으로
+확정해야 합니다.</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>열린 채로 진행하면</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HIPAA 역할 규정</td>
+<td>개인건강정보를 적재할 법적 근거가 없습니다</td>
+</tr>
+<tr>
+<td>데이터 권리</td>
+<td>데이터를 받고도 쓸 수 없습니다</td>
+</tr>
+<tr>
+<td>동의 이전 기준선 적재</td>
+<td>비동의자의 개인건강정보를 근거 없이 처리하게 됩니다</td>
+</tr>
+<tr>
+<td>공통 식별키</td>
+<td>"청구로 확인된 완료"라는 주장이 성립하지 않습니다</td>
+</tr>
+</tbody>
+</table>
+<p>Snowflake에 이 판단을 요청드리지 않습니다. ICLO와 고객이 정할
+몫입니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S16 / 21</span></div>
+</section>
+<section class="slide wide">
+  <div class="num">S17</div>
+  <h1 class="title">Snowflake에서 정렬할 통제</h1>
+  <div class="rule"></div>
+  <div class="body"><table>
+<thead>
+<tr>
+<th>설계 과제</th>
+<th>통제 범위</th>
+<th>기대 효과</th>
+<th>보장하지 않는 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기업 간 격리</td>
+<td>행 접근 정책을 기업 식별자와 승인된 역할에 연결</td>
+<td>노출 경계를 일관되게 적용</td>
+<td>잘못된 식별자 매핑이나 과도한 권한까지 바로잡지는 않음</td>
+</tr>
+<tr>
+<td>고유 인물 기준 최소 셀</td>
+<td>엔터티 키를 지정한 집계 정책에 <code>n ≥ 20</code></td>
+<td>화면이 아니라 쿼리 계층에서 강제</td>
+<td>엔터티 키가 사람을 정확히 가리키는지는 별도 검증</td>
+</tr>
+<tr>
+<td>데이터 권리 경계</td>
+<td>Secure Data Sharing으로 복사 없이 읽기 전용 공유</td>
+<td>원본 복사본 확산을 줄임</td>
+<td>데이터 권리나 HIPAA 역할을 만들지는 않음</td>
+</tr>
+</tbody>
+</table>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S17 / 21</span></div>
+</section>
+<section class="slide quote dense">
+  <div class="num">S18</div>
+  <h1 class="title">문서에서 직접 확인한 것</h1>
+  <div class="rule"></div>
+  <div class="body"><blockquote>
+<p>"the groups returned by a query against an aggregation-constrained
+table or view must contain at least the specified number of
+<strong>entities</strong>, not a specified number of
+<strong>rows</strong>."</p>
+</blockquote>
+<blockquote>
+<p>"no actual data is copied or transferred between accounts."</p>
+</blockquote>
+<p>설계에 반영할 제약 둘.</p>
+<ul>
+<li>행 접근 정책은 <strong>Enterprise Edition 이상</strong>을
+요구합니다. 개인건강정보를 다루려면 Business Critical과 BAA가 전제이므로
+요건 안에 들어옵니다</li>
+<li><strong>하나의 정책을 행 단위와 엔터티 단위 프라이버시에 함께 쓸 수
+없습니다.</strong> 기업 간 격리와 최소 셀은 정책 두 개로 설계해야
+합니다</li>
+</ul>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S18 / 21</span></div>
+</section>
+<section class="slide table">
+  <div class="num">S19</div>
+  <h1 class="title">90일과 역할 분담</h1>
+  <div class="rule"></div>
+  <div class="body"><p>이 90일이 검증하는 것은 Snowflake 관계와 설계가 성립하는가입니다.
+치아 PoC 자체가 아닙니다.</p>
+<table>
+<thead>
+<tr>
+<th>무엇</th>
+<th>ICLO</th>
+<th>Snowflake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>연결</td>
+<td>검증 상대와 범위 정리</td>
+<td>미국 HLS GTM·아키텍처 담당자 지정</td>
+</tr>
+<tr>
+<td>설계</td>
+<td>근거 레이어 아키텍처 초안, 지표 정의</td>
+<td>보안 기준 검토, 계정·리전·BAA 경로 확인</td>
+</tr>
+<tr>
+<td>게이트</td>
+<td>네 항목의 책임자 지정과 종결 경로</td>
+<td>플랫폼 측 전제 확인</td>
+</tr>
+<tr>
+<td>운영</td>
+<td>주간 서면 보고와 의사결정 기록</td>
+<td>검토 참여</td>
+</tr>
+</tbody>
+</table>
+<p>실데이터 적재는 네 게이트가 서면으로 닫힌 뒤이며, 이 90일 밖입니다.
+이 기간에는 기업 약정도, 계약된 데이터도, 적재된 청구도, 측정된 결과도
+없습니다.</p>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S19 / 21</span></div>
+</section>
+<section class="slide statement">
+  <div class="num">S20</div>
+  <h1 class="title">요청</h1>
+  <div class="rule"></div>
+  <div class="body"><p><strong>미국 HLS GTM 담당자와 아키텍처 담당자를 지정해 연결해
+주십시오.</strong></p>
+<p>이 연결에 투자, 구매, 실데이터 제공, 90일 계획 승인은 포함되지
+않습니다.</p>
+<p>그 자리에서 확인해 주시면 이후 계획을 실제 조건에 맞춰 다시
+쓰겠습니다.</p>
+<ol type="1">
+<li>현재 ICLO 지원 관계의 공식 프로그램명과 스폰서</li>
+<li>미국 계정·클라우드·리전, 그리고 BAA 경로</li>
+<li>기술 지원 담당</li>
+</ol>
+</div>
+  <div class="foot"><span>ICLO × Snowflake</span><span>S20 / 21</span></div>
+</section></body></html>

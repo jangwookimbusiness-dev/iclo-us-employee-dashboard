@@ -1,0 +1,41 @@
+{
+  "content": [
+    {
+      "slide": 1,
+      "ko": "직원이 치과 혜택을 제대로 누리도록.",
+      "en": "Make dental benefits easier to use."
+    },
+    {
+      "slide": 2,
+      "ko": "보험이 있어도, 이용은 여전히 어렵습니다.",
+      "en": "Coverage does not solve navigation."
+    },
+    {
+      "slide": 3,
+      "ko": "앞에서는 내비게이션. 뒤에서는 증거.",
+      "en": "Navigation in front. Evidence in back."
+    },
+    {
+      "slide": 4,
+      "ko": "증거는 숫자보다 먼저, 정의가 보여야 합니다.",
+      "en": "Evidence begins with transparent definitions."
+    },
+    {
+      "slide": 5,
+      "ko": "첫해 절감을 약속하지 않습니다.",
+      "en": "No year-one savings promise."
+    },
+    {
+      "slide": 6,
+      "ko": "핀테크 큐브 9기 · 신한퓨처스랩 12기 선정 완료",
+      "en": "Selected for two financial innovation cohorts."
+    },
+    {
+      "slide": 7,
+      "ko": "회사의 치과 혜택 이용을 근거로 설명할 수 있나요?",
+      "en": "Can your company prove how dental benefits are used?"
+    }
+  ],
+  "backwallFallbackText": "DENTAL BENEFITS, MADE EASIER",
+  "dashboardUrl": "https://jangwookimbusiness-dev.github.io/iclo-us-employee-dashboard/"
+}

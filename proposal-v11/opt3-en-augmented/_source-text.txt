@@ -1,0 +1,458 @@
+PARTNERSHIP PROPOSAL
+
+Oral-health data infrastructure
+for U.S. self-funded employers.
+Prepared for Snowflake · August 2026
+
+ICLO · CONFIDENTIAL
+
+JOINT TECHNICAL VALIDATION UNDERWAY
+
+01 · WHO WE ARE
+
+An AI that scores oral health from a phone photo — live, paying, in Korea.
+Founded by a dental-materials supplier and a practicing SNU dentist. Five years of clinical data collection behind the model.
+
+50,000+
+
+100
+
+~$85K
+
+8.5M+
+
+app users, fully organic
+
+paying clinics
+
+ARR
+
+intraoral images
+2.5M+ expert-labeled
+
+MODEL
+
+98.996% mAP50, KOLAS-accredited test. Eight per-class accuracies all at or above 0.85. Non-diagnostic by design.
+
+IP
+
+5 patents registered in Korea; JP 7490264 granted. EP and U.S. status is under reconciliation against the public registers — we do not
+claim them.
+
+PUBLIC PROOF
+
+Gwangju municipal screening pilot completed 2024. MOHW AI care consortium selected 2026. Vietnam five-year SaaS in final-stage
+negotiation.
+
+ICLO · CONFIDENTIAL
+
+02
+
+02 · WHAT WE WANT TO BUILD IN THE U.S.
+
+A B2B2C employee-wellness layer — and we need Snowflake underneath it.
+The employer buys an aggregate dashboard. Their employees get the app free. The data that connects the two is the hard part.
+
+WHAT ICLO BRINGS
+
+WHAT WE NEED FROM SNOWFLAKE
+
+The scoring model and the app that produces the signal
+
+Reputation — a U.S. payer will not hand claims data to a Korean startup alone
+
+Five years of labelled intraoral data
+
+The governed plane — BAA, row access, masking, clean rooms
+
+Clinical operations and care navigation
+
+Consumption-grade processing as the corpus compounds
+
+THE HONEST VERSION
+
+We can build the model and the app on our own. We cannot, on our own, get a U.S. benefits team
+to trust a foreign vendor with eligibility and claims data. That is the gap this partnership closes.
+
+No commercial agreement exists today. This slide describes what we are asking to build, not what is in place.
+
+ICLO · CONFIDENTIAL
+
+03
+
+03 · WHY THE U.S. IS A DIFFERENT MARKET
+
+U.S. dental insurance is structurally unlike Korea's — that is what creates the opening.
+
+KOREA
+
+UNITED STATES
+
+Single-payer base
+
+Employer-sponsored dominates
+
+National Health Insurance covers the population; private dental is a supplement
+
+51% of Americans; 46% of group dental is self-funded
+
+Carriers can exit
+
+The employer cannot exit
+
+23 carriers writing dental in 2024 → 12 by 2026
+
+It is their own P&L, renewed every year
+
+Claims sit with the insurer
+
+Claims sit with a TPA
+
+One counterparty holds the data
+
+Eligibility, 837D/835 and benefit design live outside the carrier
+
+One more U.S. peculiarity that matters here: the annual maximum has sat near $1,000–$1,500 for roughly forty years,
+and most plans impose waiting periods. Members ration care they cannot price, and the sponsor learns about it from the claim.
+ICLO · CONFIDENTIAL
+
+04
+
+04 · THE BUYER
+
+In a self-funded plan, employee oral health is a line on the company's P&L.
+No insurer absorbs the loss. The employer pays every claim from its own account and sees the risk only when it arrives.
+
+ICLO ESTIMATE
+
+~23%
+of Americans are in a dental plan an employer pays directly.
+51% employer-sponsored × 46% self-insured — our arithmetic
+on two NADP figures, not a published pair.
+
+WHAT THAT COSTS THE COMPANY
+
+MEASURED
+
+243M+
+
+work or school hours lost annually to oral-health
+problems, including caregiver time
+
+MEASURED
+
+$189.2B
+
+U.S. dental spend, 2024 — committed before anyone
+can see the risk
+
+STRUCTURAL
+
+0
+
+pre-visit signals reach the plan sponsor. No such layer
+exists in the benefits stack
+
+NADP 2025 Dental Benefits Report (2024) · CareQuest Institute, published 2024-02-26 · CMS National Health Expenditure Accounts, 2024 data.
+
+ICLO · CONFIDENTIAL
+
+05
+
+05 · THE PRODUCT
+
+A dashboard for the company. An app for the employee.
+One model underneath both. The employer never sees a person; the employee never sees a bill for it.
+FOR THE COMPANY — AGGREGATE ONLY
+SYNTHETIC SAMPLE — NOT RESULTS
+
+Oral-health signal mix across the covered population
+Intervention funnel — eligible → activated → scanned → care gap → closed
+Expected dental spend, and incurred spend pulled from the TPA
+
+FOR THE EMPLOYEE — FREE
+
+A two-minute oral check for themselves and covered family
+Their plan coverage and what is left of the annual maximum
+In-network dentists and AI-assisted booking
+Their oral-health score over time
+
+Dashboard sample is synthetic — interface and data structure only. U.S. app coverage and booking integrations are not live yet.
+
+ICLO · CONFIDENTIAL
+
+06
+
+06 · HOW IT RUNS
+
+The employer opens the door. The employee produces the signal.
+
+01
+
+The company enrols
+
+HR adds HomeDen to the benefits stack and asks employees to install it. Eligibility comes across from
+HRIS.
+
+02
+
+The employee scans
+
+The employee photographs their own mouth, and their covered family's, then repeats on a cadence.
+
+03
+
+The employee gets something back
+
+Coverage detail and remaining balance, in-network clinics, AI-assisted booking, and their score history.
+
+04
+
+ICLO joins the claims side
+
+Eligibility and dental claims are pulled from the TPA and matched to activity — member-month, CDT,
+intervention, outcome.
+
+05
+
+The company sees the population
+
+Descriptive statistics on employee oral health, expected dental spend, and spend already incurred.
+
+Consent is per member and revocable. Raw images never leave ICLO's controlled storage; the employer receives aggregates only.
+ICLO · CONFIDENTIAL
+
+07
+
+07 · THE DATA FLOW
+
+Where Snowflake sits: between four messy sources and one governed output.
+
+SOURCES
+
+SNOWFLAKE — GOVERNED PLANE
+
+Employee app — consent, questionnaire, photo
+
+Business Critical + BAA before any PHI lands —
+
+metadata
+
+and HITRUST inheritance
+
+Employer HRIS — eligibility, plan enrolment
+
+Unified model — member-month · CDT ·
+
+Dental TPA / ASO — 837D / 835, benefit design
+
+Clinical partner — review, referral, completion
+
+→
+
+intervention · outcome
+
+CONTROLLED OUTPUTS
+
+Employer dashboard — aggregates only, no PHI
+
+→
+
+ICLO care operations — minimum necessary,
+by consent
+
+RBAC, row access, masking, access history,
+
+Outcome evaluation — design-partner control
+
+n≥20 aggregation floor
+
+group
+
+Secure Sharing; Clean Rooms with the TPA
+
+Model training set — de-identified, longitudinal
+
+where needed
+
+Raw intraoral images stay in ICLO's controlled object storage — the plane holds URIs, metadata and derived signals, not photographs.
+A Snowflake BAA does not replace the BAAs we still need with each healthcare entity; those are separate agreements.
+Proposed architecture, not an existing deployment. Business Critical alone does not complete HIPAA compliance; a signed BAA is required before PHI. Region, account and Clean Room design need joint validation.
+
+ICLO · CONFIDENTIAL
+
+08
+
+08 · TIMELINE AND ROLES
+
+Four phases to a U.S. beachhead — and who carries each one.
+
+PHASE 0
+
+PHASE 1
+
+PHASE 2
+
+PHASE 3
+
+Now – Q1 2027
+
+2027
+
+2027 – 2028
+
+2029+
+
+Architecture review, BAA, security
+
+First design partner live. Eligibility + app
+
+8–10 employer accounts. The outcome
+
+Longitudinal per-member series feeds
+
+posture. One design-partner employer
+
+activity + claims joined in the plane.
+
+report opens the broker channel.
+
+risk prediction, underwriting and
+
+identified.
+
+Outcome report built.
+
+ICLO: model, app, ICP list
+
+ICLO: delivery, care ops
+
+ICLO: sales, delivery
+
+ICLO: MGA or API to carriers
+
+Snowflake: architecture, BAA, credits
+
+Snowflake: solution architect, clean room
+
+Snowflake: co-sell, payer intros
+
+Snowflake: marketplace, consumption
+
+adjudication support.
+
+The beachhead is not the revenue. It is the first place where employee action, benefit design and dental claims
+sit in one governed model — which is the asset neither of us can build alone.
+Phase dates are planning assumptions, not commitments. No channel, carrier or TPA agreement is signed.
+
+ICLO · CONFIDENTIAL
+
+09
+
+09 · WHY THIS COMPOUNDS
+
+Per-member time series is the asset — and it stays evidence, not underwriting.
+Clinic-gated dental AI sees a patient once they arrive. We see the covered population on a cadence, before the visit.
+
+01
+
+A CADENCE, NOT A SNAPSHOT
+
+02
+
+JOINED TO CLAIMS
+
+03
+
+PREDICTION
+
+04
+
+EVIDENCE FOR THE PAYER
+
+Repeat scans per member and per covered dependent, timestamped, over years
+
+Each series matched to what was actually paid — CDT codes, spend, outcome
+
+Which members are moving toward cost, and what that costs the plan
+
+Timestamped, consented records a carrier or TPA can use — we do not price or
+adjudicate
+
+WHERE THIS CAN GO — LATER, AND GATED
+
+WHAT IT MEANS FOR SNOWFLAKE
+
+Serving the signal to carriers by API, or an MGA structure. Out of scope for this partnership
+and explicitly not what we present at the booth: this is not insurance sales or underwriting.
+
+A healthcare workload whose consumption grows with the corpus, not with
+headcount.
+
+ICLO · CONFIDENTIAL
+
+10
+
+10 · THE ASK
+
+What we are asking for, and what it buys Snowflake.
+
+WHAT WE ASK
+
+WHAT SNOWFLAKE GETS
+
+01
+
+A signed BAA and Business Critical for the U.S. entity, plus HITRUST
+
+A new healthcare workload
+
+inheritance
+
+Pre-claim clinical signal joined to claims — a data type not currently on the platform
+
+02
+
+Solution-architect time for the member-month model and cleanroom design
+
+03
+
+A clean-room reference case
+Employer, TPA and vendor in one governed model, with privacy enforced in the layer
+
+Startup credits through Phase 0 and Phase 1
+
+Korea and APAC reference
+04
+
+One payer or TPA account team to validate this program with — the
+
+A live customer in a market Snowflake is expanding into, with public-sector proof
+
+ask already made at the booth
+05
+
+Co-presentation rights for the design-partner outcome report
+
+Jang Woo KIM
+
+ICLO · CONFIDENTIAL
+
+·
+
+CFO
+
+·
+
+jw.kim@iclocorp.com
+
+·
+
+Consumption that compounds
+Storage and compute grow with the corpus and the member cadence, not headcount
+
++82-10-3205-3219
+
+11
+
+

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Red-line enforcement — PRD §5.6. Any hit = exit 1 = CI failure = auto-reject.
+# Scope: src/ and dist/ fully; docs/ except the spec's own red-line table (docs/PRD.md).
+set -u
+cd "$(dirname "$0")/.."   # always run from the project folder
+
+PAT='diagnos|cavit|caries|decay|gingivit|periodont|abscess|lesion'
+fail=0
+
+if [ -d src ]; then
+  hits=$(grep -rniE "$PAT" src 2>/dev/null || true)
+  if [ -n "$hits" ]; then echo "RED LINE - forbidden terms in src:"; echo "$hits"; fail=1; fi
+fi
+
+if [ -d dist ]; then
+  hits=$(grep -rniE "$PAT" dist 2>/dev/null || true)
+  if [ -n "$hits" ]; then echo "RED LINE - forbidden terms in dist:"; echo "$hits"; fail=1; fi
+fi
+
+if [ -d docs ]; then
+  hits=$(grep -rniE "$PAT" docs 2>/dev/null | grep -v '^docs/PRD\.md:' || true)
+  if [ -n "$hits" ]; then echo "RED LINE - forbidden terms in docs (PRD.md excluded):"; echo "$hits"; fail=1; fi
+fi
+
+# Banned signal label "Review" (use "Priority") - UI strings, case-sensitive quoted literal
+if [ -d src ]; then
+  hits=$(grep -rn '"Review"' src 2>/dev/null || true)
+  if [ -n "$hits" ]; then echo "RED LINE - banned signal label \"Review\" in src (use \"Priority\"):"; echo "$hits"; fail=1; fi
+fi
+
+if [ "$fail" -eq 0 ]; then echo "red-line check passed"; fi
+exit $fail
