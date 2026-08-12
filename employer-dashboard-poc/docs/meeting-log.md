@@ -1,6 +1,6 @@
 # Meeting Log — employer-dashboard-poc
 
-One entry per channel meeting, filled immediately afterwards. This log is the measurement instrument for PRD §2.4 (H1–H3) and §4c — and the evidence that closes the §5.2 Blocking gap.
+One entry per channel meeting, filled immediately afterwards. This log is the measurement instrument for PRD §2.4 (H1–H3) and §4c, and the evidence that closes the §5.2 Blocking gap.
 
 ---
 
