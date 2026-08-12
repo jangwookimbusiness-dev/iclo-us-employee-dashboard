@@ -49,13 +49,15 @@ CASES = [
 def render(patched_html, tab):
     state = ('let S = {scen:"A", tab:"%s", dept:"All departments", '
              'lens:"employees", showSrc:true};' % tab)
-    old = ('let S = {scen:"A", tab:"overview", dept:"All departments", '
-           'lens:"employees", showSrc:true};')
-    if old not in patched_html:
+    # Match the whole `let S = { ... };` block rather than one exact line.
+    # The literal-string version broke silently when URL state was added and
+    # stayed broken; the test only reported it as "could not find".
+    pattern = re.compile(r"let S = \{.*?\n\};", re.S)
+    if not pattern.search(patched_html):
         sys.exit("could not find the state initialiser in index.html")
     with tempfile.TemporaryDirectory() as tmp:
         page = Path(tmp) / "page.html"
-        page.write_text(patched_html.replace(old, state), encoding="utf-8")
+        page.write_text(pattern.sub(state, patched_html, count=1), encoding="utf-8")
         out = subprocess.run(
             [CHROME, "--headless=new", "--disable-gpu", "--dump-dom",
              "--virtual-time-budget=2000", page.as_uri()],
