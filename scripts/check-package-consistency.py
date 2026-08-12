@@ -23,6 +23,31 @@ def warn(check, detail):
     warns.append((check, detail))
 
 
+def check_contract_parses():
+    """정본이 YAML 로서 성립하는지 본다.
+
+    load_contract() 는 정규식이라 파일이 YAML 로 깨져 있어도 통과한다. 실제로
+    그랬다 — build_in_90_days 와 does_not_exist 가 시퀀스 뒤에 같은 들여쓰기로
+    note: 를 붙이고 있었고, 항목 하나는 따옴표 없는 스칼라 안에 ': ' 를 담고
+    있었다. 셋 다 PyYAML 에서 에러다. 검사기는 계속 초록불이었다.
+
+    ponytail: PyYAML 을 필수 의존성으로 만들지 않는다. 있으면 검증하고 없으면
+    건너뛴다 — 이 검사가 있어서 무의존성이 깨지면 목적과 수단이 뒤바뀐다.
+    """
+    try:
+        import yaml
+    except ImportError:
+        warns.append(("contract_yaml", "PyYAML 없음 — 정본 파싱 검증을 건너뜀"))
+        return
+    try:
+        yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
+    except yaml.YAMLError as e:
+        mark = getattr(e, "problem_mark", None)
+        where = f" ({mark.line + 1}행 {mark.column + 1}열)" if mark else ""
+        fails.append(("contract_yaml",
+                      f"정본이 YAML 로 파싱되지 않음{where}: {getattr(e, 'problem', e)}"))
+
+
 def load_contract():
     """PyYAML 없이 도는 최소 파서 — 이 파일이 쓰는 값만 정규식으로 뽑는다.
     ponytail: 의존성 추가 대신 정규식. 계약 구조가 복잡해지면 PyYAML 로 간다."""
@@ -208,6 +233,7 @@ def main():
     if not CONTRACT.exists():
         print(f"정본 없음: {CONTRACT}")
         return 1
+    check_contract_parses()
     c = load_contract()
     check_dashboard(c)
     check_docs(c, use_pdf)

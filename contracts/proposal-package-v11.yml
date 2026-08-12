@@ -161,13 +161,16 @@ dashboard:
 
   implementation:
     actual: 단일 vanilla HTML + 인라인 CSS/JS (index.html) 하나. capture.html 은 2026-08-12 삭제
-    store: 없음. 부스는 브라우저 안 합성 계산만 한다
-    inference: 부스에서는 호출하지 않는다. Core AI 호출 계약은 미국 제품 몫으로 기술문서 §8.2 가 관장
-    freeze: 2026-08-25
-    event: Snowflake World Tour Seoul · COEX · 2026-08-27
-    booth_device: iPad Pro 12.9인치 가로 (1366×1024). Overview 가 934px 라 들어간다.
-    booth_scope: A/B/C 합성 시나리오만. 방문자 촬영 없음 (2026-08-12 결정)
-    touch: 모든 컨트롤 44px 무조건. hover:none 게이트는 키보드 붙은 iPad 에서 안 걸린다.
+    store: 없음. 브라우저 안 합성 계산만 한다
+    inference: 호출하지 않는다. Core AI 호출 계약은 미국 제품 몫으로 기술문서 §8.2 가 관장
+    booth: |
+      폐기. 두 번의 결정으로 부스가 이 코드에서 완전히 빠졌다.
+      2026-08-12 — 라이브 캡처 폐기 (방문자 촬영·배지 스캔·저장소·capture.html)
+      2026-08-13 — 부스 데모 자체 폐기. index.html 은 8/27 에 화면에 뜨지 않는다
+      따라서 freeze(8/25)·리허설(8/26)·오프라인 번들·iPad 인수 경로가 모두 무효다.
+      ICLO 는 덱·백월·영상으로 참가하며 그것들은 이 저장소 소관이 아니다.
+    current_purpose: 제안서 스크린샷 원본, 그리고 미국 근거 레이어(A3)의 출발 아티팩트
+    touch: 모든 컨트롤 44px 무조건. hover:none 은 키보드 붙은 태블릿에서 안 걸리므로 입력 방식으로 크기를 정하지 않는다.
     chips: 탭하면 적재 경로가 열린다. title 전용이면 태블릿에서 그 정보가 없는 것과 같다.
     not: Vite + React 18 + TypeScript + Tailwind + Recharts
     note: PRD 원안 스택은 미채택. package.json·src·dist 없음. AGENTS.md 의 npm 명령은 실행 불가.
@@ -251,9 +254,10 @@ status:
   # 실데이터를 넣으려면 start_gates 넷이 먼저 서면으로 닫혀야 하고 그건 90일 밖이다.
   # 따라서 90일은 관계와 설계를 검증하는 기간으로 다시 규정한다.
   build_in_90_days:
-    - 미국 HLS GTM·아키텍처 담당자와의 연결, 그리고 검증 상대의 확정
-    - 근거 레이어 아키텍처 설계와 Snowflake 보안 기준 정렬
-    - start_gates 네 항목의 책임자 지정과 종결 경로 합의
+    items:
+      - 미국 HLS GTM·아키텍처 담당자와의 연결, 그리고 검증 상대의 확정
+      - 근거 레이어 아키텍처 설계와 Snowflake 보안 기준 정렬
+      - start_gates 네 항목의 책임자 지정과 종결 경로 합의
     note: |
       실데이터 적재는 이 90일에 포함되지 않는다. start_gates 넷이 서면으로 닫힌 뒤에 시작한다.
       이 기간이 검증하는 것은 치아 PoC 자체가 아니라 Snowflake 관계와 설계의 성립 여부다.
@@ -261,12 +265,13 @@ status:
   # 데이터 흐름도(06_Tech/ICLO-데이터흐름도-슬라이드-전체.svg)의 "아직 없는 것" 과
   # 항목 단위로 일치시킨다. 그림과 정본이 다르면 회의에서 둘 중 하나가 거짓이 된다.
   does_not_exist:
-    - 임직원 웹앱
-    - Core AI 호출 경로 (그림: "ICLO Core AI 연동")
-    - 급여 게이트웨이 (X12 270/271)
-    - 급여 표 — 플랜 문서 SPD 는 피드가 없어 수기로 옮겨야 한다
-    - 예측 모델
-    - 신원 확인과 동의 강제
+    items:
+      - 임직원 웹앱
+      - 'Core AI 호출 경로 (그림: "ICLO Core AI 연동")'
+      - 급여 게이트웨이 (X12 270/271)
+      - 급여 표 — 플랜 문서 SPD 는 피드가 없어 수기로 옮겨야 한다
+      - 예측 모델
+      - 신원 확인과 동의 강제
     note: 별도 트랙이며 90일 계획에 포함되지 않는다
   not_decided:
     - 예측 모델이 무엇을 예측할지 (모델 자체가 does_not_exist 에도 있다)

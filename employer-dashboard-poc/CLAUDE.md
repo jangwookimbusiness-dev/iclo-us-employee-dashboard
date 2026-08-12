@@ -3,7 +3,15 @@
 Read `docs/PRD.md` first (spec canon). Commands, red lines, and conduct rules: see `AGENTS.md`. They bind Claude Code too.
 
 ## Role in this project
-Claude Code = design interrogation, planning, review, QA, ship gate. **Codex = primary implementer.** Cross-review is mandatory: never approve your own PR; use `/codex` for a cross-model second opinion on nontrivial diffs.
+Claude Code = design interrogation, planning, review, QA, ship gate. **Implementation is either agent — whoever authors, the other checks** (PRD §3.1, changed 2026-08-12; the earlier "Codex is primary implementer" was never what happened and optimised the wrong risk).
+
+The rule that matters is not about code:
+
+> Nothing an agent authors ships until a different model has **checked it against the repository** — not read it, checked it.
+
+Give the reviewer the artifact *and* the paths, and tell it to open them. A reviewer that only reads the artifact agrees with it. Never approve your own PR. `codex exec` needs `< /dev/null` or it hangs forever — see AGENTS.md.
+
+Parallel authoring applies to **plans, specs and proposals** (two drafts from one brief, then merge), not to code (single author + cross-model review).
 
 ## gstack
 Use /browse from gstack for all web browsing. Never use mcp__claude-in-chrome__* tools.
@@ -19,9 +27,8 @@ Deliverables and dates are PRD §3.2 and the Handoff Brief. Read them there, not
 
 1. `/office-hours` on `docs/PRD.md` before any code. Premises broken there flow back into the PRD via PR.
 2. `/plan-ceo-review` → `/plan-eng-review` → `/plan-design-review` (end-user UI, so the design review applies).
-3. Codex implements against the workstreams in PRD §3.3. WS0 (consent text) gates everything downstream of it.
-4. `/review` + `/qa` on every Codex PR. Before `/ship`: `bash scripts/check-forbidden-terms.sh`, `scripts/check-package-consistency.py` and the kill-ai-slop Mode B scan must all pass.
-5. `/ship` → Pages deploy from the repo root + the offline bundle.
+3. Either agent implements against PRD §3.3. WS0 (consent text) is gone with the booth capture — there is no consent surface in this code.
+4. `/review` + `/qa` on every PR, by the model that did not write it. Before `/ship`: `bash scripts/check-forbidden-terms.sh`, `scripts/check-package-consistency.py`, `test_single_source.py`, `test_suppression.py` and the kill-ai-slop Mode B scan must all pass.
+5. `/ship` → Pages deploy from the repo root.
 
-Hard dates: **freeze 2026-08-25** · rehearsal 8/26 · Snowflake World Tour Seoul, COEX, **2026-08-27**.
-The 9/5 freeze and the US-stay plan were v0.4 and are superseded. See the PRD status block.
+**No hard dates.** The 8/25 freeze, the 8/26 rehearsal and the 8/27 event applied to a booth demo that was scrapped on 2026-08-13. The 9/5 freeze and the US-stay plan were v0.4 and were superseded before that. See the PRD status block; the next dated work is in the CEO plan, not here.

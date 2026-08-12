@@ -1,6 +1,10 @@
 # employer-dashboard-poc — Agent Context
 
-Aggregate oral-health dashboard for **US self-funded employers**. Synthetic scenarios A/B/C only. Next live use: **Snowflake World Tour Seoul, COEX, 2026-08-27**, where it runs as a click demo. Freeze 8/25. **Booth live capture was dropped 2026-08-12** — no visitor capture, no badge scan, no store, and `capture.html` is deleted (PRD §1.3). Screen rules are **regulatory requirements, not taste** — do not modify them on your own judgment.
+Aggregate oral-health dashboard for **US self-funded employers**. Synthetic scenarios A/B/C only.
+
+**The booth is gone — both halves of it.** Live capture dropped 2026-08-12 (no visitor capture, no badge scan, no store; `capture.html` deleted). The booth demo itself dropped 2026-08-13: this screen does not appear at Snowflake World Tour Seoul. There is **no freeze date, no rehearsal, no offline requirement and no iPad acceptance path** on this code. If you find one in an older doc, that doc is stale — PRD §1.3 is canon.
+
+What it is for now: the screenshot source for the proposal, and the artifact the US evidence layer repoints onto Snowflake. Screen rules are **regulatory requirements, not taste** — do not modify them on your own judgment.
 
 **Spec canon: `docs/PRD.md`, whose values come from `contracts/proposal-package-v11.yml` at the repo root. Read both before planning any change. Spec changes only via PR (living document).**
 
@@ -25,6 +29,32 @@ Only the red-line check runs. The npm commands are the v0.4 Vite plan, which PRD
 ## Conduct
 - Ambiguity → open a `question`-labeled issue. **Guessing is prohibited.**
 - YAGNI: no unrequested features; any new dependency needs a stated reason in the PR (ponytail ruleset applies).
-- Cross-review: the authoring agent never approves its own PR. Human (Jangwoo Kim) merges — agents never self-merge.
+- Cross-review: the authoring agent never approves its own work. Human (Jangwoo Kim) merges — agents never self-merge.
+
+## Before proposing anything, check the repo (PRD §3.1)
+Three greps, in this order. Each one has already caught a live defect.
+1. **Does it exist?** `rg` the shipped code for the behaviour you are proposing.
+   Suppression-reason display was proposed twice; `index.html:262` already had it.
+2. **Does it have something to attach to?** A constraint on a feature that does not
+   exist is vacuous. There is no export in `index.html`.
+3. **Does a shipped document already take the opposite position?** `rg` `output/` and
+   `contracts/`. A clean-room proposal was written while
+   `ICLO-Snowflake-Briefing-Meeting-Pack-v1.md:167` rules it out for a single
+   employer/TPA pilot.
+
+## Handing work to the other model
+`codex exec` blocks forever on stdin when stdin is not a TTY and not redirected. It
+prints `Reading additional input from stdin...` and sits at 0% CPU — it does not fail,
+so a wrapper timeout is what eventually notices. Always redirect:
+
+```bash
+codex exec --sandbox workspace-write --skip-git-repo-check "$PROMPT" < /dev/null
+```
+
+Two things make the review worth having:
+- **Tell it what not to read.** Name the other model's draft explicitly. An
+  uncontaminated reviewer finds different defects; a contaminated one agrees.
+- **Tell it to verify, not read.** Give it the artifact *and* the paths to check
+  against, and ask it to open them. Reviewers that only read the artifact agree with it.
 - Escalation: `blocked` label + mention the decision-maker.
 - Always work from this folder (`employer-dashboard-poc/`), not the repo root — nested AGENTS.md/CLAUDE.md apply here.

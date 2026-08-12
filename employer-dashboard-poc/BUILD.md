@@ -2,14 +2,15 @@
 
 > **Superseded. Do not build from this file.** It specifies the Vite · React 18 · TypeScript · Tailwind
 > stack, and PRD §3.4 records that the stack was never adopted — the shipped code is a single vanilla
-> HTML file at the repo root, with a second one for the capture app. The five-view structure, the `src/`
-> file map and the T1–T9 task list below all belong to v0.4; only the freeze date has been corrected.
-> **Current spec: `docs/PRD.md` §3.3–3.5 and its Handoff Brief. Freeze is 2026-08-25.**
+> HTML file at the repo root. The capture app it also describes was deleted on 2026-08-12. The five-view
+> structure, the `src/` file map and the T1–T9 task list below all belong to v0.4.
+> **Current spec: `docs/PRD.md` §3.3–3.5 and its Handoff Brief. There is no freeze date** — the 8/25
+> freeze belonged to the booth demo, scrapped 2026-08-13.
 > Kept for the §4 contracts (suppression, denominators, provenance), which still hold and are still
 > the ones the red-line checks enforce.
 
 **Read order: `docs/PRD.md` (why + acceptance) → this file (how) → `AGENTS.md` (commands + red lines).**
-Audience: Claude Code (planning, review, QA, ship) and Codex (implementation). Owner: Jangwoo Kim.
+Audience: both coding agents. Whoever authors, the other checks (PRD §3.1). Owner: Jangwoo Kim.
 
 ---
 
@@ -146,5 +147,5 @@ Red lines and conduct: `AGENTS.md`. Acceptance: PRD §4a. Owner walkthrough: PRD
 2. `/plan-eng-review` to lock the file map and the T2 data contract; `/plan-design-review` on the prototype (it is a real UI, so this applies).
 3. Hand T1–T2 to Codex. Then `/review` + `/qa` per PR; `/codex` for a cross-model second opinion on T2 (the data contract is where a silent error is most expensive).
 4. T3 → T4–T6 in parallel → T7.
-5. Before `/ship`: `bash scripts/check-forbidden-terms.sh` and the kill-ai-slop Mode B scan must both pass. Then T8, T9.
-6. Freeze **2026-08-25**. After freeze, only fixes that keep the PRD §4b walkthrough passing.
+5. Before `/ship`: `bash scripts/check-forbidden-terms.sh` and the kill-ai-slop Mode B scan must both pass. Then T9. (T8's offline bundle went with the booth on 2026-08-13.)
+6. ~~Freeze **2026-08-25**~~ — void. It was the booth demo's date, and the demo was scrapped. The gate is the PRD §4b walkthrough, not a date.

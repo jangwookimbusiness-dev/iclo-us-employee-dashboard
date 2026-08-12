@@ -22,6 +22,8 @@ Three synthetic employers at 2,500, 10,000 and 25,000 eligible employees. Every 
 - "Synthetic data — illustrative only" on every view
 - Every figure derives from one constants block, and `test_single_source.py` fails if one stops propagating
 
-`index.html` is self-contained. No build step, and it runs offline from `file://`.
+`index.html` is self-contained — one file, no build step. It happens to open from `file://`, but that is a
+property of the current build rather than a requirement: the offline bundle was a booth deliverable and the
+booth demo was scrapped on 2026-08-13.
 
 Spec canon: `employer-dashboard-poc/docs/PRD.md`.
