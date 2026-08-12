@@ -1,3 +1,10 @@
 .DS_Store
 _repo-root/
 .gstack/
+
+# build intermediates and superseded deliverables (1.1GB, never commit)
+tmp/
+output/_archive/
+
+# company originals: IR, revenue evidence, patents, MOUs. keep out of git
+_originals/
