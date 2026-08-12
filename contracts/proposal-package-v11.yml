@@ -136,42 +136,15 @@ dashboard:
     eligibility_thru: "2026-07"
     claims_thru: "2026-05"
 
-  # 부스 라이브 캡처 (SWT Seoul 2026-08-27). PRD §2.1·§3.5
-  booth:
-    employer_key: LIVE
-    label: "Snowflake World Tour Seoul · live capture"
-    seed_members: 120       # 08:00 에 Low·Moderate 는 보이고 Priority 는 억제되는 크기.
-                            # 실촬영은 하루 수십 건 규모로 잡는다 (3,000 참석자 ≠ 3,000 촬영).
-    refresh:                # 화면 요소마다 민감도가 다르므로 갱신 주기를 가른다 (PRD §5.8)
-      live: [participation_count]
-      # 참여 수는 밴드를 안 싣는다. 부스에서 촬영한 사실 자체는 이미 눈에 보인다.
-      # 찍자마자 올라가야 방문자가 "들어갔다"를 안다.
-      batched: [signal_distribution, band_derived_figures]
-      batch_size: 5         # 밴드를 싣는 것은 신규 5건이 쌓여야 다시 그린다. 1건마다 갱신하면
-                            # 방금 촬영한 사람의 밴드가 화면 변화로 새어나간다.
-                            # 튜닝 값이 아니라 레드라인이다.
-    own_device: 본인 폰에는 자기 밴드 + 합류한 집계 + "N명 중 한 명" 까지 즉시 표시. 유출 아님.
-    seed_signals: {Low: 52, Moderate: 33, Priority: 15}   # A/B/C 와 같은 시작 분포
-    real_fields: [signal_band, captured_at, model_version]
-    synthetic_fields: [department, tenure_band, eligibility_span, claim_lines]
-    never_stored: [oral_image, badge_plaintext, badge_decoded_fields]
-    badge:                  # 명찰 QR = 자격 확인 단계. 기술문서 §4 의 SSN 규칙과 동일하게 다룬다.
-      use: 읽는 즉시 HMAC, 평문은 메모리에서 폐기. 해시만 저장.
-      why_hash: 같은 사람 중복 촬영 탐지. 해시로는 이름을 되찾을 수 없다.
-      unknown: SWT 명찰 QR 이 vCard 인지 불투명 ID 인지 미확인 — 8/14 까지 Snowflake 에 확인 (PRD §5.9)
-    contact:                # 연락처는 촬영과 절대 이어붙지 않는다
-      table: 별도
-      timestamp: 날짜까지만   # 초 단위면 테이블이 달라도 시각으로 조인된다
-      join_to_capture: 없음
-    output: band            # LOW | MODERATE | PRIORITY. 숫자 점수 금지 —
-                            # 재식별이 쉬워지고 의료기기 경계에 가까워진다.
-    row_shape: employer_id · captured_at · signal_band · model_version · 합성 컨텍스트
-    label_rule: |
-      A/B/C 는 "Synthetic data — illustrative only" 를 그대로 쓴다.
-      부스 기업은 필드별로 표시한다 — 신호는 실촬영, 급여 맥락은 합성.
-      부스 기업 전체를 합성이라고도, 실데이터라고도 부르지 않는다.
-    suppression: A/B/C 와 동일하게 n≥20 적용. 부스라고 완화하지 않는다.
-    individual_visibility: 본인 기기에만. 부스 화면 DOM 에는 어떤 시점에도 개인이 없다.
+  # 부스 라이브 캡처 — 2026-08-12 결정 (J. Kim) 으로 폐기.
+  # SWT Seoul 부스는 A/B/C 합성 시나리오만 띄운다. 방문자 촬영·명찰 QR·연락처 수집·
+  # 부스 employer(LIVE) 를 전부 걷어냈고 index.html 과 capture.html 에서도 지웠다.
+  # PRD §2.5 의 "Seoul-only · 폐기" 열이 그대로 실행된 것이며, "survives" 열은 남는다.
+  #
+  # 여기서 같이 사라진 것: PIPA §23 민감정보 처리, 부스 동의문, 명찰 HMAC,
+  # 5건 배치 갱신 가드, "U.S. GTM sample" 탭 이름, 촬영 앱.
+  # 미국 PoC 에서는 기업·TPA·임직원 앱 실데이터로 대시보드를 채운다. 그 설계는
+  # 기술문서와 start_gates 가 계속 관장한다.
 
   colors:                   # PRD §3·§5.6 레드라인
     coral: "#C2333A"        # 원안 #FF7A79 는 흰 배경에서 2.53:1 로 WCAG AA 미달이었다.
@@ -187,12 +160,13 @@ dashboard:
     rule: 라이트 계열 정의(:root 와 :root[data-theme="light"])는 같은 coral 을 써야 한다
 
   implementation:
-    actual: 단일 vanilla HTML + 인라인 CSS/JS (index.html), 촬영 앱은 capture.html
-    store: Supabase 단일 테이블 + realtime 구독 (insert 전용 RLS)
-    inference: ICLO Core AI POST /v1/oral-signal — 호출 후 이미지 즉시 폐기
+    actual: 단일 vanilla HTML + 인라인 CSS/JS (index.html) 하나. capture.html 은 2026-08-12 삭제
+    store: 없음. 부스는 브라우저 안 합성 계산만 한다
+    inference: 부스에서는 호출하지 않는다. Core AI 호출 계약은 미국 제품 몫으로 기술문서 §8.2 가 관장
     freeze: 2026-08-25
     event: Snowflake World Tour Seoul · COEX · 2026-08-27
     booth_device: iPad Pro 12.9인치 가로 (1366×1024). Overview 가 934px 라 들어간다.
+    booth_scope: A/B/C 합성 시나리오만. 방문자 촬영 없음 (2026-08-12 결정)
     touch: 모든 컨트롤 44px 무조건. hover:none 게이트는 키보드 붙은 iPad 에서 안 걸린다.
     chips: 탭하면 적재 경로가 열린다. title 전용이면 태블릿에서 그 정보가 없는 것과 같다.
     not: Vite + React 18 + TypeScript + Tailwind + Recharts
@@ -271,8 +245,19 @@ status:
     - 임직원 대시보드 데모 — 합성 숫자를 브라우저 안에서 계산. 실데이터도 Snowflake 연결도 없음.
   designed:
     - 근거 레이어 데이터 모델, 신원 해석 규칙, 정책·품질 계약, 기업 온보딩 절차, 추론 API 계약
+  # 2026-08-12 결정 (J. Kim). 이전 값은 "Snowflake 위의 실데이터 근거 레이어와
+  # 실데이터 대시보드" 였고, 그것은 90일 안에 성립하지 않는다. QA-Checklist-v10 80행이
+  # 이미 지적했다 — 기업 약정도, 계약된 데이터도, 적재된 청구도, 측정된 결과도 없다.
+  # 실데이터를 넣으려면 start_gates 넷이 먼저 서면으로 닫혀야 하고 그건 90일 밖이다.
+  # 따라서 90일은 관계와 설계를 검증하는 기간으로 다시 규정한다.
   build_in_90_days:
-    - Snowflake 위의 실데이터 근거 레이어와 실데이터 대시보드
+    - 미국 HLS GTM·아키텍처 담당자와의 연결, 그리고 검증 상대의 확정
+    - 근거 레이어 아키텍처 설계와 Snowflake 보안 기준 정렬
+    - start_gates 네 항목의 책임자 지정과 종결 경로 합의
+    note: |
+      실데이터 적재는 이 90일에 포함되지 않는다. start_gates 넷이 서면으로 닫힌 뒤에 시작한다.
+      이 기간이 검증하는 것은 치아 PoC 자체가 아니라 Snowflake 관계와 설계의 성립 여부다.
+      제목이나 본문에서 이 90일을 "치아 PoC 검증"으로 부르지 않는다.
   does_not_exist:
     - 임직원 웹앱
     - Core AI 호출 경로
@@ -308,5 +293,5 @@ open_items:
     what: stop-loss 가 Report KO 에만 1회. 나머지 4개 문서 0회
     fix: self-funded 설명이 나오는 곳마다 ASO·stop-loss 를 세트로
   - id: SYNC-09
-    what: PRD 가 규정한 ?scenario=A URL 상태가 index.html 에 없다
-    fix: 구현하거나 PRD 에서 제거
+    what: 구현됐으나 이름이 다르다. PRD 는 ?scenario=A, index.html 은 ?scen=A·?tab= 을 쓴다
+    fix: PRD §3.4 의 표기를 ?scen= 으로 고친다. 기능은 이미 있다 (2026-08-12 확인)

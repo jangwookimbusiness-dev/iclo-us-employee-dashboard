@@ -1,13 +1,13 @@
 # employer-dashboard-poc — Agent Context
 
-Aggregate oral-health dashboard for **US self-funded employers**. Synthetic scenarios A/B/C plus a live booth employer fed by real visitor captures (PRD §2.1). Booth display English; capture app Korean. **The oral image is never stored** (PIPA §23 민감정보 — PRD §5.7). Next live use: **Snowflake World Tour Seoul, COEX, 2026-08-27** — where it also captures real oral signals from booth visitors. Freeze 8/25. US channel meetings are downstream. Screen rules are **regulatory requirements, not taste** — do not modify them on your own judgment.
+Aggregate oral-health dashboard for **US self-funded employers**. Synthetic scenarios A/B/C only. Next live use: **Snowflake World Tour Seoul, COEX, 2026-08-27**, where it runs as a click demo. Freeze 8/25. **Booth live capture was dropped 2026-08-12** — no visitor capture, no badge scan, no store, and `capture.html` is deleted (PRD §1.3). Screen rules are **regulatory requirements, not taste** — do not modify them on your own judgment.
 
 **Spec canon: `docs/PRD.md`, whose values come from `contracts/proposal-package-v11.yml` at the repo root. Read both before planning any change. Spec changes only via PR (living document).**
 
 **The shipped code is `index.html` at the REPO ROOT, not in this folder.** This folder holds only spec and scripts — there is no `package.json`, `src/` or `dist/`. The npm commands below do not run.
 
 ## Commands
-(Until the W1 Vite scaffold lands, only the red-line check runs.)
+Only the red-line check runs. The npm commands are the v0.4 Vite plan, which PRD §3.4 records as not adopted; they are kept here only so a build that revives them inherits the same names.
 - `npm ci` — install
 - `npm run generate` — regenerate synthetic data (fixed seed; two runs must diff to zero)
 - `npm run dev` — local dev server
