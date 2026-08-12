@@ -152,6 +152,17 @@ def check_docs(c, use_pdf):
         "proposal_en": base / "02_EN_External/ICLO-Snowflake-Joint-Validation-Proposal-v10-EN-External-Notes-Stripped.pdf",
         "tech": base / "06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md",
     }
+    # v11 초안. BRIEF 8절이 이 검사를 통과 조건으로 걸고 있으므로 대상에 넣는다.
+    # 아직 초안 단계라 파일이 없을 수 있고, 그때는 missing 경고만 난다.
+    v11 = ROOT / "proposal-v11"
+    for label, rel in [
+        ("v11_v1_proposal_ko", "v1-claude-main/제안서-본문-KO.md"),
+        ("v11_v1_deck_ko",     "v1-claude-main/제안서-데크-KO.md"),
+        ("v11_v2_proposal_ko", "v2-codex-main/제안서-본문-KO.md"),
+        ("v11_v2_deck_ko",     "v2-codex-main/제안서-데크-KO.md"),
+    ]:
+        if (v11 / rel).exists():
+            targets[label] = v11 / rel
     for name, p in targets.items():
         if not p.exists():
             warn("missing", f"{name}: {p.name} 없음")
