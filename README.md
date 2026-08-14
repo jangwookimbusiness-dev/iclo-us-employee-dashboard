@@ -22,8 +22,9 @@ Three synthetic employers at 2,500, 10,000 and 25,000 eligible employees. Every 
 - "Synthetic data — illustrative only" on every view
 - Every figure derives from one constants block, and `test_single_source.py` fails if one stops propagating
 
-`index.html` is self-contained — one file, no build step. It happens to open from `file://`, but that is a
-property of the current build rather than a requirement: the offline bundle was a booth deliverable and the
-booth demo was scrapped on 2026-08-13.
+`index.html` is self-contained — one file, no build step. It opens from `file://` today because every number
+is a constant inside it. That is a property of the current build, not a requirement, and it ends as soon as
+the screen fetches its data — a page with an opaque origin cannot fetch. Use `bash scripts/serve.sh` and
+open `http://localhost:8000/`.
 
 Spec canon: `employer-dashboard-poc/docs/PRD.md`.

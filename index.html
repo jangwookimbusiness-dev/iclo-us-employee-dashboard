@@ -237,10 +237,17 @@ const TABS = [["overview","Overview"],["signals","Signals"],["funnel","Funnel"]]
 
 const tabLabel = k => TABS.find(t=>t[0]===k)[1];
 const fmt = n => n.toLocaleString("en-US");
+// esc() is HTML-context only: text and quoted attributes. It is NOT safe for
+// the inline style= interpolations further down (search background:${). Those
+// take a colour, and a colour is an enum — when values start arriving from
+// outside this file, gate them against an allowlist rather than escaping them.
+// Today every string here is a literal, so nothing is exposed yet.
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-// URL state, so a booth screen can be opened straight onto a view and a
-// rehearsal is reproducible. PRD 3.4 listed ?scenario=A as unimplemented.
+// URL state, so a proposal screenshot can be reproduced exactly and a link
+// can point at one view. The booth rationale this comment used to carry died
+// with the demo on 2026-08-13; the parameters are worth keeping regardless.
+// In scope per PRD 2.2. The parameter is ?scen=, not ?scenario=.
 const Q = new URLSearchParams(location.search);
 let S = {
   scen: SCEN[Q.get("scen")] ? Q.get("scen") : "A",

@@ -26,6 +26,18 @@ Only the red-line check runs. The npm commands are the v0.4 Vite plan, which PRD
 - Cells with `n < 20` never show values — render "Suppressed (n<20)".
 - No AI-slop visuals (indigo/violet gradients, glassmorphism). Brand: Coral `#C2333A` (was `#FF7A79` — 2.53:1 on white, WCAG AA fail) · Navy `#1B2A4A` · Teal `#007A87` · white background.
 
+## Running it locally
+`bash scripts/serve.sh` then open `http://localhost:8000/`. Opening the file directly still works today but
+will not once the screen fetches data — `fetch()` from a `file://` page is blocked. gstack `browse` also
+refuses `file://` URLs outside `/private/tmp`. Append `?v=$(date +%s)` when iterating; the browser caches
+hard between reloads and will show stale CSS after an edit.
+
+## Escaping data that comes from outside this file
+`esc()` in `index.html` is HTML-context only — text and quoted attributes. It does **not** make the inline
+`style="...background:${...}"` interpolations safe, because those are CSS, not HTML. Colours and bands are
+enums: check them against an allowlist instead of escaping. Every string is a literal today, so this is a
+rule for when the screen starts reading a data file, not a live hole.
+
 ## Conduct
 - Ambiguity → open a `question`-labeled issue. **Guessing is prohibited.**
 - YAGNI: no unrequested features; any new dependency needs a stated reason in the PR (ponytail ruleset applies).

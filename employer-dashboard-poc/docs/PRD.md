@@ -57,6 +57,11 @@ US evidence-layer work startable.
 **2.1 Concept.** One surface. A single vanilla HTML file at the repo root, opened from the Pages URL or
 locally. Three views over three synthetic employers. No backend today.
 
+> **Opening it locally has a shelf life.** It works now because every number is a constant inside the file.
+> The moment the screen fetches its data, `file://` stops working — a page with an opaque origin cannot
+> fetch, and the browser blocks it. `bash scripts/serve.sh` exists for that, and the tests will need it
+> too. Nothing has changed yet; this is here so the change is not a surprise.
+
 **2.2 In-scope / Out-of-scope.**
 
 | In (build) | Out (do not build — reason) |
@@ -170,7 +175,8 @@ root. Work happens on a feature branch and merges to `main`; cross-review per §
 > never configured. Nothing is enforcing the review rule mechanically — §3.1 holds because the agents follow
 > it, not because a server rejects the push. Worth either configuring or continuing to state plainly.
 
-**3.6 Deploy.** GitHub Pages. No offline bundle — dropped with the booth.
+**3.6 Deploy.** GitHub Pages. No offline bundle — dropped with the booth. Locally, `bash scripts/serve.sh`
+(see the note in §2.1 for why double-clicking the file will stop being enough).
 
 ---
 

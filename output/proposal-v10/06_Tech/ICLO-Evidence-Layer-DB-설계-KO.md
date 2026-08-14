@@ -1150,7 +1150,26 @@ ALTER TABLE canonical.oral_signal
   ADD ROW ACCESS POLICY gov.employer_isolation ON (employer_id);
 ALTER TABLE canonical.consent
   ADD ROW ACCESS POLICY gov.employer_isolation ON (employer_id);
+
+-- 2026-08-14 추가. 아래 셋이 빠져 있었고 Completed actions 가 전부 여기 달려 있다.
+ALTER TABLE canonical.care_action
+  ADD ROW ACCESS POLICY gov.employer_isolation ON (employer_id);
+ALTER TABLE mart.party_department
+  ADD ROW ACCESS POLICY gov.employer_isolation ON (employer_id);
+
+-- action_claim_match 에는 employer_id 가 아예 없었다. 정책을 걸 컬럼이 없으면
+-- 정책을 걸 수 없다. claim_line·app_event·oral_signal 이 이미 쓰는 것과 같은
+-- 비정규화를 따른다 — 부모를 조인해서 판정하게 두면 조인을 안 하는 경로가 샌다.
+ALTER TABLE canonical.action_claim_match ADD COLUMN employer_id VARCHAR NOT NULL;
+ALTER TABLE canonical.action_claim_match
+  ADD ROW ACCESS POLICY gov.employer_isolation ON (employer_id);
 ```
+
+> **왜 빠져 있었는가.** 위 다섯은 "개인 레벨 관측치"라는 한 덩어리로 보고 걸었고,
+> `care_action`·`party_department`·`action_claim_match` 는 파생·차원으로 보여 목록에서
+> 빠졌습니다. 그런데 화면의 **Open / Completed care actions 가 정확히 그 셋에 달려
+> 있고**, `party_department` 는 부서 필터와 `n≥20` 억제 시연 전체를 떠받칩니다.
+> 정책이 안 걸린 차원 테이블 하나로 기업 A 가 기업 B 의 부서 목록을 볼 수 있습니다.
 
 **`employer_id`를 가진 모든 테이블에 같은 정책을 겁니다.** 처음에는 `member_month`·`claim_line`만 걸었는데, 4.1절에서 `party`를 전역으로 바꾼 뒤로는 그것으로 부족합니다 — 두 기업에 동시에 속한 사람의 동의·촬영·이벤트가 어느 쪽에도 걸리지 않은 채 남습니다. 기업 사용자는 CANONICAL을 못 보지만(10.1절), **앱 백엔드와 내부 분석 경로는 이 테이블들을 직접 읽습니다.**
 
