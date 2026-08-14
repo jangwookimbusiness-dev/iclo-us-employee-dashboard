@@ -1,0 +1,292 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ICLO — My oral wellness</title>
+<style>
+  /* Tokens are the dashboard's (index.html). One brand, two surfaces.
+     Coral is #C2333A, not the original #FF7A79 — that was 2.53:1 on white. */
+  :root{
+    --coral:#C2333A; --teal:#007A87;
+    --ground:#F4F6FA; --panel:#FFFFFF; --field:#F7F8FA; --line:#E3E8F0;
+    --ink:#1B2A4A; --ink2:#5B6B85; --band:#EDF1F7;
+    --barLow:#7E90AE; --barMid:#4E8F98;
+    --strong:#1B2A4A; --onStrong:#FFFFFF; --data:#007A87;
+    --shadow:0 1px 2px rgba(27,42,74,.06);
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0B1120; --panel:#152038; --field:#0F1930; --line:#28324C;
+      --ink:#E7ECF5; --ink2:#95A2BE; --band:#182541;
+      --barLow:#5B7099; --barMid:#4FA0A9; --strong:#C9D4EA; --onStrong:#0E1526;
+      --data:#3FB6C0; --coral:#FF8E8D; --shadow:0 1px 2px rgba(0,0,0,.3);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+       font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .phone{max-width:430px;margin:0 auto;min-height:100vh;background:var(--panel);
+         box-shadow:0 0 40px rgba(27,42,74,.08);display:flex;flex-direction:column}
+  header{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;
+         align-items:center;gap:10px;position:sticky;top:0;background:var(--panel);z-index:5}
+  .logo{font-weight:800;letter-spacing:.02em}
+  .who{font-size:12px;color:var(--ink2);margin-left:auto;font-family:var(--mono)}
+  .synth{font-family:var(--mono);font-size:11px;color:var(--coral);
+         border:1px solid var(--coral);border-radius:4px;padding:3px 7px;
+         text-align:center;margin:10px 20px 0}
+  main{flex:1;padding:18px 20px 96px}
+  h1{font-size:21px;margin:0 0 4px;letter-spacing:-.01em}
+  h2{font-size:15px;margin:22px 0 8px}
+  p{margin:0 0 12px;color:var(--ink2);font-size:14px}
+  .card{background:var(--field);border:1px solid var(--line);border-radius:12px;
+        padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+
+  /* Score. A number, deliberately, and never a clinical claim next to it. */
+  .score{display:flex;align-items:baseline;gap:10px;margin:2px 0 6px}
+  .score b{font-size:52px;font-weight:800;line-height:1;font-family:var(--mono);letter-spacing:-.03em}
+  .score .of{font-size:14px;color:var(--ink2);font-family:var(--mono)}
+  .bandtag{display:inline-block;font-family:var(--mono);font-size:12px;
+           padding:4px 10px;border-radius:999px;color:#fff}
+  .b-low{background:var(--barLow)} .b-mod{background:var(--barMid)} .b-pri{background:var(--coral)}
+  .delta{font-family:var(--mono);font-size:13px;color:var(--ink2);margin-top:8px}
+
+  .track{height:10px;background:var(--band);border-radius:999px;overflow:hidden;margin:6px 0 2px}
+  .fill{height:100%;border-radius:999px}
+  .rowlab{display:flex;justify-content:space-between;font-size:13px;gap:12px}
+  .rowlab .v{font-family:var(--mono)}
+  .muted{color:var(--ink2);font-size:12.5px}
+
+  /* Everything tappable clears 44px. Not gated on hover:none — a tablet with a
+     keyboard reports hover:hover and the gate silently fails. */
+  button,.btn{min-height:44px;font:inherit;font-size:15px;border-radius:10px;
+              border:1px solid var(--line);background:var(--panel);color:var(--ink);
+              padding:11px 16px;cursor:pointer;width:100%}
+  .primary{background:var(--strong);color:var(--onStrong);border-color:var(--strong);font-weight:600}
+  .ghost{background:transparent}
+  button:focus-visible,a:focus-visible{outline:2px solid var(--data);outline-offset:2px}
+
+  nav{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;
+      background:var(--panel);border-top:1px solid var(--line);display:flex}
+  nav button{border:0;border-radius:0;min-height:56px;font-size:12px;
+             font-family:var(--mono);color:var(--ink2);background:transparent;flex:1;padding:8px 4px}
+  nav button[aria-current="true"]{color:var(--ink);font-weight:700;
+             box-shadow:inset 0 2px 0 var(--strong)}
+
+  .privacy{border-left:3px solid var(--teal);background:var(--field);
+           border-radius:0 10px 10px 0;padding:13px 15px;margin:14px 0}
+  .privacy b{display:block;margin-bottom:6px;font-size:14px;color:var(--ink)}
+  .privacy ul{margin:6px 0 0;padding-left:18px}
+  .privacy li{font-size:13px;color:var(--ink2);margin-bottom:4px}
+
+  .clinic{display:flex;gap:12px;align-items:flex-start}
+  .clinic .meta{flex:1}
+  .clinic .name{font-weight:600;font-size:15px}
+  .pill{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:4px;
+        background:var(--band);color:var(--ink2);white-space:nowrap}
+  .in{background:rgba(0,122,135,.12);color:var(--data)}
+
+  .steps{counter-reset:s;margin:0;padding:0;list-style:none}
+  .steps li{counter-increment:s;position:relative;padding-left:34px;margin-bottom:14px;font-size:14px}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:-1px;width:24px;height:24px;
+        border-radius:999px;background:var(--band);color:var(--ink);font-family:var(--mono);
+        font-size:12px;display:flex;align-items:center;justify-content:center}
+  .frame{aspect-ratio:4/3;border:2px dashed var(--line);border-radius:12px;
+         display:flex;align-items:center;justify-content:center;color:var(--ink2);
+         font-family:var(--mono);font-size:12.5px;text-align:center;padding:16px;margin-bottom:12px}
+  footer{padding:14px 20px 20px;border-top:1px solid var(--line);font-family:var(--mono);
+         font-size:11px;color:var(--ink2);text-align:center}
+</style>
+
+<div class="phone">
+  <header>
+    <span class="logo">ICLO</span>
+    <span class="muted" style="font-size:12px">My oral wellness</span>
+    <span class="who" id="who"></span>
+  </header>
+  <div class="synth">DEMO · Synthetic data — illustrative only</div>
+  <main id="view"></main>
+  <nav id="nav"></nav>
+  <footer>Wellness signals only · not medical advice · your results stay out of employer views</footer>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// Synthetic member. One constants block, same discipline as the
+// dashboard: every figure on screen derives from here.
+//
+// What does not exist yet, and is therefore faked in this file:
+//   - the Core AI call that turns a photo into a signal (tech doc 8.2)
+//   - the payer gateway (X12 270/271) behind remaining balance
+//   - the network directory and any booking integration
+// contracts/proposal-package-v11.yml status.does_not_exist is the list.
+// ─────────────────────────────────────────────────────────────
+const ME = {
+  name: "Jordan Reyes",
+  employer: "Employer A",
+  plan: "PPO Dental — Employee + Spouse",
+  score: 78,            // 0-100. Shown to the member only. Employers get bands.
+  prev: 71,
+  band: "Moderate",
+  capturedOn: "2026-08-09",
+  captures: 4,
+  planYear: "2026-01-01 → 2026-12-31",
+  annualMax: 1500,
+  usedToDate: 412,
+  coverage: [
+    {k:"Preventive (cleanings, exams)", pct:100, note:"2 per plan year, no deductible"},
+    {k:"Basic services",                pct:80,  note:"after $50 deductible"},
+    {k:"Major services",                pct:50,  note:"12-month waiting period"},
+  ],
+  clinics: [
+    {name:"Bay Ridge Dental Group", mi:0.6, next:"Tue 9:40 AM",  est:0,  inNet:true},
+    {name:"Harbor Family Dental",   mi:1.2, next:"Wed 2:15 PM",  est:0,  inNet:true},
+    {name:"Lakeside Dental Care",   mi:2.8, next:"Mon 11:00 AM", est:38, inNet:true},
+  ],
+};
+const BANDS = {
+  Low:      {cls:"b-low", advice:"Keep your current routine."},
+  Moderate: {cls:"b-mod", advice:"A guided check-in is worth booking when convenient."},
+  Priority: {cls:"b-pri", advice:"Booking a general dental consult is suggested."},
+};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const usd = n => "$" + n.toLocaleString("en-US");
+const remaining = () => ME.annualMax - ME.usedToDate;
+
+const TABS = [["home","Home"],["capture","Capture"],["coverage","Coverage"],["care","Find care"]];
+let S = { tab:"home", step:0 };
+
+// The single most important text in this app. It is scoped on purpose:
+// "no individual PHI" without a scope is false — ICLO holds the record.
+// What is true is that the employer never sees it. contracts scoped_claims.
+function privacyBlock(){
+  return `<div class="privacy">
+    <b>Your employer cannot see this</b>
+    <ul>
+      <li>Not your photos, your score, or your visits — none of it reaches ${esc(ME.employer)}.</li>
+      <li>They see counts across the whole workforce, and any group under 20 people is withheld entirely.</li>
+      <li>ICLO stores your photos in separate controlled storage, not alongside the aggregate data.</li>
+      <li>You can withdraw consent and stop future processing at any time.</li>
+    </ul>
+  </div>`;
+}
+
+function scoreCard(){
+  const b = BANDS[ME.band];
+  const d = ME.score - ME.prev;
+  const dir = d > 0 ? "up" : d < 0 ? "down" : "unchanged";
+  return `<div class="card">
+    <div class="muted">Latest check-in · ${esc(ME.capturedOn)}</div>
+    <div class="score"><b>${ME.score}</b><span class="of">/ 100</span></div>
+    <span class="bandtag ${b.cls}">${esc(ME.band)}</span>
+    <div class="delta">${d>0?"+":""}${d} since your last check-in · ${dir}</div>
+    <p style="margin-top:12px">${esc(b.advice)}</p>
+    <p class="muted" style="margin:0">This is a wellness signal from a guided photo. It is not a clinical
+    finding and not medical advice. Only a dentist can tell you what is happening in your mouth.</p>
+  </div>`;
+}
+
+const VIEWS = {
+  home(){
+    return `<h1>Hi, ${esc(ME.name.split(" ")[0])}</h1>
+      <p>${esc(ME.plan)} · ${esc(ME.employer)}</p>
+      ${scoreCard()}
+      ${privacyBlock()}
+      <h2>Your plan right now</h2>
+      <div class="card">
+        <div class="rowlab"><span>Annual maximum remaining</span><span class="v">${usd(remaining())}</span></div>
+        <div class="track"><div class="fill" style="width:${(remaining()/ME.annualMax)*100}%;background:var(--barMid)"></div></div>
+        <div class="muted">${usd(ME.usedToDate)} used of ${usd(ME.annualMax)} · plan year ${esc(ME.planYear)}</div>
+      </div>
+      <button class="primary" data-go="capture">Start a check-in</button>`;
+  },
+
+  capture(){
+    if (S.step === 0) return `<h1>Check-in</h1>
+      <p>Four guided photos, about a minute. Do it in daylight or under a bright lamp.</p>
+      <ol class="steps">
+        <li>Rinse, then stand somewhere bright — daylight beats a bathroom light.</li>
+        <li>Hold the phone steady and fill the frame with your teeth.</li>
+        <li>Follow the on-screen guide for upper, lower, and both sides.</li>
+        <li>Blurry shots get rejected and you retake them — that gate is why the signal means anything.</li>
+      </ol>
+      ${privacyBlock()}
+      <button class="primary" data-step="1">I'm ready</button>`;
+
+    if (S.step === 1) return `<h1>Upper arch</h1>
+      <div class="frame">camera preview<br><span class="muted">(not wired up in this demo)</span></div>
+      <p>Line your upper teeth up with the guide and hold still.</p>
+      <button class="primary" data-step="2">Capture</button>
+      <button class="ghost" data-step="0" style="margin-top:8px">Back</button>`;
+
+    if (S.step === 2) return `<h1>Reading your photos</h1>
+      <div class="frame">processing…<br><span class="muted">the Core AI call this stands in for does not exist yet</span></div>
+      <p>Four photos passed the quality gate.</p>
+      <button class="primary" data-step="3">See result</button>`;
+
+    return `<h1>Your result</h1>
+      ${scoreCard()}
+      ${privacyBlock()}
+      <button class="primary" data-go="care">Find a dentist in your network</button>
+      <button class="ghost" data-go="coverage" style="margin-top:8px">See what your plan covers</button>`;
+  },
+
+  coverage(){
+    const rows = ME.coverage.map(c=>`
+      <div class="card">
+        <div class="rowlab"><span>${esc(c.k)}</span><span class="v">${c.pct}%</span></div>
+        <div class="track"><div class="fill" style="width:${c.pct}%;background:var(--barMid)"></div></div>
+        <div class="muted">${esc(c.note)}</div>
+      </div>`).join("");
+    return `<h1>What your plan covers</h1>
+      <p>${esc(ME.plan)} · plan year ${esc(ME.planYear)}</p>
+      <div class="card">
+        <div class="rowlab"><span>Annual maximum remaining</span><span class="v">${usd(remaining())}</span></div>
+        <div class="track"><div class="fill" style="width:${(remaining()/ME.annualMax)*100}%;background:var(--barMid)"></div></div>
+        <div class="muted">${usd(ME.usedToDate)} used of ${usd(ME.annualMax)}</div>
+      </div>
+      ${rows}
+      <p class="muted">Balances follow claims your dentist has already filed, so a recent visit may not be
+      counted yet. Your plan documents are the authority, not this screen.</p>`;
+  },
+
+  care(){
+    const rows = ME.clinics.map((c,i)=>`
+      <div class="card clinic">
+        <div class="meta">
+          <div class="name">${esc(c.name)}</div>
+          <div class="muted">${c.mi} mi · next opening ${esc(c.next)}</div>
+          <div class="muted">Estimated your cost: <b>${c.est===0?"$0 (preventive, covered in full)":usd(c.est)}</b></div>
+        </div>
+        <span class="pill in">In network</span>
+      </div>
+      <button data-book="${i}" style="margin:-4px 0 14px">Book at ${esc(c.name)}</button>`).join("");
+    return `<h1>Dentists in your network</h1>
+      <p>In network for ${esc(ME.plan)}. Cost estimates use your plan's coverage and what you have left.</p>
+      ${rows}
+      <p class="muted">Booking here is a stand-in — no scheduling integration exists yet. Going out of
+      network is your choice; the estimate just changes.</p>`;
+  },
+};
+
+function paintNav(){
+  $("nav").innerHTML = TABS.map(([k,l])=>
+    `<button data-go="${k}" aria-current="${k===S.tab}">${l}</button>`).join("");
+}
+function render(){
+  $("who").textContent = ME.employer;
+  $("view").innerHTML = VIEWS[S.tab]();
+  paintNav();
+  window.scrollTo(0,0);
+}
+document.addEventListener("click", e=>{
+  const go = e.target.closest("[data-go]");
+  if (go){ S.tab = go.dataset.go; S.step = 0; return render(); }
+  const st = e.target.closest("[data-step]");
+  if (st){ S.step = +st.dataset.step; return render(); }
+  const bk = e.target.closest("[data-book]");
+  if (bk){ bk.textContent = "Requested — the clinic will confirm"; bk.disabled = true; }
+});
+render();
+</script>

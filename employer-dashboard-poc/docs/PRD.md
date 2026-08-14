@@ -54,7 +54,10 @@ US evidence-layer work startable.
 
 ## 2. What
 
-**2.1 Concept.** One surface. A single vanilla HTML file at the repo root, opened from the Pages URL or
+**2.1 Concept.** Two surfaces, one file each, both vanilla HTML at the repo root. `index.html` is the
+employer dashboard. `app.html` is the employee app — added 2026-08-14, synthetic, a click-through of the
+five things a member does: check in, read their own score, see what the plan covers, see what is left, and
+find an in-network dentist. Neither has a backend. Opened from the Pages URL or
 locally. Three views over three synthetic employers. No backend today.
 
 > **Opening it locally has a shelf life.** It works now because every number is a constant inside the file.
@@ -240,7 +243,7 @@ quietly enjoyed: the fastest way to have a privacy incident at a booth was to ha
 | Forbidden terms: `diagnos*, cavit*, caries, decay, gingivit*, periodont*, abscess, lesion`; signal label "Review" banned (use "Priority") | `scripts/check-forbidden-terms.sh` |
 | No individual-level screens; no mock person profiles | PR review |
 | Cells with `n < 20` never show values | `test_suppression.py` |
-| **Band, never a numeric score — in employer views** | PR review. Whether this extends to an employee app is an open proposal, not current canon |
+| **Band, never a numeric score — in employer views** | PR review. Settled 2026-08-14: the employee app (`app.html`) shows the member their own 0-100 score; employers still get bands only. `contracts` `surfaces` holds both. Individual scores never roll up |
 | Every figure derives from one source of truth | `test_single_source.py`, rewritten when A3 changes the source |
 | Every view labeled "Synthetic data — illustrative only" | screenshot test |
 | No AI-slop visual patterns | kill-ai-slop Mode B gate before `/ship` |
