@@ -1180,6 +1180,10 @@ ALTER TABLE canonical.member_month  SET AGGREGATION POLICY gov.min_cell_20 ENTIT
 ALTER TABLE canonical.claim_line    SET AGGREGATION POLICY gov.min_cell_20 ENTITY KEY (party_sk);
 ALTER TABLE canonical.oral_signal   SET AGGREGATION POLICY gov.min_cell_20 ENTITY KEY (party_sk);
 ALTER TABLE canonical.app_event     SET AGGREGATION POLICY gov.min_cell_20 ENTITY KEY (party_sk);
+
+-- 2026-08-14: 기업 롤이 실제로 조회하는 것은 아래 한 곳이다. 11절 정정 참조.
+-- R_ENGINEER 가 버전 선택과 grain 접기를 끝내고 party_sk 를 남긴 테이블.
+ALTER TABLE mart.person_month_fact  SET AGGREGATION POLICY gov.min_cell_20 ENTITY KEY (party_sk);
 ```
 
 > **`ENTITY KEY`가 이 설계 전체에서 가장 중요한 한 줄입니다.** `MIN_GROUP_SIZE`는 기본적으로 **행 수**를 셉니다. `claim_line`·`app_event`·`oral_signal`은 한 사람이 여러 행을 가지므로, **한 사람이 청구 라인 20개만 만들어도 그룹 크기 20을 충족**합니다. 그러면 기업 화면에 실제로는 1명짜리 집계가 나오고, 제안서와 부스 덱이 내건 "최소 20명" 약속이 **DDL 수준에서 성립하지 않습니다.** `ENTITY KEY (party_sk)`를 지정해야 distinct 사람 수로 셉니다.
@@ -1283,6 +1287,15 @@ GROUP BY 1, 2, 3, 4;
 > `snapshot_seq <= :as_of` 만으로는 부족합니다 — 그 조건은 **그 시점까지의 모든 버전**을 통과시킵니다. 논리적으로 같은 span의 여러 버전 중 **마지막 하나**를 골라야 하므로 `eligibility_episode_id`(정정을 거쳐도 유지되는 안정 ID)로 파티션해 최신 버전을 뽑습니다. 이 컬럼을 6.1절 스키마에 추가해야 합니다.
 
 > **집계 정책이 걸린 테이블에서는 쓸 수 있는 집계 함수가 제한됩니다.** Snowflake aggregation-constrained 쿼리는 `AVG`·`COUNT`·`SUM`·`HLL` 정도만 허용하므로 `BOOLOR_AGG`·`MAX` 같은 함수는 기업 롤에서 쿼리 자체가 실패합니다. 위처럼 `SUM(IFF(...))`으로 바꿔야 합니다. 이 테이블은 `R_ENGINEER`가 만들고 **집계 정책은 산출물인 `mart.employer_overview`에 겁니다** — 원본 테이블에 걸어둔 채 기업 롤이 조인·가공하게 두면 허용 함수 제약이 계속 발목을 잡습니다.
+
+> **정정 (2026-08-14).** 위 문장과 10.3절(1166–1169행)이 서로 다른 위치를 지시했고, **확인해보니 둘 다 그대로는 안 됩니다.**
+>
+> - **`mart.employer_overview`에 걸 수 없습니다.** 이 테이블의 출력 컬럼에 **`party_sk`가 없습니다.** `ENTITY KEY (party_sk)`는 정책이 걸린 테이블에 그 컬럼이 있어야 성립합니다. 빼고 걸면 10.3절이 경고한 대로 사람이 아니라 **행**을 세는데, 이 테이블은 이미 (기업·월·부서)로 집계되어 있어 행 하나가 곧 그룹입니다. 최소 20이 무의미해집니다
+> - **원본 `canonical`에만 걸어도 안 됩니다.** 바로 위 `elig` CTE가 `ROW_NUMBER() OVER (...)`를 씁니다. 10.3절 제약 목록에 **윈도우 함수 불가**가 있으므로, 기업 롤이 정책 걸린 원본에 이 쿼리를 던지면 실패합니다. 이 문단이 "발목을 잡는다"고 쓴 것이 정확히 그 상황입니다
+>
+> **결정: 사람 grain 중간 테이블에 겁니다.** `R_ENGINEER`가 버전 선택(`ROW_NUMBER`)과 grain 접기를 끝내 **`party_sk`를 보유한** `mart.person_month_fact`를 만들고, 집계 정책과 `ENTITY KEY (party_sk)`는 거기 겁니다. 기업 롤은 그 테이블에 `SUM`·`COUNT`만 던지므로 허용 함수 안에 머뭅니다.
+>
+> 이렇게 하면 10.3절의 직관(정책은 `party_sk`가 사는 곳에)과 이 문단의 직관(기업 롤에 복잡한 가공을 시키지 말 것)이 둘 다 성립합니다. `mart.employer_overview`는 `R_ENGINEER`용 산출물로 남고 **기업 노출 경로가 아닙니다.**
 
 **양쪽을 다 접어야 합니다.** 5.1절에서 `member_month`의 grain을 `(eligibility_span_sk, month_start)`로 바꿨기 때문에, 연중 플랜을 바꾼 사람은 같은 달에 행이 둘입니다. 여기에 사람·월 단위인 `claims_pm`을 조인하면 **청구 한 건이 두 행에 매칭되어 분자가 두 배**가 됩니다. 청구를 접는 것만으로는 부족하고 `member_month`도 사람·기업·월로 접어야 양쪽 grain이 맞습니다.
 
