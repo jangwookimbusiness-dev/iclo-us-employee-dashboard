@@ -118,6 +118,77 @@ dashboard:
     value: 0.61
     definition_ko: 2회 이상 유효 촬영한 사람 / 활성 사용자
 
+  # ───────────────────────────────────────────────────────────
+  # 지표 시간 계약 — 2026-08-14 확정 (엔지니어링 리뷰 T14)
+  #
+  # 위 kpis 의 정의는 전부 시간이 없는 비율이었다. 기술문서 §1.1 이
+  # "사람·기간별 유효 참여 정의, 품질 통과 조건, 중복 제거, 속도 제한이
+  # 필요합니다" 라고 적어둔 그 빈 곳이며, 이것 없이는 MART SQL 을 쓸 수
+  # 없다. 아래가 그 계약이다.
+  # ───────────────────────────────────────────────────────────
+  metric_time_contracts:
+    report_period: 보고월(report month). 모든 지표가 같은 보고월을 쓴다. 섞으면 퍼널이 겹치지 않는다.
+
+    valid_capture:            # 모든 촬영 기반 지표가 이 정의를 공유한다
+      quality: oral_signal.quality_passed = TRUE 인 것만
+      dedup: 사람·날짜당 1건. 기술문서 §4.6 의 24시간 규칙을 다보호자 가구 밖으로 확장한다
+      rate_limit: 사람·월당 최대 4건까지만 집계에 반영
+      idempotency: oral_signal.request_id
+      why: |
+        기술문서 §1.1 — 보상이 걸리면 같은 날 가족 프로필을 번갈아 저품질 사진을
+        수십 번 올릴 수 있고, 그대로 세면 반복 클릭이 기업 성과로 보고된다.
+
+    activated:
+      numerator: 보고월 자격자 중 REGISTERED 와 QUESTIONNAIRE 를 보고월 말까지 모두 완료한 사람 (누적)
+      denominator: 보고월 자격자
+      window: 분자는 누적, 분모는 보고월 시점
+      why: |
+        분자를 전체 기간 누적으로 두고 분모를 현재 자격자로 두면 100% 를 넘지 않는다.
+        반대로 분자에 이미 퇴사한 사람을 넣으면 비율이 계속 오르기만 하고 100% 를 넘는다.
+
+    repeat_participation:
+      numerator: 직전 12개월에 유효 촬영이 2회 이상인 사람
+      denominator: 같은 12개월에 유효 촬영이 1회 이상인 사람
+      window: 롤링 12개월
+      why: |
+        누적으로 정의하면 시간이 갈수록 100% 로 수렴한다 — 3년 된 코호트는 언젠가
+        2회를 채운다. 그러면 지표가 신호이기를 그만둔다. 롤링 창이어야 한다.
+
+    signal_distribution:
+      unit: 촬영이 아니라 **사람**. 사람당 그 창의 최신 유효 촬영 1건만 센다
+      window: 롤링 12개월
+      model_version: |
+        창 안에 model_version 이 둘 이상이면 분포를 버전별로 나누거나 혼합 비율을
+        명시한다. 같은 사진이 버전에 따라 다른 밴드가 될 수 있다 (기술문서 §5.3).
+      why: |
+        촬영 단위로 세면 한 사람이 50번 찍어 분포를 흔든다 — §1.1 의 게임 벡터가
+        여기서 실현된다. "우리 임직원의 구강 신호 구성" 은 사람 단위 개념이다.
+
+    open_care_actions:
+      definition: 보고일 기준 closed_at IS NULL 이고 opened_at + window_days 가 아직 지나지 않은 조치
+      note: 창이 지난 조치는 EXPIRED 로 닫혀야 하며 open 이 아니다
+
+    completed_actions:
+      numerator: close_reason = 'CLAIM_CONFIRMED' 이고 action_claim_match.confidence = 'HIGH'
+      denominator: |
+        **성숙한 코호트만.** opened_at + window_days + 청구지연 P90 이 보고일 이전인 조치.
+        미성숙 코호트는 분모에서 빼고 화면에 "집계 중" 으로 따로 표시한다.
+      why: |
+        청구 지연이 중앙값 45일·롱테일 180일이다 (기술문서 §6.3). 최근에 연 조치는
+        완료할 시간 자체가 없었으므로 그대로 세면 완료율이 낮게 나오고 나중에 저절로
+        오른다. PMPM run-out 과 같은 함정이며, 좋아지는 방향이라 오류가 성과로 보인다.
+
+    funnel_nesting: |
+      Activated → Valid capture → Open action → Completed 는 같은 보고월과 같은 자격자
+      분모를 써야 겹친다. 하나라도 다른 창을 쓰면 뒤 단계가 앞 단계보다 커질 수 있다.
+
+    open_questions:           # 이 계약이 못 정한 것. 정하는 사람은 J. Kim.
+      - 동의 철회자의 소급 처리 — 기술문서 §5.4 가 "이미 배포된 보고서와 이미 생성된
+        추론 결과를 재작성하는지"를 미정으로 남겼다. 재작성하면 과거 보고서가 바뀌고,
+        안 하면 철회가 집계에 안 걸린다. 지표 정의가 아니라 정책 결정이다
+      - 청구지연 P90 의 값 — 파일럿 첫 6개월은 실측 전이라 합성 분포를 쓴다.
+        실데이터에서 확정 전까지 completed_actions 는 "잠정" 으로 표시한다
+
   signals:                  # PRD §4b 5항과 index.html SIGNALS 가 일치해야 한다
     - {key: Low,      share: 52}
     - {key: Moderate, share: 33}
