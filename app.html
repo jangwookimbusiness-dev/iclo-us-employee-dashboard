@@ -78,6 +78,9 @@
   .privacy ul{margin:6px 0 0;padding-left:18px}
   .privacy li{font-size:13px;color:var(--ink2);margin-bottom:4px}
 
+  .acts{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 16px}
+  .acts button{width:auto;flex:1 1 46%}
+  .acts .followup{flex:1 1 100%}
   .clinic{display:flex;gap:12px;align-items:flex-start}
   .clinic .meta{flex:1}
   .clinic .name{font-weight:600;font-size:15px}
@@ -137,10 +140,16 @@ const ME = {
     {k:"Basic services",                pct:80,  note:"after $50 deductible"},
     {k:"Major services",                pct:50,  note:"12-month waiting period"},
   ],
+  // No `next opening` here on purpose. Real-time slots come from a scheduling
+  // layer synced to the practice's software, and we are not connected to one —
+  // showing an opening we cannot see would be the same class of claim this
+  // product exists to avoid. Distance and network status come from a directory;
+  // `online` is whether that practice takes web bookings at all, which is the
+  // coverage reality: some do, some are a phone call.
   clinics: [
-    {name:"Bay Ridge Dental Group", mi:0.6, next:"Tue 9:40 AM",  est:0,  inNet:true},
-    {name:"Harbor Family Dental",   mi:1.2, next:"Wed 2:15 PM",  est:0,  inNet:true},
-    {name:"Lakeside Dental Care",   mi:2.8, next:"Mon 11:00 AM", est:38, inNet:true},
+    {name:"Bay Ridge Dental Group", mi:0.6, phone:"(555) 010-4417", online:true,  est:0},
+    {name:"Harbor Family Dental",   mi:1.2, phone:"(555) 010-2288", online:false, est:0},
+    {name:"Lakeside Dental Care",   mi:2.8, phone:"(555) 010-7734", online:true,  est:null},
   ],
 };
 const BANDS = {
@@ -252,21 +261,34 @@ const VIEWS = {
   },
 
   care(){
+    // Hand off, then ask. We cannot see whether a booking happened on the other
+    // side of a phone call, so the only honest signal is the member telling us.
+    // That self-report is also the measurement: handoffs vs bookings vs claims
+    // is what says whether booking friction is worth paying to remove.
+    const cost = c => c.est === 0
+      ? "<b>$0</b> — preventive is covered in full"
+      : "needs your plan's negotiated rate, which we do not have yet";
     const rows = ME.clinics.map((c,i)=>`
       <div class="card clinic">
         <div class="meta">
           <div class="name">${esc(c.name)}</div>
-          <div class="muted">${c.mi} mi · next opening ${esc(c.next)}</div>
-          <div class="muted">Estimated your cost: <b>${c.est===0?"$0 (preventive, covered in full)":usd(c.est)}</b></div>
+          <div class="muted">${c.mi} mi away</div>
+          <div class="muted">Your cost: ${cost(c)}</div>
         </div>
         <span class="pill in">In network</span>
       </div>
-      <button data-book="${i}" style="margin:-4px 0 14px">Book at ${esc(c.name)}</button>`).join("");
+      <div class="acts" data-clinic="${i}">
+        <button data-call="${i}">Call ${esc(c.phone)}</button>
+        ${c.online
+          ? `<button data-site="${i}">Book on their site ↗</button>`
+          : `<span class="muted" style="display:block;padding:6px 2px 0">Phone only — this practice does not take web bookings</span>`}
+      </div>`).join("");
     return `<h1>Dentists in your network</h1>
-      <p>In network for ${esc(ME.plan)}. Cost estimates use your plan's coverage and what you have left.</p>
+      <p>In network for ${esc(ME.plan)}. We do not hold their calendar, so booking happens with the
+      practice — by phone, or on their own site where they have one.</p>
       ${rows}
-      <p class="muted">Booking here is a stand-in — no scheduling integration exists yet. Going out of
-      network is your choice; the estimate just changes.</p>`;
+      <p class="muted">Going out of network is your choice; the estimate just changes. Telling us once
+      you are booked is what lets us stop reminding you.</p>`;
   },
 };
 
@@ -285,8 +307,27 @@ document.addEventListener("click", e=>{
   if (go){ S.tab = go.dataset.go; S.step = 0; return render(); }
   const st = e.target.closest("[data-step]");
   if (st){ S.step = +st.dataset.step; return render(); }
-  const bk = e.target.closest("[data-book]");
-  if (bk){ bk.textContent = "Requested — the clinic will confirm"; bk.disabled = true; }
+  const act = e.target.closest("[data-call],[data-site]");
+  if (act){
+    // A real build dials tel: or opens the practice's page. Either way the app
+    // loses sight of the member at this point — hence the follow-up.
+    const box = act.closest(".acts");
+    if (!box.querySelector(".followup")){
+      box.insertAdjacentHTML("beforeend",
+        `<div class="followup">
+           <div class="muted" style="padding:8px 2px 6px">Once you have a time, tell us — it stops the reminders.</div>
+           <button data-booked>I booked it</button>
+         </div>`);
+    }
+    return;
+  }
+  const done = e.target.closest("[data-booked]");
+  if (done){
+    // SELF_REPORTED in the model. Weaker than a claim and labelled that way:
+    // the claim is what confirms it, weeks later.
+    done.outerHTML = `<div class="muted" style="padding:6px 2px">
+      Noted — we will confirm it against your claims when they arrive.</div>`;
+  }
 });
 render();
 </script>
