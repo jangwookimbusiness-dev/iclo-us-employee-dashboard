@@ -312,23 +312,31 @@ terminology:
 # 착수 게이트 — 실데이터 적재 전에 서면으로 닫아야 하는 넷
 # 대외 문서(Report EN · Proposal EN)에 반드시 노출한다
 # ─────────────────────────────────────────────────────────────
+# 실데이터 적재 전에 서면으로 닫아야 하는 것. 아래 넷이 전부가 아니라
+# **착수를 막는 부분집합**이다. 법무 게이트 전체 레지스터는 기술문서 §16 이며
+# 21개 항목이 있고, 그 절이 스스로 "유일한 법무 게이트 레지스터" 라고 선언한다.
+# 2026-08-15 대조 결과 세 문서가 서로 다른 목록을 세고 있었다 — 아래 source 로 고정한다.
 start_gates:
   - id: hipaa_roles
+    source: 기술문서 §16-1
     ko: HIPAA 역할 규정
     en: HIPAA roles
     what: ICLO·기업·기업 건강플랜·TPA·Snowflake 각각이 covered entity / business associate / subcontractor 중 무엇인가. BAA 체인은 이 판정 위에 세운다.
     if_open: PHI 를 적재할 법적 근거가 없다
   - id: data_rights
+    source: 기술문서 §16-2
     ko: 데이터 권리
     en: Data rights
     what: 기업–TPA 계약의 데이터 권리 조항 — 원천별·필드별·목적별로 무엇을 받고 무엇에 쓸 수 있는가
     if_open: 데이터를 받고도 쓸 수 없다. 지연의 대부분이 여기서 생긴다.
   - id: baseline_before_consent
+    source: 기술문서 §16-9 (§16 이 유일하게 '착수 차단 항목' 으로 표시한 것)
     ko: 동의 이전 기준선 적재
     en: Baseline load before consent
     what: 기준선 적재가 동의보다 앞선다. 그 시점에 동의한 사람은 없고 파일럿에서 끝내 동의하지 않을 사람이 다수다. 집계 전용 기준선을 택하거나 별도 법적 근거를 서면으로 정한다.
     if_open: 비동의자의 PHI 를 근거 없이 처리하게 된다. 예외가 아니라 구조적 문제다.
   - id: common_identity_key
+    source: 기술문서에 게이트로는 없음. 설계는 §4 매칭(party_xref·party_match_exception). 2026-08-15 에 §17 기술 게이트로 추가
     ko: 공통 식별키
     en: Common identity key
     what: 인사 쪽과 TPA 쪽 양쪽에 사람을 연결할 안정적 식별자가 있는가
