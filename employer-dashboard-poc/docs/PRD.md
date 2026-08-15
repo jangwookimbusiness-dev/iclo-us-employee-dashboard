@@ -54,6 +54,10 @@ US evidence-layer work startable.
 
 ## 2. What
 
+> **Structure lives in `ARCHITECTURE.md`** (same folder) — three diagrams: what runs today, the A3 target,
+> and the full product with existence markers on every box. This section says what the thing is; that one
+> says how it is wired.
+
 **2.1 Concept.** Two surfaces, one file each, both vanilla HTML at the repo root. `index.html` is the
 employer dashboard. `app.html` is the employee app — added 2026-08-14, synthetic, a click-through of the
 five things a member does: check in, read their own score, see what the plan covers, see what is left, and
