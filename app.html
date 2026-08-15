@@ -31,6 +31,21 @@
          align-items:center;gap:10px;position:sticky;top:0;background:var(--panel);z-index:5}
   .logo{font-weight:800;letter-spacing:.02em}
   .who{font-size:12px;color:var(--ink2);margin-left:auto;font-family:var(--mono)}
+  .gearbtn{width:44px;min-height:44px;padding:0;border:1px solid var(--line);
+           border-radius:10px;background:var(--panel);color:var(--ink2);font-size:16px;
+           cursor:pointer;flex:0 0 auto}
+  .hist{display:flex;align-items:flex-end;gap:8px;height:96px;margin:4px 0 10px}
+  .hist .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;
+             align-items:center;gap:6px;height:100%}
+  .hist .bar{width:100%;border-radius:6px 6px 0 0;background:var(--barMid)}
+  .hist .col.now .bar{background:var(--strong)}
+  .hist .n{font-family:var(--mono);font-size:12px}
+  .hist .d{font-family:var(--mono);font-size:10px;color:var(--ink2)}
+  .srow{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .srow:last-child{border-bottom:0}
+  .srow .t{flex:1}
+  .srow .t b{font-size:14px;font-weight:600;display:block}
+  .toggle{width:auto;min-width:76px;flex:0 0 auto;font-family:var(--mono);font-size:12px}
   .synth{font-family:var(--mono);font-size:11px;color:var(--coral);
          border:1px solid var(--coral);border-radius:4px;padding:3px 7px;
          text-align:center;margin:10px 20px 0}
@@ -105,6 +120,7 @@
     <span class="logo">ICLO</span>
     <span class="muted" style="font-size:12px">My oral wellness</span>
     <span class="who" id="who"></span>
+    <button id="gear" class="gearbtn" type="button" aria-label="Settings and consent">⚙</button>
   </header>
   <div class="synth">DEMO · Synthetic data — illustrative only</div>
   <main id="view"></main>
@@ -135,6 +151,23 @@ const ME = {
   planYear: "2026-01-01 → 2026-12-31",
   annualMax: 1500,
   usedToDate: 412,
+  // Only the latest score and its delta were on screen, so the one thing a
+  // wellness number is for — the direction it is going — was invisible.
+  history: [
+    {on:"2026-08-09", score:78, band:"Moderate"},
+    {on:"2026-05-02", score:71, band:"Moderate"},
+    {on:"2026-01-18", score:64, band:"Priority"},
+    {on:"2025-10-05", score:69, band:"Moderate"},
+  ],
+  // The privacy block promised withdrawal and there was no control anywhere.
+  // Consent is per purpose, not one switch — someone can agree to photos and
+  // refuse claims linkage, and the app has to be able to show that.
+  consents: [
+    {k:"Data processing",             v:"v3", on:"2025-09-30", on_now:true},
+    {k:"Photo capture and analysis",  v:"v3", on:"2025-09-30", on_now:true},
+    {k:"Claims linkage",              v:"v2", on:"2025-09-30", on_now:true},
+  ],
+  reminders: true,
   coverage: [
     {k:"Preventive (cleanings, exams)", pct:100, note:"2 per plan year, no deductible"},
     {k:"Basic services",                pct:80,  note:"after $50 deductible"},
@@ -176,7 +209,7 @@ function privacyBlock(){
       <li>Not your photos, your score, or your visits — none of it reaches ${esc(ME.employer)}.</li>
       <li>They see counts across the whole workforce, and any group under 20 people is withheld entirely.</li>
       <li>ICLO stores your photos in separate controlled storage, not alongside the aggregate data.</li>
-      <li>You can withdraw consent and stop future processing at any time.</li>
+      <li>You can withdraw consent per purpose at any time — <button data-go="settings" style="width:auto;min-height:0;padding:0;border:0;background:none;color:var(--data);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer">in settings</button>.</li>
     </ul>
   </div>`;
 }
@@ -196,11 +229,30 @@ function scoreCard(){
   </div>`;
 }
 
+function historyStrip(){
+  const h = [...ME.history].reverse();          // oldest first, so time reads left to right
+  const hi = Math.max(...h.map(x=>x.score));
+  const cols = h.map((x,i)=>`
+    <div class="col${i===h.length-1?" now":""}">
+      <span class="n">${x.score}</span>
+      <div class="bar" style="height:${Math.round((x.score/hi)*100)}%"
+           title="${esc(x.on)} · ${esc(x.band)}"></div>
+      <span class="d">${esc(x.on.slice(2))}</span>
+    </div>`).join("");
+  return `<div class="card">
+    <div class="hist">${cols}</div>
+    <div class="muted">Four check-ins since ${esc(h[0].on)}. A single number says little;
+    the direction is the part worth reading.</div>
+  </div>`;
+}
+
 const VIEWS = {
   home(){
     return `<h1>Hi, ${esc(ME.name.split(" ")[0])}</h1>
       <p>${esc(ME.plan)} · ${esc(ME.employer)}</p>
       ${scoreCard()}
+      <h2>Your check-ins</h2>
+      ${historyStrip()}
       ${privacyBlock()}
       <h2>Your plan right now</h2>
       <div class="card">
@@ -260,6 +312,47 @@ const VIEWS = {
       counted yet. Your plan documents are the authority, not this screen.</p>`;
   },
 
+  settings(){
+    const rows = ME.consents.map((c,i)=>`
+      <div class="srow">
+        <div class="t">
+          <b>${esc(c.k)}</b>
+          <span class="muted">${c.on_now ? `Agreed ${esc(c.on)} · ${esc(c.v)}` : "Withdrawn"}</span>
+        </div>
+        <button class="toggle" data-consent="${i}">${c.on_now ? "Withdraw" : "Re-agree"}</button>
+      </div>`).join("");
+    return `<h1>Consent and settings</h1>
+      <p>Consent is per purpose. Withdrawing one does not withdraw the others.</p>
+      <div class="card" style="padding:4px 16px">${rows}</div>
+
+      <div class="privacy">
+        <b>What withdrawing does</b>
+        <ul>
+          <li>Processing for that purpose stops going forward.</li>
+          <li>Figures already published to your employer are aggregate and do not identify you,
+              and whether past aggregates get rebuilt is <b>still being decided</b> — we will not
+              claim either way here.</li>
+          <li>Your photos stay in controlled storage under the retention schedule, not deleted
+              on the spot.</li>
+        </ul>
+      </div>
+
+      <h2>Reminders</h2>
+      <div class="card" style="padding:4px 16px">
+        <div class="srow">
+          <div class="t">
+            <b>Nudge me about open items</b>
+            <span class="muted">${ME.reminders
+              ? "On — about once a month, and it stops once you tell us you booked"
+              : "Off — nothing will be sent"}</span>
+          </div>
+          <button class="toggle" data-reminders>${ME.reminders ? "Turn off" : "Turn on"}</button>
+        </div>
+      </div>
+      <p class="muted">Nothing here is wired to a backend in this demo — the state lives in the
+      page and resets on reload.</p>`;
+  },
+
   care(){
     // Hand off, then ask. We cannot see whether a booking happened on the other
     // side of a phone call, so the only honest signal is the member telling us.
@@ -295,6 +388,9 @@ const VIEWS = {
 function paintNav(){
   $("nav").innerHTML = TABS.map(([k,l])=>
     `<button data-go="${k}" aria-current="${k===S.tab}">${l}</button>`).join("");
+  // Settings lives behind the header control, not in the nav: it is not a peer
+  // of the four things a member came to do.
+  $("gear").setAttribute("aria-current", S.tab === "settings");
 }
 function render(){
   $("who").textContent = ME.employer;
@@ -321,6 +417,17 @@ document.addEventListener("click", e=>{
     }
     return;
   }
+  if (e.target.closest("#gear")){ S.tab = "settings"; S.step = 0; return render(); }
+  const cs = e.target.closest("[data-consent]");
+  if (cs){
+    const c = ME.consents[+cs.dataset.consent];
+    c.on_now = !c.on_now;
+    // Photos are the input to the signal, so pulling that consent has to stop
+    // the thing it feeds rather than leaving a score updating off it.
+    if (!c.on_now && c.k.startsWith("Photo")) ME.reminders = false;
+    return render();
+  }
+  if (e.target.closest("[data-reminders]")){ ME.reminders = !ME.reminders; return render(); }
   const done = e.target.closest("[data-booked]");
   if (done){
     // SELF_REPORTED in the model. Weaker than a claim and labelled that way:

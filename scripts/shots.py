@@ -47,11 +47,13 @@ SHOTS = [
     ("app-home",             "app.html",   {},                                               (500, 1050)),
     ("app-coverage",         "app.html",   {},                                               (500, 1050)),
     ("app-care",             "app.html",   {},                                               (500, 1050)),
+    ("app-settings",         "app.html",   {},                                               (500, 1050)),
 ]
 
 # app.html keeps its screen in a JS variable rather than the URL — it is a
 # single-member demo, so there is nothing to deep-link to yet. Patch instead.
-APP_TAB = {"app-home": "home", "app-coverage": "coverage", "app-care": "care"}
+APP_TAB = {"app-home": "home", "app-coverage": "coverage", "app-care": "care",
+           "app-settings": "settings"}
 
 
 def main():
