@@ -250,6 +250,53 @@ dashboard:
 # 절대 표현 — 범위를 좁히지 않으면 사실과 다른 주장이 된다
 # ─────────────────────────────────────────────────────────────
 # ─────────────────────────────────────────────────────────────
+# 내보내기 계약 — A3 가 만들 JSON 의 형태 (2026-08-15 확정)
+#
+# A3 는 화면 값의 출처를 상수 블록에서 이 파일로 바꾼다. 그 순간 JSON 키가
+# 내보내기 쿼리와 렌더러 사이의 계약이 되고, 쿼리에서 이름이 하나 바뀌면
+# 화면은 undefined → 빈칸으로 조용히 깨진다. 지금 정해두면 양쪽이 이것을
+# 보고 만든다.
+# ─────────────────────────────────────────────────────────────
+export_contract:
+  files: employer-a.json · employer-b.json · employer-c.json + departments.json
+  produced_by: 기업별 롤 각각. R_ENGINEER 로 뽑으면 집계 정책이 면제라 억제를 우회한다
+
+  envelope:                 # 모든 파일이 공유. 세 파일에서 값이 같아야 한다
+    schema_version: 정수. 렌더러가 모르는 버전이면 숫자를 그리지 말고 멈춘다
+    run_id: 한 번의 내보내기 실행. 세 파일이 다르면 회차가 섞인 것이다
+    report_snapshot_seq: 어느 스냅샷 기준인가
+    exported_at: 내보낸 시각 — **배달 신선도**
+    employer_id: 이 파일의 주인
+    synthetic: true 인 동안 화면은 합성 라벨을 지운 적이 없어야 한다
+
+  freshness:                # **데이터 신선도**. exported_at 과 다른 것이다
+    eligibility_thru: 자격 통용일
+    claims_thru: 청구 통용일
+    lag_days: 표시용 지연
+    completeness_pct: 도착한 허용액 / 예상 최종 허용액
+    why: |
+      6개월 묵은 청구 위에 방금 내보내기를 하면 exported_at 만 보고는 건강해 보인다.
+      index.html:201 의 FRESH 가 이미 원천별로 구분하고 있었고 그 모델을 그대로 옮긴다.
+
+  months:                   # 36개월 전부. 화면은 최신만 쓴다
+    grain: employer_id × month_start × department
+    fields: [eligible_employees, covered_members, member_months, dental_pmpm,
+             activated, repeat_participation, signal_low, signal_moderate,
+             signal_priority, open_actions, completed_actions, completed_cohort_mature]
+    suppressed_row: |
+      최소 셀 미만 그룹은 값 자리에 null 을 넣고 department 를 null 로 둔다.
+      집계 정책의 remainder group 이 그렇게 돌아오기 때문이며, 화면은 그 null 을
+      "억제됨" 으로 그린다. 행을 빼면 안 된다 — 빼면 그 부서가 존재하는지도 모른다.
+
+  departments:              # 별도 파일. 억제된 부서도 이름은 남는다
+    fields: [department, employer_id]
+    why: 셀 억제는 값을 가리는 것이지 부서의 존재를 숨기는 것이 아니다. 필터에 남아야 시연이 된다
+
+  provenance:               # E2. 원천별 구분을 대체하지 말고 덧붙인다
+    per_field: 각 지표가 어느 Snowflake 오브젝트에서 나왔는지
+    keep: index.html:213 의 원천별 매핑(HRIS·앱·TPA·신호)은 그대로 둔다
+
+# ─────────────────────────────────────────────────────────────
 # 두 화면 — 무엇을 누구에게 보이는가 (2026-08-14 확정)
 # "밴드만, 점수 금지" 는 기업 뷰의 레드라인이지 앱의 레드라인이 아니었다.
 # CEO 리뷰가 이것을 미결로 표시했고 여기서 닫는다.

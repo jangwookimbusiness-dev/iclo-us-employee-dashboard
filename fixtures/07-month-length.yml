@@ -1,0 +1,22 @@
+name: 1월과 2월. 아무 변화가 없어도 PMPM 이 흔들리는가
+guards: [실제 해당 월 일수로 나눌 것]
+why: |
+  기술문서 1276 — 30.4 로 나누면 완전 가입자가 달마다 다른 member-month 를 갖는다.
+  문서는 3% 라 쓰는데 그것은 30일 대 31일 얘기이고, **2월은 더 크다** (아래 계산).
+input:
+  eligibility_spans:
+    - {party: P1, employer: A, from: 2026-01-01, to: 2026-02-28}
+  claims:
+    - {party: P1, employer: A, service_date: 2026-01-10, allowed: 30}
+    - {party: P1, employer: A, service_date: 2026-02-10, allowed: 30}
+expected:
+  rows:
+    - {month: 2026-01, member_months: 1.0, dental_pmpm: 30.0}
+    - {month: 2026-02, member_months: 1.0, dental_pmpm: 30.0}
+  working: 완전 가입자는 어느 달이든 정확히 1.0. 청구가 같으므로 PMPM 도 평평하다
+  failure_mode:
+    if: 30.4 로 나누면
+    value:
+      - {month: 2026-01, member_months: 1.01974, dental_pmpm: 29.42}
+      - {month: 2026-02, member_months: 0.92105, dental_pmpm: 32.57}
+    note: 실제로는 아무 변화가 없는데 1월 대비 2월이 10.71% 높게 나온다

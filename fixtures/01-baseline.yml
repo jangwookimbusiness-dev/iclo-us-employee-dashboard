@@ -1,0 +1,17 @@
+name: PMPM 과 분모 산식 자체. 나머지 여섯이 이것을 기준으로 어긋난다
+guards: [member_month 전개, allowed 합, PMPM 나눗셈]
+input:
+  eligibility_spans:
+    - {party: P1, employer: A, from: 2026-01-01, to: 2026-01-31}
+    - {party: P2, employer: A, from: 2026-01-01, to: 2026-01-31}
+    - {party: P3, employer: A, from: 2026-01-01, to: 2026-01-31}
+  claims:
+    - {party: P1, employer: A, service_date: 2026-01-12, allowed: 40}
+    - {party: P2, employer: A, service_date: 2026-01-20, allowed: 50}
+expected:
+  month: 2026-01
+  covered_members: 3
+  member_months: 3.0
+  allowed: 90
+  dental_pmpm: 30.0
+  working: 세 명 모두 31일 중 31일 → 3 × (31/31) = 3.0. 90 / 3.0 = 30.0

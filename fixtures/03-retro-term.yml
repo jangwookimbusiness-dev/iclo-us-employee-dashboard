@@ -1,0 +1,20 @@
+name: 소급 종료된 자격. 구버전을 걸러야 한다
+guards: [superseded_by IS NULL]
+why: |
+  기술문서 783 — 필터가 없으면 구·신 버전이 모두 전개되고, 두 행의
+  eligibility_span_sk 가 다르므로 12절 중복 검사를 **통과한다**. 검사를 통과하면서
+  분모만 부풀어 오르는 조합이라 눈으로도 검사로도 안 잡힌다.
+input:
+  eligibility_spans:
+    - {party: P1, employer: A, episode: E1, from: 2026-01-01, to: null,
+       snapshot_seq: 1, superseded_by: v2}
+    - {party: P1, employer: A, episode: E1, from: 2026-01-01, to: 2026-01-15,
+       snapshot_seq: 2, superseded_by: null, change_reason: RETRO_TERM}
+expected:
+  month: 2026-01
+  member_months: 0.48387
+  working: 현행 버전만 → 15일. 15/31 = 0.48387
+  failure_mode:
+    if: superseded_by 필터를 빼면
+    value: 1.48387
+    note: 한 사람인데 1 person-month 를 넘는다. 그 자체가 신호다

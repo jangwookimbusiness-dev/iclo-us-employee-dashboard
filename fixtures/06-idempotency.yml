@@ -1,0 +1,17 @@
+name: 같은 적재를 두 번 돌린다
+guards: [CREATE OR REPLACE TABLE, INSERT 금지]
+why: |
+  기술문서 785 — 자격은 매달 과거분까지 정정되어 들어오므로 이 변환은 반복 실행이
+  전제다. INSERT 는 멱등이 아니라 재적재 한 번에 분모가 두 배가 되고, **그 상태로도
+  쿼리는 정상 실행된다.**
+input:
+  eligibility_spans:
+    - {party: P1, employer: A, from: 2026-01-01, to: 2026-01-31}
+  runs: 2
+expected:
+  month: 2026-01
+  member_months: 1.0
+  working: 두 번 돌려도 한 번 돌린 것과 같아야 한다
+  failure_mode:
+    if: INSERT 로 두면
+    value: 2.0

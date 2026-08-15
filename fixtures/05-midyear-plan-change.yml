@@ -1,0 +1,22 @@
+name: 달 중간 플랜 변경. 같은 사람·월에 member_month 행이 둘이다
+guards: [member_month 를 사람·기업·월로 접은 뒤 조인]
+why: |
+  기술문서 1274 — grain 이 (eligibility_span_sk, month_start) 라 행이 둘인데
+  사람·월 단위 청구를 그대로 조인하면 **청구 한 건이 두 행에 매칭되어 분자가 2배**가 된다.
+  COUNT(DISTINCT) 는 영향을 안 받아 사람 수는 정상으로 보인다.
+input:
+  eligibility_spans:
+    - {party: P1, employer: A, plan: X, from: 2026-01-01, to: 2026-01-15}
+    - {party: P1, employer: A, plan: Y, from: 2026-01-16, to: 2026-01-31}
+  claims:
+    - {party: P1, employer: A, service_date: 2026-01-22, allowed: 50}
+expected:
+  month: 2026-01
+  covered_members: 1
+  member_months: 1.0
+  allowed: 50
+  dental_pmpm: 50.0
+  working: 15일 + 16일 = 31일 = 1.0 member-month. 청구는 한 건
+  failure_mode:
+    if: 접지 않고 조인하면
+    value: allowed 100, dental_pmpm 100.0
