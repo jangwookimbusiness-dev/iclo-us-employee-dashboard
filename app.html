@@ -34,18 +34,6 @@
   .gearbtn{width:44px;min-height:44px;padding:0;border:1px solid var(--line);
            border-radius:10px;background:var(--panel);color:var(--ink2);font-size:16px;
            cursor:pointer;flex:0 0 auto}
-  .hist{display:flex;align-items:flex-end;gap:8px;height:96px;margin:4px 0 10px}
-  .hist .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;
-             align-items:center;gap:6px;height:100%}
-  .hist .bar{width:100%;border-radius:6px 6px 0 0;background:var(--barMid)}
-  .hist .col.now .bar{background:var(--strong)}
-  .hist .n{font-family:var(--mono);font-size:12px}
-  .hist .d{font-family:var(--mono);font-size:10px;color:var(--ink2)}
-  .srow{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
-  .srow:last-child{border-bottom:0}
-  .srow .t{flex:1}
-  .srow .t b{font-size:14px;font-weight:600;display:block}
-  .toggle{width:auto;min-width:76px;flex:0 0 auto;font-family:var(--mono);font-size:12px}
   .synth{font-family:var(--mono);font-size:11px;color:var(--coral);
          border:1px solid var(--coral);border-radius:4px;padding:3px 7px;
          text-align:center;margin:10px 20px 0}
@@ -71,13 +59,12 @@
   .rowlab .v{font-family:var(--mono)}
   .muted{color:var(--ink2);font-size:12.5px}
 
-  /* Everything tappable clears 44px. Not gated on hover:none — a tablet with a
-     keyboard reports hover:hover and the gate silently fails. */
   button,.btn{min-height:44px;font:inherit;font-size:15px;border-radius:10px;
               border:1px solid var(--line);background:var(--panel);color:var(--ink);
               padding:11px 16px;cursor:pointer;width:100%}
   .primary{background:var(--strong);color:var(--onStrong);border-color:var(--strong);font-weight:600}
   .ghost{background:transparent}
+  button[disabled]{opacity:.55;cursor:not-allowed}
   button:focus-visible,a:focus-visible{outline:2px solid var(--data);outline-offset:2px}
 
   nav{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;
@@ -92,6 +79,7 @@
   .privacy b{display:block;margin-bottom:6px;font-size:14px;color:var(--ink)}
   .privacy ul{margin:6px 0 0;padding-left:18px}
   .privacy li{font-size:13px;color:var(--ink2);margin-bottom:4px}
+  .blocked{border-left-color:var(--coral)}
 
   .acts{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 16px}
   .acts button{width:auto;flex:1 1 46%}
@@ -103,11 +91,31 @@
         background:var(--band);color:var(--ink2);white-space:nowrap}
   .in{background:rgba(0,122,135,.12);color:var(--data)}
 
-  .steps{counter-reset:s;margin:0;padding:0;list-style:none}
-  .steps li{counter-increment:s;position:relative;padding-left:34px;margin-bottom:14px;font-size:14px}
-  .steps li::before{content:counter(s);position:absolute;left:0;top:-1px;width:24px;height:24px;
-        border-radius:999px;background:var(--band);color:var(--ink);font-family:var(--mono);
-        font-size:12px;display:flex;align-items:center;justify-content:center}
+  /* Profile picking. A list of full-width targets with nothing preselected —
+     see the capture flow comment for why that matters. */
+  .who-list button{text-align:left;margin-bottom:8px;display:flex;
+                   align-items:center;gap:12px;width:100%}
+  .who-list .nm{font-weight:600}
+  .who-list .rl{font-family:var(--mono);font-size:11px;color:var(--ink2);margin-left:auto}
+  .subject{background:var(--strong);color:var(--onStrong);border-radius:12px;
+           padding:14px 16px;margin-bottom:12px}
+  .subject .lab{font-family:var(--mono);font-size:11px;opacity:.75}
+  .subject .nm{font-size:24px;font-weight:800;letter-spacing:-.01em}
+
+  .hist{display:flex;align-items:flex-end;gap:8px;height:96px;margin:4px 0 10px}
+  .hist .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;
+             align-items:center;gap:6px;height:100%}
+  .hist .bar{width:100%;border-radius:6px 6px 0 0;background:var(--barMid)}
+  .hist .col.now .bar{background:var(--strong)}
+  .hist .n{font-family:var(--mono);font-size:12px}
+  .hist .d{font-family:var(--mono);font-size:10px;color:var(--ink2)}
+
+  .srow{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .srow:last-child{border-bottom:0}
+  .srow .t{flex:1}
+  .srow .t b{font-size:14px;font-weight:600;display:block}
+  .toggle{width:auto;min-width:76px;flex:0 0 auto;font-family:var(--mono);font-size:12px}
+
   .frame{aspect-ratio:4/3;border:2px dashed var(--line);border-radius:12px;
          display:flex;align-items:center;justify-content:center;color:var(--ink2);
          font-family:var(--mono);font-size:12.5px;text-align:center;padding:16px;margin-bottom:12px}
@@ -125,243 +133,266 @@
   <div class="synth">DEMO · Synthetic data — illustrative only</div>
   <main id="view"></main>
   <nav id="nav"></nav>
-  <footer>Wellness signals only · not medical advice · your results stay out of employer views</footer>
+  <footer>Wellness signals only · not medical advice · results stay out of employer views</footer>
 </div>
 
 <script>
 // ─────────────────────────────────────────────────────────────
-// Synthetic member. One constants block, same discipline as the
-// dashboard: every figure on screen derives from here.
+// The model follows tech doc §4, which separates three things the obvious
+// design merges: the person, the login, and who a login may act for.
 //
-// What does not exist yet, and is therefore faked in this file:
-//   - the Core AI call that turns a photo into a signal (tech doc 8.2)
-//   - the payer gateway (X12 270/271) behind remaining balance
-//   - the network directory and any booking integration
-// contracts/proposal-package-v11.yml status.does_not_exist is the list.
+//   credential ──N:M── profile_access ──N:M── party
+//
+// Neither the credential nor the party carries an employer. A person can be
+// covered by two employers at once (spouses carrying each other), and folding
+// the employer into the person splits their record in half.
+//
+// Faked because it does not exist: the Core AI call behind a score, the payer
+// gateway behind a balance, the network directory, booking, and any backend at
+// all. contracts status.does_not_exist is the list.
 // ─────────────────────────────────────────────────────────────
-const ME = {
-  name: "Jordan Reyes",
+const ACCOUNT = {                     // one credential — this device's login
+  credential: "cred-8841",
   employer: "Employer A",
-  plan: "PPO Dental — Employee + Spouse",
-  score: 78,            // 0-100. Shown to the member only. Employers get bands.
-  prev: 71,
-  band: "Moderate",
-  capturedOn: "2026-08-09",
-  captures: 4,
+  plan: "PPO Dental — Employee + Family",
   planYear: "2026-01-01 → 2026-12-31",
-  annualMax: 1500,
-  usedToDate: 412,
-  // Only the latest score and its delta were on screen, so the one thing a
-  // wellness number is for — the direction it is going — was invisible.
-  history: [
-    {on:"2026-08-09", score:78, band:"Moderate"},
-    {on:"2026-05-02", score:71, band:"Moderate"},
-    {on:"2026-01-18", score:64, band:"Priority"},
-    {on:"2025-10-05", score:69, band:"Moderate"},
-  ],
-  // The privacy block promised withdrawal and there was no control anywhere.
-  // Consent is per purpose, not one switch — someone can agree to photos and
-  // refuse claims linkage, and the app has to be able to show that.
-  consents: [
-    {k:"Data processing",             v:"v3", on:"2025-09-30", on_now:true},
-    {k:"Photo capture and analysis",  v:"v3", on:"2025-09-30", on_now:true},
-    {k:"Claims linkage",              v:"v2", on:"2025-09-30", on_now:true},
-  ],
-  reminders: true,
+  annualMax: 1500, usedToDate: 412,
   coverage: [
     {k:"Preventive (cleanings, exams)", pct:100, note:"2 per plan year, no deductible"},
     {k:"Basic services",                pct:80,  note:"after $50 deductible"},
     {k:"Major services",                pct:50,  note:"12-month waiting period"},
   ],
-  // No `next opening` here on purpose. Real-time slots come from a scheduling
-  // layer synced to the practice's software, and we are not connected to one —
-  // showing an opening we cannot see would be the same class of claim this
-  // product exists to avoid. Distance and network status come from a directory;
-  // `online` is whether that practice takes web bookings at all, which is the
-  // coverage reality: some do, some are a phone call.
   clinics: [
     {name:"Bay Ridge Dental Group", mi:0.6, phone:"(555) 010-4417", online:true,  est:0},
     {name:"Harbor Family Dental",   mi:1.2, phone:"(555) 010-2288", online:false, est:0},
     {name:"Lakeside Dental Care",   mi:2.8, phone:"(555) 010-7734", online:true,  est:null},
   ],
 };
-const BANDS = {
-  Low:      {cls:"b-low", advice:"Keep your current routine."},
-  Moderate: {cls:"b-mod", advice:"A guided check-in is worth booking when convenient."},
-  Priority: {cls:"b-pri", advice:"Booking a general dental consult is suggested."},
+
+// The 834 gives names, dates of birth and relationships. It does not carry
+// contact details for family, which is why an adult family member is reached
+// through the employee rather than directly (§4.4).
+const PARTIES = [
+  {id:"P1", name:"Jordan Reyes", rel:"Subscriber", minor:false, access:"SELF",
+   consents:{processing:true, photo:true, claims:true},
+   history:[{on:"2025-10-05",score:69},{on:"2026-01-18",score:64},
+            {on:"2026-05-02",score:71},{on:"2026-08-09",score:78}]},
+
+  // Adult family, deliberately with no access row on this credential. §4.2
+  // calls the "employee agrees for the family" checkbox the most legally
+  // dangerous shortcut available: it voids the basis for the spouse's data.
+  {id:"P2", name:"Sam Reyes", rel:"Spouse", minor:false, access:null,
+   invited:"2026-08-11", consents:null, history:[]},
+
+  {id:"P3", name:"Ellie Reyes", rel:"Child", minor:true, access:"GUARDIAN",
+   consents:{processing:true, photo:true, claims:true},
+   history:[{on:"2026-02-14",score:81},{on:"2026-07-30",score:85}]},
+
+  {id:"P4", name:"Theo Reyes", rel:"Child", minor:true, access:"GUARDIAN",
+   consents:{processing:true, photo:false, claims:true},   // photo refused
+   history:[]},
+];
+
+const BAND = s => s >= 80 ? "Low" : s >= 68 ? "Moderate" : "Priority";
+const ADVICE = {
+  Low:"Keep the current routine.",
+  Moderate:"A guided check-in is worth booking when convenient.",
+  Priority:"Booking a general dental consult is suggested.",
 };
+const CLS = {Low:"b-low", Moderate:"b-mod", Priority:"b-pri"};
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const usd = n => "$" + n.toLocaleString("en-US");
-const remaining = () => ME.annualMax - ME.usedToDate;
+const party = id => PARTIES.find(p => p.id === id);
+const managed = () => PARTIES.filter(p => p.access);
+const latest = p => p.history.length ? p.history[p.history.length-1] : null;
+const remaining = () => ACCOUNT.annualMax - ACCOUNT.usedToDate;
 
 const TABS = [["home","Home"],["capture","Capture"],["coverage","Coverage"],["care","Find care"]];
-let S = { tab:"home", step:0 };
 
-// The single most important text in this app. It is scoped on purpose:
-// "no individual PHI" without a scope is false — ICLO holds the record.
-// What is true is that the employer never sees it. contracts scoped_claims.
+// `subject` is the profile a capture is for. It starts null on every entry to
+// the flow and is cleared on the way out — never remembered, never defaulted to
+// whoever went last. §4.5 names auto-selecting the previous profile as the most
+// common way a photo lands on the wrong person, and that error is invisible
+// downstream: the aggregate looks fine while the claims link points elsewhere.
+let S = { tab:"home", step:0, subject:null };
+
 function privacyBlock(){
   return `<div class="privacy">
     <b>Your employer cannot see this</b>
     <ul>
-      <li>Not your photos, your score, or your visits — none of it reaches ${esc(ME.employer)}.</li>
+      <li>Not the photos, the scores, or the visits — none of it reaches ${esc(ACCOUNT.employer)}.</li>
       <li>They see counts across the whole workforce, and any group under 20 people is withheld entirely.</li>
-      <li>ICLO stores your photos in separate controlled storage, not alongside the aggregate data.</li>
-      <li>You can withdraw consent per purpose at any time — <button data-go="settings" style="width:auto;min-height:0;padding:0;border:0;background:none;color:var(--data);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer">in settings</button>.</li>
+      <li>Photos stay in separate controlled storage, not alongside the aggregate data.</li>
+      <li>Consent is per person and per purpose — <button data-go="settings" style="width:auto;min-height:0;padding:0;border:0;background:none;color:var(--data);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer">manage it here</button>.</li>
     </ul>
   </div>`;
 }
 
-function scoreCard(){
-  const b = BANDS[ME.band];
-  const d = ME.score - ME.prev;
-  const dir = d > 0 ? "up" : d < 0 ? "down" : "unchanged";
+function scoreCard(p){
+  const l = latest(p);
+  if (!l) return `<div class="card">
+    <div class="muted">${esc(p.name)}</div>
+    <p style="margin:8px 0 0">No check-in yet.</p></div>`;
+  const b = BAND(l.score);
+  const prev = p.history.length > 1 ? p.history[p.history.length-2].score : null;
+  const d = prev === null ? null : l.score - prev;
   return `<div class="card">
-    <div class="muted">Latest check-in · ${esc(ME.capturedOn)}</div>
-    <div class="score"><b>${ME.score}</b><span class="of">/ 100</span></div>
-    <span class="bandtag ${b.cls}">${esc(ME.band)}</span>
-    <div class="delta">${d>0?"+":""}${d} since your last check-in · ${dir}</div>
-    <p style="margin-top:12px">${esc(b.advice)}</p>
-    <p class="muted" style="margin:0">This is a wellness signal from a guided photo. It is not a clinical
-    finding and not medical advice. Only a dentist can tell you what is happening in your mouth.</p>
+    <div class="muted">${esc(p.name)} · ${esc(l.on)}</div>
+    <div class="score"><b>${l.score}</b><span class="of">/ 100</span></div>
+    <span class="bandtag ${CLS[b]}">${esc(b)}</span>
+    ${d === null ? "" : `<div class="delta">${d>0?"+":""}${d} since the last check-in</div>`}
+    <p style="margin-top:12px">${esc(ADVICE[b])}</p>
+    <p class="muted" style="margin:0">A wellness signal from a guided photo. Not a clinical finding
+    and not medical advice. Only a dentist can say what is happening in a mouth.</p>
   </div>`;
 }
 
-function historyStrip(){
-  const h = [...ME.history].reverse();          // oldest first, so time reads left to right
-  const hi = Math.max(...h.map(x=>x.score));
-  const cols = h.map((x,i)=>`
-    <div class="col${i===h.length-1?" now":""}">
+function historyStrip(p){
+  if (p.history.length < 2) return "";
+  const hi = Math.max(...p.history.map(x=>x.score));
+  return `<div class="card"><div class="hist">${p.history.map((x,i)=>`
+    <div class="col${i===p.history.length-1?" now":""}">
       <span class="n">${x.score}</span>
-      <div class="bar" style="height:${Math.round((x.score/hi)*100)}%"
-           title="${esc(x.on)} · ${esc(x.band)}"></div>
+      <div class="bar" style="height:${Math.round((x.score/hi)*100)}%"></div>
       <span class="d">${esc(x.on.slice(2))}</span>
-    </div>`).join("");
-  return `<div class="card">
-    <div class="hist">${cols}</div>
-    <div class="muted">Four check-ins since ${esc(h[0].on)}. A single number says little;
-    the direction is the part worth reading.</div>
+    </div>`).join("")}</div>
+    <div class="muted">A single number says little; the direction is the part worth reading.</div>
   </div>`;
 }
 
 const VIEWS = {
   home(){
-    return `<h1>Hi, ${esc(ME.name.split(" ")[0])}</h1>
-      <p>${esc(ME.plan)} · ${esc(ME.employer)}</p>
-      ${scoreCard()}
-      <h2>Your check-ins</h2>
-      ${historyStrip()}
+    const me = party("P1");
+    const others = managed().filter(p => p.id !== "P1");
+    const adults = PARTIES.filter(p => !p.access && !p.minor);
+    return `<h1>Hi, ${esc(me.name.split(" ")[0])}</h1>
+      <p>${esc(ACCOUNT.plan)} · ${esc(ACCOUNT.employer)}</p>
+      ${scoreCard(me)}
+      ${historyStrip(me)}
+
+      <h2>People you manage</h2>
+      ${others.map(p=>{
+        const l = latest(p);
+        return `<div class="card">
+          <div class="rowlab">
+            <span><b>${esc(p.name)}</b> <span class="muted">${esc(p.rel)}</span></span>
+            <span class="pill">${esc(p.access)}</span>
+          </div>
+          ${l ? `<div class="rowlab" style="margin-top:8px">
+                   <span class="muted">Latest ${esc(l.on)}</span>
+                   <span class="v">${l.score} · ${esc(BAND(l.score))}</span></div>`
+              : `<div class="muted" style="margin-top:8px">${p.consents && !p.consents.photo
+                   ? "Photo analysis is off for this profile — no check-ins are taken."
+                   : "No check-in yet."}</div>`}
+        </div>`;}).join("")}
+
+      ${adults.map(p=>`
+        <div class="privacy blocked">
+          <b>${esc(p.name)} consents on their own device</b>
+          <ul>
+            <li>Adult family cannot be added to your account, and you cannot agree on their behalf.</li>
+            <li>An invite went out ${esc(p.invited)}. They sign in with their own login and verify by
+                one-time code before anything is processed.</li>
+            <li>Until then they stay covered by the plan and simply have no app activity.</li>
+          </ul>
+        </div>`).join("")}
+
       ${privacyBlock()}
       <h2>Your plan right now</h2>
       <div class="card">
         <div class="rowlab"><span>Annual maximum remaining</span><span class="v">${usd(remaining())}</span></div>
-        <div class="track"><div class="fill" style="width:${(remaining()/ME.annualMax)*100}%;background:var(--barMid)"></div></div>
-        <div class="muted">${usd(ME.usedToDate)} used of ${usd(ME.annualMax)} · plan year ${esc(ME.planYear)}</div>
+        <div class="track"><div class="fill" style="width:${(remaining()/ACCOUNT.annualMax)*100}%;background:var(--barMid)"></div></div>
+        <div class="muted">${usd(ACCOUNT.usedToDate)} used of ${usd(ACCOUNT.annualMax)} · plan year ${esc(ACCOUNT.planYear)}</div>
       </div>
       <button class="primary" data-go="capture">Start a check-in</button>`;
   },
 
   capture(){
-    if (S.step === 0) return `<h1>Check-in</h1>
-      <p>Four guided photos, about a minute. Do it in daylight or under a bright lamp.</p>
-      <ol class="steps">
-        <li>Rinse, then stand somewhere bright — daylight beats a bathroom light.</li>
-        <li>Hold the phone steady and fill the frame with your teeth.</li>
-        <li>Follow the on-screen guide for upper, lower, and both sides.</li>
-        <li>Blurry shots get rejected and you retake them — that gate is why the signal means anything.</li>
-      </ol>
-      ${privacyBlock()}
-      <button class="primary" data-step="1">I'm ready</button>`;
+    // Step 0 is the profile choice and cannot be skipped. Nothing is
+    // preselected — not even the account holder, who is the obvious default
+    // and exactly the wrong one on a shared phone.
+    if (S.step === 0){
+      const eligible = managed().filter(p => p.consents && p.consents.photo);
+      const blocked  = managed().filter(p => p.consents && !p.consents.photo);
+      return `<h1>Who is this check-in for?</h1>
+        <p>Pick every time. This is not remembered between check-ins — on a shared phone,
+        carrying the last choice forward is how a photo ends up on the wrong person.</p>
+        <div class="who-list">
+          ${eligible.map(p=>`<button data-subject="${esc(p.id)}">
+              <span class="nm">${esc(p.name)}</span>
+              <span class="rl">${esc(p.rel)} · ${esc(p.access)}</span>
+            </button>`).join("")}
+        </div>
+        ${blocked.map(p=>`
+          <div class="privacy blocked">
+            <b>${esc(p.name)} is not available</b>
+            <ul><li>Photo analysis consent is off for this profile. Turn it on in settings before
+                    taking a check-in.</li></ul>
+          </div>`).join("")}`;
+    }
 
-    if (S.step === 1) return `<h1>Upper arch</h1>
+    const p = party(S.subject);
+    // Defence 3: the subject's name is the largest thing on every capture step,
+    // so a wrong pick is visible while it can still be undone.
+    const subject = `<div class="subject">
+      <div class="lab">CHECK-IN FOR</div>
+      <div class="nm">${esc(p.name)}</div>
+    </div>`;
+
+    if (S.step === 1) return `${subject}
+      <h1>Upper arch</h1>
       <div class="frame">camera preview<br><span class="muted">(not wired up in this demo)</span></div>
-      <p>Line your upper teeth up with the guide and hold still.</p>
+      <p>Line the upper teeth up with the guide and hold still. Four photos in all.</p>
       <button class="primary" data-step="2">Capture</button>
-      <button class="ghost" data-step="0" style="margin-top:8px">Back</button>`;
+      <button class="ghost" data-step="0" style="margin-top:8px">Not ${esc(p.name)} — go back</button>`;
 
-    if (S.step === 2) return `<h1>Reading your photos</h1>
+    if (S.step === 2) return `${subject}
+      <h1>Reading the photos</h1>
       <div class="frame">processing…<br><span class="muted">the Core AI call this stands in for does not exist yet</span></div>
       <p>Four photos passed the quality gate.</p>
       <button class="primary" data-step="3">See result</button>`;
 
-    return `<h1>Your result</h1>
-      ${scoreCard()}
+    return `${subject}
+      <h1>Result</h1>
+      ${scoreCard(p)}
+      <div class="card">
+        <div class="rowlab"><span class="muted">Taken by</span>
+          <span class="v">${esc(ACCOUNT.credential)}</span></div>
+        <div class="muted" style="margin-top:6px">Recorded separately from whose check-in it is.
+        One login taking five people's photos in three minutes is a family checkup day, or a
+        mistake — keeping both makes the difference readable later.</div>
+      </div>
       ${privacyBlock()}
-      <button class="primary" data-go="care">Find a dentist in your network</button>
-      <button class="ghost" data-go="coverage" style="margin-top:8px">See what your plan covers</button>`;
+      <button class="primary" data-go="care">Find a dentist in the network</button>
+      <button class="ghost" data-go="home" style="margin-top:8px">Done</button>`;
   },
 
   coverage(){
-    const rows = ME.coverage.map(c=>`
+    const rows = ACCOUNT.coverage.map(c=>`
       <div class="card">
         <div class="rowlab"><span>${esc(c.k)}</span><span class="v">${c.pct}%</span></div>
         <div class="track"><div class="fill" style="width:${c.pct}%;background:var(--barMid)"></div></div>
         <div class="muted">${esc(c.note)}</div>
       </div>`).join("");
-    return `<h1>What your plan covers</h1>
-      <p>${esc(ME.plan)} · plan year ${esc(ME.planYear)}</p>
+    return `<h1>What the plan covers</h1>
+      <p>${esc(ACCOUNT.plan)} · plan year ${esc(ACCOUNT.planYear)}</p>
       <div class="card">
         <div class="rowlab"><span>Annual maximum remaining</span><span class="v">${usd(remaining())}</span></div>
-        <div class="track"><div class="fill" style="width:${(remaining()/ME.annualMax)*100}%;background:var(--barMid)"></div></div>
-        <div class="muted">${usd(ME.usedToDate)} used of ${usd(ME.annualMax)}</div>
+        <div class="track"><div class="fill" style="width:${(remaining()/ACCOUNT.annualMax)*100}%;background:var(--barMid)"></div></div>
+        <div class="muted">${usd(ACCOUNT.usedToDate)} used of ${usd(ACCOUNT.annualMax)} — the family shares one maximum</div>
       </div>
       ${rows}
-      <p class="muted">Balances follow claims your dentist has already filed, so a recent visit may not be
-      counted yet. Your plan documents are the authority, not this screen.</p>`;
-  },
-
-  settings(){
-    const rows = ME.consents.map((c,i)=>`
-      <div class="srow">
-        <div class="t">
-          <b>${esc(c.k)}</b>
-          <span class="muted">${c.on_now ? `Agreed ${esc(c.on)} · ${esc(c.v)}` : "Withdrawn"}</span>
-        </div>
-        <button class="toggle" data-consent="${i}">${c.on_now ? "Withdraw" : "Re-agree"}</button>
-      </div>`).join("");
-    return `<h1>Consent and settings</h1>
-      <p>Consent is per purpose. Withdrawing one does not withdraw the others.</p>
-      <div class="card" style="padding:4px 16px">${rows}</div>
-
-      <div class="privacy">
-        <b>What withdrawing does</b>
-        <ul>
-          <li>Processing for that purpose stops going forward.</li>
-          <li>Figures already published to your employer are aggregate and do not identify you,
-              and whether past aggregates get rebuilt is <b>still being decided</b> — we will not
-              claim either way here.</li>
-          <li>Your photos stay in controlled storage under the retention schedule, not deleted
-              on the spot.</li>
-        </ul>
-      </div>
-
-      <h2>Reminders</h2>
-      <div class="card" style="padding:4px 16px">
-        <div class="srow">
-          <div class="t">
-            <b>Nudge me about open items</b>
-            <span class="muted">${ME.reminders
-              ? "On — about once a month, and it stops once you tell us you booked"
-              : "Off — nothing will be sent"}</span>
-          </div>
-          <button class="toggle" data-reminders>${ME.reminders ? "Turn off" : "Turn on"}</button>
-        </div>
-      </div>
-      <p class="muted">Nothing here is wired to a backend in this demo — the state lives in the
-      page and resets on reload.</p>`;
+      <p class="muted">Balances follow claims a dentist has already filed, so a recent visit may not
+      be counted yet. The plan documents are the authority, not this screen.</p>`;
   },
 
   care(){
-    // Hand off, then ask. We cannot see whether a booking happened on the other
-    // side of a phone call, so the only honest signal is the member telling us.
-    // That self-report is also the measurement: handoffs vs bookings vs claims
-    // is what says whether booking friction is worth paying to remove.
     const cost = c => c.est === 0
       ? "<b>$0</b> — preventive is covered in full"
-      : "needs your plan's negotiated rate, which we do not have yet";
-    const rows = ME.clinics.map((c,i)=>`
+      : "needs the plan's negotiated rate, which we do not have yet";
+    const rows = ACCOUNT.clinics.map((c,i)=>`
       <div class="card clinic">
         <div class="meta">
           <div class="name">${esc(c.name)}</div>
@@ -376,37 +407,104 @@ const VIEWS = {
           ? `<button data-site="${i}">Book on their site ↗</button>`
           : `<span class="muted" style="display:block;padding:6px 2px 0">Phone only — this practice does not take web bookings</span>`}
       </div>`).join("");
-    return `<h1>Dentists in your network</h1>
-      <p>In network for ${esc(ME.plan)}. We do not hold their calendar, so booking happens with the
-      practice — by phone, or on their own site where they have one.</p>
+    return `<h1>Dentists in the network</h1>
+      <p>In network for ${esc(ACCOUNT.plan)}. We do not hold their calendar, so booking happens with
+      the practice — by phone, or on their own site where they have one.</p>
       ${rows}
       <p class="muted">Going out of network is your choice; the estimate just changes. Telling us once
       you are booked is what lets us stop reminding you.</p>`;
+  },
+
+  settings(){
+    const PURPOSES = [["processing","Data processing"],["photo","Photo capture and analysis"],
+                      ["claims","Claims linkage"]];
+    const blocks = managed().map(p=>`
+      <h2>${esc(p.name)} <span class="muted">${esc(p.rel)} · consented as ${esc(p.access)}</span></h2>
+      <div class="card" style="padding:4px 16px">
+        ${PURPOSES.map(([k,label])=>`
+          <div class="srow">
+            <div class="t"><b>${esc(label)}</b>
+              <span class="muted">${p.consents[k] ? "On" : "Withdrawn"}</span></div>
+            <button class="toggle" data-consent="${esc(p.id)}:${k}">${p.consents[k] ? "Withdraw" : "Re-agree"}</button>
+          </div>`).join("")}
+      </div>`).join("");
+
+    const adults = PARTIES.filter(x => !x.access && !x.minor).map(p=>`
+      <h2>${esc(p.name)} <span class="muted">${esc(p.rel)}</span></h2>
+      <div class="privacy blocked">
+        <b>Not yours to change</b>
+        <ul>
+          <li>An adult family member holds their own consent. There is no control here for you, and
+              that is the design rather than a missing feature.</li>
+          <li>Invited ${esc(p.invited)} — they verify by one-time code on their own device.</li>
+        </ul>
+      </div>`).join("");
+
+    return `<h1>Consent and settings</h1>
+      <p>Consent is per person and per purpose. Withdrawing one leaves the others alone.</p>
+      ${blocks}
+      ${adults}
+      <div class="privacy">
+        <b>What withdrawing does</b>
+        <ul>
+          <li>Processing for that purpose stops going forward.</li>
+          <li>Figures already published to the employer are aggregate and do not identify anyone, and
+              whether past aggregates get rebuilt is <b>still being decided</b> — we will not claim
+              either way here.</li>
+          <li>Photos stay in controlled storage under the retention schedule, not deleted on the spot.</li>
+        </ul>
+      </div>
+      <p class="muted">Nothing here is wired to a backend in this demo — the state lives in the page
+      and resets on reload.</p>`;
   },
 };
 
 function paintNav(){
   $("nav").innerHTML = TABS.map(([k,l])=>
     `<button data-go="${k}" aria-current="${k===S.tab}">${l}</button>`).join("");
-  // Settings lives behind the header control, not in the nav: it is not a peer
-  // of the four things a member came to do.
   $("gear").setAttribute("aria-current", S.tab === "settings");
 }
 function render(){
-  $("who").textContent = ME.employer;
+  $("who").textContent = ACCOUNT.employer;
   $("view").innerHTML = VIEWS[S.tab]();
   paintNav();
   window.scrollTo(0,0);
 }
+
 document.addEventListener("click", e=>{
   const go = e.target.closest("[data-go]");
-  if (go){ S.tab = go.dataset.go; S.step = 0; return render(); }
+  if (go){
+    S.tab = go.dataset.go; S.step = 0;
+    // Defence 4: leaving the flow releases the profile. There is no state where
+    // the app holds a subject while showing something else.
+    S.subject = null;
+    return render();
+  }
+  if (e.target.closest("#gear")){ S.tab="settings"; S.step=0; S.subject=null; return render(); }
+
+  const sub = e.target.closest("[data-subject]");
+  if (sub){ S.subject = sub.dataset.subject; S.step = 1; return render(); }
+
   const st = e.target.closest("[data-step]");
-  if (st){ S.step = +st.dataset.step; return render(); }
+  if (st){
+    S.step = +st.dataset.step;
+    if (S.step === 0) S.subject = null;      // going back re-asks rather than reusing
+    return render();
+  }
+
+  const cs = e.target.closest("[data-consent]");
+  if (cs){
+    const [pid, k] = cs.dataset.consent.split(":");
+    const p = party(pid);
+    p.consents[k] = !p.consents[k];
+    // Photo consent feeds the signal. Revoking it takes the profile out of the
+    // capture flow rather than leaving a score updating off a withdrawn input.
+    if (k === "photo" && !p.consents[k] && S.subject === pid) S.subject = null;
+    return render();
+  }
+
   const act = e.target.closest("[data-call],[data-site]");
   if (act){
-    // A real build dials tel: or opens the practice's page. Either way the app
-    // loses sight of the member at this point — hence the follow-up.
     const box = act.closest(".acts");
     if (!box.querySelector(".followup")){
       box.insertAdjacentHTML("beforeend",
@@ -417,23 +515,10 @@ document.addEventListener("click", e=>{
     }
     return;
   }
-  if (e.target.closest("#gear")){ S.tab = "settings"; S.step = 0; return render(); }
-  const cs = e.target.closest("[data-consent]");
-  if (cs){
-    const c = ME.consents[+cs.dataset.consent];
-    c.on_now = !c.on_now;
-    // Photos are the input to the signal, so pulling that consent has to stop
-    // the thing it feeds rather than leaving a score updating off it.
-    if (!c.on_now && c.k.startsWith("Photo")) ME.reminders = false;
-    return render();
-  }
-  if (e.target.closest("[data-reminders]")){ ME.reminders = !ME.reminders; return render(); }
   const done = e.target.closest("[data-booked]");
   if (done){
-    // SELF_REPORTED in the model. Weaker than a claim and labelled that way:
-    // the claim is what confirms it, weeks later.
     done.outerHTML = `<div class="muted" style="padding:6px 2px">
-      Noted — we will confirm it against your claims when they arrive.</div>`;
+      Noted — we will confirm it against the claims when they arrive.</div>`;
   }
 });
 render();

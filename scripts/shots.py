@@ -44,16 +44,17 @@ SHOTS = [
     ("dashboard-funnel",     "index.html", {"tab": "funnel"},                                (1280, 1400)),
     ("dashboard-suppressed", "index.html", {"tab": "overview", "dept": "Facilities (pilot site)"}, (1280, 1400)),
     ("dashboard-members",    "index.html", {"tab": "overview", "lens": "members"},           (1280, 1400)),
-    ("app-home",             "app.html",   {},                                               (500, 1050)),
+    ("app-home",             "app.html",   {},                                               (500, 1500)),
     ("app-coverage",         "app.html",   {},                                               (500, 1050)),
     ("app-care",             "app.html",   {},                                               (500, 1050)),
-    ("app-settings",         "app.html",   {},                                               (500, 1050)),
+    ("app-settings",         "app.html",   {},                                               (500, 1400)),
+    ("app-whoisit",          "app.html",   {},                                               (500, 1050)),
 ]
 
 # app.html keeps its screen in a JS variable rather than the URL — it is a
 # single-member demo, so there is nothing to deep-link to yet. Patch instead.
 APP_TAB = {"app-home": "home", "app-coverage": "coverage", "app-care": "care",
-           "app-settings": "settings"}
+           "app-settings": "settings", "app-whoisit": "capture"}
 
 
 def main():
@@ -87,14 +88,14 @@ def main():
                 target = page
                 if name in APP_TAB:
                     src = (ROOT / page).read_text(encoding="utf-8")
-                    anchor = 'let S = { tab:"home", step:0 };'
+                    anchor = 'let S = { tab:"home", step:0, subject:null };'
                     # Check the anchor exists rather than that the text changed:
                     # the home shot patches "home" to "home" and a changed-text
                     # check reads that no-op as a stale script.
                     if src.count(anchor) != 1:
                         sys.exit(f"{page}: state initialiser not found — shots.py is stale")
                     patched = src.replace(
-                        anchor, 'let S = { tab:"%s", step:0 };' % APP_TAB[name], 1)
+                        anchor, 'let S = { tab:"%s", step:0, subject:null };' % APP_TAB[name], 1)
                     target = f".shots-tmp/{name}.html"
                     (ROOT / target).write_text(patched, encoding="utf-8")
 
