@@ -534,7 +534,11 @@ CREATE TABLE canonical.app_event (
   party_sk     NUMBER      NOT NULL,
   employer_id  VARCHAR     NOT NULL,
   event_type   VARCHAR     NOT NULL,  -- REGISTERED | QUESTIONNAIRE | PHOTO_CAPTURE
-                                      -- | SUPPORT_REQUESTED | APPOINTMENT_BOOKED
+                                      -- | SUPPORT_REQUESTED
+                                      -- 예약은 세 단계다. 2026-08-15, 아래 주의 참조.
+                                      -- | BOOKING_HANDOFF        앱이 넘겼다
+                                      -- | BOOKING_SELF_REPORTED  본인이 잡았다고 말했다
+                                      -- | APPOINTMENT_BOOKED     예약 시스템이 확인했다
   occurred_at  TIMESTAMP_NTZ NOT NULL,
   payload      VARIANT
 );
@@ -569,6 +573,23 @@ CREATE TABLE canonical.oral_signal (
   PRIMARY KEY (party_sk, captured_at, model_version)
 );
 ```
+
+> **`APPOINTMENT_BOOKED` 하나로는 세 가지 다른 사실을 구별할 수 없었습니다 (2026-08-15).**
+> 앱이 아는 것과 실제로 일어난 것이 다릅니다.
+>
+> | 값 | 앱이 실제로 관찰한 것 | 강도 |
+> |---|---|---|
+> | `BOOKING_HANDOFF` | 전화 버튼이나 치과 사이트 링크를 눌렀다 | 관찰됨. 예약 여부는 모름 |
+> | `BOOKING_SELF_REPORTED` | "예약했다"고 눌렀다 | 자가 보고 |
+> | `APPOINTMENT_BOOKED` | 예약 계층이 실제 예약을 확인해줬다 | 시스템 확인 |
+>
+> 지금 앱(`app.html`)은 **첫 두 개까지만 만들 수 있습니다.** 치과 일정표에 연결돼 있지 않아서
+> 전화 저편을 못 봅니다. 셋째는 예약 계층을 붙여야 생깁니다.
+>
+> **이 구별이 참여 지표를 지킵니다.** 셋을 하나로 세면 "예약률"이 실제로는 *버튼을 누른 비율*이
+> 되고, 1.1절이 경고한 **반복 클릭이 기업 성과로 보고되는** 그 형태가 됩니다. 그리고 넘김 대비
+> 자가보고 대비 청구확인의 비율이야말로 **예약 마찰에 돈을 쓸 가치가 있는지**를 말해주는
+> 유일한 측정입니다.
 
 `consent`를 이벤트에서 분리한 이유: **동의 상태를 시점별로 조회할 수 있어야** 하기 때문입니다. ("소급 적용"이라고 쓰면 과거 데이터를 지운다는 뜻으로 읽히는데, **그 범위는 아직 정해지지 않았습니다**. 5.4절 참조.) 동의를 철회한 사람의 데이터를 이후 집계에서 제외하려면 동의 상태를 시점별로 조회할 수 있어야 하고, 이벤트 스트림에 섞어두면 그게 어렵습니다.
 
@@ -612,7 +633,9 @@ CREATE TABLE canonical.care_action (
   expected_cdt    ARRAY,               -- 이 조치가 기대하는 CDT 집합
   window_days     NUMBER   NOT NULL,   -- 이 기간 안의 청구만 인정
   closed_at       TIMESTAMP_NTZ,
-  close_reason    VARCHAR              -- CLAIM_CONFIRMED | SELF_REPORTED | EXPIRED | DECLINED
+  -- 2026-08-15 확장. 아래 주의 참조.
+  close_reason    VARCHAR              -- CLAIM_CONFIRMED | VISITED_NOT_COMPLETED
+                                       -- | NO_SHOW | SELF_REPORTED | EXPIRED | DECLINED
 );
 
 -- 조치와 청구의 매칭. 판정을 데이터로 남긴다.
@@ -625,6 +648,30 @@ CREATE TABLE canonical.action_claim_match (
   PRIMARY KEY (care_action_sk, claim_line_sk)
 );
 ```
+
+> **`close_reason` 넷으로는 "안 됐다"의 이유를 구별할 수 없었습니다 (2026-08-15).** 원래 값은
+> `CLAIM_CONFIRMED | SELF_REPORTED | EXPIRED | DECLINED` 였는데, 여기서 **`EXPIRED` 가 전부를
+>삼킵니다.** 예약을 안 한 사람, 예약하고 안 간 사람, 가서 그 진료는 안 한 사람이 전부 같은 값으로
+> 닫힙니다. 개입이 서로 다른데 데이터가 같습니다.
+>
+> | 값 | 무엇인가 | 어디서 아는가 |
+> |---|---|---|
+> | `CLAIM_CONFIRMED` | 기대한 CDT 가 창 안에 도착 | 청구 |
+> | `VISITED_NOT_COMPLETED` | **창 안에 청구는 있는데 `expected_cdt` 와 안 맞음** | **청구만으로 판정 가능** |
+> | `NO_SHOW` | 예약은 있었는데 창 안에 아무 청구도 없음 | 예약 계층 또는 자가 보고 |
+> | `SELF_REPORTED` | 본인이 했다고 말했고 아직 청구로 확인 안 됨 | 앱 |
+> | `EXPIRED` | 위 어느 것도 아닌 채 창이 지남 | — |
+> | `DECLINED` | 애초에 안 하겠다고 함 | 앱 |
+>
+> **`VISITED_NOT_COMPLETED` 가 이 중 가장 값집니다. 그리고 치과 시스템 연동이 필요 없습니다.**
+> 창 안에 그 사람의 청구가 있는데(예: 검진 D0120) `expected_cdt` 에 맞는 것이 없으면, 그 사람은
+> **갔고 그 진료는 안 한 것**입니다. TPA 피드만으로 판정됩니다.
+>
+> 여기서 멈춘 것도 명시합니다. **치과가 무엇을 권고했는지는 이 값들이 말하지 않습니다.** 그것은
+> 임상 판단이고 PMS 안에 있으며, 적재하면 8.2절이 "Core AI 는 밴드만 반환합니다" 로 그은 경계가
+> 무너집니다. `VISITED_NOT_COMPLETED` 는 *기대한 것이 안 일어났다* 까지만 말하고 *대신 무엇이
+> 권고됐는지* 는 말하지 않습니다. 그 선을 넘는 것은 데이터 결정이 아니라 회사가 무엇인지에 대한
+> 결정입니다.
 
 **`expected_cdt`와 `window_days`가 이 주장의 전부입니다.** 이 두 값이 없으면 "청구로 확인"은 "같은 사람에게 나중에 아무 청구나 있었다"와 구별되지 않습니다. 그리고 그 구별이 안 되면 화면의 `Completed care actions`는 근거 없는 숫자입니다.
 
