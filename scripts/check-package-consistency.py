@@ -48,6 +48,23 @@ def check_contract_parses():
                       f"정본이 YAML 로 파싱되지 않음{where}: {getattr(e, 'problem', e)}"))
 
 
+def check_surfaces():
+    """정본 surfaces 가 가리키는 파일이 실제로 있는가.
+
+    2026-08-14 에 employee_app 이 추가되면서 정본이 처음으로 실행물 경로를
+    이름으로 들게 됐다. 파일을 옮기거나 이름을 바꾸면 정본이 조용히 거짓이
+    되고, 그걸 알려줄 것이 여기밖에 없다.
+    """
+    t = CONTRACT.read_text(encoding="utf-8")
+    m = re.search(r"^surfaces:$(.*?)^\w", t, re.S | re.M)
+    if not m:
+        warns.append(("surfaces", "정본에 surfaces 블록이 없음"))
+        return
+    for path in re.findall(r"^\s+file:\s*(\S+)", m.group(1), re.M):
+        if not (ROOT / path).exists():
+            fail("surfaces", f"정본이 가리키는 {path} 가 없음")
+
+
 def load_contract():
     """PyYAML 없이 도는 최소 파서 — 이 파일이 쓰는 값만 정규식으로 뽑는다.
     ponytail: 의존성 추가 대신 정규식. 계약 구조가 복잡해지면 PyYAML 로 간다."""
@@ -234,6 +251,7 @@ def main():
         print(f"정본 없음: {CONTRACT}")
         return 1
     check_contract_parses()
+    check_surfaces()
     c = load_contract()
     check_dashboard(c)
     check_docs(c, use_pdf)

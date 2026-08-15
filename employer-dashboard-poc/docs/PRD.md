@@ -78,7 +78,7 @@ locally. Three views over three synthetic employers. No backend today.
 | Department filter that drives suppression into view | Relaxing suppression so a small department "shows something" |
 | Denominator lens: eligible employees vs covered member-months | Mixing the two denominators anywhere |
 | Tap-to-open source chips, one per figure | `title`-only tooltips. Hover is not a reliable input signal |
-| `?scen=` and `?tab=` URL state | — |
+| `?scen=`, `?tab=`, `?dept=`, `?lens=` URL state — every view is linkable, so screenshots regenerate from a script | — |
 | — | **An offline bundle.** Dropped 2026-08-13 with the booth. The evidence-layer work needs the screen to fetch, and nothing now requires it to run without a network |
 | — | **Preventive-visit Trend vs Control — still deferred.** Needs a control arm; experiment assignment has no consent basis, allocation rule or protocol owner |
 | — | Any disease-specific wording — FDA 2026 red line |
@@ -159,7 +159,7 @@ The next work on this code is the US evidence layer, and it has its own plan
 | Signal bars | Low `#7E90AE` · Moderate `#4E8F98` · Priority `#C2333A` | Was `#D9E1EE` / `#8FB8BE`, measuring 1.24:1 and 2.02:1 against their track. Now 3.05 / 3.46 / 5.16 |
 | Touch targets | 44px on every control, **unconditionally** | Kept after the booth iPad went. `@media(hover:none)` does not fire when a keyboard is attached, so input-capability queries are not a reliable way to size controls on any device |
 | Charts | Hand-drawn CSS/SVG bars | No chart library |
-| State | Plain JS module-scope variables + `?scen=` and `?tab=` URL state | |
+| State | Plain JS module-scope variables + `?scen=` · `?tab=` · `?dept=` · `?lens=` URL state | |
 
 **3.4 Data.** Every figure derives from one constants block in `index.html`. `test_single_source.py` fails if
 any constant stops propagating to the screen.
@@ -198,7 +198,8 @@ booked, privacy incidents) all measured an event this code no longer appears at.
 - [ ] Scenario A/B/C values match §3.4 exactly
 - [ ] Any cell with `n < 20` masks values and prints "Suppressed (n<20)" with the reason inline
 - [ ] The result is a band, never a numeric score
-- [ ] `?scen=` and `?tab=` open the screen onto the named view
+- [ ] `?scen=` · `?tab=` · `?dept=` · `?lens=` each open the screen onto the named state, and the
+      department control shows the department that is actually selected
 - [ ] "Synthetic data — illustrative only" on every view
 - [ ] Provenance chip present and tappable on every figure
 - [ ] `python3 test_single_source.py` passes

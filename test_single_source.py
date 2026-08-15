@@ -21,7 +21,31 @@ import tempfile
 from pathlib import Path
 
 SRC = Path(__file__).parent / "index.html"
-CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+import os
+import shutil
+
+
+def _find_chrome():
+    """Chrome lives somewhere different on every machine and on CI.
+
+    This was pinned to the macOS app bundle, which meant the render tests could
+    only ever run on one laptop — the reason they were never in CI.
+    """
+    env = os.environ.get("CHROME")
+    if env and Path(env).exists():
+        return env
+    for name in ("google-chrome", "google-chrome-stable", "chromium",
+                 "chromium-browser", "chrome"):
+        found = shutil.which(name)
+        if found:
+            return found
+    mac = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    if Path(mac).exists():
+        return mac
+    sys.exit("no Chrome found. Set $CHROME or put chrome on PATH.")
+
+
+CHROME = _find_chrome()
 
 # (label, source pattern, replacement, tab to render, expected on screen, must NOT appear)
 CASES = [

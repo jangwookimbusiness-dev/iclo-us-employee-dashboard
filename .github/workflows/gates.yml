@@ -1,0 +1,62 @@
+name: gates
+
+# The four checks that were only ever run by hand. Two of them had quietly
+# stopped working before anyone noticed — test_single_source matched a literal
+# string that changed, and check-forbidden-terms never looked at the repo root
+# where the shipped code lives. A check nobody runs is a check that dies
+# silently, so they run here.
+#
+# Linux runners only. The private-repo free tier is 2,000 Linux minutes a
+# month and this job takes seconds; macOS minutes are the scarce ones and
+# nothing here needs them.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'output/**', 'proposal-v11/**']
+  pull_request:
+    paths-ignore: ['**.md', 'output/**', 'proposal-v11/**']
+  workflow_dispatch:
+
+# House rule: never leave a superseded run burning minutes on the same branch.
+concurrency:
+  group: gates-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        # The consistency checker runs without it and only warns; with it
+        # present the canon is actually parsed. CI should take the strict path.
+        run: pip install --quiet pyyaml
+
+      - name: Locate Chrome
+        # ubuntu-latest ships Chrome. The render tests resolve $CHROME first,
+        # then PATH, then the macOS bundle.
+        run: |
+          which google-chrome || which chromium-browser || which chromium
+          echo "CHROME=$(which google-chrome || which chromium-browser || which chromium)" >> "$GITHUB_ENV"
+
+      - name: Red lines (forbidden terms, banned label)
+        run: bash employer-dashboard-poc/scripts/check-forbidden-terms.sh
+
+      - name: Canon consistency
+        run: python3 scripts/check-package-consistency.py
+
+      - name: Single source of truth
+        run: python3 test_single_source.py
+
+      - name: Cell suppression (54 states)
+        run: python3 test_suppression.py

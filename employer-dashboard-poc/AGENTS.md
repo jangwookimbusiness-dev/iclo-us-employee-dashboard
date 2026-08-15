@@ -26,6 +26,17 @@ Only the red-line check runs. The npm commands are the v0.4 Vite plan, which PRD
 - Cells with `n < 20` never show values — render "Suppressed (n<20)".
 - No AI-slop visuals (indigo/violet gradients, glassmorphism). Brand: Coral `#C2333A` (was `#FF7A79` — 2.53:1 on white, WCAG AA fail) · Navy `#1B2A4A` · Teal `#007A87` · white background.
 
+## Automation — what runs itself now
+`.github/workflows/gates.yml` runs all four gates on every push to `main` and on PRs, on a Linux runner,
+with `concurrency` + `cancel-in-progress` so a superseded run never keeps burning minutes. Before this
+existed the gates were hand-run, and two of them had quietly stopped working without anyone noticing.
+
+- `bash scripts/install-hooks.sh` — once per clone. Pre-commit runs the two fast checks so an obvious
+  break does not spend CI minutes. `--no-verify` still works; it is a guard, not a gate.
+- `python3 scripts/shots.py` — regenerates every proposal screenshot deterministically into
+  `output/shots/`. Re-running produces byte-identical files. Every dashboard state is a URL
+  (`?tab=`, `?scen=`, `?dept=`, `?lens=`), including the suppressed view.
+
 ## Running it locally
 `bash scripts/serve.sh` then open `http://localhost:8000/`. Opening the file directly still works today but
 will not once the screen fetches data — `fetch()` from a `file://` page is blocked. gstack `browse` also

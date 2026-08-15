@@ -249,11 +249,17 @@ const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&g
 // with the demo on 2026-08-13; the parameters are worth keeping regardless.
 // In scope per PRD 2.2. The parameter is ?scen=, not ?scenario=.
 const Q = new URLSearchParams(location.search);
+const _scen = SCEN[Q.get("scen")] ? Q.get("scen") : "A";
+// ?dept= matters more than the other two: the suppression state is what the
+// proposal screenshots, and until 2026-08-15 it was the one view with no way
+// to link to it. Validated against the real list so a typo cannot blank it.
+const _deptOk = DEPTS(SCEN[_scen].employees, _scen).some(d => d.key === Q.get("dept"));
 let S = {
-  scen: SCEN[Q.get("scen")] ? Q.get("scen") : "A",
-
+  scen: _scen,
   tab: ["overview","signals","funnel"].includes(Q.get("tab")) ? Q.get("tab") : "overview",
-  dept:"All departments", lens:"employees", showSrc:true,
+  dept: _deptOk ? Q.get("dept") : "All departments",
+  lens: ["employees","members"].includes(Q.get("lens")) ? Q.get("lens") : "employees",
+  showSrc: true,
 };
 
 // ---- atoms ----
@@ -408,7 +414,7 @@ const scenSel = document.getElementById("scen");
 scenSel.innerHTML = Object.entries(SCEN).map(([k,s])=>`<option value="${k}"${k===S.scen?" selected":""}>${s.label}</option>`).join("");
 function fillDepts(){
   const depts = DEPTS(SCEN[S.scen].employees, S.scen);
-  document.getElementById("dept").innerHTML = depts.map(d=>`<option value="${d.key}">${d.key} · ${fmt(d.n)}</option>`).join("");
+  document.getElementById("dept").innerHTML = depts.map(d=>`<option value="${esc(d.key)}"${d.key===S.dept?" selected":""}>${esc(d.key)} · ${fmt(d.n)}</option>`).join("");
 }
 scenSel.addEventListener("change",e=>{S.scen=e.target.value; S.dept="All departments"; fillDepts(); paintTabs(); render();});
 document.getElementById("dept").addEventListener("change",e=>{S.dept=e.target.value; render();});
