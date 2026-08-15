@@ -10,12 +10,15 @@ name: gates
 # month and this job takes seconds; macOS minutes are the scarce ones and
 # nothing here needs them.
 
+# No paths-ignore. The first version skipped '**.md' and 'output/**', which
+# meant the forbidden-term scan and the canon consistency check — both of which
+# exist to guard documents — never ran on a document change. The job takes a
+# minute; the filter was saving nothing and disabling the checks that matter
+# most where they matter most.
 on:
   push:
     branches: [main]
-    paths-ignore: ['**.md', 'output/**', 'proposal-v11/**']
   pull_request:
-    paths-ignore: ['**.md', 'output/**', 'proposal-v11/**']
   workflow_dispatch:
 
 # House rule: never leave a superseded run burning minutes on the same branch.

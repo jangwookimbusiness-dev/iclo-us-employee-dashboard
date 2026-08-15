@@ -78,6 +78,12 @@ def check_file(path, spec):
     if not isinstance(months, list) or not months:
         fail(name, "months 가 비었거나 배열이 아님")
         return doc
+    # The contract exports 36 months even though the screen reads the latest,
+    # so Trend can arrive later without touching the pipeline. A shorter file
+    # is a different contract.
+    span = {r.get("month_start") for r in months if r.get("month_start")}
+    if len(span) != 36:
+        fail(name, f"월이 36개여야 하는데 {len(span)}개 (month_start 기준)")
 
     for i, row in enumerate(months):
         missing = [f for f in spec["months"] if f not in row]
@@ -88,10 +94,14 @@ def check_file(path, spec):
         # that the department exists at all, which cell suppression never
         # intended — it hides values, not the existence of a group.
         if row.get("department") is None:
-            # any, not all: one surviving value is already a leak. Requiring
-            # every field to be present would let a half-suppressed row pass.
-            if any(row.get(f) is not None for f in ("eligible_employees", "dental_pmpm")):
-                fail(name, f"months[{i}] department 가 null 인데 값이 남아 있음 — 억제 행이 아님")
+            # Every measure has to be null, not just the two obvious ones.
+            # Checking a sample let activation, signal and action values leak
+            # through a row the contract calls suppressed.
+            leaked = [f for f in spec["months"]
+                      if f not in ("department", "employer_id", "month_start")
+                      and row.get(f) is not None]
+            if leaked:
+                fail(name, f"months[{i}] 억제 행인데 {', '.join(leaked)} 가 남아 있음")
 
     if doc.get("employer_id") and any(
             r.get("employer_id") not in (None, doc["employer_id"]) for r in months):
@@ -106,6 +116,15 @@ def main():
         sys.exit("계약에서 months.fields 를 읽지 못했다 — 이 테스트가 낡았다")
 
     exports = sorted(EXPORT_DIR.glob("employer-*.json")) if EXPORT_DIR.exists() else []
+    if exports:
+        # The contract names three employers and a department catalog. Accepting
+        # whatever happens to be on disk would pass a partial release.
+        want = {"employer-a.json", "employer-b.json", "employer-c.json"}
+        have = {p.name for p in exports}
+        if want - have:
+            fail("release", f"계약이 요구하는 {', '.join(sorted(want - have))} 가 없음")
+        if not (EXPORT_DIR / "departments.json").exists():
+            fail("release", "departments.json 이 없음 — 억제된 부서가 필터에서 사라진다")
     if not exports:
         print("PENDING — 검사할 내보내기가 없다 (output/exports/employer-*.json)")
         print(f"  계약은 읽혔다: envelope {len(spec['envelope'])} · "

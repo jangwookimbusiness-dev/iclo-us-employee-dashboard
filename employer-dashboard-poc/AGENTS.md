@@ -8,7 +8,7 @@ What it is for now: the screenshot source for the proposal, and the artifact the
 
 **Spec canon: `docs/PRD.md`, whose values come from `contracts/proposal-package-v11.yml` at the repo root. Read both before planning any change. Spec changes only via PR (living document).**
 
-**The shipped code is `index.html` at the REPO ROOT, not in this folder.** This folder holds only spec and scripts — there is no `package.json`, `src/` or `dist/`. The npm commands below do not run.
+**The shipped code is `index.html` and `app.html` at the REPO ROOT, not in this folder.** `index.html` is the employer dashboard, `app.html` the employee app (added 2026-08-14). This folder holds only spec and scripts — there is no `package.json`, `src/` or `dist/`. The npm commands below do not run.
 
 ## Commands
 Only the red-line check runs. The npm commands are the v0.4 Vite plan, which PRD §3.4 records as not adopted; they are kept here only so a build that revives them inherits the same names.

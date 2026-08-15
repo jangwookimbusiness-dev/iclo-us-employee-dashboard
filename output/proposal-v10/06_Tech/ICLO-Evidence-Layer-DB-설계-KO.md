@@ -1248,6 +1248,39 @@ ALTER TABLE canonical.oral_signal   SET AGGREGATION POLICY gov.min_cell_20 ENTIT
 ALTER TABLE canonical.app_event     SET AGGREGATION POLICY gov.min_cell_20 ENTITY KEY (party_sk);
 
 -- 2026-08-14: 기업 롤이 실제로 조회하는 것은 아래 한 곳이다. 11절 정정 참조.
+-- 2026-08-15: 정의 없이 ALTER 만 있었다. R_ENGINEER 가 만들고, 정책이 붙을 수
+-- 있도록 party_sk 를 남긴다. 여기서 윈도우 함수를 다 쓰고 기업 롤에는 SUM·COUNT
+-- 만 남긴다 — 그것이 이 테이블이 존재하는 이유다.
+CREATE OR REPLACE TABLE mart.person_month_fact AS
+SELECT
+    e.party_sk,                    -- ENTITY KEY. 이 컬럼이 없으면 사람이 아니라 행을 센다
+    e.employer_id,
+    m.month_start,
+    COALESCE(d.department, 'UNMATCHED')                     AS department,
+    SUM(m.covered_days / DAY(LAST_DAY(m.month_start)))      AS member_months,
+    SUM(IFF(m.is_subscriber, 1, 0))                         AS subscriber_rows,
+    SUM(COALESCE(c.allowed, 0))                             AS allowed
+FROM canonical.member_month m
+JOIN (   -- 논리 span 별 최신 버전 하나. 윈도우 함수는 여기서만 쓴다.
+    SELECT * FROM (
+      SELECT s.*, ROW_NUMBER() OVER (
+               PARTITION BY s.eligibility_episode_id ORDER BY s.snapshot_seq DESC) AS rn
+      FROM canonical.eligibility_span s
+      WHERE s.snapshot_seq <= :as_of_seq
+    ) WHERE rn = 1
+) e ON e.eligibility_span_sk = m.eligibility_span_sk
+LEFT JOIN mart.party_department d
+       ON d.party_sk = m.party_sk AND d.employer_id = m.employer_id
+      AND m.month_start >= d.effective_date
+      AND m.month_start <  COALESCE(d.end_date, '9999-12-31'::DATE)
+LEFT JOIN (  -- 청구를 사람·기업·월로 먼저 접는다. 1274·1278 절 참조.
+    SELECT party_sk, employer_id, DATE_TRUNC('MONTH', service_date) AS month_start,
+           SUM(allowed_amount) AS allowed
+    FROM TABLE(mart.claims_as_of(:as_of_seq)) GROUP BY 1, 2, 3
+) c ON c.party_sk = m.party_sk AND c.employer_id = m.employer_id
+   AND c.month_start = m.month_start
+GROUP BY 1, 2, 3, 4;
+
 -- R_ENGINEER 가 버전 선택과 grain 접기를 끝내고 party_sk 를 남긴 테이블.
 ALTER TABLE mart.person_month_fact  SET AGGREGATION POLICY gov.min_cell_20 ENTITY KEY (party_sk);
 ```
@@ -1753,7 +1786,7 @@ CREATE TABLE mart.party_department (
 ### 17.1 우선순위
 
 
-**기술 게이트 중** 착수 전에 반드시 닫아야 하는 것은 **13.3절 동의 순서 문제**와 **4.9절 신원 확인** 둘입니다. (법무 게이트는 별개이며 그쪽이 더 앞섭니다. **전체 목록은 16절이 유일한 기준이고 21개 항목입니다** — 이 괄호는 2026-08-15 까지 그것을 "BAA·리전, HIPAA 역할, 데이터 권리, 기준선 적재" 넷으로 요약하고 있었는데, **`BAA·리전` 은 16절의 번호 항목이 아니라 9절 가정 A5** 이고 요약이 나머지 17개를 가렸습니다. 정본 `start_gates` 가 드는 넷은 그중 **착수를 막는 부분집합**이며 각 항목에 출처가 달려 있습니다.)
+**기술 게이트 중** 착수 전에 반드시 닫아야 하는 것은 **13.3절 동의 순서 문제**와 **4.9절 신원 확인** 둘입니다. (법무 게이트는 별개이며 그쪽이 더 앞섭니다. **전체 목록은 16절이 유일한 기준이고 22개 항목입니다** (본문 11 + 16.1 절 11) — 이 괄호는 2026-08-15 까지 그것을 "BAA·리전, HIPAA 역할, 데이터 권리, 기준선 적재" 넷으로 요약하고 있었는데, **`BAA·리전` 은 16절의 번호 항목이 아니라 9절 가정 A5** 이고 요약이 나머지 17개를 가렸습니다. 정본 `start_gates` 가 드는 넷은 그중 **착수를 막는 부분집합**이며 각 항목에 출처가 달려 있습니다.)
 
 **기술 게이트에 하나를 더합니다 — 공통 식별키.** 인사 쪽과 TPA 쪽 양쪽에 사람을 연결할 안정적 식별자가 있는가. 설계는 4절 매칭(`party_xref`·`party_match_exception`)에 있으나 게이트로 세지 않고 있었고, 정본은 세고 있었습니다. 열려 있으면 청구와 앱 이용을 연결할 수 없어 **"청구로 확인된 완료" 주장 자체가 성립하지 않습니다.** 앞의 것은 모든 비동의자에게 구조적으로 발생하고, 뒤의 것은 잘못되면 그 위에 쌓은 모든 동의가 무효가 됩니다. 나머지는 파일럿 범위를 좁혀(예: 1차는 임직원 본인만, 미성년 프로필 제외) 회피할 수 있고, 실제로 **1차에서 미성년 대리 동의를 제외하는 것**이 가장 값싼 선택지입니다 — 4.10·5.5절의 대부분이 함께 사라집니다.
 

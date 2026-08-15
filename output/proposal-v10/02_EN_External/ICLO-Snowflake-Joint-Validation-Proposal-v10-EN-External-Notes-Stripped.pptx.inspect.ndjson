@@ -1,0 +1,713 @@
+{"kind":"deck","id":"pr/vp35gg","name":"Deck"}
+{"kind":"layout","layoutId":"/ppt/slideMasters/slideMaster1.xml","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout1.xml","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/y90nupkv","slide":1,"title":"U.S. SELF-FUNDED EMPLOYER DENTAL POC","textShapes":11}
+{"kind":"textbox","id":"sh/mx4v6hoz","slide":1,"text":"U.S. SELF-FUNDED EMPLOYER DENTAL POC","textPreview":"U.S. SELF-FUNDED EMPLOYER DENTAL POC","textChars":36,"textLines":1,"bbox":[64,52,420,24]}
+{"kind":"textbox","id":"sh/k3yl0zql","slide":1,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[1054,46,24,24]}
+{"kind":"textbox","id":"sh/65g3298r","slide":1,"text":"U.S. Self-Funded Employer\nDental-Benefit PoC","textPreview":"U.S. Self-Funded Employer | Dental-Benefit PoC","textChars":44,"textLines":2,"bbox":[64,132,920,125]}
+{"kind":"textbox","id":"sh/ts7md4r2","slide":1,"text":"This proposal converts ICLO's existing Snowflake startup support into a structured 90-day joint validation.","textPreview":"This proposal converts ICLO's existing Snowflake startup support into a structured 90-day joint validation.","textChars":107,"textLines":1,"bbox":[64,276,1080,58]}
+{"kind":"shape","id":"sh/sryl4zqx","slide":1,"bbox":[64,430,298,124]}
+{"kind":"shape","id":"sh/fu94fe98","slide":1,"bbox":[432,430,398,124]}
+{"kind":"shape","id":"sh/utg3698n","slide":1,"bbox":[900,430,316,124]}
+{"kind":"shape","id":"sh/7u1s7u9g","slide":1,"bbox":[362,492,70,0]}
+{"kind":"shape","id":"sh/gzut4jax","slide":1,"bbox":[830,492,70,0]}
+{"kind":"textbox","id":"sh/ul4vaxgb","slide":1,"text":"Employee navigation","textPreview":"Employee navigation","textChars":19,"textLines":1,"bbox":[82,436,300,46]}
+{"kind":"textbox","id":"sh/vmdcj2xw","slide":1,"text":"Understand coverage\nFind care + request support","textPreview":"Understand coverage | Find care + request support","textChars":47,"textLines":2,"bbox":[82,492,300,55]}
+{"kind":"textbox","id":"sh/4r6dg7et","slide":1,"text":"Claims-verified evidence layer","textPreview":"Claims-verified evidence layer","textChars":30,"textLines":1,"bbox":[450,436,362,46]}
+{"kind":"textbox","id":"sh/5sfepcfe","slide":1,"text":"Eligibility + plan + network\nApp events + dental claims","textPreview":"Eligibility + plan + network | App events + dental claims","textChars":55,"textLines":2,"bbox":[450,492,362,55]}
+{"kind":"textbox","id":"sh/ipovexwn","slide":1,"text":"Employer decisions","textPreview":"Employer decisions","textChars":18,"textLines":1,"bbox":[918,436,300,46]}
+{"kind":"textbox","id":"sh/3qxwn2x8","slide":1,"text":"Plan + administrator fit\nAccess + claims + OOP","textPreview":"Plan + administrator fit | Access + claims + OOP","textChars":46,"textLines":2,"bbox":[918,492,300,55]}
+{"kind":"shape","id":"sh/sfqdkrep","slide":1,"bbox":[64,628,10,10]}
+{"kind":"shape","id":"sh/dgzetcfa","slide":1,"bbox":[82,624,185,18]}
+{"kind":"shape","id":"sh/1cvuxc7e","slide":1,"bbox":[279,628,10,10]}
+{"kind":"shape","id":"sh/0bmd476t","slide":1,"bbox":[297,624,185,18]}
+{"kind":"shape","id":"sh/zadcv2p8","slide":1,"bbox":[494,628,10,10]}
+{"kind":"shape","id":"sh/e94v2hon","slide":1,"bbox":[512,624,185,18]}
+{"kind":"shape","id":"sh/90ve1w7q","slide":1,"bbox":[709,628,10,10]}
+{"kind":"shape","id":"sh/ozmd8r65","slide":1,"bbox":[727,624,185,18]}
+{"kind":"textbox","id":"sh/nydczmpk","slide":1,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[1168,673,48,18]}
+{"kind":"image","id":"im/kv29kjqh","slide":1,"name":"","bbox":[940,36.02,104,37.96]}
+{"kind":"image","id":"im/a10nupof","slide":1,"name":"","bbox":[1102.14,30,97.73,55]}
+{"kind":"notes","id":"nt/y90nupkv","slide":1,"text":""}
+{"kind":"slide","id":"sl/hwbqtkby","slide":2,"title":"ICLO FRAMING / U.S. MARKET CONTEXT","textShapes":25}
+{"kind":"shape","id":"sh/1wzix87i","slide":2,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/9072xkry","slide":2,"bbox":[968,22,248,30]}
+{"kind":"shape","id":"sh/ozy1ofad","slide":2,"bbox":[968,22,6,30]}
+{"kind":"textbox","id":"sh/b29kza94","slide":2,"text":"ICLO FRAMING / U.S. MARKET CONTEXT","textPreview":"ICLO FRAMING / U.S. MARKET CONTEXT","textChars":34,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/a10jqpsj","slide":2,"text":"Four Decisions Stand Between Coverage and Care","textPreview":"Four Decisions Stand Between Coverage and Care","textChars":46,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/x4r21kru","slide":2,"text":"A dental benefit becomes usable only after four separate decisions are resolved.","textPreview":"A dental benefit becomes usable only after four separate decisions are resolved.","textChars":80,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/w3i1sfa9","slide":2,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/r65knqtk","slide":2,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/q5wjelsz","slide":2,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/9wnqhczy","slide":2,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/nu58f2hs","slide":2,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/wjy9sry9","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/xk7qlczu","slide":2,"bbox":[64,216,450,78]}
+{"kind":"textbox","id":"sh/ahwrqhgj","slide":2,"text":"ELIGIBILITY","textPreview":"ELIGIBILITY","textChars":11,"textLines":1,"bbox":[82,228,160,20]}
+{"kind":"textbox","id":"sh/bip8jmho","slide":2,"text":"Am I covered today?\nEmployee + dependent status","textPreview":"Am I covered today? | Employee + dependent status","textChars":47,"textLines":2,"bbox":[240,226,252,56]}
+{"kind":"shape","id":"sh/cnupgny5","slide":2,"bbox":[64,312,450,78]}
+{"kind":"textbox","id":"sh/do3q9szq","slide":2,"text":"NETWORK","textPreview":"NETWORK","textChars":7,"textLines":1,"bbox":[82,324,160,20]}
+{"kind":"textbox","id":"sh/t8byxkn2","slide":2,"text":"Which dentist fits my plan?\nIn-network status + distance","textPreview":"Which dentist fits my plan? | In-network status + distance","textChars":56,"textLines":2,"bbox":[240,322,252,56]}
+{"kind":"shape","id":"sh/s72xofmh","slide":2,"bbox":[64,408,450,78]}
+{"kind":"textbox","id":"sh/76twva5c","slide":2,"text":"PLAN RULES","textPreview":"PLAN RULES","textChars":10,"textLines":1,"bbox":[82,420,160,20]}
+{"kind":"textbox","id":"sh/65kfmpor","slide":2,"text":"What will the plan pay?\nDeductible + coinsurance + max","textPreview":"What will the plan pay? | Deductible + coinsurance + max","textChars":54,"textLines":2,"bbox":[240,418,252,56]}
+{"kind":"shape","id":"sh/hcvy14ne","slide":2,"bbox":[64,504,450,78]}
+{"kind":"textbox","id":"sh/gbmxszmt","slide":2,"text":"AVAILABILITY","textPreview":"AVAILABILITY","textChars":12,"textLines":1,"bbox":[82,516,160,20]}
+{"kind":"textbox","id":"sh/fadgzu58","slide":2,"text":"Can I actually book?\nDirectory status + appointment","textPreview":"Can I actually book? | Directory status + appointment","textChars":51,"textLines":2,"bbox":[240,514,252,56]}
+{"kind":"shape","id":"sh/u94fqp4n","slide":2,"bbox":[558,326,214,146]}
+{"kind":"textbox","id":"sh/p0vy54na","slide":2,"text":"EMPLOYEE\nDECISION","textPreview":"EMPLOYEE | DECISION","textChars":17,"textLines":2,"bbox":[578,352,174,55]}
+{"kind":"textbox","id":"sh/4zmxwzmp","slide":2,"text":"Coverage → choice → action","textPreview":"Coverage → choice → action","textChars":26,"textLines":1,"bbox":[578,423,174,32]}
+{"kind":"shape","id":"sh/mlgvq147","slide":2,"bbox":[524,376,10,10]}
+{"kind":"shape","id":"sh/kv2t4jyt","slide":2,"bbox":[534,381,24,18]}
+{"kind":"shape","id":"sh/onydsbmd","slide":2,"bbox":[816,216,400,398]}
+{"kind":"shape","id":"sh/edgbqpgj","slide":2,"bbox":[772,399,44,16]}
+{"kind":"textbox","id":"sh/a9gvulkj","slide":2,"text":"USABLE CARE","textPreview":"USABLE CARE","textChars":11,"textLines":1,"bbox":[842,239,180,24]}
+{"kind":"shape","id":"sh/ba9cn6l4","slide":2,"bbox":[842,285,8,8]}
+{"kind":"textbox","id":"sh/wbidwb29","slide":2,"text":"Eligibility confirmed","textPreview":"Eligibility confirmed","textChars":21,"textLines":1,"bbox":[864,278,320,28]}
+{"kind":"shape","id":"sh/xcrupg3u","slide":2,"bbox":[842,326,8,8]}
+{"kind":"textbox","id":"sh/id0vylkf","slide":2,"text":"In-network option found","textPreview":"In-network option found","textChars":23,"textLines":1,"bbox":[864,319,320,28]}
+{"kind":"shape","id":"sh/je9crql0","slide":2,"bbox":[842,367,8,8]}
+{"kind":"textbox","id":"sh/ru5cbqd4","slide":2,"text":"Plan rules understood","textPreview":"Plan rules understood","textChars":21,"textLines":1,"bbox":[864,360,320,28]}
+{"kind":"shape","id":"sh/69wbilcj","slide":2,"bbox":[842,408,8,8]}
+{"kind":"textbox","id":"sh/tw7ud0va","slide":2,"text":"Expected OOP bounded","textPreview":"Expected OOP bounded","textChars":20,"textLines":1,"bbox":[864,401,320,28]}
+{"kind":"shape","id":"sh/svedkvup","slide":2,"bbox":[842,449,8,8]}
+{"kind":"textbox","id":"sh/fypcfqdg","slide":2,"text":"Appointment available","textPreview":"Appointment available","textChars":21,"textLines":1,"bbox":[864,442,320,28]}
+{"kind":"shape","id":"sh/exgvmlcv","slide":2,"bbox":[842,490,8,8]}
+{"kind":"textbox","id":"sh/107uh0v6","slide":2,"text":"Support requested","textPreview":"Support requested","textChars":17,"textLines":1,"bbox":[864,483,320,28]}
+{"kind":"shape","id":"sh/gzydovul","slide":2,"bbox":[842,531,8,8]}
+{"kind":"textbox","id":"sh/v2lc36dw","slide":2,"text":"Visit prepared","textPreview":"Visit prepared","textChars":14,"textLines":1,"bbox":[864,524,320,28]}
+{"kind":"shape","id":"sh/a1cba1wb","slide":2,"bbox":[64,632,1152,32]}
+{"kind":"textbox","id":"sh/0vq1o36x","slide":2,"text":"The product reduces decision friction; it does not expose raw clinical probabilities.","textPreview":"The product reduces decision friction; it does not expose raw clinical probabilities.","textChars":85,"textLines":1,"bbox":[64,634,1152,34]}
+{"kind":"shape","id":"sh/g365crmd","slide":2,"bbox":[64,224,3,62]}
+{"kind":"shape","id":"sh/v2xojmls","slide":2,"bbox":[500,255,24,0]}
+{"kind":"shape","id":"sh/u1onah47","slide":2,"bbox":[64,320,3,62]}
+{"kind":"shape","id":"sh/58z6pw3u","slide":2,"bbox":[500,351,24,0]}
+{"kind":"shape","id":"sh/47q5grm9","slide":2,"bbox":[64,416,3,62]}
+{"kind":"shape","id":"sh/36xonmlo","slide":2,"bbox":[500,447,24,0]}
+{"kind":"shape","id":"sh/i5one143","slide":2,"bbox":[64,512,3,62]}
+{"kind":"shape","id":"sh/lcvmdcnq","slide":2,"bbox":[500,543,24,0]}
+{"kind":"shape","id":"sh/kbm547m5","slide":2,"bbox":[524,255,0,288]}
+{"kind":"shape","id":"sh/oru9cf6d","slide":2,"bbox":[524,399,34,0]}
+{"kind":"shape","id":"sh/ps3qlkny","slide":2,"bbox":[816,289,0,246]}
+{"kind":"image","id":"im/adszmhwb","slide":2,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/8725kfqx","slide":2,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/hwbqtkby","slide":2,"text":""}
+{"kind":"slide","id":"sl/ofy9wn61","slide":3,"title":"CONFIRMED ICLO DIRECTION / ICLO PRODUCT DESIGN PRINCIPLE","textShapes":21}
+{"kind":"shape","id":"sh/v29cfu18","slide":3,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/cza94vmx","slide":3,"bbox":[736,22,216,30]}
+{"kind":"shape","id":"sh/d0jax03i","slide":3,"bbox":[736,22,6,30]}
+{"kind":"textbox","id":"sh/298ryl4v","slide":3,"text":"CONFIRMED ICLO DIRECTION / ICLO PRODUCT DESIGN PRINCIPLE","textPreview":"CONFIRMED ICLO DIRECTION / ICLO PRODUCT DESIGN PRINCIPLE","textChars":56,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/3ah8rqlg","slide":3,"bbox":[960,22,256,30]}
+{"kind":"shape","id":"sh/obq90bml","slide":3,"bbox":[960,22,6,30]}
+{"kind":"shape","id":"sh/pcjqtg36","slide":3,"bbox":[972,27,238,20]}
+{"kind":"textbox","id":"sh/m5cra54z","slide":3,"text":"From Dental Benefit to Verified Use","textPreview":"From Dental Benefit to Verified Use","textChars":35,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/n6ls3alk","slide":3,"text":"Navigation in front; a governed, claims-verified evidence layer in back.","textPreview":"Navigation in front; a governed, claims-verified evidence layer in back.","textChars":72,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/n2l4fq98","slide":3,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/m1c3mlsn","slide":3,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/943mhgre","slide":3,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/v6l4jq94","slide":3,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/x8nml0ra","slide":3,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/w7ulsvqp","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/ja54na9g","slide":3,"bbox":[64,230,252,180]}
+{"kind":"shape","id":"sh/i9w3u58v","slide":3,"bbox":[355,230,252,180]}
+{"kind":"shape","id":"sh/e10f2twf","slide":3,"bbox":[646,230,252,180]}
+{"kind":"shape","id":"sh/f29gbyx0","slide":3,"bbox":[937,230,252,180]}
+{"kind":"shape","id":"sh/gj6x0vmd","slide":3,"bbox":[316,320,39,0]}
+{"kind":"shape","id":"sh/7udw3q5w","slide":3,"bbox":[607,320,39,0]}
+{"kind":"shape","id":"sh/6t4fulob","slide":3,"bbox":[898,320,39,0]}
+{"kind":"textbox","id":"sh/re9g7yxo","slide":3,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[82,246,44,26]}
+{"kind":"textbox","id":"sh/sfix03y9","slide":3,"text":"Employee experience","textPreview":"Employee experience","textChars":19,"textLines":1,"bbox":[82,283,215,48]}
+{"kind":"textbox","id":"sh/tgry9ofu","slide":3,"text":"Concern + benefit understanding\nOptional oral image","textPreview":"Concern + benefit understanding | Optional oral image","textChars":51,"textLines":2,"bbox":[82,342,215,52]}
+{"kind":"textbox","id":"sh/a9kfadwn","slide":3,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[373,246,44,26]}
+{"kind":"textbox","id":"sh/batgjixs","slide":3,"text":"Benefit + provider context","textPreview":"Benefit + provider context","textChars":26,"textLines":1,"bbox":[373,283,215,48]}
+{"kind":"textbox","id":"sh/l4fi9cza","slide":3,"text":"Eligibility + network\nPlan rules + availability","textPreview":"Eligibility + network | Plan rules + availability","textChars":47,"textLines":2,"bbox":[373,342,215,52]}
+{"kind":"textbox","id":"sh/k3m1g7yp","slide":3,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[664,246,44,26]}
+{"kind":"textbox","id":"sh/z2d07mh4","slide":3,"text":"Employee-initiated action","textPreview":"Employee-initiated action","textChars":25,"textLines":1,"bbox":[664,283,215,48]}
+{"kind":"textbox","id":"sh/y14jehgj","slide":3,"text":"Provider search\nAppointment support","textPreview":"Provider search | Appointment support","textChars":35,"textLines":2,"bbox":[664,342,215,52]}
+{"kind":"textbox","id":"sh/x0vi5czy","slide":3,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[955,246,44,26]}
+{"kind":"textbox","id":"sh/czmhc7id","slide":3,"text":"Claims-verified evidence","textPreview":"Claims-verified evidence","textChars":24,"textLines":1,"bbox":[955,283,215,48]}
+{"kind":"textbox","id":"sh/byd032h8","slide":3,"text":"Completion + claim line\nEmployer aggregate only","textPreview":"Completion + claim line | Employer aggregate only","textChars":47,"textLines":2,"bbox":[955,342,215,52]}
+{"kind":"shape","id":"sh/ax4zax0n","slide":3,"bbox":[64,455,1152,104]}
+{"kind":"textbox","id":"sh/hwzihwzi","slide":3,"text":"SHADOW SIGNAL","textPreview":"SHADOW SIGNAL","textChars":13,"textLines":1,"bbox":[84,474,180,22]}
+{"kind":"textbox","id":"sh/wv61obyx","slide":3,"text":"Raw disease probabilities are not shown to employees or employers. Model-derived signals do not automatically determine provider, urgency or treatment pathway.","textPreview":"Raw disease probabilities are not shown to employees or employers. Model-derived signals do not automatically determine provider, urgency...","textChars":159,"textLines":1,"bbox":[270,470,920,46]}
+{"kind":"textbox","id":"sh/4nuhs7uh","slide":3,"text":"Design redline: separate signal, navigation and referral tables; timestamp employee action and consent.","textPreview":"Design redline: separate signal, navigation and referral tables; timestamp employee action and consent.","textChars":103,"textLines":1,"bbox":[270,522,900,24]}
+{"kind":"shape","id":"sh/po3ilcvm","slide":3,"bbox":[64,570,4,92]}
+{"kind":"shape","id":"sh/21szqxcb","slide":3,"bbox":[78,572,354,25]}
+{"kind":"shape","id":"sh/32l0j2dw","slide":3,"bbox":[78,599,354,60]}
+{"kind":"shape","id":"sh/cruhwrud","slide":3,"bbox":[456,570,4,92]}
+{"kind":"shape","id":"sh/ds3ipcvy","slide":3,"bbox":[470,572,354,25]}
+{"kind":"shape","id":"sh/qpczuhc7","slide":3,"bbox":[470,599,354,60]}
+{"kind":"shape","id":"sh/rql0nmds","slide":3,"bbox":[848,570,4,92]}
+{"kind":"shape","id":"sh/0ve10ru9","slide":3,"bbox":[862,572,354,25]}
+{"kind":"shape","id":"sh/1wnitwvu","slide":3,"bbox":[862,599,354,60]}
+{"kind":"image","id":"im/kfu5sbi1","slide":3,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/lg3m1gzm","slide":3,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/ofy9wn61","slide":3,"text":""}
+{"kind":"slide","id":"sl/jyx0ra1s","slide":4,"title":"CONFIRMED ICLO DIRECTION / POC SCOPE","textShapes":6}
+{"kind":"shape","id":"sh/h4fa9wfy","slide":4,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/1cj2d8b6","slide":4,"bbox":[768,22,256,30]}
+{"kind":"shape","id":"sh/0ba143al","slide":4,"bbox":[768,22,6,30]}
+{"kind":"textbox","id":"sh/rm1k7yt4","slide":4,"text":"CONFIRMED ICLO DIRECTION / POC SCOPE","textPreview":"CONFIRMED ICLO DIRECTION / POC SCOPE","textChars":36,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/ql8jytsj","slide":4,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/doj29oba","slide":4,"bbox":[1032,22,6,30]}
+{"kind":"shape","id":"sh/sna103ap","slide":4,"bbox":[1044,27,166,20]}
+{"kind":"textbox","id":"sh/3ihk3et8","slide":4,"text":"One U.S. Dental-Benefit Lane","textPreview":"One U.S. Dental-Benefit Lane","textChars":28,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/ih8ju9sn","slide":4,"text":"The U.S. market contains multiple funding models; this proposal validates only self-funded employer dental benefits.","textPreview":"The U.S. market contains multiple funding models; this proposal validates only self-funded employer dental benefits.","textChars":116,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/kbm987y5","slide":4,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/5cva1cfq","slide":4,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/i94r6xgz","slide":4,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/w72947yt","slide":4,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/a5kr2xg3","slide":4,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/v6tsv2xo","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"table","id":"tb/8jqxsf29","slide":4,"name":"","rows":6,"cols":5,"preview":"Lens | Korea baseline | U.S. market | This PoC | Why it matters","bbox":[64,205,1152,430]}
+{"kind":"image","id":"im/m1s7e9k3","slide":4,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/n2187e1o","slide":4,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/jyx0ra1s","slide":4,"text":""}
+{"kind":"slide","id":"sl/i107q5of","slide":5,"title":"U.S. DENTAL MARKET CONTEXT / CURRENT POC SCOPE","textShapes":26}
+{"kind":"shape","id":"sh/yp4z69or","slide":5,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/dgbulwnm","slide":5,"bbox":[768,22,256,30]}
+{"kind":"shape","id":"sh/cf2tcr61","slide":5,"bbox":[768,22,6,30]}
+{"kind":"textbox","id":"sh/z2tcnm5s","slide":5,"text":"U.S. DENTAL MARKET CONTEXT / CURRENT POC SCOPE","textPreview":"U.S. DENTAL MARKET CONTEXT / CURRENT POC SCOPE","textChars":46,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/yhkbe1o7","slide":5,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/l4bupwny","slide":5,"bbox":[1032,22,6,30]}
+{"kind":"shape","id":"sh/032tgr6d","slide":5,"bbox":[1044,27,166,20]}
+{"kind":"textbox","id":"sh/n6dcr65o","slide":5,"text":"The U.S. Dental-Benefit Operating Chain","textPreview":"The U.S. Dental-Benefit Operating Chain","textChars":39,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/m5kbi1oj","slide":5,"text":"Funding arrangement, administrator, beneficiary and claim path are separate questions; the PoC covers one specific lane.","textPreview":"Funding arrangement, administrator, beneficiary and claim path are separate questions; the PoC covers one specific lane.","textChars":120,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/w32dkbuh","slide":5,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/x4vedgvm","slide":5,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/ahkvi1cb","slide":5,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/k7mxovud","slide":5,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/i54fmlc7","slide":5,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/j6dwfqds","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/sb6xsvu9","slide":5,"text":"CONTRACTING + CHOICE","textPreview":"CONTRACTING + CHOICE","textChars":20,"textLines":1,"bbox":[64,202,200,20]}
+{"kind":"shape","id":"sh/tcfel0vu","slide":5,"bbox":[64,238,220,66]}
+{"kind":"shape","id":"sh/hgrmpwj2","slide":5,"bbox":[64,328,220,82]}
+{"kind":"shape","id":"sh/gfi5grih","slide":5,"bbox":[64,434,220,72]}
+{"kind":"shape","id":"sh/bipozuxo","slide":5,"bbox":[174,304,0,24]}
+{"kind":"shape","id":"sh/qhg76pg3","slide":5,"bbox":[174,410,0,24]}
+{"kind":"textbox","id":"sh/pkr6tgjy","slide":5,"text":"Coverage buyer / sponsor","textPreview":"Coverage buyer / sponsor","textChars":24,"textLines":1,"bbox":[82,260,184,24]}
+{"kind":"textbox","id":"sh/4ji5kbid","slide":5,"text":"Broker / benefits consultant","textPreview":"Broker / benefits consultant","textChars":28,"textLines":1,"bbox":[82,350,184,44]}
+{"kind":"textbox","id":"sh/3i94r61s","slide":5,"text":"Carrier / TPA / MCO contract","textPreview":"Carrier / TPA / MCO contract","textChars":28,"textLines":1,"bbox":[82,458,184,24]}
+{"kind":"textbox","id":"sh/2h0ni107","slide":5,"text":"COVERAGE + FUNDING SEGMENTS","textPreview":"COVERAGE + FUNDING SEGMENTS","textChars":27,"textLines":1,"bbox":[324,202,250,20]}
+{"kind":"shape","id":"sh/5o7mhcju","slide":5,"bbox":[324,232,198,66]}
+{"kind":"shape","id":"sh/kny587i9","slide":5,"bbox":[546,232,198,66]}
+{"kind":"shape","id":"sh/atcjidg7","slide":5,"bbox":[768,232,198,66]}
+{"kind":"shape","id":"sh/vu5kbihc","slide":5,"bbox":[990,232,198,66]}
+{"kind":"textbox","id":"sh/wve1knyx","slide":5,"text":"Employer\nfully insured","textPreview":"Employer | fully insured","textChars":22,"textLines":2,"bbox":[336,253,174,28]}
+{"kind":"textbox","id":"sh/xwn2dszi","slide":5,"text":"Employer\nself-funded / ASO","textPreview":"Employer | self-funded / ASO","textChars":26,"textLines":2,"bbox":[558,253,174,28]}
+{"kind":"textbox","id":"sh/ihw3mxg3","slide":5,"text":"Individual / family\nMarketplace or direct","textPreview":"Individual / family | Marketplace or direct","textChars":41,"textLines":2,"bbox":[780,253,174,28]}
+{"kind":"textbox","id":"sh/ji5kf2ho","slide":5,"text":"Medicaid / CHIP\nstate + MCO","textPreview":"Medicaid / CHIP | state + MCO","textChars":27,"textLines":2,"bbox":[1002,253,174,28]}
+{"kind":"shape","id":"sh/kjelony9","slide":5,"bbox":[324,342,864,174]}
+{"kind":"shape","id":"sh/6d4vuhkv","slide":5,"bbox":[423,298,333,44]}
+{"kind":"shape","id":"sh/5cvu1cja","slide":5,"bbox":[645,298,111,44]}
+{"kind":"shape","id":"sh/4bmts72p","slide":5,"bbox":[756,298,111,44]}
+{"kind":"shape","id":"sh/jadcz214","slide":5,"bbox":[756,298,333,44]}
+{"kind":"shape","id":"sh/i94bqxkj","slide":5,"bbox":[284,429,40,41]}
+{"kind":"textbox","id":"sh/1kvi94re","slide":5,"text":"Dental benefit operating layer","textPreview":"Dental benefit operating layer","textChars":30,"textLines":1,"bbox":[350,362,500,30]}
+{"kind":"textbox","id":"sh/gjmhgzqt","slide":5,"text":"FUNDING ROLE","textPreview":"FUNDING ROLE","textChars":12,"textLines":1,"bbox":[350,414,180,22]}
+{"kind":"textbox","id":"sh/3md0bu94","slide":5,"text":"Who bears dental claim cost","textPreview":"Who bears dental claim cost","textChars":27,"textLines":1,"bbox":[350,443,220,42]}
+{"kind":"textbox","id":"sh/2l4zip8j","slide":5,"text":"ADMINISTRATION","textPreview":"ADMINISTRATION","textChars":14,"textLines":1,"bbox":[610,414,180,22]}
+{"kind":"textbox","id":"sh/povid4ra","slide":5,"text":"Eligibility + benefits + network","textPreview":"Eligibility + benefits + network","textChars":32,"textLines":1,"bbox":[610,443,226,42]}
+{"kind":"textbox","id":"sh/onmhkzqp","slide":5,"text":"CLAIMS + DATA","textPreview":"CLAIMS + DATA","textChars":13,"textLines":1,"bbox":[878,414,180,22]}
+{"kind":"textbox","id":"sh/bqx0fe9g","slide":5,"text":"Adjudication + EOB + claim lines","textPreview":"Adjudication + EOB + claim lines","textChars":32,"textLines":1,"bbox":[878,443,260,42]}
+{"kind":"textbox","id":"sh/qp4jm98v","slide":5,"text":"Sets funding, network, benefit rules and data rights","textPreview":"Sets funding, network, benefit rules and data rights","textChars":52,"textLines":1,"bbox":[76,524,260,42]}
+{"kind":"shape","id":"sh/8f6hcj6t","slide":5,"bbox":[736,552,452,72]}
+{"kind":"shape","id":"sh/lcrapozq","slide":5,"bbox":[756,516,206,36]}
+{"kind":"textbox","id":"sh/mdoza9o3","slide":5,"text":"Beneficiaries + dental providers","textPreview":"Beneficiaries + dental providers","textChars":32,"textLines":1,"bbox":[756,571,412,24]}
+{"kind":"textbox","id":"sh/nexg3epo","slide":5,"text":"Members receive care; dentists submit claims","textPreview":"Members receive care; dentists submit claims","textChars":44,"textLines":1,"bbox":[756,598,412,20]}
+{"kind":"shape","id":"sh/0r6h8z6x","slide":5,"bbox":[324,636,864,30]}
+{"kind":"textbox","id":"sh/lcfy147i","slide":5,"text":"CURRENT POC SCOPE: U.S. SELF-FUNDED EMPLOYER + DENTAL CARRIER/TPA + EMPLOYEES/DEPENDENTS","textPreview":"CURRENT POC SCOPE: U.S. SELF-FUNDED EMPLOYER + DENTAL CARRIER/TPA + EMPLOYEES/DEPENDENTS","textChars":88,"textLines":1,"bbox":[64,636,1152,34]}
+{"kind":"image","id":"im/vmx4j6ds","slide":5,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/alo3a1wn","slide":5,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/i107q5of","slide":5,"text":""}
+{"kind":"slide","id":"sl/x8f69ofe","slide":6,"title":"ICLO PRODUCT DESIGN PRINCIPLE / REQUEST TO SNOWFLAKE","textShapes":26}
+{"kind":"shape","id":"sh/zaxwbuhw","slide":6,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/yhg7epsj","slide":6,"bbox":[768,22,256,30]}
+{"kind":"shape","id":"sh/zi98nu94","slide":6,"bbox":[768,22,6,30]}
+{"kind":"textbox","id":"sh/87ipkzal","slide":6,"text":"ICLO PRODUCT DESIGN PRINCIPLE / REQUEST TO SNOWFLAKE","textPreview":"ICLO PRODUCT DESIGN PRINCIPLE / REQUEST TO SNOWFLAKE","textChars":52,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/98rqt4r6","slide":6,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/ml07i9sv","slide":6,"bbox":[1032,22,6,30]}
+{"kind":"shape","id":"sh/7m98ru9g","slide":6,"bbox":[1044,27,166,20]}
+{"kind":"textbox","id":"sh/oryp8fah","slide":6,"text":"The Governed Evidence Layer Runs on Snowflake","textPreview":"The Governed Evidence Layer Runs on Snowflake","textChars":45,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/pc76hkr2","slide":6,"text":"Structured evidence can be governed in Snowflake; raw images and employee-level routing stay outside employer views.","textPreview":"Structured evidence can be governed in Snowflake; raw images and employee-level routing stay outside employer views.","textChars":116,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/h4bupgn6","slide":6,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/w32twb6l","slide":6,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/v2tcn650","slide":6,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/5svutgni","slide":6,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/j6dcr65c","slide":6,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/i54bylor","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/twfux0ne","slide":6,"text":"RAW-IMAGE PATH","textPreview":"RAW-IMAGE PATH","textChars":14,"textLines":1,"bbox":[64,202,200,20]}
+{"kind":"shape","id":"sh/svmt4v6t","slide":6,"bbox":[64,238,220,66]}
+{"kind":"shape","id":"sh/cbe5g3ih","slide":6,"bbox":[64,328,220,82]}
+{"kind":"shape","id":"sh/dcnm98zm","slide":6,"bbox":[64,434,220,72]}
+{"kind":"shape","id":"sh/onu9g7ul","slide":6,"bbox":[174,304,0,24]}
+{"kind":"shape","id":"sh/po3a9cv6","slide":6,"bbox":[174,410,0,24]}
+{"kind":"textbox","id":"sh/0fy5k3id","slide":6,"text":"Raw oral image","textPreview":"Raw oral image","textChars":14,"textLines":1,"bbox":[82,260,184,24]}
+{"kind":"textbox","id":"sh/lg76d8zy","slide":6,"text":"Controlled U.S. object storage / PHI vault","textPreview":"Controlled U.S. object storage / PHI vault","textChars":42,"textLines":1,"bbox":[82,350,184,44]}
+{"kind":"textbox","id":"sh/ydgnit07","slide":6,"text":"Shadow inference","textPreview":"Shadow inference","textChars":16,"textLines":1,"bbox":[82,458,184,24]}
+{"kind":"textbox","id":"sh/zep4byhs","slide":6,"text":"STRUCTURED EVIDENCE PATH","textPreview":"STRUCTURED EVIDENCE PATH","textChars":24,"textLines":1,"bbox":[324,202,250,20]}
+{"kind":"shape","id":"sh/gju58ji9","slide":6,"bbox":[324,232,198,66]}
+{"kind":"shape","id":"sh/1k3mhozu","slide":6,"bbox":[546,232,198,66]}
+{"kind":"shape","id":"sh/jet8nm1c","slide":6,"bbox":[768,232,198,66]}
+{"kind":"shape","id":"sh/idk7ehkr","slide":6,"bbox":[990,232,198,66]}
+{"kind":"textbox","id":"sh/50bqpcj2","slide":6,"text":"App events","textPreview":"App events","textChars":10,"textLines":1,"bbox":[336,253,174,28]}
+{"kind":"textbox","id":"sh/4f2pgr2h","slide":6,"text":"HRIS eligibility","textPreview":"HRIS eligibility","textChars":16,"textLines":1,"bbox":[558,253,174,28]}
+{"kind":"textbox","id":"sh/va98j210","slide":6,"text":"Plan + provider context","textPreview":"Plan + provider context","textChars":23,"textLines":1,"bbox":[780,253,174,28]}
+{"kind":"textbox","id":"sh/u907axkf","slide":6,"text":"TPA / carrier claims","textPreview":"TPA / carrier claims","textChars":20,"textLines":1,"bbox":[1002,253,174,28]}
+{"kind":"shape","id":"sh/hcrqlcj6","slide":6,"bbox":[324,342,864,174]}
+{"kind":"shape","id":"sh/l87e10ze","slide":6,"bbox":[423,298,333,44]}
+{"kind":"shape","id":"sh/m9gfu5gz","slide":6,"bbox":[645,298,111,44]}
+{"kind":"shape","id":"sh/7apw3qhk","slide":6,"bbox":[756,298,111,44]}
+{"kind":"shape","id":"sh/8byxwvyp","slide":6,"bbox":[756,298,333,44]}
+{"kind":"shape","id":"sh/9c7e50za","slide":6,"bbox":[284,429,40,41]}
+{"kind":"textbox","id":"sh/of2tcvy9","slide":6,"text":"Snowflake U.S. governed evidence layer","textPreview":"Snowflake U.S. governed evidence layer","textChars":38,"textLines":1,"bbox":[350,362,500,30]}
+{"kind":"textbox","id":"sh/pgbul0fu","slide":6,"text":"Canonical model","textPreview":"Canonical model","textChars":15,"textLines":1,"bbox":[350,414,180,22]}
+{"kind":"textbox","id":"sh/ep0b6lg7","slide":6,"text":"member-month + plan + event + claim","textPreview":"member-month + plan + event + claim","textChars":35,"textLines":1,"bbox":[350,443,220,42]}
+{"kind":"textbox","id":"sh/fq9cfqxc","slide":6,"text":"Quality + controls","textPreview":"Quality + controls","textChars":18,"textLines":1,"bbox":[610,414,180,22]}
+{"kind":"textbox","id":"sh/0r2t8vyx","slide":6,"text":"reconciliation + purpose access + lineage","textPreview":"reconciliation + purpose access + lineage","textChars":41,"textLines":1,"bbox":[610,443,226,42]}
+{"kind":"textbox","id":"sh/1sbuh0fi","slide":6,"text":"Outcome layer","textPreview":"Outcome layer","textChars":13,"textLines":1,"bbox":[878,414,180,22]}
+{"kind":"textbox","id":"sh/ql0b21gv","slide":6,"text":"claims-confirmed outcomes (arm assignment pending legal + protocol sign-off)","textPreview":"claims-confirmed outcomes (arm assignment pending legal + protocol sign-off)","textChars":76,"textLines":1,"bbox":[878,443,260,42]}
+{"kind":"textbox","id":"sh/rm9sb6xg","slide":6,"text":"No image binaries. Person-linked references and signals do enter","textPreview":"No image binaries. Person-linked references and signals do enter","textChars":64,"textLines":1,"bbox":[76,524,260,42]}
+{"kind":"shape","id":"sh/9gfeh4zy","slide":6,"bbox":[736,552,452,72]}
+{"kind":"shape","id":"sh/69kzq903","slide":6,"bbox":[756,516,206,36]}
+{"kind":"textbox","id":"sh/7exwfehs","slide":6,"text":"Employer aggregate dashboard","textPreview":"Employer aggregate dashboard","textChars":28,"textLines":1,"bbox":[756,571,412,24]}
+{"kind":"textbox","id":"sh/mdof6907","slide":6,"text":"No employee-level health signals or routing","textPreview":"No employee-level health signals or routing","textChars":43,"textLines":1,"bbox":[756,598,412,20]}
+{"kind":"shape","id":"sh/lcfed4z2","slide":6,"bbox":[324,636,864,30]}
+{"kind":"textbox","id":"sh/kb6d4zih","slide":6,"text":"For PHI in Snowflake: Business Critical + executed BAA are platform prerequisites - not ICLO-wide HIPAA compliance.","textPreview":"For PHI in Snowflake: Business Critical + executed BAA are platform prerequisites - not ICLO-wide HIPAA compliance.","textChars":115,"textLines":1,"bbox":[64,636,1152,34]}
+{"kind":"image","id":"im/onad0n61","slide":6,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/9oje9s7m","slide":6,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/x8f69ofe","slide":6,"text":""}
+{"kind":"slide","id":"sl/gnmp4jqx","slide":7,"title":"CONFIRMED ICLO DIRECTION / HYPOTHESIS / TO BE VALIDATED","textShapes":23}
+{"kind":"shape","id":"sh/tg7q9sr2","slide":7,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/cb2tkvap","slide":7,"bbox":[744,22,216,30]}
+{"kind":"shape","id":"sh/dcbud0ra","slide":7,"bbox":[744,22,6,30]}
+{"kind":"textbox","id":"sh/ydkbm5sv","slide":7,"text":"CONFIRMED ICLO DIRECTION / HYPOTHESIS / TO BE VALIDATED","textPreview":"CONFIRMED ICLO DIRECTION / HYPOTHESIS / TO BE VALIDATED","textChars":55,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/zedcfa9g","slide":7,"bbox":[968,22,248,30]}
+{"kind":"shape","id":"sh/kzmdova1","slide":7,"bbox":[968,22,6,30]}
+{"kind":"shape","id":"sh/l0vuh0rm","slide":7,"bbox":[980,27,230,20]}
+{"kind":"textbox","id":"sh/eh0ba1sr","slide":7,"text":"Year One May Cost More","textPreview":"Year One May Cost More","textChars":22,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/fi9c369c","slide":7,"text":"Year-one utilization and dental plan-paid claims may rise before treatment-mix change becomes measurable.","textPreview":"Year-one utilization and dental plan-paid claims may rise before treatment-mix change becomes measurable.","textChars":105,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/baxkjqlk","slide":7,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/a9ojq5kz","slide":7,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/xcz2l03q","slide":7,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/n6x0fqlo","slide":7,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/p8fih03e","slide":7,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/o761ov2t","slide":7,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/f2d0b6lc","slide":7,"text":"Illustrative shape only - not an ICLO outcome","textPreview":"Illustrative shape only - not an ICLO outcome","textChars":45,"textLines":1,"bbox":[64,200,450,22]}
+{"kind":"shape","id":"sh/eh4jil4r","slide":7,"bbox":[64,342,180,78]}
+{"kind":"shape","id":"sh/id4ju1oz","slide":7,"bbox":[290,245,248,124]}
+{"kind":"shape","id":"sh/jedkn654","slide":7,"bbox":[584,290,246,112]}
+{"kind":"shape","id":"sh/4fm1wb6p","slide":7,"bbox":[876,324,184,94]}
+{"kind":"shape","id":"sh/2lori50z","slide":7,"bbox":[244,307,46,74]}
+{"kind":"shape","id":"sh/3mh8rahk","slide":7,"bbox":[538,307,46,39]}
+{"kind":"shape","id":"sh/onq9kfi5","slide":7,"bbox":[830,346,46,25]}
+{"kind":"textbox","id":"sh/s3ml0v61","slide":7,"text":"Baseline","textPreview":"Baseline","textChars":8,"textLines":1,"bbox":[78,326,152,25]}
+{"kind":"textbox","id":"sh/d4f2t0nm","slide":7,"text":"Plan-year start","textPreview":"Plan-year start","textChars":15,"textLines":1,"bbox":[78,382,152,28]}
+{"kind":"textbox","id":"sh/e5o32lor","slide":7,"text":"Year 1","textPreview":"Year 1","textChars":6,"textLines":1,"bbox":[304,252,220,25]}
+{"kind":"textbox","id":"sh/f6xkvq5c","slide":7,"text":"Preventive use rises\nNew treatment is discovered","textPreview":"Preventive use rises | New treatment is discovered","textChars":48,"textLines":2,"bbox":[304,316,220,74]}
+{"kind":"textbox","id":"sh/p0zmlk7u","slide":7,"text":"Years 2-3","textPreview":"Years 2-3","textChars":9,"textLines":1,"bbox":[598,252,218,25]}
+{"kind":"textbox","id":"sh/ozq5szq9","slide":7,"text":"Treatment mix + run-out\nbecome measurable","textPreview":"Treatment mix + run-out | become measurable","textChars":41,"textLines":2,"bbox":[598,316,218,62]}
+{"kind":"textbox","id":"sh/nyh4jupo","slide":7,"text":"Validate","textPreview":"Validate","textChars":8,"textLines":1,"bbox":[890,252,156,25]}
+{"kind":"textbox","id":"sh/2x8nqp83","slide":7,"text":"Direction unknown","textPreview":"Direction unknown","textChars":17,"textLines":1,"bbox":[890,316,156,44]}
+{"kind":"shape","id":"sh/x4j6p47q","slide":7,"bbox":[1072,230,144,102]}
+{"kind":"textbox","id":"sh/c3a5wzq5","slide":7,"text":"LOW TURNOVER\nMulti-year value lens","textPreview":"LOW TURNOVER | Multi-year value lens","textChars":34,"textLines":2,"bbox":[1046,236,170,86]}
+{"kind":"shape","id":"sh/b2h4nupk","slide":7,"bbox":[1072,356,144,102]}
+{"kind":"textbox","id":"sh/a18nup8z","slide":7,"text":"HIGH TURNOVER\nEmployee experience lens","textPreview":"HIGH TURNOVER | Employee experience lens","textChars":38,"textLines":2,"bbox":[1046,344,170,86]}
+{"kind":"shape","id":"sh/lsj6t47m","slide":7,"bbox":[1064,470,180,24]}
+{"kind":"shape","id":"sh/kra50jqh","slide":7,"bbox":[1064,497,180,24]}
+{"kind":"shape","id":"sh/wneps3ap","slide":7,"bbox":[64,502,4,92]}
+{"kind":"textbox","id":"sh/honq18ru","slide":7,"text":"UTILIZATION","textPreview":"UTILIZATION","textChars":11,"textLines":1,"bbox":[78,504,354,25]}
+{"kind":"textbox","id":"sh/ulc7qdsj","slide":7,"text":"Preventive use can raise plan-paid claims.","textPreview":"Preventive use can raise plan-paid claims.","textChars":42,"textLines":1,"bbox":[78,531,354,60]}
+{"kind":"shape","id":"sh/vm58zi94","slide":7,"bbox":[456,502,4,92]}
+{"kind":"textbox","id":"sh/8jupo3ad","slide":7,"text":"COST ALLOCATION","textPreview":"COST ALLOCATION","textChars":15,"textLines":1,"bbox":[470,504,354,25]}
+{"kind":"textbox","id":"sh/9k3qx8ry","slide":7,"text":"Allowed, plan-paid and employee OOP can move differently.","textPreview":"Allowed, plan-paid and employee OOP can move differently.","textChars":57,"textLines":1,"bbox":[470,531,354,60]}
+{"kind":"shape","id":"sh/mxc7mts7","slide":7,"bbox":[848,502,4,92]}
+{"kind":"textbox","id":"sh/7yl8vy9s","slide":7,"text":"CONTRACT PRINCIPLE","textPreview":"CONTRACT PRINCIPLE","textChars":18,"textLines":1,"bbox":[862,504,354,25]}
+{"kind":"textbox","id":"sh/sfy907ah","slide":7,"text":"ICLO will not contract on a year-one savings guarantee.","textPreview":"ICLO will not contract on a year-one savings guarantee.","textChars":55,"textLines":1,"bbox":[862,531,354,60]}
+{"kind":"shape","id":"sh/fyx8nqh8","slide":7,"bbox":[170,366,80,0]}
+{"kind":"shape","id":"sh/gj69gvit","slide":7,"bbox":[250,300,0,66]}
+{"kind":"shape","id":"sh/1kfqp0ze","slide":7,"bbox":[250,300,796,0]}
+{"kind":"shape","id":"sh/yt8rqpg7","slide":7,"bbox":[165,361,10,10]}
+{"kind":"shape","id":"sh/zu1szuhs","slide":7,"bbox":[409,295,10,10]}
+{"kind":"shape","id":"sh/9o3upoju","slide":7,"bbox":[702,295,10,10]}
+{"kind":"shape","id":"sh/8nutgj29","slide":7,"bbox":[963,295,10,10]}
+{"kind":"image","id":"im/sjmpcja9","slide":7,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/fmxonytk","slide":7,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/gnmp4jqx","slide":7,"text":""}
+{"kind":"slide","id":"sl/fu1gfa1s","slide":8,"title":"ICLO PRODUCT DESIGN PRINCIPLE","textShapes":16}
+{"kind":"shape","id":"sh/8bat47ml","slide":8,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/18byd4zy","slide":8,"bbox":[960,22,256,30]}
+{"kind":"shape","id":"sh/g72x4zyd","slide":8,"bbox":[960,22,6,30]}
+{"kind":"textbox","id":"sh/ri9g7uhw","slide":8,"text":"ICLO PRODUCT DESIGN PRINCIPLE","textPreview":"ICLO PRODUCT DESIGN PRINCIPLE","textChars":29,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/6h0fypgb","slide":8,"text":"What the Buyer Can Verify","textPreview":"What the Buyer Can Verify","textChars":25,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/tkby9kzm","slide":8,"text":"Not a performance claim: the denominator, freshness, claims lag and privacy rules stay visible.","textPreview":"Not a performance claim: the denominator, freshness, claims lag and privacy rules stay visible.","textChars":95,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/sjix0zy1","slide":8,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/je9g3ahk","slide":8,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/id0fu50z","slide":8,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/98rehwve","slide":8,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/n6pwfmd8","slide":8,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/0jydkreh","slide":8,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/ehgvihwr","slide":8,"bbox":[64,205,1152,368]}
+{"kind":"shape","id":"sh/zipwbmdc","slide":8,"bbox":[64,594,4,54]}
+{"kind":"textbox","id":"sh/kfixwbe1","slide":8,"text":"SYNTHETIC","textPreview":"SYNTHETIC","textChars":9,"textLines":1,"bbox":[78,594,202,20]}
+{"kind":"textbox","id":"sh/lgbepgvm","slide":8,"text":"Illustrative only","textPreview":"Illustrative only","textChars":17,"textLines":1,"bbox":[78,620,202,25]}
+{"kind":"shape","id":"sh/tw7e9gnq","slide":8,"bbox":[296,594,4,54]}
+{"kind":"textbox","id":"sh/svydgb65","slide":8,"text":"DENOMINATOR","textPreview":"DENOMINATOR","textChars":11,"textLines":1,"bbox":[310,594,202,20]}
+{"kind":"textbox","id":"sh/7u5w765k","slide":8,"text":"Employees / members","textPreview":"Employees / members","textChars":19,"textLines":1,"bbox":[310,620,202,25]}
+{"kind":"shape","id":"sh/6twve1oz","slide":8,"bbox":[528,594,4,54]}
+{"kind":"textbox","id":"sh/5sne5wne","slide":8,"text":"FRESHNESS","textPreview":"FRESHNESS","textChars":9,"textLines":1,"bbox":[542,594,202,20]}
+{"kind":"textbox","id":"sh/kredcr6t","slide":8,"text":"Dates + claims lag","textPreview":"Dates + claims lag","textChars":18,"textLines":1,"bbox":[542,620,202,25]}
+{"kind":"shape","id":"sh/jq5w365o","slide":8,"bbox":[760,594,4,54]}
+{"kind":"textbox","id":"sh/i5wva1o3","slide":8,"text":"PRIVACY","textPreview":"PRIVACY","textChars":7,"textLines":1,"bbox":[774,594,202,20]}
+{"kind":"textbox","id":"sh/x4ne1wni","slide":8,"text":"Aggregate only · min cell by distinct person · employer isolation","textPreview":"Aggregate only · min cell by distinct person · employer isolation","textChars":65,"textLines":1,"bbox":[774,620,202,25]}
+{"kind":"textbox","id":"sh/m9sb2x4v","slide":8,"text":"LIVE DEMO","textPreview":"LIVE DEMO","textChars":9,"textLines":1,"bbox":[1100,591,116,20]}
+{"kind":"textbox","id":"sh/na1sb2lg","slide":8,"text":"Synthetic dashboard · jangwookimbusiness-dev.github.io/iclo-us-employee-dashboard","textPreview":"Synthetic dashboard · jangwookimbusiness-dev.github.io/iclo-us-employee-dashboard","textChars":81,"textLines":1,"bbox":[620,654,596,20]}
+{"kind":"image","id":"im/29cve1ob","slide":8,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/h83ulwnq","slide":8,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"image","id":"im/gnudcr65","slide":8,"name":"","geometry":"roundRect","bbox":[120,205,1040,361]}
+{"kind":"image","id":"im/fm1cj650","slide":8,"name":"","bbox":[1020,582,72,72]}
+{"kind":"notes","id":"nt/fu1gfa1s","slide":8,"text":""}
+{"kind":"slide","id":"sl/udsvah03","slide":9,"title":"REQUEST TO SNOWFLAKE","textShapes":16}
+{"kind":"shape","id":"sh/xcfy90n6","slide":9,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/1cfmhgne","slide":9,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/0b65obm9","slide":9,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/nex4jq5k","slide":9,"text":"REQUEST TO SNOWFLAKE","textPreview":"REQUEST TO SNOWFLAKE","textChars":20,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/mdonql4z","slide":9,"text":"Route the Existing Support Relationship","textPreview":"Route the Existing Support Relationship","textChars":39,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/9gzml0nq","slide":9,"text":"Step 0 is routing: the current Korea startup sponsor names the U.S. HLS GTM and architecture owners before technical work begins.","textPreview":"Step 0 is routing: the current Korea startup sponsor names the U.S. HLS GTM and architecture owners before technical work begins.","textChars":129,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/ofq5svm5","slide":9,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/bih4na5w","slide":9,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/ah8nu54b","slide":9,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/p0ji9kf2","slide":9,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/3y107axw","slide":9,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/cnu1kzyd","slide":9,"text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/do3id4fy","slide":9,"bbox":[64,220,1152,72]}
+{"kind":"shape","id":"sh/qlcjipgn","slide":9,"bbox":[64,220,8,72]}
+{"kind":"textbox","id":"sh/bml0buxs","slide":9,"text":"STEP 0","textPreview":"STEP 0","textChars":6,"textLines":1,"bbox":[92,237,92,30]}
+{"kind":"textbox","id":"sh/0ru1ozyp","slide":9,"text":"ROUTE","textPreview":"ROUTE","textChars":5,"textLines":1,"bbox":[160,239,130,26]}
+{"kind":"textbox","id":"sh/lsn2h4fa","slide":9,"text":"Confirm the official support-program name; the current Korea sponsor routes ICLO to U.S. HLS GTM and architecture.","textPreview":"Confirm the official support-program name; the current Korea sponsor routes ICLO to U.S. HLS GTM and architecture.","textChars":114,"textLines":1,"bbox":[308,236,876,44]}
+{"kind":"shape","id":"sh/98ji147e","slide":9,"bbox":[64,314,1152,72]}
+{"kind":"shape","id":"sh/87a18zqt","slide":9,"bbox":[64,314,8,72]}
+{"kind":"shape","id":"sh/76h0zup8","slide":9,"bbox":[92,331,50,30]}
+{"kind":"textbox","id":"sh/ml8j6p8n","slide":9,"text":"FIT + PEOPLE","textPreview":"FIT + PEOPLE","textChars":12,"textLines":1,"bbox":[92,333,198,26]}
+{"kind":"textbox","id":"sh/hcji5o7a","slide":9,"text":"Confirm the primary sales play and name the HLS architect, SE, security/compliance and startup/partner leads.","textPreview":"Confirm the primary sales play and name the HLS architect, SE, security/compliance and startup/partner leads.","textChars":109,"textLines":1,"bbox":[308,330,876,44]}
+{"kind":"shape","id":"sh/wba1cjqp","slide":9,"bbox":[64,408,1152,72]}
+{"kind":"shape","id":"sh/va103ep4","slide":9,"bbox":[64,408,8,72]}
+{"kind":"shape","id":"sh/u9sja98z","slide":9,"bbox":[92,425,50,30]}
+{"kind":"textbox","id":"sh/xgzitk76","slide":9,"text":"ACCOUNT","textPreview":"ACCOUNT","textChars":7,"textLines":1,"bbox":[92,427,198,26]}
+{"kind":"textbox","id":"sh/cf6h0fql","slide":9,"text":"Complete one account diligence row by Day 30; run a separate account-team use-case review by Day 75.","textPreview":"Complete one account diligence row by Day 30; run a separate account-team use-case review by Day 75.","textChars":100,"textLines":1,"bbox":[308,424,876,44]}
+{"kind":"shape","id":"sh/2l4faloj","slide":9,"bbox":[64,502,1152,72]}
+{"kind":"shape","id":"sh/nmdg3q54","slide":9,"bbox":[64,502,8,72]}
+{"kind":"shape","id":"sh/onmxcv69","slide":9,"bbox":[92,519,50,30]}
+{"kind":"textbox","id":"sh/pofy50nu","slide":9,"text":"PATH","textPreview":"PATH","textChars":4,"textLines":1,"bbox":[92,521,198,26]}
+{"kind":"textbox","id":"sh/apofe5of","slide":9,"text":"Document account/region/BAA, credits/support and partner/co-sell readiness criteria.","textPreview":"Document account/region/BAA, credits/support and partner/co-sell readiness criteria.","textChars":84,"textLines":1,"bbox":[308,518,876,44]}
+{"kind":"shape","id":"sh/bqxg7q50","slide":9,"bbox":[64,613,1152,42]}
+{"kind":"textbox","id":"sh/cr6xgv6l","slide":9,"text":"Not asking Snowflake for: legal opinions, compliance certification, generic customer introductions or a savings guarantee.","textPreview":"Not asking Snowflake for: legal opinions, compliance certification, generic customer introductions or a savings guarantee.","textChars":122,"textLines":1,"bbox":[64,617,1152,34]}
+{"kind":"image","id":"im/p83udoz2","slide":9,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/47atkjyh","slide":9,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/udsvah03","slide":9,"text":""}
+{"kind":"slide","id":"sl/m90b6t0r","slide":10,"title":"REQUEST TO SNOWFLAKE","textShapes":20}
+{"kind":"shape","id":"sh/0zu9ora5","slide":10,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/xc3mho32","slide":10,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/cbu58j2h","slide":10,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/zelojyl8","slide":10,"text":"REQUEST TO SNOWFLAKE","textPreview":"REQUEST TO SNOWFLAKE","textChars":20,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/ydcnatkn","slide":10,"text":"A 90-Day Validation Plan · Route and Design","textPreview":"A 90-Day Validation Plan · Route and Design","textChars":43,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/l036l83y","slide":10,"text":"Step 0 through Day 60: name the owners, then design the architecture.","textPreview":"Step 0 through Day 60: name the owners, then design the architecture.","textChars":69,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/kzu5c32t","slide":10,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/725onyl4","slide":10,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/m1cnetkj","slide":10,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/d87uxg3m","slide":10,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/r6pcv6lw","slide":10,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/0bit8b2d","slide":10,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/1cru1g3y","slide":10,"bbox":[64,218,490,240]}
+{"kind":"shape","id":"sh/e9gb61k7","slide":10,"bbox":[646,218,490,240]}
+{"kind":"shape","id":"sh/fapcz6ls","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/ozitcv29","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/9sreh8fa","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/mp0fmtgz","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/nq9wfyxk","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/bu5cnqd8","slide":10,"text":"STEP 0 + DAYS 0-30","textPreview":"STEP 0 + DAYS 0-30","textChars":18,"textLines":1,"bbox":[82,220,472,18]}
+{"kind":"textbox","id":"sh/atwbelcn","slide":10,"text":"ROUTE + ALIGN","textPreview":"ROUTE + ALIGN","textChars":13,"textLines":1,"bbox":[82,240,472,30]}
+{"kind":"textbox","id":"sh/lk7ut0va","slide":10,"text":"Route to HLS; confirm play, owners and the U.S. account / BAA path.","textPreview":"Route to HLS; confirm play, owners and the U.S. account / BAA path.","textChars":67,"textLines":1,"bbox":[82,294,472,76]}
+{"kind":"textbox","id":"sh/kjytkvup","slide":10,"text":"DAYS 31-60","textPreview":"DAYS 31-60","textChars":10,"textLines":1,"bbox":[664,220,472,18]}
+{"kind":"textbox","id":"sh/jypcrqd4","slide":10,"text":"DESIGN","textPreview":"DESIGN","textChars":6,"textLines":1,"bbox":[664,240,472,30]}
+{"kind":"textbox","id":"sh/yxgbilcj","slide":10,"text":"Size workload; co-draft the security reference and account matrix.","textPreview":"Size workload; co-draft the security reference and account matrix.","textChars":66,"textLines":1,"bbox":[664,294,472,76]}
+{"kind":"shape","id":"sh/1o3ahwvq","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/0nut8rul","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/q9srixs3","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/ru18r2to","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/cva9k7a9","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/dwjqtcbu","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/exsrmhsf","slide":10,"bbox":[64,482,1152,158]}
+{"kind":"shape","id":"sh/zyl8vmt0","slide":10,"bbox":[64,516,1152,96]}
+{"kind":"textbox","id":"sh/wjmpkzqp","slide":10,"name":"swimlane-snowflake-1","text":"SNOWFLAKE","textPreview":"SNOWFLAKE","textChars":9,"textLines":1,"bbox":[82,274,472,18]}
+{"kind":"shape","id":"sh/xkv6d47a","slide":10,"name":"swimlane-rule-1","bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/rqh0z2do","slide":10,"name":"swimlane-iclo-label-1","text":"ICLO","textPreview":"ICLO","textChars":4,"textLines":1,"bbox":[82,376,472,18]}
+{"kind":"textbox","id":"sh/6p8zqxw3","slide":10,"name":"swimlane-iclo-1","text":"Provide current-state pack; run workshop and cadence.","textPreview":"Provide current-state pack; run workshop and cadence.","textChars":53,"textLines":1,"bbox":[82,396,472,50]}
+{"kind":"textbox","id":"sh/tsji1cvu","slide":10,"name":"swimlane-gate-1","text":"GATE · Sponsor, owners and route in writing","textPreview":"GATE · Sponsor, owners and route in writing","textChars":43,"textLines":1,"bbox":[82,446,472,54]}
+{"kind":"textbox","id":"sh/srahs7e9","slide":10,"name":"swimlane-snowflake-2","text":"SNOWFLAKE","textPreview":"SNOWFLAKE","textChars":9,"textLines":1,"bbox":[664,274,472,18]}
+{"kind":"shape","id":"sh/jmh0vids","slide":10,"name":"swimlane-rule-2","bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/il8zmxw7","slide":10,"name":"swimlane-iclo-label-2","text":"ICLO","textPreview":"ICLO","textChars":4,"textLines":1,"bbox":[664,376,472,18]}
+{"kind":"textbox","id":"sh/5ozixsvi","slide":10,"name":"swimlane-iclo-2","text":"Provide source map, ingestion test and sizing inputs.","textPreview":"Provide source map, ingestion test and sizing inputs.","textChars":53,"textLines":1,"bbox":[664,396,472,50]}
+{"kind":"textbox","id":"sh/4nqhoned","slide":10,"name":"swimlane-gate-2","text":"GATE · Architecture + matrix v1 accepted","textPreview":"GATE · Architecture + matrix v1 accepted","textChars":40,"textLines":1,"bbox":[664,446,472,54]}
+{"kind":"shape","id":"sh/3il07mdw","slide":10,"name":"swimlane-snowflake-3","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/2hsjyhwb","slide":10,"name":"swimlane-rule-3","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/a5s3mlsf","slide":10,"name":"swimlane-iclo-label-3","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/b614v690","slide":10,"name":"swimlane-iclo-3","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/c7alobal","slide":10,"name":"swimlane-gate-3","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/xsjmxgr6","slide":10,"name":"swimlane-snowflake-4","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/2183i1sj","slide":10,"name":"swimlane-rule-4","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/n2h4r694","slide":10,"name":"swimlane-iclo-label-4","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/o3qlkbap","slide":10,"name":"swimlane-iclo-4","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/p4zmtgra","slide":10,"name":"swimlane-gate-4","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/hsj6l4fq","slide":10,"bbox":[64,370,472,0]}
+{"kind":"shape","id":"sh/wra5czy5","slide":10,"bbox":[646,370,472,0]}
+{"kind":"shape","id":"sh/vqhojuxk","slide":10,"bbox":[566,338,56,0]}
+{"kind":"image","id":"im/147ul4n2","slide":10,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/03ytcz6h","slide":10,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/m90b6t0r","slide":10,"text":""}
+{"kind":"slide","id":"sl/v37dvr","slide":11,"title":"REQUEST TO SNOWFLAKE","textShapes":21}
+{"kind":"shape","id":"sh/o3qt8bql","slide":11,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/lk7qtgrm","slide":11,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/0jyp0bq1","slide":11,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/nmp8vqpc","slide":11,"text":"REQUEST TO SNOWFLAKE","textPreview":"REQUEST TO SNOWFLAKE","textChars":20,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/mlg72l8r","slide":11,"text":"A 90-Day Validation Plan · Validate and Expand","textPreview":"A 90-Day Validation Plan · Validate and Expand","textChars":46,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/9orqx07i","slide":11,"text":"Day 61 to Day 90, plus conditional expansion. ICLO owns the cadence and decision log.","textPreview":"Day 61 to Day 90, plus conditional expansion. ICLO owns the cadence and decision log.","textChars":85,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/8nyp4vqx","slide":11,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/vq98zapo","slide":11,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/ap076583","slide":11,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/hc3uh0j2","slide":11,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/falcfq1c","slide":11,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/4fedsfit","slide":11,"text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/pgnelkje","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/2dcvq50n","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/3e5wja18","slide":11,"bbox":[64,218,490,240]}
+{"kind":"shape","id":"sh/cjedwfip","slide":11,"bbox":[646,218,490,240]}
+{"kind":"shape","id":"sh/hsbup0nu","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/up0be543","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/vq9cnq5o","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/zy1c7ato","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/yxsvy5s3","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/943edkbq","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/83ud4fa5","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/72lcbutk","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/m1cv2psz","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/p8zu10b6","slide":11,"text":"DAYS 61-90","textPreview":"DAYS 61-90","textChars":10,"textLines":1,"bbox":[82,220,472,18]}
+{"kind":"textbox","id":"sh/o7qdsva1","slide":11,"text":"VALIDATE","textPreview":"VALIDATE","textChars":8,"textLines":1,"bbox":[82,240,472,30]}
+{"kind":"textbox","id":"sh/edor218j","slide":11,"text":"Sponsor one account-team review; issue the partner-readiness checklist.","textPreview":"Sponsor one account-team review; issue the partner-readiness checklist.","textChars":71,"textLines":1,"bbox":[82,294,472,76]}
+{"kind":"textbox","id":"sh/fexsb694","slide":11,"text":"CONDITIONAL","textPreview":"CONDITIONAL","textChars":11,"textLines":1,"bbox":[664,220,472,18]}
+{"kind":"textbox","id":"sh/gf694bqp","slide":11,"text":"EXPAND","textPreview":"EXPAND","textChars":6,"textLines":1,"bbox":[664,240,472,30]}
+{"kind":"textbox","id":"sh/1gfadwra","slide":11,"text":"Assess Native App, Clean Room or federated learning only if needed.","textPreview":"Assess Native App, Clean Room or federated learning only if needed.","textChars":67,"textLines":1,"bbox":[664,294,472,76]}
+{"kind":"shape","id":"sh/218b618v","slide":11,"bbox":[64,482,1152,158]}
+{"kind":"textbox","id":"sh/32hsf69g","slide":11,"text":"OPERATING MODEL · ICLO runs weekly written status and one decision log.\nCONSUMPTION MODEL · ICLO supplies the sizing inputs (employers, member-months, ingestion / transform / outcome-refresh frequency, data volume, warehouse size and runtime); the Snowflake SE calculates annual credits in the Day-30 sizing session.","textPreview":"OPERATING MODEL · ICLO runs weekly written status and one decision log. | CONSUMPTION MODEL · ICLO supplies the sizing inputs (employers,...","textChars":316,"textLines":2,"bbox":[64,516,1152,96]}
+{"kind":"shape","id":"sh/4j6lcbe9","slide":11,"name":"swimlane-snowflake-1","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/5kfmlgfu","slide":11,"name":"swimlane-rule-1","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/zq1grul8","slide":11,"name":"swimlane-iclo-label-1","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/epsfy94n","slide":11,"name":"swimlane-iclo-1","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/1sjyt43y","slide":11,"name":"swimlane-gate-1","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/0rax0zmd","slide":11,"name":"swimlane-snowflake-2","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/rmhwnulw","slide":11,"name":"swimlane-rule-2","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/ql8fup4b","slide":11,"name":"swimlane-iclo-label-2","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/dojep432","slide":11,"name":"swimlane-iclo-2","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/cnaxwzmh","slide":11,"name":"swimlane-gate-2","bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/bilgzelg","slide":11,"name":"swimlane-snowflake-3","text":"SNOWFLAKE","textPreview":"SNOWFLAKE","textChars":9,"textLines":1,"bbox":[82,274,472,18]}
+{"kind":"shape","id":"sh/ahcfqtkv","slide":11,"name":"swimlane-rule-3","bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/i5sjud0z","slide":11,"name":"swimlane-iclo-label-3","text":"ICLO","textPreview":"ICLO","textChars":4,"textLines":1,"bbox":[82,376,472,18]}
+{"kind":"textbox","id":"sh/jq10nihk","slide":11,"name":"swimlane-iclo-3","text":"Run review; recommend go / no-go.","textPreview":"Run review; recommend go / no-go.","textChars":33,"textLines":1,"bbox":[82,396,472,50]}
+{"kind":"textbox","id":"sh/kra1wni5","slide":11,"name":"swimlane-gate-3","text":"GATE · Use case + evidence minimum agreed","textPreview":"GATE · Use case + evidence minimum agreed","textChars":41,"textLines":1,"bbox":[82,446,472,54]}
+{"kind":"textbox","id":"sh/5sjipszq","slide":11,"name":"swimlane-snowflake-4","text":"SNOWFLAKE","textPreview":"SNOWFLAKE","textChars":9,"textLines":1,"bbox":[664,274,472,18]}
+{"kind":"shape","id":"sh/a18jqd03","slide":11,"name":"swimlane-rule-4","bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/v210jih8","slide":11,"name":"swimlane-iclo-label-4","text":"ICLO","textPreview":"ICLO","textChars":4,"textLines":1,"bbox":[664,376,472,18]}
+{"kind":"textbox","id":"sh/w3a1s3it","slide":11,"name":"swimlane-iclo-4","text":"Build only after multi-party demand is confirmed.","textPreview":"Build only after multi-party demand is confirmed.","textChars":49,"textLines":1,"bbox":[664,396,472,50]}
+{"kind":"textbox","id":"sh/x4jil8ze","slide":11,"name":"swimlane-gate-4","text":"TRIGGER · Account review confirms multi-party need","textPreview":"TRIGGER · Account review confirms multi-party need","textChars":50,"textLines":1,"bbox":[664,446,472,54]}
+{"kind":"shape","id":"sh/pcjmdgnu","slide":11,"bbox":[64,370,472,0]}
+{"kind":"shape","id":"sh/4ralkbm9","slide":11,"bbox":[646,370,472,0]}
+{"kind":"shape","id":"sh/3q14b65o","slide":11,"bbox":[566,338,56,0]}
+{"kind":"image","id":"im/5gzmxwzi","slide":11,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/4fql4ryd","slide":11,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/v37dvr","slide":11,"text":""}
+{"kind":"slide","id":"sl/jetc3ut0","slide":12,"title":"APPENDIX","textShapes":7}
+{"kind":"textbox","id":"sh/dofa18z6","slide":12,"text":"APPENDIX","textPreview":"APPENDIX","textChars":8,"textLines":1,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/xcryxg7y","slide":12,"bbox":[768,22,256,30]}
+{"kind":"shape","id":"sh/wbih4b6d","slide":12,"bbox":[768,22,6,30]}
+{"kind":"textbox","id":"sh/n69grmpw","slide":12,"text":"ICLO PRODUCT DESIGN PRINCIPLE / REQUEST TO SNOWFLAKE","textPreview":"ICLO PRODUCT DESIGN PRINCIPLE / REQUEST TO SNOWFLAKE","textChars":52,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/250zy18b","slide":12,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/98rytw72","slide":12,"bbox":[1032,22,6,30]}
+{"kind":"shape","id":"sh/o7ih0r6h","slide":12,"bbox":[1044,27,166,20]}
+{"kind":"textbox","id":"sh/72t03qp0","slide":12,"text":"Data and Responsibility Boundaries","textPreview":"Data and Responsibility Boundaries","textChars":34,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/61kzalof","slide":12,"text":"Platform responsibility, operating responsibility and legal judgment remain separate.","textPreview":"Platform responsibility, operating responsibility and legal judgment remain separate.","textChars":85,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/ofqtgnyt","slide":12,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/9gza9sze","slide":12,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/mdobedg3","slide":12,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/0b6tc3yx","slide":12,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/epobatgr","slide":12,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/zaxs3yhc","slide":12,"text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"table","id":"tb/k32lsny9","slide":12,"name":"","rows":6,"cols":5,"preview":"Domain | ICLO | Employer / TPA / partner | Snowflake | Outside Snowflake scope","bbox":[64,205,1152,430]}
+{"kind":"image","id":"im/idkrmp4r","slide":12,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/jet8va5c","slide":12,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/jetc3ut0","slide":12,"text":""}
+{"kind":"slide","id":"sl/8f2psfyx","slide":13,"title":"APPENDIX","textShapes":26}
+{"kind":"textbox","id":"sh/r6l8vaxw","slide":13,"text":"APPENDIX","textPreview":"APPENDIX","textChars":8,"textLines":1,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/1gbm9s3a","slide":13,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/0f2lgnmp","slide":13,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/ra943il8","slide":13,"text":"REQUEST TO SNOWFLAKE","textPreview":"REQUEST TO SNOWFLAKE","textChars":20,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/q903ad4n","slide":13,"text":"Technical Decisions for the Pilot","textPreview":"Technical Decisions for the Pilot","textChars":33,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/dcbm583y","slide":13,"text":"Resolve the pilot pattern first; treat application packaging and multi-party ML as conditional.","textPreview":"Resolve the pilot pattern first; treat application packaging and multi-party ML as conditional.","textChars":95,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/sb2lcnmd","slide":13,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/b6d4f2lc","slide":13,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/a543mx4r","slide":13,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/xw3q94ne","slide":13,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/bulo7u58","slide":13,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/orapcf6h","slide":13,"text":"13","textPreview":"13","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/9sj65kn2","slide":13,"text":"PRIORITY NOW","textPreview":"PRIORITY NOW","textChars":12,"textLines":1,"bbox":[64,209,220,25]}
+{"kind":"shape","id":"sh/mps7a5or","slide":13,"bbox":[64,250,28,28]}
+{"kind":"textbox","id":"sh/nq1o3a5w","slide":13,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[64,253,28,22]}
+{"kind":"textbox","id":"sh/0nap8f6l","slide":13,"text":"What is the practical U.S. Business Critical and BAA path for ICLO's current Snowflake account?","textPreview":"What is the practical U.S. Business Critical and BAA path for ICLO's current Snowflake account?","textChars":95,"textLines":1,"bbox":[108,250,520,52]}
+{"kind":"shape","id":"sh/1oj61kn6","slide":13,"bbox":[64,320,28,28]}
+{"kind":"textbox","id":"sh/hkbm5wzu","slide":13,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[64,323,28,22]}
+{"kind":"textbox","id":"sh/gj25cry9","slide":13,"text":"When should we use same-region Direct Share versus controlled SFTP/API staging?","textPreview":"When should we use same-region Direct Share versus controlled SFTP/API staging?","textChars":79,"textLines":1,"bbox":[108,320,520,52]}
+{"kind":"shape","id":"sh/fit436ho","slide":13,"bbox":[64,390,28,28]}
+{"kind":"textbox","id":"sh/uh0na1g3","slide":13,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[64,393,28,22]}
+{"kind":"textbox","id":"sh/tgrm1wzy","slide":13,"text":"What tenancy, masking, row-policy and access-history pattern do you recommend?","textPreview":"What tenancy, masking, row-policy and access-history pattern do you recommend?","textChars":78,"textLines":1,"bbox":[108,390,520,52]}
+{"kind":"shape","id":"sh/sfi58ryd","slide":13,"bbox":[64,460,28,28]}
+{"kind":"textbox","id":"sh/7u94zmhs","slide":13,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[64,463,28,22]}
+{"kind":"textbox","id":"sh/6t0n6hg7","slide":13,"text":"How should we size 2.5K / 10K / 25K populations and measure post-credit unit economics?","textPreview":"How should we size 2.5K / 10K / 25K populations and measure post-credit unit economics?","textChars":87,"textLines":1,"bbox":[108,460,520,52]}
+{"kind":"shape","id":"sh/dcv6dgz2","slide":13,"bbox":[64,530,28,28]}
+{"kind":"textbox","id":"sh/cbm5kbyh","slide":13,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[64,533,28,22]}
+{"kind":"textbox","id":"sh/alwbitsn","slide":13,"text":"What must ICLO prove for startup, partner, Powered by Snowflake or co-sell readiness?","textPreview":"What must ICLO prove for startup, partner, Powered by Snowflake or co-sell readiness?","textChars":85,"textLines":1,"bbox":[108,530,520,52]}
+{"kind":"shape","id":"sh/bm5sryt8","slide":13,"bbox":[660,202,556,430]}
+{"kind":"textbox","id":"sh/wnetkjat","slide":13,"text":"CONDITIONAL / LATER","textPreview":"CONDITIONAL / LATER","textChars":19,"textLines":1,"bbox":[686,222,250,25]}
+{"kind":"textbox","id":"sh/xonutobe","slide":13,"text":"Native App","textPreview":"Native App","textChars":10,"textLines":1,"bbox":[686,270,160,24]}
+{"kind":"textbox","id":"sh/mhcbe9sr","slide":13,"text":"When does customer-account execution beat a connector pattern?","textPreview":"When does customer-account execution beat a connector pattern?","textChars":62,"textLines":1,"bbox":[686,302,500,46]}
+{"kind":"textbox","id":"sh/nilsnetc","slide":13,"text":"Clean Room","textPreview":"Clean Room","textChars":10,"textLines":1,"bbox":[686,365,160,24]}
+{"kind":"textbox","id":"sh/ojutgjah","slide":13,"text":"Which multi-party payer / TPA / employer collaboration justifies it?","textPreview":"Which multi-party payer / TPA / employer collaboration justifies it?","textChars":68,"textLines":1,"bbox":[686,397,500,40]}
+{"kind":"textbox","id":"sh/9k3apob2","slide":13,"text":"Federated learning","textPreview":"Federated learning","textChars":18,"textLines":1,"bbox":[686,458,200,24]}
+{"kind":"textbox","id":"sh/6dgbqdsv","slide":13,"text":"True local training with parameter aggregation, or collaborative ML in a Clean Room, Native App or customer account?","textPreview":"True local training with parameter aggregation, or collaborative ML in a Clean Room, Native App or customer account?","textChars":116,"textLines":1,"bbox":[686,490,500,92]}
+{"kind":"textbox","id":"sh/7epczitg","slide":13,"text":"Not required for the first employer pilot.","textPreview":"Not required for the first employer pilot.","textChars":42,"textLines":1,"bbox":[686,590,500,24]}
+{"kind":"image","id":"im/9cv2xc76","slide":13,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/mpk32x8v","slide":13,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/8f2psfyx","slide":13,"text":""}
+{"kind":"slide","id":"sl/hgzapcr6","slide":14,"title":"APPENDIX","textShapes":26}
+{"kind":"textbox","id":"sh/4z2d8rah","slide":14,"text":"APPENDIX","textPreview":"APPENDIX","textChars":8,"textLines":1,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/q50nydsj","slide":14,"bbox":[968,22,248,30]}
+{"kind":"shape","id":"sh/bq9orito","slide":14,"bbox":[968,22,6,30]}
+{"kind":"textbox","id":"sh/o3i5w3ad","slide":14,"text":"HYPOTHESIS / TO BE VALIDATED","textPreview":"HYPOTHESIS / TO BE VALIDATED","textChars":28,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/p4r6p8by","slide":14,"text":"What the Scenario Model Needs","textPreview":"What the Scenario Model Needs","textChars":29,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/21gnuts7","slide":14,"text":"A governed planning heuristic should expose assumptions, scenario versions and uncertainty.","textPreview":"A governed planning heuristic should expose assumptions, scenario versions and uncertainty.","textChars":91,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/32ponyts","slide":14,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/gzy5s3a1","slide":14,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/1076lobm","slide":14,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/gb6x0zm9","slide":14,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/u9ofyp43","slide":14,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/t8fy5k3i","slide":14,"text":"14","textPreview":"14","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/876xwfmx","slide":14,"bbox":[64,216,450,78]}
+{"kind":"textbox","id":"sh/7mdg3als","slide":14,"text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[82,228,160,20]}
+{"kind":"textbox","id":"sh/6l4fu547","slide":14,"text":"Employee/dependent age distribution\nTurnover + average tenure","textPreview":"Employee/dependent age distribution | Turnover + average tenure","textChars":61,"textLines":2,"bbox":[240,226,252,56]}
+{"kind":"shape","id":"sh/lkvy103m","slide":14,"bbox":[64,312,450,78]}
+{"kind":"textbox","id":"sh/kjmxsfm1","slide":14,"text":"ACCESS","textPreview":"ACCESS","textChars":6,"textLines":1,"bbox":[82,324,160,20]}
+{"kind":"textbox","id":"sh/cnqh8fux","slide":14,"text":"Workforce geography\nNetwork overlap + provider availability","textPreview":"Workforce geography | Network overlap + provider availability","textChars":59,"textLines":2,"bbox":[240,322,252,56]}
+{"kind":"shape","id":"sh/xozyhkbi","slide":14,"bbox":[64,408,450,78]}
+{"kind":"textbox","id":"sh/q18f65cr","slide":14,"text":"PLAN","textPreview":"PLAN","textChars":4,"textLines":1,"bbox":[82,420,160,20]}
+{"kind":"textbox","id":"sh/bmhgfatc","slide":14,"text":"Plan design + annual maximum\nEmployer contribution + paid/OOP split","textPreview":"Plan design + annual maximum | Employer contribution + paid/OOP split","textChars":67,"textLines":2,"bbox":[240,418,252,56]}
+{"kind":"shape","id":"sh/oz6x4vul","slide":14,"bbox":[64,504,450,78]}
+{"kind":"textbox","id":"sh/p0zyd0b6","slide":14,"text":"BASELINE + TIMING","textPreview":"BASELINE + TIMING","textChars":17,"textLines":1,"bbox":[82,516,160,20]}
+{"kind":"textbox","id":"sh/2xof2lcv","slide":14,"text":"Utilization + historical claims\nUntreated need/incidence + run-out","textPreview":"Utilization + historical claims | Untreated need/incidence + run-out","textChars":66,"textLines":2,"bbox":[240,514,252,56]}
+{"kind":"shape","id":"sh/3yxgbqdg","slide":14,"bbox":[558,326,214,146]}
+{"kind":"textbox","id":"sh/8vahgzu5","slide":14,"text":"GOVERNED\nSCENARIO MODEL","textPreview":"GOVERNED | SCENARIO MODEL","textChars":23,"textLines":2,"bbox":[570,344,190,62]}
+{"kind":"textbox","id":"sh/9wjyp4bq","slide":14,"text":"Lineage + version + uncertainty","textPreview":"Lineage + version + uncertainty","textChars":31,"textLines":1,"bbox":[570,414,190,42]}
+{"kind":"shape","id":"sh/jqlkfyds","slide":14,"bbox":[524,376,10,10]}
+{"kind":"shape","id":"sh/bup4ryhs","slide":14,"bbox":[534,381,24,18]}
+{"kind":"shape","id":"sh/5cn2h8vy","slide":14,"bbox":[816,216,400,398]}
+{"kind":"shape","id":"sh/l0rmx8zu","slide":14,"bbox":[772,399,44,16]}
+{"kind":"textbox","id":"sh/re5kjydo","slide":14,"text":"OUTPUTS","textPreview":"OUTPUTS","textChars":7,"textLines":1,"bbox":[842,239,180,24]}
+{"kind":"shape","id":"sh/6dwjqtw3","slide":14,"bbox":[842,285,8,8]}
+{"kind":"textbox","id":"sh/tgn2l8vu","slide":14,"text":"Preventive utilization increase","textPreview":"Preventive utilization increase","textChars":31,"textLines":1,"bbox":[864,278,320,28]}
+{"kind":"shape","id":"sh/sfe1s3e9","slide":14,"bbox":[842,326,8,8]}
+{"kind":"textbox","id":"sh/7i107edk","slide":14,"text":"Newly discovered treatment spend","textPreview":"Newly discovered treatment spend","textChars":32,"textLines":1,"bbox":[864,319,320,28]}
+{"kind":"shape","id":"sh/mhsje9wz","slide":14,"bbox":[842,367,8,8]}
+{"kind":"textbox","id":"sh/y1wju94v","slide":14,"text":"Allowed / plan-paid / OOP separation","textPreview":"Allowed / plan-paid / OOP separation","textChars":36,"textLines":1,"bbox":[864,360,320,28]}
+{"kind":"shape","id":"sh/z25kne5g","slide":14,"bbox":[842,408,8,8]}
+{"kind":"textbox","id":"sh/03e1wjm1","slide":14,"text":"Year 1 / Year 2 / Year 3 scenarios","textPreview":"Year 1 / Year 2 / Year 3 scenarios","textChars":34,"textLines":1,"bbox":[864,401,320,28]}
+{"kind":"shape","id":"sh/l4n2po3m","slide":14,"bbox":[842,449,8,8]}
+{"kind":"textbox","id":"sh/m5gjyt4r","slide":14,"text":"Turnover sensitivity","textPreview":"Turnover sensitivity","textChars":20,"textLines":1,"bbox":[864,442,320,28]}
+{"kind":"shape","id":"sh/n6pkrelc","slide":14,"bbox":[842,490,8,8]}
+{"kind":"textbox","id":"sh/8ry10jmx","slide":14,"text":"Network-access sensitivity","textPreview":"Network-access sensitivity","textChars":26,"textLines":1,"bbox":[864,483,320,28]}
+{"kind":"shape","id":"sh/9s72to3i","slide":14,"bbox":[842,531,8,8]}
+{"kind":"textbox","id":"sh/atgj2t43","slide":14,"text":"Expected data uncertainty","textPreview":"Expected data uncertainty","textChars":25,"textLines":1,"bbox":[864,524,320,28]}
+{"kind":"shape","id":"sh/vupkvylo","slide":14,"bbox":[64,632,1152,32]}
+{"kind":"textbox","id":"sh/50behwr2","slide":14,"text":"Planning heuristic - calibrate with customer data; not an ICLO outcome.","textPreview":"Planning heuristic - calibrate with customer data; not an ICLO outcome.","textChars":71,"textLines":1,"bbox":[64,634,1152,34]}
+{"kind":"shape","id":"sh/j6l0raxc","slide":14,"bbox":[64,224,3,62]}
+{"kind":"shape","id":"sh/47u10fex","slide":14,"bbox":[500,255,24,0]}
+{"kind":"shape","id":"sh/583itkf2","slide":14,"bbox":[64,320,3,62]}
+{"kind":"shape","id":"sh/q9cj2pwn","slide":14,"bbox":[500,351,24,0]}
+{"kind":"shape","id":"sh/ral0vux8","slide":14,"bbox":[64,416,3,62]}
+{"kind":"shape","id":"sh/sbu14zet","slide":14,"bbox":[500,447,24,0]}
+{"kind":"shape","id":"sh/dw32x4fe","slide":14,"bbox":[64,512,3,62]}
+{"kind":"shape","id":"sh/excj6pwz","slide":14,"bbox":[500,543,24,0]}
+{"kind":"shape","id":"sh/fy5kzuxk","slide":14,"bbox":[524,255,0,288]}
+{"kind":"shape","id":"sh/nu10jupo","slide":14,"bbox":[524,399,34,0]}
+{"kind":"shape","id":"sh/mtsjqpo3","slide":14,"bbox":[816,289,0,246]}
+{"kind":"image","id":"im/d0jm9sb6","slide":14,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/vuhojids","slide":14,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/hgzapcr6","slide":14,"text":""}
+{"kind":"slide","id":"sl/6lsnupw7","slide":15,"title":"APPENDIX","textShapes":10}
+{"kind":"textbox","id":"sh/hsvy50re","slide":15,"text":"APPENDIX","textPreview":"APPENDIX","textChars":8,"textLines":1,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/xc7eds76","slide":15,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/wbydknq1","slide":15,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/jepwf2pc","slide":15,"text":"REQUEST TO SNOWFLAKE","textPreview":"REQUEST TO SNOWFLAKE","textChars":20,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/idgvmx8r","slide":15,"text":"Account Evidence Required Before Outreach","textPreview":"Account Evidence Required Before Outreach","textChars":41,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/5grehs7i","slide":15,"text":"Validate the employer, dental administrator, data workload, rights and technical readiness account by account.","textPreview":"Validate the employer, dental administrator, data workload, rights and technical readiness account by account.","textChars":110,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/kfidonqx","slide":15,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/zi5c3y98","slide":15,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/ehwvat8n","slide":15,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/x4ni9ofy","slide":15,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/b2507exs","slide":15,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/kre1k3y9","slide":15,"text":"15","textPreview":"15","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/ls7idofu","slide":15,"text":"ACCOUNT IDENTITY + DATA","textPreview":"ACCOUNT IDENTITY + DATA","textChars":23,"textLines":1,"bbox":[64,205,620,26]}
+{"kind":"textbox","id":"sh/z650byxo","slide":15,"text":"COMMERCIAL + TECHNICAL READINESS","textPreview":"COMMERCIAL + TECHNICAL READINESS","textChars":32,"textLines":1,"bbox":[64,438,620,26]}
+{"kind":"textbox","id":"sh/1w3i14fq","slide":15,"text":"Blank template, to be completed with the account team. No statement that 'many TPAs are on Snowflake' should be used before this matrix contains account evidence.","textPreview":"Blank template, to be completed with the account team. No statement that 'many TPAs are on Snowflake' should be used before this matrix c...","textChars":162,"textLines":1,"bbox":[64,634,1152,38]}
+{"kind":"table","id":"tb/1sjap8zi","slide":15,"name":"","rows":3,"cols":6,"preview":"Organization / legal entity | Account type | Self-funded dental admin? | Dental eligibility in Snowflake? | Claim-line data in Snowflake?...","bbox":[64,238,1152,168]}
+{"kind":"table","id":"tb/2tcbyd03","slide":15,"name":"","rows":2,"cols":5,"preview":"Current navigation / teledentistry vendor | Potential ICLO whitespace | Snowflake account owner | Technical validation ready? | Customer ...","bbox":[64,471,1152,132]}
+{"kind":"image","id":"im/7ipgzel8","slide":15,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/8jyx8jmt","slide":15,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/6lsnupw7","slide":15,"text":""}
+{"kind":"slide","id":"sl/vaxsvy10","slide":16,"title":"APPENDIX","textShapes":19}
+{"kind":"textbox","id":"sh/f6dcnetg","slide":16,"text":"APPENDIX","textPreview":"APPENDIX","textChars":8,"textLines":1,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/547mhg3m","slide":16,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/k3y5ov21","slide":16,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/76p4jqls","slide":16,"text":"COMPLETION REQUIRED","textPreview":"COMPLETION REQUIRED","textChars":19,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/65gnqlk7","slide":16,"text":"ICLO: Confirmed and Still to Verify","textPreview":"ICLO: Confirmed and Still to Verify","textChars":35,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/t87ml0ji","slide":16,"text":"Program selections and a defined product/data boundary support validation; current Snowflake status must be confirmed before release.","textPreview":"Program selections and a defined product/data boundary support validation; current Snowflake status must be confirmed before release.","textChars":133,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/s7y5sv2x","slide":16,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/na5476l8","slide":16,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/m9c3e1kn","slide":16,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/hsvat0fa","slide":16,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/vqdsrqx4","slide":16,"text":"External proposal · discussion material","textPreview":"External proposal · discussion material","textChars":39,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/4vm9ovel","slide":16,"text":"16","textPreview":"16","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/5wvax0f6","slide":16,"text":"ICLO AT A GLANCE","textPreview":"ICLO AT A GLANCE","textChars":16,"textLines":1,"bbox":[64,209,220,25]}
+{"kind":"shape","id":"sh/it4rm5wv","slide":16,"bbox":[64,250,28,28]}
+{"kind":"textbox","id":"sh/judsvqxg","slide":16,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[64,253,28,22]}
+{"kind":"textbox","id":"sh/0z29cbyh","slide":16,"text":"COMPANY\nICLO Co., Ltd. · Jeju, Republic of Korea · Commercial in the Korean market, B2C and B2B · 12 core team","textPreview":"COMPANY | ICLO Co., Ltd. · Jeju, Republic of Korea · Commercial in the Korean market, B2C and B2B · 12 core team","textChars":110,"textLines":2,"bbox":[108,250,1000,52]}
+{"kind":"shape","id":"sh/l0bqlgf2","slide":16,"bbox":[64,320,28,28]}
+{"kind":"textbox","id":"sh/1kjyt83e","slide":16,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[64,323,28,22]}
+{"kind":"textbox","id":"sh/gjax03m9","slide":16,"text":"PRODUCT\nHomeDen SaaS (PMS / EMR / CRM) plus employer dental-benefit navigation and claims-evidence design","textPreview":"PRODUCT | HomeDen SaaS (PMS / EMR / CRM) plus employer dental-benefit navigation and claims-evidence design","textChars":105,"textLines":2,"bbox":[108,320,1000,52]}
+{"kind":"shape","id":"sh/fi1grylo","slide":16,"bbox":[64,390,28,28]}
+{"kind":"textbox","id":"sh/ehsfyt43","slide":16,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[64,393,28,22]}
+{"kind":"textbox","id":"sh/p8jyx83q","slide":16,"text":"PROGRAMS\nSelected: Fintech Cube Cohort 9; Shinhan Future's Lab Cohort 12","textPreview":"PROGRAMS | Selected: Fintech Cube Cohort 9; Shinhan Future's Lab Cohort 12","textChars":72,"textLines":2,"bbox":[108,390,1000,52]}
+{"kind":"shape","id":"sh/o7ah4nm5","slide":16,"bbox":[64,460,28,28]}
+{"kind":"textbox","id":"sh/361gvilk","slide":16,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[64,463,28,22]}
+{"kind":"textbox","id":"sh/25sf2d4z","slide":16,"text":"SNOWFLAKE STATUS\nTo confirm with Snowflake: official program name, sponsor, account, cloud, region, credits and support owner","textPreview":"SNOWFLAKE STATUS | To confirm with Snowflake: official program name, sponsor, account, cloud, region, credits and support owner","textChars":125,"textLines":2,"bbox":[108,460,1000,52]}
+{"kind":"shape","id":"sh/dc3y1s3m","slide":16,"bbox":[64,530,28,28]}
+{"kind":"textbox","id":"sh/cbuh8nmh","slide":16,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[64,533,28,22]}
+{"kind":"textbox","id":"sh/uh4v2pkj","slide":16,"text":"NEXT PROOF\nOne U.S. self-funded employer dental-data path plus one account-team review","textPreview":"NEXT PROOF | One U.S. self-funded employer dental-data path plus one account-team review","textChars":86,"textLines":2,"bbox":[108,530,1000,52]}
+{"kind":"shape","id":"sh/vixcvu14","slide":16,"bbox":[660,202,556,430]}
+{"kind":"shape","id":"sh/wj6d4z2p","slide":16,"bbox":[686,222,250,25]}
+{"kind":"shape","id":"sh/hkfexkja","slide":16,"bbox":[686,270,160,24]}
+{"kind":"shape","id":"sh/ilov6pkv","slide":16,"bbox":[686,302,500,46]}
+{"kind":"shape","id":"sh/jmxwzu1g","slide":16,"bbox":[686,365,160,24]}
+{"kind":"shape","id":"sh/4n6d8z21","slide":16,"bbox":[686,397,500,40]}
+{"kind":"shape","id":"sh/5ofe14j6","slide":16,"bbox":[686,458,200,24]}
+{"kind":"shape","id":"sh/6p8va9kr","slide":16,"bbox":[686,490,500,92]}
+{"kind":"textbox","id":"sh/rqhw3e1c","slide":16,"text":"The Snowflake row is the ask in this meeting. Korean commercial stage and program selection do not prove insurer integration, underwriting, adjudication or U.S. outcomes.","textPreview":"The Snowflake row is the ask in this meeting. Korean commercial stage and program selection do not prove insurer integration, underwritin...","textChars":170,"textLines":1,"bbox":[108,606,1000,44]}
+{"kind":"image","id":"im/dwjidkva","slide":16,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/qtsz2pcj","slide":16,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/vaxsvy10","slide":16,"text":""}

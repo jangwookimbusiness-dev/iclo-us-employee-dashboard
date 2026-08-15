@@ -1,0 +1,713 @@
+{"kind":"deck","id":"pr/rdedyt","name":"Deck"}
+{"kind":"layout","layoutId":"/ppt/slideMasters/slideMaster1.xml","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout1.xml","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/y90nupkv","slide":1,"title":"미국 SELF-FUNDED EMPLOYER 치아보험 POC","textShapes":11}
+{"kind":"textbox","id":"sh/mx4v6hoz","slide":1,"text":"미국 SELF-FUNDED EMPLOYER 치아보험 POC","textPreview":"미국 SELF-FUNDED EMPLOYER 치아보험 POC","textChars":32,"textLines":1,"bbox":[64,52,420,24]}
+{"kind":"textbox","id":"sh/k3yl0zql","slide":1,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[1054,46,24,24]}
+{"kind":"textbox","id":"sh/65g3298r","slide":1,"text":"U.S. Self-Funded Employer\nDental-Benefit PoC","textPreview":"U.S. Self-Funded Employer | Dental-Benefit PoC","textChars":44,"textLines":2,"bbox":[64,132,920,125]}
+{"kind":"textbox","id":"sh/ts7md4r2","slide":1,"text":"현재 Snowflake 지원 관계를 구조화된 90일 공동 검증으로 전환하는 제안입니다.","textPreview":"현재 Snowflake 지원 관계를 구조화된 90일 공동 검증으로 전환하는 제안입니다.","textChars":48,"textLines":1,"bbox":[64,276,1080,58]}
+{"kind":"shape","id":"sh/sryl4zqx","slide":1,"bbox":[64,430,298,124]}
+{"kind":"shape","id":"sh/fu94fe98","slide":1,"bbox":[432,430,398,124]}
+{"kind":"shape","id":"sh/utg3698n","slide":1,"bbox":[900,430,316,124]}
+{"kind":"shape","id":"sh/7u1s7u9g","slide":1,"bbox":[362,492,70,0]}
+{"kind":"shape","id":"sh/gzut4jax","slide":1,"bbox":[830,492,70,0]}
+{"kind":"textbox","id":"sh/ul4vaxgb","slide":1,"text":"Employee / 임직원","textPreview":"Employee / 임직원","textChars":14,"textLines":1,"bbox":[82,436,300,46]}
+{"kind":"textbox","id":"sh/vmdcj2xw","slide":1,"text":"치아보험 이해\n치과 찾기 + 지원 요청","textPreview":"치아보험 이해 | 치과 찾기 + 지원 요청","textChars":21,"textLines":2,"bbox":[82,492,300,55]}
+{"kind":"textbox","id":"sh/4r6dg7et","slide":1,"text":"Evidence / 데이터 근거","textPreview":"Evidence / 데이터 근거","textChars":17,"textLines":1,"bbox":[450,436,362,46]}
+{"kind":"textbox","id":"sh/5sfepcfe","slide":1,"text":"가입·플랜·네트워크\n이용 기록 + 치아보험 청구","textPreview":"가입·플랜·네트워크 | 이용 기록 + 치아보험 청구","textChars":26,"textLines":2,"bbox":[450,492,362,55]}
+{"kind":"textbox","id":"sh/ipovexwn","slide":1,"text":"Employer / 기업 의사결정","textPreview":"Employer / 기업 의사결정","textChars":18,"textLines":1,"bbox":[918,436,300,46]}
+{"kind":"textbox","id":"sh/3qxwn2x8","slide":1,"text":"플랜·운영사 적합성\n접근성 + 청구 + 본인부담","textPreview":"플랜·운영사 적합성 | 접근성 + 청구 + 본인부담","textChars":26,"textLines":2,"bbox":[918,492,300,55]}
+{"kind":"shape","id":"sh/sfqdkrep","slide":1,"bbox":[64,628,10,10]}
+{"kind":"shape","id":"sh/dgzetcfa","slide":1,"bbox":[82,624,185,18]}
+{"kind":"shape","id":"sh/1cvuxc7e","slide":1,"bbox":[279,628,10,10]}
+{"kind":"shape","id":"sh/0bmd476t","slide":1,"bbox":[297,624,185,18]}
+{"kind":"shape","id":"sh/zadcv2p8","slide":1,"bbox":[494,628,10,10]}
+{"kind":"shape","id":"sh/e94v2hon","slide":1,"bbox":[512,624,185,18]}
+{"kind":"shape","id":"sh/90ve1w7q","slide":1,"bbox":[709,628,10,10]}
+{"kind":"shape","id":"sh/ozmd8r65","slide":1,"bbox":[727,624,185,18]}
+{"kind":"textbox","id":"sh/nydczmpk","slide":1,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[1168,673,48,18]}
+{"kind":"image","id":"im/kv29kjqh","slide":1,"name":"","bbox":[940,36.02,104,37.96]}
+{"kind":"image","id":"im/a10nupof","slide":1,"name":"","bbox":[1102.14,30,97.73,55]}
+{"kind":"notes","id":"nt/y90nupkv","slide":1,"text":"첫 장에서 현재 Snowflake 지원 관계를 90일 공동 검증으로 전환한다는 목적을 명시한다. 공식 프로그램명과 현재 스폰서는 외부 공유 전에 확인한다."}
+{"kind":"slide","id":"sl/hwbqtkby","slide":2,"title":"ICLO 관점 / 미국 시장 맥락","textShapes":25}
+{"kind":"shape","id":"sh/1wzix87i","slide":2,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/9072xkry","slide":2,"bbox":[968,22,248,30]}
+{"kind":"shape","id":"sh/ozy1ofad","slide":2,"bbox":[968,22,6,30]}
+{"kind":"textbox","id":"sh/b29kza94","slide":2,"text":"ICLO 관점 / 미국 시장 맥락","textPreview":"ICLO 관점 / 미국 시장 맥락","textChars":18,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/a10jqpsj","slide":2,"text":"치아보험에서 실제 진료까지 네 가지 판단이 남습니다","textPreview":"치아보험에서 실제 진료까지 네 가지 판단이 남습니다","textChars":28,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/x4r21kru","slide":2,"text":"임직원은 실제 진료 전에 네 가지 질문을 각각 해결해야 합니다.","textPreview":"임직원은 실제 진료 전에 네 가지 질문을 각각 해결해야 합니다.","textChars":35,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/w3i1sfa9","slide":2,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/r65knqtk","slide":2,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/q5wjelsz","slide":2,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/9wnqhczy","slide":2,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/nu58f2hs","slide":2,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/wjy9sry9","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/xk7qlczu","slide":2,"bbox":[64,216,450,78]}
+{"kind":"textbox","id":"sh/ahwrqhgj","slide":2,"text":"가입 자격","textPreview":"가입 자격","textChars":5,"textLines":1,"bbox":[82,228,160,20]}
+{"kind":"textbox","id":"sh/bip8jmho","slide":2,"text":"오늘 보장 대상인가?\n임직원·가족 + 효력일","textPreview":"오늘 보장 대상인가? | 임직원·가족 + 효력일","textChars":24,"textLines":2,"bbox":[240,226,252,56]}
+{"kind":"shape","id":"sh/cnupgny5","slide":2,"bbox":[64,312,450,78]}
+{"kind":"textbox","id":"sh/do3q9szq","slide":2,"text":"네트워크","textPreview":"네트워크","textChars":4,"textLines":1,"bbox":[82,324,160,20]}
+{"kind":"textbox","id":"sh/t8byxkn2","slide":2,"text":"어느 치과가 플랜에 맞나?\n네트워크 + 거리","textPreview":"어느 치과가 플랜에 맞나? | 네트워크 + 거리","textChars":24,"textLines":2,"bbox":[240,322,252,56]}
+{"kind":"shape","id":"sh/s72xofmh","slide":2,"bbox":[64,408,450,78]}
+{"kind":"textbox","id":"sh/76twva5c","slide":2,"text":"치아보험 조건","textPreview":"치아보험 조건","textChars":7,"textLines":1,"bbox":[82,420,160,20]}
+{"kind":"textbox","id":"sh/65kfmpor","slide":2,"text":"치아보험이 얼마를 내나?\n공제액 + 본인부담 + 연간 한도","textPreview":"치아보험이 얼마를 내나? | 공제액 + 본인부담 + 연간 한도","textChars":32,"textLines":2,"bbox":[240,418,252,56]}
+{"kind":"shape","id":"sh/hcvy14ne","slide":2,"bbox":[64,504,450,78]}
+{"kind":"textbox","id":"sh/gbmxszmt","slide":2,"text":"예약 가능성","textPreview":"예약 가능성","textChars":6,"textLines":1,"bbox":[82,516,160,20]}
+{"kind":"textbox","id":"sh/fadgzu58","slide":2,"text":"실제로 예약할 수 있나?\n치과 목록 + 예약 가능 시간","textPreview":"실제로 예약할 수 있나? | 치과 목록 + 예약 가능 시간","textChars":30,"textLines":2,"bbox":[240,514,252,56]}
+{"kind":"shape","id":"sh/u94fqp4n","slide":2,"bbox":[558,326,214,146]}
+{"kind":"textbox","id":"sh/p0vy54na","slide":2,"text":"임직원\n의사결정","textPreview":"임직원 | 의사결정","textChars":8,"textLines":2,"bbox":[578,352,174,55]}
+{"kind":"textbox","id":"sh/4zmxwzmp","slide":2,"text":"보장 → 선택 → 행동","textPreview":"보장 → 선택 → 행동","textChars":12,"textLines":1,"bbox":[578,423,174,32]}
+{"kind":"shape","id":"sh/mlgvq147","slide":2,"bbox":[524,376,10,10]}
+{"kind":"shape","id":"sh/kv2t4jyt","slide":2,"bbox":[534,381,24,18]}
+{"kind":"shape","id":"sh/onydsbmd","slide":2,"bbox":[816,216,400,398]}
+{"kind":"shape","id":"sh/edgbqpgj","slide":2,"bbox":[772,399,44,16]}
+{"kind":"textbox","id":"sh/a9gvulkj","slide":2,"text":"실제 이용","textPreview":"실제 이용","textChars":5,"textLines":1,"bbox":[842,239,180,24]}
+{"kind":"shape","id":"sh/ba9cn6l4","slide":2,"bbox":[842,285,8,8]}
+{"kind":"textbox","id":"sh/wbidwb29","slide":2,"text":"가입 자격 확인","textPreview":"가입 자격 확인","textChars":8,"textLines":1,"bbox":[864,278,320,28]}
+{"kind":"shape","id":"sh/xcrupg3u","slide":2,"bbox":[842,326,8,8]}
+{"kind":"textbox","id":"sh/id0vylkf","slide":2,"text":"네트워크 치과 확인","textPreview":"네트워크 치과 확인","textChars":10,"textLines":1,"bbox":[864,319,320,28]}
+{"kind":"shape","id":"sh/je9crql0","slide":2,"bbox":[842,367,8,8]}
+{"kind":"textbox","id":"sh/ru5cbqd4","slide":2,"text":"치아보험 조건 이해","textPreview":"치아보험 조건 이해","textChars":10,"textLines":1,"bbox":[864,360,320,28]}
+{"kind":"shape","id":"sh/69wbilcj","slide":2,"bbox":[842,408,8,8]}
+{"kind":"textbox","id":"sh/tw7ud0va","slide":2,"text":"예상 본인부담 범위","textPreview":"예상 본인부담 범위","textChars":10,"textLines":1,"bbox":[864,401,320,28]}
+{"kind":"shape","id":"sh/svedkvup","slide":2,"bbox":[842,449,8,8]}
+{"kind":"textbox","id":"sh/fypcfqdg","slide":2,"text":"예약 가능 시간 확인","textPreview":"예약 가능 시간 확인","textChars":11,"textLines":1,"bbox":[864,442,320,28]}
+{"kind":"shape","id":"sh/exgvmlcv","slide":2,"bbox":[842,490,8,8]}
+{"kind":"textbox","id":"sh/107uh0v6","slide":2,"text":"필요한 지원 요청","textPreview":"필요한 지원 요청","textChars":9,"textLines":1,"bbox":[864,483,320,28]}
+{"kind":"shape","id":"sh/gzydovul","slide":2,"bbox":[842,531,8,8]}
+{"kind":"textbox","id":"sh/v2lc36dw","slide":2,"text":"진료 준비 완료","textPreview":"진료 준비 완료","textChars":8,"textLines":1,"bbox":[864,524,320,28]}
+{"kind":"shape","id":"sh/a1cba1wb","slide":2,"bbox":[64,632,1152,32]}
+{"kind":"textbox","id":"sh/0vq1o36x","slide":2,"text":"ICLO는 의사결정 마찰을 줄이며, 원시 임상 확률을 노출하지 않습니다.","textPreview":"ICLO는 의사결정 마찰을 줄이며, 원시 임상 확률을 노출하지 않습니다.","textChars":40,"textLines":1,"bbox":[64,634,1152,34]}
+{"kind":"shape","id":"sh/g365crmd","slide":2,"bbox":[64,224,3,62]}
+{"kind":"shape","id":"sh/v2xojmls","slide":2,"bbox":[500,255,24,0]}
+{"kind":"shape","id":"sh/u1onah47","slide":2,"bbox":[64,320,3,62]}
+{"kind":"shape","id":"sh/58z6pw3u","slide":2,"bbox":[500,351,24,0]}
+{"kind":"shape","id":"sh/47q5grm9","slide":2,"bbox":[64,416,3,62]}
+{"kind":"shape","id":"sh/36xonmlo","slide":2,"bbox":[500,447,24,0]}
+{"kind":"shape","id":"sh/i5one143","slide":2,"bbox":[64,512,3,62]}
+{"kind":"shape","id":"sh/lcvmdcnq","slide":2,"bbox":[500,543,24,0]}
+{"kind":"shape","id":"sh/kbm547m5","slide":2,"bbox":[524,255,0,288]}
+{"kind":"shape","id":"sh/oru9cf6d","slide":2,"bbox":[524,399,34,0]}
+{"kind":"shape","id":"sh/ps3qlkny","slide":2,"bbox":[816,289,0,246]}
+{"kind":"image","id":"im/adszmhwb","slide":2,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/8725kfqx","slide":2,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/hwbqtkby","slide":2,"text":"치아보험 가입 여부와 실제 진료 이용 사이의 네 가지 의사결정 마찰을 보여준다. 선형 절차가 아니라 직원이 동시에 확인해야 하는 입력-판단-결과 구조다.\n\n[Sources]\n- User-provided ICLO x Snowflake external briefing requirements, 2026-08-05\n- ADA, Dental benefit plan designs: https://www.ada.org/resources/practice/dental-insurance/benefit-plan-designs"}
+{"kind":"slide","id":"sl/ofy9wn61","slide":3,"title":"확정된 ICLO 방향 / ICLO 제품 설계 원칙","textShapes":21}
+{"kind":"shape","id":"sh/v29cfu18","slide":3,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/cza94vmx","slide":3,"bbox":[736,22,216,30]}
+{"kind":"shape","id":"sh/d0jax03i","slide":3,"bbox":[736,22,6,30]}
+{"kind":"textbox","id":"sh/298ryl4v","slide":3,"text":"확정된 ICLO 방향 / ICLO 제품 설계 원칙","textPreview":"확정된 ICLO 방향 / ICLO 제품 설계 원칙","textChars":27,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/3ah8rqlg","slide":3,"bbox":[960,22,256,30]}
+{"kind":"shape","id":"sh/obq90bml","slide":3,"bbox":[960,22,6,30]}
+{"kind":"shape","id":"sh/pcjqtg36","slide":3,"bbox":[972,27,238,20]}
+{"kind":"textbox","id":"sh/m5cra54z","slide":3,"text":"치아보험 이용을 청구 근거까지 연결합니다","textPreview":"치아보험 이용을 청구 근거까지 연결합니다","textChars":22,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/n6ls3alk","slide":3,"text":"앞에서는 치아보험 이용을 돕고, 뒤에서는 청구로 확인 가능한 근거를 만듭니다.","textPreview":"앞에서는 치아보험 이용을 돕고, 뒤에서는 청구로 확인 가능한 근거를 만듭니다.","textChars":43,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/n2l4fq98","slide":3,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/m1c3mlsn","slide":3,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/943mhgre","slide":3,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/v6l4jq94","slide":3,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/x8nml0ra","slide":3,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/w7ulsvqp","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/ja54na9g","slide":3,"bbox":[64,230,252,180]}
+{"kind":"shape","id":"sh/i9w3u58v","slide":3,"bbox":[355,230,252,180]}
+{"kind":"shape","id":"sh/e10f2twf","slide":3,"bbox":[646,230,252,180]}
+{"kind":"shape","id":"sh/f29gbyx0","slide":3,"bbox":[937,230,252,180]}
+{"kind":"shape","id":"sh/gj6x0vmd","slide":3,"bbox":[316,320,39,0]}
+{"kind":"shape","id":"sh/7udw3q5w","slide":3,"bbox":[607,320,39,0]}
+{"kind":"shape","id":"sh/6t4fulob","slide":3,"bbox":[898,320,39,0]}
+{"kind":"textbox","id":"sh/re9g7yxo","slide":3,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[82,246,44,26]}
+{"kind":"textbox","id":"sh/sfix03y9","slide":3,"text":"직원 경험","textPreview":"직원 경험","textChars":5,"textLines":1,"bbox":[82,283,215,48]}
+{"kind":"textbox","id":"sh/tgry9ofu","slide":3,"text":"우려 사항 + 혜택 이해\n선택적 구강 사진","textPreview":"우려 사항 + 혜택 이해 | 선택적 구강 사진","textChars":23,"textLines":2,"bbox":[82,342,215,52]}
+{"kind":"textbox","id":"sh/a9kfadwn","slide":3,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[373,246,44,26]}
+{"kind":"textbox","id":"sh/batgjixs","slide":3,"text":"혜택·치과 정보","textPreview":"혜택·치과 정보","textChars":8,"textLines":1,"bbox":[373,283,215,48]}
+{"kind":"textbox","id":"sh/l4fi9cza","slide":3,"text":"가입 자격 + 네트워크\n플랜 조건 + 예약 정보","textPreview":"가입 자격 + 네트워크 | 플랜 조건 + 예약 정보","textChars":26,"textLines":2,"bbox":[373,342,215,52]}
+{"kind":"textbox","id":"sh/k3m1g7yp","slide":3,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[664,246,44,26]}
+{"kind":"textbox","id":"sh/z2d07mh4","slide":3,"text":"직원 요청 기반 행동","textPreview":"직원 요청 기반 행동","textChars":11,"textLines":1,"bbox":[664,283,215,48]}
+{"kind":"textbox","id":"sh/y14jehgj","slide":3,"text":"치과 찾기\n예약 지원","textPreview":"치과 찾기 | 예약 지원","textChars":11,"textLines":2,"bbox":[664,342,215,52]}
+{"kind":"textbox","id":"sh/x0vi5czy","slide":3,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[955,246,44,26]}
+{"kind":"textbox","id":"sh/czmhc7id","slide":3,"text":"청구로 확인한 근거","textPreview":"청구로 확인한 근거","textChars":10,"textLines":1,"bbox":[955,283,215,48]}
+{"kind":"textbox","id":"sh/byd032h8","slide":3,"text":"방문 완료 + 청구 항목\n기업에는 집계만","textPreview":"방문 완료 + 청구 항목 | 기업에는 집계만","textChars":22,"textLines":2,"bbox":[955,342,215,52]}
+{"kind":"shape","id":"sh/ax4zax0n","slide":3,"bbox":[64,455,1152,104]}
+{"kind":"textbox","id":"sh/hwzihwzi","slide":3,"text":"모델은 그림자 모드","textPreview":"모델은 그림자 모드","textChars":10,"textLines":1,"bbox":[84,474,180,22]}
+{"kind":"textbox","id":"sh/wv61obyx","slide":3,"text":"초기 모델의 질병 확률은 임직원이나 기업에 보여주지 않습니다. 특정 치과, 응급도, 치료경로도 자동으로 결정하지 않습니다.","textPreview":"초기 모델의 질병 확률은 임직원이나 기업에 보여주지 않습니다. 특정 치과, 응급도, 치료경로도 자동으로 결정하지 않습니다.","textChars":68,"textLines":1,"bbox":[270,470,920,46]}
+{"kind":"textbox","id":"sh/4nuhs7uh","slide":3,"text":"설계 경계: 모델 신호·이용 지원·연계 기록을 분리하고 임직원 행동과 동의 시각을 남깁니다.","textPreview":"설계 경계: 모델 신호·이용 지원·연계 기록을 분리하고 임직원 행동과 동의 시각을 남깁니다.","textChars":51,"textLines":1,"bbox":[270,522,900,24]}
+{"kind":"shape","id":"sh/po3ilcvm","slide":3,"bbox":[64,570,4,92]}
+{"kind":"shape","id":"sh/21szqxcb","slide":3,"bbox":[78,572,354,25]}
+{"kind":"shape","id":"sh/32l0j2dw","slide":3,"bbox":[78,599,354,60]}
+{"kind":"shape","id":"sh/cruhwrud","slide":3,"bbox":[456,570,4,92]}
+{"kind":"shape","id":"sh/ds3ipcvy","slide":3,"bbox":[470,572,354,25]}
+{"kind":"shape","id":"sh/qpczuhc7","slide":3,"bbox":[470,599,354,60]}
+{"kind":"shape","id":"sh/rql0nmds","slide":3,"bbox":[848,570,4,92]}
+{"kind":"shape","id":"sh/0ve10ru9","slide":3,"bbox":[862,572,354,25]}
+{"kind":"shape","id":"sh/1wnitwvu","slide":3,"bbox":[862,599,354,60]}
+{"kind":"image","id":"im/kfu5sbi1","slide":3,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/lg3m1gzm","slide":3,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/ofy9wn61","slide":3,"text":"직원이 혜택을 이해하고 본인 요청으로 치과 찾기나 예약 지원을 받는 흐름이다. 초기 이미지 모델은 shadow mode이며 특정 치과, 응급도, 치료경로를 자동 결정하지 않는다. 이는 잠정적 제품 설계 경계이며 미국 규제 자문 전의 확정 법률 판단이 아니다.\n\n[Sources]\n- User-provided ICLO x Snowflake external briefing requirements, 2026-08-05\n- User-provided CEO Junbae Kim and CMO Hyeyoon Choi review emails, 2026-08-05\n- ICLO Employer Dashboard synthetic demonstration"}
+{"kind":"slide","id":"sl/jyx0ra1s","slide":4,"title":"확정된 ICLO 방향 / PoC 범위","textShapes":6}
+{"kind":"shape","id":"sh/h4fa9wfy","slide":4,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/1cj2d8b6","slide":4,"bbox":[768,22,256,30]}
+{"kind":"shape","id":"sh/0ba143al","slide":4,"bbox":[768,22,6,30]}
+{"kind":"textbox","id":"sh/rm1k7yt4","slide":4,"text":"확정된 ICLO 방향 / PoC 범위","textPreview":"확정된 ICLO 방향 / PoC 범위","textChars":20,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/ql8jytsj","slide":4,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/doj29oba","slide":4,"bbox":[1032,22,6,30]}
+{"kind":"shape","id":"sh/sna103ap","slide":4,"bbox":[1044,27,166,20]}
+{"kind":"textbox","id":"sh/3ihk3et8","slide":4,"text":"이번 PoC는 미국 시장의 한 운영 구조만 검증합니다","textPreview":"이번 PoC는 미국 시장의 한 운영 구조만 검증합니다","textChars":29,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/ih8ju9sn","slide":4,"text":"미국에는 여러 비용부담 방식이 공존하며, 이번 제안은 self-funded employer 치아보험에만 초점을 둡니다.","textPreview":"미국에는 여러 비용부담 방식이 공존하며, 이번 제안은 self-funded employer 치아보험에만 초점을 둡니다.","textChars":66,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/kbm987y5","slide":4,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/5cva1cfq","slide":4,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/i94r6xgz","slide":4,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/w72947yt","slide":4,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/a5kr2xg3","slide":4,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/v6tsv2xo","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"table","id":"tb/8jqxsf29","slide":4,"name":"","rows":6,"cols":5,"preview":"구분 | 한국 이해 기준 | 미국 시장 | 이번 PoC | 의미","bbox":[64,205,1152,430]}
+{"kind":"image","id":"im/m1s7e9k3","slide":4,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/n2187e1o","slide":4,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/jyx0ra1s","slide":4,"text":"미국 전체 치아보험 시장을 일반화하지 않고, 여러 구조 가운데 이번 PoC가 검증하는 self-funded employer 치아보험 한 레인만 비교한다. 한국 비교는 이해를 돕기 위한 제한적 기준이다.\n\n[Sources]\n- User-provided ICLO x Snowflake external briefing requirements, 2026-08-05\n- U.S. Department of Labor, self-insured group health plans\n- ADA, Dental benefit plan designs"}
+{"kind":"slide","id":"sl/i107q5of","slide":5,"title":"미국 치아보험 시장 구조 / 현재 PoC 범위","textShapes":26}
+{"kind":"shape","id":"sh/yp4z69or","slide":5,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/dgbulwnm","slide":5,"bbox":[768,22,256,30]}
+{"kind":"shape","id":"sh/cf2tcr61","slide":5,"bbox":[768,22,6,30]}
+{"kind":"textbox","id":"sh/z2tcnm5s","slide":5,"text":"미국 치아보험 시장 구조 / 현재 PoC 범위","textPreview":"미국 치아보험 시장 구조 / 현재 PoC 범위","textChars":25,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/yhkbe1o7","slide":5,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/l4bupwny","slide":5,"bbox":[1032,22,6,30]}
+{"kind":"shape","id":"sh/032tgr6d","slide":5,"bbox":[1044,27,166,20]}
+{"kind":"textbox","id":"sh/n6dcr65o","slide":5,"text":"미국 치아보험은 계약·운영·청구 주체가 다릅니다","textPreview":"미국 치아보험은 계약·운영·청구 주체가 다릅니다","textChars":26,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/m5kbi1oj","slide":5,"text":"fully insured·self-funded는 비용 구조이고, individual·Medicaid는 보장 시장입니다. 현재 PoC는 한 경로만 대상으로 합니다.","textPreview":"fully insured·self-funded는 비용 구조이고, individual·Medicaid는 보장 시장입니다. 현재 PoC는 한 경로만 대상으로 합니다.","textChars":90,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/w32dkbuh","slide":5,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/x4vedgvm","slide":5,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/ahkvi1cb","slide":5,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/k7mxovud","slide":5,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/i54fmlc7","slide":5,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/j6dwfqds","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/sb6xsvu9","slide":5,"text":"계약 + 선택","textPreview":"계약 + 선택","textChars":7,"textLines":1,"bbox":[64,202,200,20]}
+{"kind":"shape","id":"sh/tcfel0vu","slide":5,"bbox":[64,238,220,66]}
+{"kind":"shape","id":"sh/hgrmpwj2","slide":5,"bbox":[64,328,220,82]}
+{"kind":"shape","id":"sh/gfi5grih","slide":5,"bbox":[64,434,220,72]}
+{"kind":"shape","id":"sh/bipozuxo","slide":5,"bbox":[174,304,0,24]}
+{"kind":"shape","id":"sh/qhg76pg3","slide":5,"bbox":[174,410,0,24]}
+{"kind":"textbox","id":"sh/pkr6tgjy","slide":5,"text":"보험 구매자 / 플랜 주체","textPreview":"보험 구매자 / 플랜 주체","textChars":14,"textLines":1,"bbox":[82,260,184,24]}
+{"kind":"textbox","id":"sh/4ji5kbid","slide":5,"text":"브로커 / 복지 컨설턴트","textPreview":"브로커 / 복지 컨설턴트","textChars":13,"textLines":1,"bbox":[82,350,184,44]}
+{"kind":"textbox","id":"sh/3i94r61s","slide":5,"text":"보험사 / TPA / MCO 계약","textPreview":"보험사 / TPA / MCO 계약","textChars":18,"textLines":1,"bbox":[82,458,184,24]}
+{"kind":"textbox","id":"sh/2h0ni107","slide":5,"text":"보장 시장 + 비용 구조","textPreview":"보장 시장 + 비용 구조","textChars":13,"textLines":1,"bbox":[324,202,250,20]}
+{"kind":"shape","id":"sh/5o7mhcju","slide":5,"bbox":[324,232,198,66]}
+{"kind":"shape","id":"sh/kny587i9","slide":5,"bbox":[546,232,198,66]}
+{"kind":"shape","id":"sh/atcjidg7","slide":5,"bbox":[768,232,198,66]}
+{"kind":"shape","id":"sh/vu5kbihc","slide":5,"bbox":[990,232,198,66]}
+{"kind":"textbox","id":"sh/wve1knyx","slide":5,"text":"기업\n보험형","textPreview":"기업 | 보험형","textChars":6,"textLines":2,"bbox":[336,253,174,28]}
+{"kind":"textbox","id":"sh/xwn2dszi","slide":5,"text":"기업\n자가부담형 / ASO","textPreview":"기업 | 자가부담형 / ASO","textChars":14,"textLines":2,"bbox":[558,253,174,28]}
+{"kind":"textbox","id":"sh/ihw3mxg3","slide":5,"text":"개인 / 가족\nMarketplace·직접 가입","textPreview":"개인 / 가족 | Marketplace·직접 가입","textChars":25,"textLines":2,"bbox":[780,253,174,28]}
+{"kind":"textbox","id":"sh/ji5kf2ho","slide":5,"text":"Medicaid / CHIP\n주정부 + MCO","textPreview":"Medicaid / CHIP | 주정부 + MCO","textChars":25,"textLines":2,"bbox":[1002,253,174,28]}
+{"kind":"shape","id":"sh/kjelony9","slide":5,"bbox":[324,342,864,174]}
+{"kind":"shape","id":"sh/6d4vuhkv","slide":5,"bbox":[423,298,333,44]}
+{"kind":"shape","id":"sh/5cvu1cja","slide":5,"bbox":[645,298,111,44]}
+{"kind":"shape","id":"sh/4bmts72p","slide":5,"bbox":[756,298,111,44]}
+{"kind":"shape","id":"sh/jadcz214","slide":5,"bbox":[756,298,333,44]}
+{"kind":"shape","id":"sh/i94bqxkj","slide":5,"bbox":[284,429,40,41]}
+{"kind":"textbox","id":"sh/1kvi94re","slide":5,"text":"치아보험 운영 레이어","textPreview":"치아보험 운영 레이어","textChars":11,"textLines":1,"bbox":[350,362,500,30]}
+{"kind":"textbox","id":"sh/gjmhgzqt","slide":5,"text":"비용 부담","textPreview":"비용 부담","textChars":5,"textLines":1,"bbox":[350,414,180,22]}
+{"kind":"textbox","id":"sh/3md0bu94","slide":5,"text":"누가 치아보험 청구비용을 부담하는가","textPreview":"누가 치아보험 청구비용을 부담하는가","textChars":19,"textLines":1,"bbox":[350,443,220,42]}
+{"kind":"textbox","id":"sh/2l4zip8j","slide":5,"text":"운영","textPreview":"운영","textChars":2,"textLines":1,"bbox":[610,414,180,22]}
+{"kind":"textbox","id":"sh/povid4ra","slide":5,"text":"가입 자격 + 혜택 + 네트워크","textPreview":"가입 자격 + 혜택 + 네트워크","textChars":17,"textLines":1,"bbox":[610,443,226,42]}
+{"kind":"textbox","id":"sh/onmhkzqp","slide":5,"text":"청구 + 데이터","textPreview":"청구 + 데이터","textChars":8,"textLines":1,"bbox":[878,414,180,22]}
+{"kind":"textbox","id":"sh/bqx0fe9g","slide":5,"text":"심사 + EOB + 청구 항목","textPreview":"심사 + EOB + 청구 항목","textChars":16,"textLines":1,"bbox":[878,443,260,42]}
+{"kind":"textbox","id":"sh/qp4jm98v","slide":5,"text":"비용 구조, 네트워크, 혜택 규칙, 데이터 권리와 보고 범위를 정합니다.","textPreview":"비용 구조, 네트워크, 혜택 규칙, 데이터 권리와 보고 범위를 정합니다.","textChars":40,"textLines":1,"bbox":[76,524,260,42]}
+{"kind":"shape","id":"sh/8f6hcj6t","slide":5,"bbox":[736,552,452,72]}
+{"kind":"shape","id":"sh/lcrapozq","slide":5,"bbox":[756,516,206,36]}
+{"kind":"textbox","id":"sh/mdoza9o3","slide":5,"text":"수혜자 + 치과","textPreview":"수혜자 + 치과","textChars":8,"textLines":1,"bbox":[756,571,412,24]}
+{"kind":"textbox","id":"sh/nexg3epo","slide":5,"text":"임직원·가족은 진료를 받고, 치과는 청구합니다.","textPreview":"임직원·가족은 진료를 받고, 치과는 청구합니다.","textChars":26,"textLines":1,"bbox":[756,598,412,20]}
+{"kind":"shape","id":"sh/0r6h8z6x","slide":5,"bbox":[324,636,864,30]}
+{"kind":"textbox","id":"sh/lcfy147i","slide":5,"text":"현재 PoC 범위: 미국 self-funded employer + 치아보험사/TPA + 임직원·가족","textPreview":"현재 PoC 범위: 미국 self-funded employer + 치아보험사/TPA + 임직원·가족","textChars":55,"textLines":1,"bbox":[64,636,1152,34]}
+{"kind":"image","id":"im/vmx4j6ds","slide":5,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/alo3a1wn","slide":5,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/i107q5of","slide":5,"text":"미국 치아보험 시장을 보장 시장, 비용 부담 구조, 계약·운영·청구 흐름으로 나누어 설명한다. fully insured와 self-funded는 비용 부담 방식이고, individual/Marketplace와 Medicaid/CHIP는 보장 시장이다. 현재 PoC는 미국 self-funded employer + 치아보험사/TPA + 임직원·가족 경로에만 한정한다.\n\n[Sources]\n- User-provided ICLO x Snowflake external briefing requirements, 2026-08-05\n- User-provided CEO Junbae Kim and CMO Hyeyoon Choi review emails, 2026-08-05\n- ICLO Employer Dashboard synthetic demonstration\n- https://www.dol.gov/agencies/ebsa/about-ebsa/our-activities/resource-center/publications/understanding-your-fiduciary-responsibilities-under-a-group-health-plan\n- https://beta.dol.gov/research-data/surveys-reports-publications/2026-report-congress-annual-report-self-insured-group-health-plans\n- https://www.healthcare.gov/coverage/dental-coverage/\n- https://www.medicaid.gov/medicaid/benefits/prevention\n- https://www.ada.org/resources/practice/dental-insurance/benefit-plan-designs\n- https://www.ada.org/resources/community-initiatives/dental-benefits-plan-for-employees\n- https://www.nhis.or.kr/english/wbheaa02600m01.do"}
+{"kind":"slide","id":"sl/x8f69ofe","slide":6,"title":"ICLO 제품 설계 원칙 / Snowflake 요청","textShapes":26}
+{"kind":"shape","id":"sh/zaxwbuhw","slide":6,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/yhg7epsj","slide":6,"bbox":[768,22,256,30]}
+{"kind":"shape","id":"sh/zi98nu94","slide":6,"bbox":[768,22,6,30]}
+{"kind":"textbox","id":"sh/87ipkzal","slide":6,"text":"ICLO 제품 설계 원칙 / Snowflake 요청","textPreview":"ICLO 제품 설계 원칙 / Snowflake 요청","textChars":28,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/98rqt4r6","slide":6,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/ml07i9sv","slide":6,"bbox":[1032,22,6,30]}
+{"kind":"shape","id":"sh/7m98ru9g","slide":6,"bbox":[1044,27,166,20]}
+{"kind":"textbox","id":"sh/oryp8fah","slide":6,"text":"근거 레이어를 Snowflake 위에서 통제합니다","textPreview":"근거 레이어를 Snowflake 위에서 통제합니다","textChars":27,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/pc76hkr2","slide":6,"text":"가입·플랜·이용·청구 데이터는 Snowflake에서 관리하고, 원본 사진과 임직원별 진료 경로는 기업 화면 밖에 둡니다.","textPreview":"가입·플랜·이용·청구 데이터는 Snowflake에서 관리하고, 원본 사진과 임직원별 진료 경로는 기업 화면 밖에 둡니다.","textChars":67,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/h4bupgn6","slide":6,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/w32twb6l","slide":6,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/v2tcn650","slide":6,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/5svutgni","slide":6,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/j6dcr65c","slide":6,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/i54bylor","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/twfux0ne","slide":6,"text":"원본 이미지 경로","textPreview":"원본 이미지 경로","textChars":9,"textLines":1,"bbox":[64,202,200,20]}
+{"kind":"shape","id":"sh/svmt4v6t","slide":6,"bbox":[64,238,220,66]}
+{"kind":"shape","id":"sh/cbe5g3ih","slide":6,"bbox":[64,328,220,82]}
+{"kind":"shape","id":"sh/dcnm98zm","slide":6,"bbox":[64,434,220,72]}
+{"kind":"shape","id":"sh/onu9g7ul","slide":6,"bbox":[174,304,0,24]}
+{"kind":"shape","id":"sh/po3a9cv6","slide":6,"bbox":[174,410,0,24]}
+{"kind":"textbox","id":"sh/0fy5k3id","slide":6,"text":"원본 구강 이미지","textPreview":"원본 구강 이미지","textChars":9,"textLines":1,"bbox":[82,260,184,24]}
+{"kind":"textbox","id":"sh/lg76d8zy","slide":6,"text":"통제된 미국 저장소 / 개인건강정보 보관영역","textPreview":"통제된 미국 저장소 / 개인건강정보 보관영역","textChars":24,"textLines":1,"bbox":[82,350,184,44]}
+{"kind":"textbox","id":"sh/ydgnit07","slide":6,"text":"그림자 모드 분석","textPreview":"그림자 모드 분석","textChars":9,"textLines":1,"bbox":[82,458,184,24]}
+{"kind":"textbox","id":"sh/zep4byhs","slide":6,"text":"구조화된 근거 데이터 경로","textPreview":"구조화된 근거 데이터 경로","textChars":14,"textLines":1,"bbox":[324,202,250,20]}
+{"kind":"shape","id":"sh/gju58ji9","slide":6,"bbox":[324,232,198,66]}
+{"kind":"shape","id":"sh/1k3mhozu","slide":6,"bbox":[546,232,198,66]}
+{"kind":"shape","id":"sh/jet8nm1c","slide":6,"bbox":[768,232,198,66]}
+{"kind":"shape","id":"sh/idk7ehkr","slide":6,"bbox":[990,232,198,66]}
+{"kind":"textbox","id":"sh/50bqpcj2","slide":6,"text":"앱 이용 기록","textPreview":"앱 이용 기록","textChars":7,"textLines":1,"bbox":[336,253,174,28]}
+{"kind":"textbox","id":"sh/4f2pgr2h","slide":6,"text":"인사시스템 가입 자격","textPreview":"인사시스템 가입 자격","textChars":11,"textLines":1,"bbox":[558,253,174,28]}
+{"kind":"textbox","id":"sh/va98j210","slide":6,"text":"플랜 + 치과 정보","textPreview":"플랜 + 치과 정보","textChars":10,"textLines":1,"bbox":[780,253,174,28]}
+{"kind":"textbox","id":"sh/u907axkf","slide":6,"text":"TPA / 보험사 청구","textPreview":"TPA / 보험사 청구","textChars":12,"textLines":1,"bbox":[1002,253,174,28]}
+{"kind":"shape","id":"sh/hcrqlcj6","slide":6,"bbox":[324,342,864,174]}
+{"kind":"shape","id":"sh/l87e10ze","slide":6,"bbox":[423,298,333,44]}
+{"kind":"shape","id":"sh/m9gfu5gz","slide":6,"bbox":[645,298,111,44]}
+{"kind":"shape","id":"sh/7apw3qhk","slide":6,"bbox":[756,298,111,44]}
+{"kind":"shape","id":"sh/8byxwvyp","slide":6,"bbox":[756,298,333,44]}
+{"kind":"shape","id":"sh/9c7e50za","slide":6,"bbox":[284,429,40,41]}
+{"kind":"textbox","id":"sh/of2tcvy9","slide":6,"text":"Snowflake 미국 근거 레이어","textPreview":"Snowflake 미국 근거 레이어","textChars":19,"textLines":1,"bbox":[350,362,500,30]}
+{"kind":"textbox","id":"sh/pgbul0fu","slide":6,"text":"공통 데이터 모델","textPreview":"공통 데이터 모델","textChars":9,"textLines":1,"bbox":[350,414,180,22]}
+{"kind":"textbox","id":"sh/ep0b6lg7","slide":6,"text":"가입자 월 + 플랜 + 이용 기록 + 청구","textPreview":"가입자 월 + 플랜 + 이용 기록 + 청구","textChars":23,"textLines":1,"bbox":[350,443,220,42]}
+{"kind":"textbox","id":"sh/fq9cfqxc","slide":6,"text":"품질 + 통제","textPreview":"품질 + 통제","textChars":7,"textLines":1,"bbox":[610,414,180,22]}
+{"kind":"textbox","id":"sh/0r2t8vyx","slide":6,"text":"대조 + 목적별 접근 + 데이터 계보","textPreview":"대조 + 목적별 접근 + 데이터 계보","textChars":20,"textLines":1,"bbox":[610,443,226,42]}
+{"kind":"textbox","id":"sh/1sbuh0fi","slide":6,"text":"성과 계산 레이어","textPreview":"성과 계산 레이어","textChars":9,"textLines":1,"bbox":[878,414,180,22]}
+{"kind":"textbox","id":"sh/ql0b21gv","slide":6,"text":"청구로 확인한 결과 (실험군 배정은 법무·프로토콜 승인 후)","textPreview":"청구로 확인한 결과 (실험군 배정은 법무·프로토콜 승인 후)","textChars":33,"textLines":1,"bbox":[878,443,260,42]}
+{"kind":"textbox","id":"sh/rm9sb6xg","slide":6,"text":"사진 바이너리는 안 들어감. 사람·기업에 연결된 참조와 신호는 들어감","textPreview":"사진 바이너리는 안 들어감. 사람·기업에 연결된 참조와 신호는 들어감","textChars":38,"textLines":1,"bbox":[76,524,260,42]}
+{"kind":"shape","id":"sh/9gfeh4zy","slide":6,"bbox":[736,552,452,72]}
+{"kind":"shape","id":"sh/69kzq903","slide":6,"bbox":[756,516,206,36]}
+{"kind":"textbox","id":"sh/7exwfehs","slide":6,"text":"기업용 집계 대시보드","textPreview":"기업용 집계 대시보드","textChars":11,"textLines":1,"bbox":[756,571,412,24]}
+{"kind":"textbox","id":"sh/mdof6907","slide":6,"text":"직원별 건강 신호·진료 경로 없음","textPreview":"직원별 건강 신호·진료 경로 없음","textChars":18,"textLines":1,"bbox":[756,598,412,20]}
+{"kind":"shape","id":"sh/lcfed4z2","slide":6,"bbox":[324,636,864,30]}
+{"kind":"textbox","id":"sh/kb6d4zih","slide":6,"text":"Snowflake에서 개인건강정보를 처리하려면 Business Critical과 적절한 BAA가 필요합니다. 이것만으로 ICLO 전체가 HIPAA 준수 상태가 되는 것은 아닙니다.","textPreview":"Snowflake에서 개인건강정보를 처리하려면 Business Critical과 적절한 BAA가 필요합니다. 이것만으로 ICLO 전체가 HIPAA 준수 상태가 되는 것은 아닙니다.","textChars":100,"textLines":1,"bbox":[64,636,1152,34]}
+{"kind":"image","id":"im/onad0n61","slide":6,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/9oje9s7m","slide":6,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/x8f69ofe","slide":6,"text":"Snowflake는 가입 자격, 플랜, 앱 이벤트, 치아보험 청구를 연결하는 관리형 근거·협업 레이어다. 원본 구강 이미지는 별도 통제 저장소에 두고 Snowflake에는 URI, 메타데이터, 모델 버전, 승인된 파생 신호만 둔다. 기업은 직원별 건강 신호를 보지 않는다.\n\n[Sources]\n- User-provided ICLO x Snowflake external briefing requirements, 2026-08-05\n- User-provided CEO Junbae Kim and CMO Hyeyoon Choi review emails, 2026-08-05\n- ICLO Employer Dashboard synthetic demonstration\n- https://docs.snowflake.com/en/user-guide/intro-editions\n- https://docs.snowflake.com/en/user-guide/security-row-intro\n- https://docs.snowflake.com/en/user-guide/data-protection-policies-snowsight\n- https://docs.snowflake.com/en/user-guide/access-history\n- https://docs.snowflake.com/en/collaboration/listings-bcdr-consumers\n- https://docs.snowflake.com/en/user-guide/secure-data-sharing-across-regions-platforms"}
+{"kind":"slide","id":"sl/gnmp4jqx","slide":7,"title":"확정된 ICLO 방향 / 검증할 가설","textShapes":23}
+{"kind":"shape","id":"sh/tg7q9sr2","slide":7,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/cb2tkvap","slide":7,"bbox":[744,22,216,30]}
+{"kind":"shape","id":"sh/dcbud0ra","slide":7,"bbox":[744,22,6,30]}
+{"kind":"textbox","id":"sh/ydkbm5sv","slide":7,"text":"확정된 ICLO 방향 / 검증할 가설","textPreview":"확정된 ICLO 방향 / 검증할 가설","textChars":20,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/zedcfa9g","slide":7,"bbox":[968,22,248,30]}
+{"kind":"shape","id":"sh/kzmdova1","slide":7,"bbox":[968,22,6,30]}
+{"kind":"shape","id":"sh/l0vuh0rm","slide":7,"bbox":[980,27,230,20]}
+{"kind":"textbox","id":"sh/eh0ba1sr","slide":7,"text":"1년차 비용은 오를 수 있습니다","textPreview":"1년차 비용은 오를 수 있습니다","textChars":17,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/fi9c369c","slide":7,"text":"예방진료와 미치료 상태 발견이 늘면 첫해 치아보험 지급액이 먼저 증가할 수 있습니다.","textPreview":"예방진료와 미치료 상태 발견이 늘면 첫해 치아보험 지급액이 먼저 증가할 수 있습니다.","textChars":47,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/baxkjqlk","slide":7,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/a9ojq5kz","slide":7,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/xcz2l03q","slide":7,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/n6x0fqlo","slide":7,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/p8fih03e","slide":7,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/o761ov2t","slide":7,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/f2d0b6lc","slide":7,"text":"예시 가설 - 실제 ICLO 성과가 아님","textPreview":"예시 가설 - 실제 ICLO 성과가 아님","textChars":22,"textLines":1,"bbox":[64,200,450,22]}
+{"kind":"shape","id":"sh/eh4jil4r","slide":7,"bbox":[64,342,180,78]}
+{"kind":"shape","id":"sh/id4ju1oz","slide":7,"bbox":[290,245,248,124]}
+{"kind":"shape","id":"sh/jedkn654","slide":7,"bbox":[584,290,246,112]}
+{"kind":"shape","id":"sh/4fm1wb6p","slide":7,"bbox":[876,324,184,94]}
+{"kind":"shape","id":"sh/2lori50z","slide":7,"bbox":[244,307,46,74]}
+{"kind":"shape","id":"sh/3mh8rahk","slide":7,"bbox":[538,307,46,39]}
+{"kind":"shape","id":"sh/onq9kfi5","slide":7,"bbox":[830,346,46,25]}
+{"kind":"textbox","id":"sh/s3ml0v61","slide":7,"text":"기준","textPreview":"기준","textChars":2,"textLines":1,"bbox":[78,326,152,25]}
+{"kind":"textbox","id":"sh/d4f2t0nm","slide":7,"text":"플랜 연도 시작","textPreview":"플랜 연도 시작","textChars":8,"textLines":1,"bbox":[78,382,152,28]}
+{"kind":"textbox","id":"sh/e5o32lor","slide":7,"text":"1년차","textPreview":"1년차","textChars":3,"textLines":1,"bbox":[304,252,220,25]}
+{"kind":"textbox","id":"sh/f6xkvq5c","slide":7,"text":"예방 이용 증가\n미치료 상태 발견","textPreview":"예방 이용 증가 | 미치료 상태 발견","textChars":18,"textLines":2,"bbox":[304,316,220,74]}
+{"kind":"textbox","id":"sh/p0zmlk7u","slide":7,"text":"2-3년차","textPreview":"2-3년차","textChars":5,"textLines":1,"bbox":[598,252,218,25]}
+{"kind":"textbox","id":"sh/ozq5szq9","slide":7,"text":"치료 구성 + 청구 지연\n측정 가능","textPreview":"치료 구성 + 청구 지연 | 측정 가능","textChars":19,"textLines":2,"bbox":[598,316,218,62]}
+{"kind":"textbox","id":"sh/nyh4jupo","slide":7,"text":"검증","textPreview":"검증","textChars":2,"textLines":1,"bbox":[890,252,156,25]}
+{"kind":"textbox","id":"sh/2x8nqp83","slide":7,"text":"방향 미확정","textPreview":"방향 미확정","textChars":6,"textLines":1,"bbox":[890,316,156,44]}
+{"kind":"shape","id":"sh/x4j6p47q","slide":7,"bbox":[1072,230,144,102]}
+{"kind":"textbox","id":"sh/c3a5wzq5","slide":7,"text":"낮은 이직률\n여러 해 가치 관점","textPreview":"낮은 이직률 | 여러 해 가치 관점","textChars":17,"textLines":2,"bbox":[1046,236,170,86]}
+{"kind":"shape","id":"sh/b2h4nupk","slide":7,"bbox":[1072,356,144,102]}
+{"kind":"textbox","id":"sh/a18nup8z","slide":7,"text":"높은 이직률\n직원 경험 관점","textPreview":"높은 이직률 | 직원 경험 관점","textChars":15,"textLines":2,"bbox":[1046,344,170,86]}
+{"kind":"shape","id":"sh/lsj6t47m","slide":7,"bbox":[1064,470,180,24]}
+{"kind":"shape","id":"sh/kra50jqh","slide":7,"bbox":[1064,497,180,24]}
+{"kind":"shape","id":"sh/wneps3ap","slide":7,"bbox":[64,502,4,92]}
+{"kind":"textbox","id":"sh/honq18ru","slide":7,"text":"이용량","textPreview":"이용량","textChars":3,"textLines":1,"bbox":[78,504,354,25]}
+{"kind":"textbox","id":"sh/ulc7qdsj","slide":7,"text":"예방진료 이용은 플랜 지급액을 늘릴 수 있습니다.","textPreview":"예방진료 이용은 플랜 지급액을 늘릴 수 있습니다.","textChars":27,"textLines":1,"bbox":[78,531,354,60]}
+{"kind":"shape","id":"sh/vm58zi94","slide":7,"bbox":[456,502,4,92]}
+{"kind":"textbox","id":"sh/8jupo3ad","slide":7,"text":"비용 구분","textPreview":"비용 구분","textChars":5,"textLines":1,"bbox":[470,504,354,25]}
+{"kind":"textbox","id":"sh/9k3qx8ry","slide":7,"text":"허용액, 플랜 지급액, 직원 본인부담금은 다르게 움직일 수 있습니다.","textPreview":"허용액, 플랜 지급액, 직원 본인부담금은 다르게 움직일 수 있습니다.","textChars":38,"textLines":1,"bbox":[470,531,354,60]}
+{"kind":"shape","id":"sh/mxc7mts7","slide":7,"bbox":[848,502,4,92]}
+{"kind":"textbox","id":"sh/7yl8vy9s","slide":7,"text":"계약 원칙","textPreview":"계약 원칙","textChars":5,"textLines":1,"bbox":[862,504,354,25]}
+{"kind":"textbox","id":"sh/sfy907ah","slide":7,"text":"ICLO는 첫해 절감을 보장하는 계약을 제안하지 않습니다.","textPreview":"ICLO는 첫해 절감을 보장하는 계약을 제안하지 않습니다.","textChars":32,"textLines":1,"bbox":[862,531,354,60]}
+{"kind":"shape","id":"sh/fyx8nqh8","slide":7,"bbox":[170,366,80,0]}
+{"kind":"shape","id":"sh/gj69gvit","slide":7,"bbox":[250,300,0,66]}
+{"kind":"shape","id":"sh/1kfqp0ze","slide":7,"bbox":[250,300,796,0]}
+{"kind":"shape","id":"sh/yt8rqpg7","slide":7,"bbox":[165,361,10,10]}
+{"kind":"shape","id":"sh/zu1szuhs","slide":7,"bbox":[409,295,10,10]}
+{"kind":"shape","id":"sh/9o3upoju","slide":7,"bbox":[702,295,10,10]}
+{"kind":"shape","id":"sh/8nutgj29","slide":7,"bbox":[963,295,10,10]}
+{"kind":"image","id":"im/sjmpcja9","slide":7,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/fmxonytk","slide":7,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/gnmp4jqx","slide":7,"text":"예방진료 이용과 미치료 상태 발견이 늘면 첫해 치아보험 지급액이 먼저 오를 수 있다. 허용액, 플랜 지급액, 직원 본인부담금을 분리하고 이직률과 청구 반영 지연을 함께 보아야 한다. 그래프는 가설이며 실제 성과가 아니다.\n\n[Sources]\n- User-provided ICLO x Snowflake external briefing requirements, 2026-08-05\n- User-provided CEO Junbae Kim and CMO Hyeyoon Choi review emails, 2026-08-05\n- ICLO Employer Dashboard synthetic demonstration"}
+{"kind":"slide","id":"sl/fu1gfa1s","slide":8,"title":"ICLO 제품 설계 원칙","textShapes":16}
+{"kind":"shape","id":"sh/8bat47ml","slide":8,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/18byd4zy","slide":8,"bbox":[960,22,256,30]}
+{"kind":"shape","id":"sh/g72x4zyd","slide":8,"bbox":[960,22,6,30]}
+{"kind":"textbox","id":"sh/ri9g7uhw","slide":8,"text":"ICLO 제품 설계 원칙","textPreview":"ICLO 제품 설계 원칙","textChars":13,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/6h0fypgb","slide":8,"text":"기업이 확인해야 할 데이터 기준","textPreview":"기업이 확인해야 할 데이터 기준","textChars":17,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/tkby9kzm","slide":8,"text":"합성 데이터 예시이며, 분모·기준일·청구 지연·완결성·소규모 집계 억제를 구매자에게 보이는 설계입니다.","textPreview":"합성 데이터 예시이며, 분모·기준일·청구 지연·완결성·소규모 집계 억제를 구매자에게 보이는 설계입니다.","textChars":57,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/sjix0zy1","slide":8,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/je9g3ahk","slide":8,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/id0fu50z","slide":8,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/98rehwve","slide":8,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/n6pwfmd8","slide":8,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/0jydkreh","slide":8,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/ehgvihwr","slide":8,"bbox":[64,205,1152,368]}
+{"kind":"shape","id":"sh/zipwbmdc","slide":8,"bbox":[64,594,4,54]}
+{"kind":"textbox","id":"sh/kfixwbe1","slide":8,"text":"합성 데이터","textPreview":"합성 데이터","textChars":6,"textLines":1,"bbox":[78,594,202,20]}
+{"kind":"textbox","id":"sh/lgbepgvm","slide":8,"text":"설명용 예시","textPreview":"설명용 예시","textChars":6,"textLines":1,"bbox":[78,620,202,25]}
+{"kind":"shape","id":"sh/tw7e9gnq","slide":8,"bbox":[296,594,4,54]}
+{"kind":"textbox","id":"sh/svydgb65","slide":8,"text":"기준 집단","textPreview":"기준 집단","textChars":5,"textLines":1,"bbox":[310,594,202,20]}
+{"kind":"textbox","id":"sh/7u5w765k","slide":8,"text":"직원 / 가입자","textPreview":"직원 / 가입자","textChars":8,"textLines":1,"bbox":[310,620,202,25]}
+{"kind":"shape","id":"sh/6twve1oz","slide":8,"bbox":[528,594,4,54]}
+{"kind":"textbox","id":"sh/5sne5wne","slide":8,"text":"최신성","textPreview":"최신성","textChars":3,"textLines":1,"bbox":[542,594,202,20]}
+{"kind":"textbox","id":"sh/kredcr6t","slide":8,"text":"기준일 + 청구 지연","textPreview":"기준일 + 청구 지연","textChars":11,"textLines":1,"bbox":[542,620,202,25]}
+{"kind":"shape","id":"sh/jq5w365o","slide":8,"bbox":[760,594,4,54]}
+{"kind":"textbox","id":"sh/i5wva1o3","slide":8,"text":"프라이버시","textPreview":"프라이버시","textChars":5,"textLines":1,"bbox":[774,594,202,20]}
+{"kind":"textbox","id":"sh/x4ne1wni","slide":8,"text":"집계 전용 · 최소 셀은 고유 인물 기준 · 기업 격리","textPreview":"집계 전용 · 최소 셀은 고유 인물 기준 · 기업 격리","textChars":30,"textLines":1,"bbox":[774,620,202,25]}
+{"kind":"textbox","id":"sh/m9sb2x4v","slide":8,"text":"데모","textPreview":"데모","textChars":2,"textLines":1,"bbox":[1100,591,116,20]}
+{"kind":"textbox","id":"sh/na1sb2lg","slide":8,"text":"합성 데이터 대시보드 · jangwookimbusiness-dev.github.io/iclo-us-employee-dashboard","textPreview":"합성 데이터 대시보드 · jangwookimbusiness-dev.github.io/iclo-us-employee-dashboard","textChars":73,"textLines":1,"bbox":[620,654,596,20]}
+{"kind":"image","id":"im/29cve1ob","slide":8,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/h83ulwnq","slide":8,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"image","id":"im/gnudcr65","slide":8,"name":"","geometry":"roundRect","bbox":[120,205,1040,361]}
+{"kind":"image","id":"im/fm1cj650","slide":8,"name":"","bbox":[1020,582,72,72]}
+{"kind":"notes","id":"nt/fu1gfa1s","slide":8,"text":"대시보드는 합성 데이터 예시다. 성과를 주장하는 화면이 아니라 직원/가입자 분모, 가입 자격 기준일, 청구 지연, 완결성, n>=20 셀 억제, 개인 PHI 미제공을 구매자에게 보이는 설계 증거다.\n\n[Sources]\n- User-provided ICLO x Snowflake external briefing requirements, 2026-08-05\n- User-provided CEO Junbae Kim and CMO Hyeyoon Choi review emails, 2026-08-05\n- ICLO Employer Dashboard synthetic demonstration"}
+{"kind":"slide","id":"sl/udsvah03","slide":9,"title":"Snowflake 요청","textShapes":16}
+{"kind":"shape","id":"sh/xcfy90n6","slide":9,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/1cfmhgne","slide":9,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/0b65obm9","slide":9,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/nex4jq5k","slide":9,"text":"Snowflake 요청","textPreview":"Snowflake 요청","textChars":12,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/mdonql4z","slide":9,"text":"기존 지원 관계를 미국 HLS 검증으로 연결합니다","textPreview":"기존 지원 관계를 미국 HLS 검증으로 연결합니다","textChars":27,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/9gzml0nq","slide":9,"text":"Step 0에서 현재 한국 스타트업 담당이 미국 HLS GTM·아키텍처 담당자를 지정·연결한 뒤 기술 검증을 시작합니다.","textPreview":"Step 0에서 현재 한국 스타트업 담당이 미국 HLS GTM·아키텍처 담당자를 지정·연결한 뒤 기술 검증을 시작합니다.","textChars":67,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/ofq5svm5","slide":9,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/bih4na5w","slide":9,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/ah8nu54b","slide":9,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/p0ji9kf2","slide":9,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/3y107axw","slide":9,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/cnu1kzyd","slide":9,"text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/do3id4fy","slide":9,"bbox":[64,220,1152,72]}
+{"kind":"shape","id":"sh/qlcjipgn","slide":9,"bbox":[64,220,8,72]}
+{"kind":"textbox","id":"sh/bml0buxs","slide":9,"text":"STEP 0","textPreview":"STEP 0","textChars":6,"textLines":1,"bbox":[92,237,92,30]}
+{"kind":"textbox","id":"sh/0ru1ozyp","slide":9,"text":"라우팅","textPreview":"라우팅","textChars":3,"textLines":1,"bbox":[160,239,130,26]}
+{"kind":"textbox","id":"sh/lsn2h4fa","slide":9,"text":"공식 지원 프로그램명·현재 스폰서를 확인하고, 미국 HLS GTM·아키텍처 담당자로 연결합니다.","textPreview":"공식 지원 프로그램명·현재 스폰서를 확인하고, 미국 HLS GTM·아키텍처 담당자로 연결합니다.","textChars":53,"textLines":1,"bbox":[308,236,876,44]}
+{"kind":"shape","id":"sh/98ji147e","slide":9,"bbox":[64,314,1152,72]}
+{"kind":"shape","id":"sh/87a18zqt","slide":9,"bbox":[64,314,8,72]}
+{"kind":"shape","id":"sh/76h0zup8","slide":9,"bbox":[92,331,50,30]}
+{"kind":"textbox","id":"sh/ml8j6p8n","slide":9,"text":"적합성 + 담당","textPreview":"적합성 + 담당","textChars":8,"textLines":1,"bbox":[160,333,130,26]}
+{"kind":"textbox","id":"sh/hcji5o7a","slide":9,"text":"주요 영업 유형과 HLS 아키텍트·SE·보안·스타트업/파트너 담당자를 문서로 확정합니다.","textPreview":"주요 영업 유형과 HLS 아키텍트·SE·보안·스타트업/파트너 담당자를 문서로 확정합니다.","textChars":49,"textLines":1,"bbox":[308,330,876,44]}
+{"kind":"shape","id":"sh/wba1cjqp","slide":9,"bbox":[64,408,1152,72]}
+{"kind":"shape","id":"sh/va103ep4","slide":9,"bbox":[64,408,8,72]}
+{"kind":"shape","id":"sh/u9sja98z","slide":9,"bbox":[92,425,50,30]}
+{"kind":"textbox","id":"sh/xgzitk76","slide":9,"text":"계정","textPreview":"계정","textChars":2,"textLines":1,"bbox":[92,427,198,26]}
+{"kind":"textbox","id":"sh/cf6h0fql","slide":9,"text":"Day 30까지 계정 검증 행 1건을 작성하고, Day 75에 계정팀 사용사례 검토를 별도로 진행합니다.","textPreview":"Day 30까지 계정 검증 행 1건을 작성하고, Day 75에 계정팀 사용사례 검토를 별도로 진행합니다.","textChars":58,"textLines":1,"bbox":[308,424,876,44]}
+{"kind":"shape","id":"sh/2l4faloj","slide":9,"bbox":[64,502,1152,72]}
+{"kind":"shape","id":"sh/nmdg3q54","slide":9,"bbox":[64,502,8,72]}
+{"kind":"shape","id":"sh/onmxcv69","slide":9,"bbox":[92,519,50,30]}
+{"kind":"textbox","id":"sh/pofy50nu","slide":9,"text":"진행 경로","textPreview":"진행 경로","textChars":5,"textLines":1,"bbox":[160,521,130,26]}
+{"kind":"textbox","id":"sh/apofe5of","slide":9,"text":"계정·리전·BAA, 크레딧·지원 범위, 파트너·공동판매 준비 기준을 문서화합니다.","textPreview":"계정·리전·BAA, 크레딧·지원 범위, 파트너·공동판매 준비 기준을 문서화합니다.","textChars":45,"textLines":1,"bbox":[308,518,876,44]}
+{"kind":"shape","id":"sh/bqxg7q50","slide":9,"bbox":[64,613,1152,42]}
+{"kind":"textbox","id":"sh/cr6xgv6l","slide":9,"text":"Snowflake에 법률 판단, 준수 인증, 막연한 고객 소개, 비용 절감 보장을 요청하지 않습니다.","textPreview":"Snowflake에 법률 판단, 준수 인증, 막연한 고객 소개, 비용 절감 보장을 요청하지 않습니다.","textChars":56,"textLines":1,"bbox":[64,617,1152,34]}
+{"kind":"image","id":"im/p83udoz2","slide":9,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/47atkjyh","slide":9,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/udsvah03","slide":9,"text":"Step 0은 현재 한국 담당자가 미국 HLS GTM·아키텍처 담당자로 연결하는 라우팅 단계다. 계정 검증 행 작성과 계정팀 사용사례 검토를 서로 다른 액션으로 구분한다."}
+{"kind":"slide","id":"sl/m90b6t0r","slide":10,"title":"Snowflake 요청","textShapes":20}
+{"kind":"shape","id":"sh/0zu9ora5","slide":10,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/xc3mho32","slide":10,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/cbu58j2h","slide":10,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/zelojyl8","slide":10,"text":"Snowflake 요청","textPreview":"Snowflake 요청","textChars":12,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/ydcnatkn","slide":10,"text":"90일 공동 검증 계획 · 라우팅과 설계","textPreview":"90일 공동 검증 계획 · 라우팅과 설계","textChars":22,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/l036l83y","slide":10,"text":"Step 0부터 60일까지: 담당을 확정하고 아키텍처를 설계합니다.","textPreview":"Step 0부터 60일까지: 담당을 확정하고 아키텍처를 설계합니다.","textChars":37,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/kzu5c32t","slide":10,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/725onyl4","slide":10,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/m1cnetkj","slide":10,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/d87uxg3m","slide":10,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/r6pcv6lw","slide":10,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/0bit8b2d","slide":10,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/1cru1g3y","slide":10,"bbox":[64,218,490,240]}
+{"kind":"shape","id":"sh/e9gb61k7","slide":10,"bbox":[646,218,490,240]}
+{"kind":"shape","id":"sh/fapcz6ls","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/ozitcv29","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/9sreh8fa","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/mp0fmtgz","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/nq9wfyxk","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/bu5cnqd8","slide":10,"text":"STEP 0 + 0-30일","textPreview":"STEP 0 + 0-30일","textChars":14,"textLines":1,"bbox":[82,220,472,18]}
+{"kind":"textbox","id":"sh/atwbelcn","slide":10,"text":"라우팅 + 정렬","textPreview":"라우팅 + 정렬","textChars":8,"textLines":1,"bbox":[82,240,472,30]}
+{"kind":"textbox","id":"sh/lk7ut0va","slide":10,"text":"HLS로 연결하고 영업 유형·담당·미국 계정/BAA 경로를 확정합니다.","textPreview":"HLS로 연결하고 영업 유형·담당·미국 계정/BAA 경로를 확정합니다.","textChars":39,"textLines":1,"bbox":[82,294,472,76]}
+{"kind":"textbox","id":"sh/kjytkvup","slide":10,"text":"31-60일","textPreview":"31-60일","textChars":6,"textLines":1,"bbox":[664,220,472,18]}
+{"kind":"textbox","id":"sh/jypcrqd4","slide":10,"text":"설계","textPreview":"설계","textChars":2,"textLines":1,"bbox":[664,240,472,30]}
+{"kind":"textbox","id":"sh/yxgbilcj","slide":10,"text":"사용량을 산정하고 보안 기준 구조·계정 매트릭스를 공동 작성합니다.","textPreview":"사용량을 산정하고 보안 기준 구조·계정 매트릭스를 공동 작성합니다.","textChars":37,"textLines":1,"bbox":[664,294,472,76]}
+{"kind":"shape","id":"sh/1o3ahwvq","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/0nut8rul","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/q9srixs3","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/ru18r2to","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/cva9k7a9","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/dwjqtcbu","slide":10,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/exsrmhsf","slide":10,"bbox":[64,482,1152,158]}
+{"kind":"shape","id":"sh/zyl8vmt0","slide":10,"bbox":[64,516,1152,96]}
+{"kind":"textbox","id":"sh/wjmpkzqp","slide":10,"name":"swimlane-snowflake-1","text":"SNOWFLAKE","textPreview":"SNOWFLAKE","textChars":9,"textLines":1,"bbox":[82,274,472,18]}
+{"kind":"shape","id":"sh/xkv6d47a","slide":10,"name":"swimlane-rule-1","bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/rqh0z2do","slide":10,"name":"swimlane-iclo-label-1","text":"ICLO","textPreview":"ICLO","textChars":4,"textLines":1,"bbox":[82,376,472,18]}
+{"kind":"textbox","id":"sh/6p8zqxw3","slide":10,"name":"swimlane-iclo-1","text":"현황 자료를 제공하고 워크숍·주간 운영을 맡습니다.","textPreview":"현황 자료를 제공하고 워크숍·주간 운영을 맡습니다.","textChars":28,"textLines":1,"bbox":[82,396,472,50]}
+{"kind":"textbox","id":"sh/tsji1cvu","slide":10,"name":"swimlane-gate-1","text":"게이트 · 스폰서·담당·경로 서면 확정","textPreview":"게이트 · 스폰서·담당·경로 서면 확정","textChars":21,"textLines":1,"bbox":[82,446,472,54]}
+{"kind":"textbox","id":"sh/srahs7e9","slide":10,"name":"swimlane-snowflake-2","text":"SNOWFLAKE","textPreview":"SNOWFLAKE","textChars":9,"textLines":1,"bbox":[664,274,472,18]}
+{"kind":"shape","id":"sh/jmh0vids","slide":10,"name":"swimlane-rule-2","bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/il8zmxw7","slide":10,"name":"swimlane-iclo-label-2","text":"ICLO","textPreview":"ICLO","textChars":4,"textLines":1,"bbox":[664,376,472,18]}
+{"kind":"textbox","id":"sh/5ozixsvi","slide":10,"name":"swimlane-iclo-2","text":"원천 데이터 매핑·수집 시험·사이징 입력값을 제공합니다.","textPreview":"원천 데이터 매핑·수집 시험·사이징 입력값을 제공합니다.","textChars":31,"textLines":1,"bbox":[664,396,472,50]}
+{"kind":"textbox","id":"sh/4nqhoned","slide":10,"name":"swimlane-gate-2","text":"게이트 · 아키텍처와 매트릭스 1차본 승인","textPreview":"게이트 · 아키텍처와 매트릭스 1차본 승인","textChars":23,"textLines":1,"bbox":[664,446,472,54]}
+{"kind":"shape","id":"sh/3il07mdw","slide":10,"name":"swimlane-snowflake-3","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/2hsjyhwb","slide":10,"name":"swimlane-rule-3","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/a5s3mlsf","slide":10,"name":"swimlane-iclo-label-3","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/b614v690","slide":10,"name":"swimlane-iclo-3","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/c7alobal","slide":10,"name":"swimlane-gate-3","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/xsjmxgr6","slide":10,"name":"swimlane-snowflake-4","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/2183i1sj","slide":10,"name":"swimlane-rule-4","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/n2h4r694","slide":10,"name":"swimlane-iclo-label-4","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/o3qlkbap","slide":10,"name":"swimlane-iclo-4","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/p4zmtgra","slide":10,"name":"swimlane-gate-4","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/hsj6l4fq","slide":10,"bbox":[64,370,472,0]}
+{"kind":"shape","id":"sh/wra5czy5","slide":10,"bbox":[646,370,472,0]}
+{"kind":"shape","id":"sh/vqhojuxk","slide":10,"bbox":[566,338,56,0]}
+{"kind":"image","id":"im/147ul4n2","slide":10,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/03ytcz6h","slide":10,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/m90b6t0r","slide":10,"text":"Snowflake와 ICLO의 단계별 역할, 게이트, 공동 산출물을 한 화면에 묶는다. ICLO가 주간 현황과 단일 의사결정 기록을 운영한다."}
+{"kind":"slide","id":"sl/xv0ss1","slide":11,"title":"Snowflake 요청","textShapes":21}
+{"kind":"shape","id":"sh/zu9w3218","slide":11,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/kzu9cnqd","slide":11,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/l03a5sry","slide":11,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/m1crex8j","slide":11,"text":"Snowflake 요청","textPreview":"Snowflake 요청","textChars":12,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/725s7294","slide":11,"text":"90일 공동 검증 계획 · 검증과 확장","textPreview":"90일 공동 검증 계획 · 검증과 확장","textChars":21,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/8ne9g7qp","slide":11,"text":"61일부터 90일까지, 그리고 조건부 확장입니다. ICLO가 케이던스와 의사결정 기록을 맡습니다.","textPreview":"61일부터 90일까지, 그리고 조건부 확장입니다. ICLO가 케이던스와 의사결정 기록을 맡습니다.","textChars":54,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/9ona9cru","slide":11,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/upwrix8f","slide":11,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/vq5sb290","slide":11,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/eh8rulgr","slide":11,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/03q9wvyx","slide":11,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/rex8z6xg","slide":11,"text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/qdorqlgv","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/dgzq1gf6","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/cf69sby1","slide":11,"bbox":[64,218,490,240]}
+{"kind":"shape","id":"sh/ba1sbaxk","slide":11,"bbox":[646,218,490,240]}
+{"kind":"shape","id":"sh/8b21kzed","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/7at0buds","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/m9kjipw7","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/s7etwjid","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/tsnu5ozy","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/utwbytgj","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/fu5c7eho","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/gvet0jy9","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/hwnu9ozu","slide":11,"bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/axsb2p0z","slide":11,"text":"61-90일","textPreview":"61-90일","textChars":6,"textLines":1,"bbox":[82,220,472,18]}
+{"kind":"textbox","id":"sh/by1cvuhk","slide":11,"text":"검증","textPreview":"검증","textChars":2,"textLines":1,"bbox":[82,240,472,30]}
+{"kind":"textbox","id":"sh/dsre1sj2","slide":11,"text":"계정팀 검토 1건을 후원하고 파트너 준비 체크리스트를 제공합니다.","textPreview":"계정팀 검토 1건을 후원하고 파트너 준비 체크리스트를 제공합니다.","textChars":36,"textLines":1,"bbox":[82,294,472,76]}
+{"kind":"textbox","id":"sh/crix8nih","slide":11,"text":"조건부","textPreview":"조건부","textChars":3,"textLines":1,"bbox":[664,220,472,18]}
+{"kind":"textbox","id":"sh/rq9wzi1w","slide":11,"text":"확장","textPreview":"확장","textChars":2,"textLines":1,"bbox":[664,240,472,30]}
+{"kind":"textbox","id":"sh/qpgf6dkr","slide":11,"text":"필요성이 확인된 경우에만 Native App·Clean Room·연합학습을 검토합니다.","textPreview":"필요성이 확인된 경우에만 Native App·Clean Room·연합학습을 검토합니다.","textChars":48,"textLines":1,"bbox":[664,294,472,76]}
+{"kind":"shape","id":"sh/1wre5cje","slide":11,"bbox":[64,482,1152,158]}
+{"kind":"textbox","id":"sh/0vixc7it","slide":11,"text":"운영 방식 · ICLO가 주간 서면 현황과 단일 의사결정 기록을 관리합니다.\n사용량 산정 · 기업 수, 가입자-월, 수집·변환·결과 갱신 빈도, 데이터 규모, 웨어하우스 크기와 실행 시간을 입력값으로 제공하고, Snowflake SE가 Day 30 사이징 세션에서 연간 크레딧을 산정합니다.","textPreview":"운영 방식 · ICLO가 주간 서면 현황과 단일 의사결정 기록을 관리합니다. | 사용량 산정 · 기업 수, 가입자-월, 수집·변환·결과 갱신 빈도, 데이터 규모, 웨어하우스 크기와 실행 시간을 입력값으로 제공하고, Snowflake SE가 Day...","textChars":162,"textLines":2,"bbox":[64,516,1152,96]}
+{"kind":"shape","id":"sh/p4ru10b6","slide":11,"name":"swimlane-snowflake-1","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/4jidsvul","slide":11,"name":"swimlane-rule-1","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/mpcrmds3","slide":11,"name":"swimlane-iclo-label-1","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/nql8vi9o","slide":11,"name":"swimlane-iclo-1","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/8ru9ona9","slide":11,"name":"swimlane-gate-1","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/9s3axsru","slide":11,"name":"swimlane-snowflake-2","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/ylsrids7","slide":11,"name":"swimlane-rule-2","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/zm18ri9s","slide":11,"name":"swimlane-iclo-label-2","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/0na9knad","slide":11,"name":"swimlane-iclo-2","bbox":[-200,900,1,1]}
+{"kind":"shape","id":"sh/lojqtsri","slide":11,"name":"swimlane-gate-2","bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/ihwruhsb","slide":11,"name":"swimlane-snowflake-3","text":"SNOWFLAKE","textPreview":"SNOWFLAKE","textChars":9,"textLines":1,"bbox":[82,274,472,18]}
+{"kind":"shape","id":"sh/ji5s329w","slide":11,"name":"swimlane-rule-3","bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/3alozedc","slide":11,"name":"swimlane-iclo-label-3","text":"ICLO","textPreview":"ICLO","textChars":4,"textLines":1,"bbox":[82,376,472,18]}
+{"kind":"textbox","id":"sh/29snq9wr","slide":11,"name":"swimlane-iclo-3","text":"검토를 운영하고 진행/보류안을 제시합니다.","textPreview":"검토를 운영하고 진행/보류안을 제시합니다.","textChars":23,"textLines":1,"bbox":[82,396,472,50]}
+{"kind":"textbox","id":"sh/pc361ovi","slide":11,"name":"swimlane-gate-3","text":"게이트 · 사용사례와 최소 근거 합의","textPreview":"게이트 · 사용사례와 최소 근거 합의","textChars":20,"textLines":1,"bbox":[82,446,472,54]}
+{"kind":"textbox","id":"sh/4bu5sjex","slide":11,"name":"swimlane-snowflake-4","text":"SNOWFLAKE","textPreview":"SNOWFLAKE","textChars":9,"textLines":1,"bbox":[664,274,472,18]}
+{"kind":"shape","id":"sh/f614vud0","slide":11,"name":"swimlane-rule-4","bbox":[-200,900,1,1]}
+{"kind":"textbox","id":"sh/ulsnmpwv","slide":11,"name":"swimlane-iclo-label-4","text":"ICLO","textPreview":"ICLO","textChars":4,"textLines":1,"bbox":[664,376,472,18]}
+{"kind":"textbox","id":"sh/h8j6x4v6","slide":11,"name":"swimlane-iclo-4","text":"다자간 수요가 확인된 뒤에만 확장 기능을 구축합니다.","textPreview":"다자간 수요가 확인된 뒤에만 확장 기능을 구축합니다.","textChars":29,"textLines":1,"bbox":[664,396,472,50]}
+{"kind":"textbox","id":"sh/g7a5ozel","slide":11,"name":"swimlane-gate-4","text":"발동 조건 · 계정 검토에서 다자간 수요 확인","textPreview":"발동 조건 · 계정 검토에서 다자간 수요 확인","textChars":25,"textLines":1,"bbox":[664,446,472,54]}
+{"kind":"shape","id":"sh/sv6lg3yh","slide":11,"bbox":[64,370,472,0]}
+{"kind":"shape","id":"sh/twzm98f2","slide":11,"bbox":[646,370,472,0]}
+{"kind":"shape","id":"sh/6to3edgb","slide":11,"bbox":[566,338,56,0]}
+{"kind":"image","id":"im/kr6t0fup","slide":11,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/lsfatkva","slide":11,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/xv0ss1","slide":11,"text":"Snowflake와 ICLO의 단계별 역할, 게이트, 공동 산출물을 한 화면에 묶는다. ICLO가 주간 현황과 단일 의사결정 기록을 운영한다."}
+{"kind":"slide","id":"sl/jetc3ut0","slide":12,"title":"부록","textShapes":7}
+{"kind":"textbox","id":"sh/dofa18z6","slide":12,"text":"부록","textPreview":"부록","textChars":2,"textLines":1,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/xcryxg7y","slide":12,"bbox":[768,22,256,30]}
+{"kind":"shape","id":"sh/wbih4b6d","slide":12,"bbox":[768,22,6,30]}
+{"kind":"textbox","id":"sh/n69grmpw","slide":12,"text":"ICLO 제품 설계 원칙 / Snowflake 요청","textPreview":"ICLO 제품 설계 원칙 / Snowflake 요청","textChars":28,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"shape","id":"sh/250zy18b","slide":12,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/98rytw72","slide":12,"bbox":[1032,22,6,30]}
+{"kind":"shape","id":"sh/o7ih0r6h","slide":12,"bbox":[1044,27,166,20]}
+{"kind":"textbox","id":"sh/72t03qp0","slide":12,"text":"데이터와 책임의 경계","textPreview":"데이터와 책임의 경계","textChars":11,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/61kzalof","slide":12,"text":"플랫폼 기능, 실제 운영, 데이터 제공, 법률 판단의 책임을 구분합니다.","textPreview":"플랫폼 기능, 실제 운영, 데이터 제공, 법률 판단의 책임을 구분합니다.","textChars":40,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/ofqtgnyt","slide":12,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/9gza9sze","slide":12,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/mdobedg3","slide":12,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/0b6tc3yx","slide":12,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/epobatgr","slide":12,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/zaxs3yhc","slide":12,"text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"table","id":"tb/k32lsny9","slide":12,"name":"","rows":6,"cols":5,"preview":"영역 | ICLO | 기업 / TPA / 협력사 | Snowflake | Snowflake 범위 밖","bbox":[64,205,1152,430]}
+{"kind":"image","id":"im/idkrmp4r","slide":12,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/jet8va5c","slide":12,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/jetc3ut0","slide":12,"text":"책임을 플랫폼, 운영, 데이터 제공, 법률 판단으로 분리한다. Snowflake가 제공할 수 있는 기술 통제와 ICLO·employer·TPA가 책임져야 할 운영·계약·규제 판단을 혼동하지 않는다.\n\n[Sources]\n- User-provided ICLO x Snowflake external briefing requirements, 2026-08-05\n- User-provided CEO Junbae Kim and CMO Hyeyoon Choi review emails, 2026-08-05\n- ICLO Employer Dashboard synthetic demonstration\n- https://docs.snowflake.com/en/user-guide/intro-editions\n- https://docs.snowflake.com/en/user-guide/security-row-intro\n- https://docs.snowflake.com/en/user-guide/data-protection-policies-snowsight\n- https://docs.snowflake.com/en/user-guide/access-history\n- https://docs.snowflake.com/en/collaboration/listings-bcdr-consumers\n- https://docs.snowflake.com/en/user-guide/secure-data-sharing-across-regions-platforms"}
+{"kind":"slide","id":"sl/8f2psfyx","slide":13,"title":"부록","textShapes":26}
+{"kind":"textbox","id":"sh/r6l8vaxw","slide":13,"text":"부록","textPreview":"부록","textChars":2,"textLines":1,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/1gbm9s3a","slide":13,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/0f2lgnmp","slide":13,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/ra943il8","slide":13,"text":"Snowflake 요청","textPreview":"Snowflake 요청","textChars":12,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/q903ad4n","slide":13,"text":"파일럿 전에 결정할 기술 사항","textPreview":"파일럿 전에 결정할 기술 사항","textChars":16,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/dcbm583y","slide":13,"text":"첫 파일럿의 데이터 연결 방식을 먼저 정하고, 앱 패키징과 다자간 ML은 후순위로 둡니다.","textPreview":"첫 파일럿의 데이터 연결 방식을 먼저 정하고, 앱 패키징과 다자간 ML은 후순위로 둡니다.","textChars":50,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/sb2lcnmd","slide":13,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/b6d4f2lc","slide":13,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/a543mx4r","slide":13,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/xw3q94ne","slide":13,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/bulo7u58","slide":13,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/orapcf6h","slide":13,"text":"13","textPreview":"13","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/9sj65kn2","slide":13,"text":"지금 결정할 항목","textPreview":"지금 결정할 항목","textChars":9,"textLines":1,"bbox":[64,209,220,25]}
+{"kind":"shape","id":"sh/mps7a5or","slide":13,"bbox":[64,250,28,28]}
+{"kind":"textbox","id":"sh/nq1o3a5w","slide":13,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[64,253,28,22]}
+{"kind":"textbox","id":"sh/0nap8f6l","slide":13,"text":"ICLO의 현재 Snowflake 상태[계정·클라우드·리전·크레딧 확인 필요]를 기준으로 미국 Business Critical·BAA 경로를 어떻게 정할 것인가?","textPreview":"ICLO의 현재 Snowflake 상태[계정·클라우드·리전·크레딧 확인 필요]를 기준으로 미국 Business Critical·BAA 경로를 어떻게 정할 것인가?","textChars":90,"textLines":1,"bbox":[108,250,520,52]}
+{"kind":"shape","id":"sh/1oj61kn6","slide":13,"bbox":[64,320,28,28]}
+{"kind":"textbox","id":"sh/hkbm5wzu","slide":13,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[64,323,28,22]}
+{"kind":"textbox","id":"sh/gj25cry9","slide":13,"text":"같은 리전의 Direct Share와 통제된 SFTP/API 수집은 언제 각각 쓰는가?","textPreview":"같은 리전의 Direct Share와 통제된 SFTP/API 수집은 언제 각각 쓰는가?","textChars":48,"textLines":1,"bbox":[108,320,520,52]}
+{"kind":"shape","id":"sh/fit436ho","slide":13,"bbox":[64,390,28,28]}
+{"kind":"textbox","id":"sh/uh0na1g3","slide":13,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[64,393,28,22]}
+{"kind":"textbox","id":"sh/tgrm1wzy","slide":13,"text":"테넌시, 목적별 접근, 마스킹, 행 정책, 접근 기록을 어떻게 설계하는가?","textPreview":"테넌시, 목적별 접근, 마스킹, 행 정책, 접근 기록을 어떻게 설계하는가?","textChars":41,"textLines":1,"bbox":[108,390,520,52]}
+{"kind":"shape","id":"sh/sfi58ryd","slide":13,"bbox":[64,460,28,28]}
+{"kind":"textbox","id":"sh/7u94zmhs","slide":13,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[64,463,28,22]}
+{"kind":"textbox","id":"sh/6t0n6hg7","slide":13,"text":"2,500 / 10,000 / 25,000명 규모의 비용과 크레딧 이후 단위 경제성을 어떻게 산정하는가?","textPreview":"2,500 / 10,000 / 25,000명 규모의 비용과 크레딧 이후 단위 경제성을 어떻게 산정하는가?","textChars":58,"textLines":1,"bbox":[108,460,520,52]}
+{"kind":"shape","id":"sh/dcv6dgz2","slide":13,"bbox":[64,530,28,28]}
+{"kind":"textbox","id":"sh/cbm5kbyh","slide":13,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[64,533,28,22]}
+{"kind":"textbox","id":"sh/alwbitsn","slide":13,"text":"스타트업·파트너·Powered by Snowflake·공동판매 준비를 위해 무엇을 입증해야 하는가?","textPreview":"스타트업·파트너·Powered by Snowflake·공동판매 준비를 위해 무엇을 입증해야 하는가?","textChars":55,"textLines":1,"bbox":[108,530,520,52]}
+{"kind":"shape","id":"sh/bm5sryt8","slide":13,"bbox":[660,202,556,430]}
+{"kind":"textbox","id":"sh/wnetkjat","slide":13,"text":"조건부 / 추후","textPreview":"조건부 / 추후","textChars":8,"textLines":1,"bbox":[686,222,250,25]}
+{"kind":"textbox","id":"sh/xonutobe","slide":13,"text":"Native App","textPreview":"Native App","textChars":10,"textLines":1,"bbox":[686,270,160,24]}
+{"kind":"textbox","id":"sh/mhcbe9sr","slide":13,"text":"언제 단순 연결기를 넘어 반복 가능한 고객 계정 실행이 필요한가?","textPreview":"언제 단순 연결기를 넘어 반복 가능한 고객 계정 실행이 필요한가?","textChars":36,"textLines":1,"bbox":[686,302,500,46]}
+{"kind":"textbox","id":"sh/nilsnetc","slide":13,"text":"Clean Room","textPreview":"Clean Room","textChars":10,"textLines":1,"bbox":[686,365,160,24]}
+{"kind":"textbox","id":"sh/ojutgjah","slide":13,"text":"여러 payer·TPA·기업이 실제로 협업할 때 필요한가?","textPreview":"여러 payer·TPA·기업이 실제로 협업할 때 필요한가?","textChars":32,"textLines":1,"bbox":[686,397,500,40]}
+{"kind":"textbox","id":"sh/9k3apob2","slide":13,"text":"연합학습","textPreview":"연합학습","textChars":4,"textLines":1,"bbox":[686,458,200,24]}
+{"kind":"textbox","id":"sh/6dgbqdsv","slide":13,"text":"기관별 로컬 학습인가, Snowflake 안의 협업형 ML인가?","textPreview":"기관별 로컬 학습인가, Snowflake 안의 협업형 ML인가?","textChars":35,"textLines":1,"bbox":[686,490,500,92]}
+{"kind":"textbox","id":"sh/7epczitg","slide":13,"text":"첫 기업 파일럿의 필수 조건이 아닙니다.","textPreview":"첫 기업 파일럿의 필수 조건이 아닙니다.","textChars":22,"textLines":1,"bbox":[686,590,500,24]}
+{"kind":"image","id":"im/9cv2xc76","slide":13,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/mpk32x8v","slide":13,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/8f2psfyx","slide":13,"text":"현재 Snowflake 계정·클라우드·리전·크레딧 상태를 확인한 뒤 미국 Business Critical·BAA 경로를 구체화한다."}
+{"kind":"slide","id":"sl/hgzapcr6","slide":14,"title":"부록","textShapes":26}
+{"kind":"textbox","id":"sh/4z2d8rah","slide":14,"text":"부록","textPreview":"부록","textChars":2,"textLines":1,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/q50nydsj","slide":14,"bbox":[968,22,248,30]}
+{"kind":"shape","id":"sh/bq9orito","slide":14,"bbox":[968,22,6,30]}
+{"kind":"textbox","id":"sh/o3i5w3ad","slide":14,"text":"검증할 가설","textPreview":"검증할 가설","textChars":6,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/p4r6p8by","slide":14,"text":"시나리오 모델의 입력과 출력","textPreview":"시나리오 모델의 입력과 출력","textChars":15,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/21gnuts7","slide":14,"text":"계획용 가설은 입력 가정, 시나리오 버전, 불확실성을 모두 보여줘야 합니다.","textPreview":"계획용 가설은 입력 가정, 시나리오 버전, 불확실성을 모두 보여줘야 합니다.","textChars":42,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/32ponyts","slide":14,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/gzy5s3a1","slide":14,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/1076lobm","slide":14,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/gb6x0zm9","slide":14,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/u9ofyp43","slide":14,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/t8fy5k3i","slide":14,"text":"14","textPreview":"14","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"shape","id":"sh/876xwfmx","slide":14,"bbox":[64,216,450,78]}
+{"kind":"textbox","id":"sh/7mdg3als","slide":14,"text":"가입 인구","textPreview":"가입 인구","textChars":5,"textLines":1,"bbox":[82,228,160,20]}
+{"kind":"textbox","id":"sh/6l4fu547","slide":14,"text":"직원·가족 연령 분포\n이직률 + 평균 근속기간","textPreview":"직원·가족 연령 분포 | 이직률 + 평균 근속기간","textChars":25,"textLines":2,"bbox":[240,226,252,56]}
+{"kind":"shape","id":"sh/lkvy103m","slide":14,"bbox":[64,312,450,78]}
+{"kind":"textbox","id":"sh/kjmxsfm1","slide":14,"text":"진료 접근성","textPreview":"진료 접근성","textChars":6,"textLines":1,"bbox":[82,324,160,20]}
+{"kind":"textbox","id":"sh/cnqh8fux","slide":14,"text":"근무지 분포\n네트워크 겹침 + 치과 예약 가능성","textPreview":"근무지 분포 | 네트워크 겹침 + 치과 예약 가능성","textChars":26,"textLines":2,"bbox":[240,322,252,56]}
+{"kind":"shape","id":"sh/xozyhkbi","slide":14,"bbox":[64,408,450,78]}
+{"kind":"textbox","id":"sh/q18f65cr","slide":14,"text":"치아보험 플랜","textPreview":"치아보험 플랜","textChars":7,"textLines":1,"bbox":[82,420,160,20]}
+{"kind":"textbox","id":"sh/bmhgfatc","slide":14,"text":"플랜 구조 + 연간 한도\n기업 부담 + 플랜 지급 / 본인부담 구분","textPreview":"플랜 구조 + 연간 한도 | 기업 부담 + 플랜 지급 / 본인부담 구분","textChars":37,"textLines":2,"bbox":[240,418,252,56]}
+{"kind":"shape","id":"sh/oz6x4vul","slide":14,"bbox":[64,504,450,78]}
+{"kind":"textbox","id":"sh/p0zyd0b6","slide":14,"text":"기준값 + 시점","textPreview":"기준값 + 시점","textChars":8,"textLines":1,"bbox":[82,516,160,20]}
+{"kind":"textbox","id":"sh/2xof2lcv","slide":14,"text":"기존 이용률 + 과거 청구\n미치료 수요·발생률 + 청구 반영 지연","textPreview":"기존 이용률 + 과거 청구 | 미치료 수요·발생률 + 청구 반영 지연","textChars":36,"textLines":2,"bbox":[240,514,252,56]}
+{"kind":"shape","id":"sh/3yxgbqdg","slide":14,"bbox":[558,326,214,146]}
+{"kind":"textbox","id":"sh/8vahgzu5","slide":14,"text":"통제된\n시나리오 모델","textPreview":"통제된 | 시나리오 모델","textChars":11,"textLines":2,"bbox":[570,344,190,62]}
+{"kind":"textbox","id":"sh/9wjyp4bq","slide":14,"text":"데이터 계보 + 버전 + 불확실성","textPreview":"데이터 계보 + 버전 + 불확실성","textChars":18,"textLines":1,"bbox":[570,414,190,42]}
+{"kind":"shape","id":"sh/jqlkfyds","slide":14,"bbox":[524,376,10,10]}
+{"kind":"shape","id":"sh/bup4ryhs","slide":14,"bbox":[534,381,24,18]}
+{"kind":"shape","id":"sh/5cn2h8vy","slide":14,"bbox":[816,216,400,398]}
+{"kind":"shape","id":"sh/l0rmx8zu","slide":14,"bbox":[772,399,44,16]}
+{"kind":"textbox","id":"sh/re5kjydo","slide":14,"text":"결과","textPreview":"결과","textChars":2,"textLines":1,"bbox":[842,239,180,24]}
+{"kind":"shape","id":"sh/6dwjqtw3","slide":14,"bbox":[842,285,8,8]}
+{"kind":"textbox","id":"sh/tgn2l8vu","slide":14,"text":"예방진료 이용 증가","textPreview":"예방진료 이용 증가","textChars":10,"textLines":1,"bbox":[864,278,320,28]}
+{"kind":"shape","id":"sh/sfe1s3e9","slide":14,"bbox":[842,326,8,8]}
+{"kind":"textbox","id":"sh/7i107edk","slide":14,"text":"새로 발견된 치료비","textPreview":"새로 발견된 치료비","textChars":10,"textLines":1,"bbox":[864,319,320,28]}
+{"kind":"shape","id":"sh/mhsje9wz","slide":14,"bbox":[842,367,8,8]}
+{"kind":"textbox","id":"sh/y1wju94v","slide":14,"text":"허용액 / 플랜 지급 / 직원 본인부담 구분","textPreview":"허용액 / 플랜 지급 / 직원 본인부담 구분","textChars":24,"textLines":1,"bbox":[864,360,320,28]}
+{"kind":"shape","id":"sh/z25kne5g","slide":14,"bbox":[842,408,8,8]}
+{"kind":"textbox","id":"sh/03e1wjm1","slide":14,"text":"1년차 / 2년차 / 3년차 시나리오","textPreview":"1년차 / 2년차 / 3년차 시나리오","textChars":20,"textLines":1,"bbox":[864,401,320,28]}
+{"kind":"shape","id":"sh/l4n2po3m","slide":14,"bbox":[842,449,8,8]}
+{"kind":"textbox","id":"sh/m5gjyt4r","slide":14,"text":"이직률 민감도","textPreview":"이직률 민감도","textChars":7,"textLines":1,"bbox":[864,442,320,28]}
+{"kind":"shape","id":"sh/n6pkrelc","slide":14,"bbox":[842,490,8,8]}
+{"kind":"textbox","id":"sh/8ry10jmx","slide":14,"text":"네트워크 접근성 민감도","textPreview":"네트워크 접근성 민감도","textChars":12,"textLines":1,"bbox":[864,483,320,28]}
+{"kind":"shape","id":"sh/9s72to3i","slide":14,"bbox":[842,531,8,8]}
+{"kind":"textbox","id":"sh/atgj2t43","slide":14,"text":"예상 데이터 불확실성","textPreview":"예상 데이터 불확실성","textChars":11,"textLines":1,"bbox":[864,524,320,28]}
+{"kind":"shape","id":"sh/vupkvylo","slide":14,"bbox":[64,632,1152,32]}
+{"kind":"textbox","id":"sh/50behwr2","slide":14,"text":"고객 데이터로 보정할 계획 가설이며 실제 ICLO 성과가 아닙니다.","textPreview":"고객 데이터로 보정할 계획 가설이며 실제 ICLO 성과가 아닙니다.","textChars":37,"textLines":1,"bbox":[64,634,1152,34]}
+{"kind":"shape","id":"sh/j6l0raxc","slide":14,"bbox":[64,224,3,62]}
+{"kind":"shape","id":"sh/47u10fex","slide":14,"bbox":[500,255,24,0]}
+{"kind":"shape","id":"sh/583itkf2","slide":14,"bbox":[64,320,3,62]}
+{"kind":"shape","id":"sh/q9cj2pwn","slide":14,"bbox":[500,351,24,0]}
+{"kind":"shape","id":"sh/ral0vux8","slide":14,"bbox":[64,416,3,62]}
+{"kind":"shape","id":"sh/sbu14zet","slide":14,"bbox":[500,447,24,0]}
+{"kind":"shape","id":"sh/dw32x4fe","slide":14,"bbox":[64,512,3,62]}
+{"kind":"shape","id":"sh/excj6pwz","slide":14,"bbox":[500,543,24,0]}
+{"kind":"shape","id":"sh/fy5kzuxk","slide":14,"bbox":[524,255,0,288]}
+{"kind":"shape","id":"sh/nu10jupo","slide":14,"bbox":[524,399,34,0]}
+{"kind":"shape","id":"sh/mtsjqpo3","slide":14,"bbox":[816,289,0,246]}
+{"kind":"image","id":"im/d0jm9sb6","slide":14,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/vuhojids","slide":14,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/hgzapcr6","slide":14,"text":"J-curve는 고객 데이터로 보정할 계획 가설이다. 입력 가정과 모델 버전, 불확실성을 관리하고 실제 ICLO 성과처럼 제시하지 않는다. 이직률은 고용주가 장기 효과를 회수할 수 있는 기간과 신규 미치료 수요 유입에 영향을 줄 수 있다.\n\n[Sources]\n- User-provided ICLO x Snowflake external briefing requirements, 2026-08-05\n- User-provided CEO Junbae Kim and CMO Hyeyoon Choi review emails, 2026-08-05\n- ICLO Employer Dashboard synthetic demonstration"}
+{"kind":"slide","id":"sl/6lsnupw7","slide":15,"title":"부록","textShapes":10}
+{"kind":"textbox","id":"sh/hsvy50re","slide":15,"text":"부록","textPreview":"부록","textChars":2,"textLines":1,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/xc7eds76","slide":15,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/wbydknq1","slide":15,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/jepwf2pc","slide":15,"text":"Snowflake 요청","textPreview":"Snowflake 요청","textChars":12,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/idgvmx8r","slide":15,"text":"고객 접촉 전 확인할 계정 근거","textPreview":"고객 접촉 전 확인할 계정 근거","textChars":17,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/5grehs7i","slide":15,"text":"시장 전체의 추정을 법인·데이터·기술 준비도에 관한 실제 근거로 바꿉니다.","textPreview":"시장 전체의 추정을 법인·데이터·기술 준비도에 관한 실제 근거로 바꿉니다.","textChars":41,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/kfidonqx","slide":15,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/zi5c3y98","slide":15,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/ehwvat8n","slide":15,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/x4ni9ofy","slide":15,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/b2507exs","slide":15,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/kre1k3y9","slide":15,"text":"15","textPreview":"15","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/ls7idofu","slide":15,"text":"계정 정보 + 데이터","textPreview":"계정 정보 + 데이터","textChars":11,"textLines":1,"bbox":[64,205,620,26]}
+{"kind":"textbox","id":"sh/z650byxo","slide":15,"text":"사업 + 기술 준비도","textPreview":"사업 + 기술 준비도","textChars":11,"textLines":1,"bbox":[64,438,620,26]}
+{"kind":"textbox","id":"sh/1w3i14fq","slide":15,"text":"빈 템플릿입니다. 계정팀과 함께 채웁니다. 이 표에 계정 근거가 채워지기 전에는 'Snowflake 고객인 TPA가 많다'고 말하지 않습니다.","textPreview":"빈 템플릿입니다. 계정팀과 함께 채웁니다. 이 표에 계정 근거가 채워지기 전에는 'Snowflake 고객인 TPA가 많다'고 말하지 않습니다.","textChars":79,"textLines":1,"bbox":[64,634,1152,38]}
+{"kind":"table","id":"tb/1sjap8zi","slide":15,"name":"","rows":3,"cols":6,"preview":"조직 / 법인 | 계정 유형 | 자가부담형 치아보험 운영? | Snowflake 내 가입 자격? | Snowflake 내 청구 항목? | 클라우드 / 리전","bbox":[64,238,1152,168]}
+{"kind":"table","id":"tb/2tcbyd03","slide":15,"name":"","rows":2,"cols":5,"preview":"기존 이용지원 / 원격치과 업체 | ICLO 가능 영역 | Snowflake 계정 담당자 | 기술 검증 준비? | 고객 소개 준비?","bbox":[64,471,1152,132]}
+{"kind":"image","id":"im/7ipgzel8","slide":15,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/8jyx8jmt","slide":15,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/6lsnupw7","slide":15,"text":"시장 단위의 막연한 주장을 법인·데이터·리전·기술 준비도 근거로 바꾸기 위한 템플릿이다. 'Snowflake 고객인 TPA가 많다'는 표현은 계정 증거가 채워지기 전에는 사용하지 않는다.\n\n[Sources]\n- User-provided ICLO x Snowflake external briefing requirements, 2026-08-05\n- User-provided CEO Junbae Kim and CMO Hyeyoon Choi review emails, 2026-08-05\n- ICLO Employer Dashboard synthetic demonstration"}
+{"kind":"slide","id":"sl/vaxsvy10","slide":16,"title":"부록","textShapes":19}
+{"kind":"textbox","id":"sh/f6dcnetg","slide":16,"text":"부록","textPreview":"부록","textChars":2,"textLines":1,"bbox":[64,29,260,20]}
+{"kind":"shape","id":"sh/547mhg3m","slide":16,"bbox":[1032,22,184,30]}
+{"kind":"shape","id":"sh/k3y5ov21","slide":16,"bbox":[1032,22,6,30]}
+{"kind":"textbox","id":"sh/76p4jqls","slide":16,"text":"외부 공유 전 확인","textPreview":"외부 공유 전 확인","textChars":10,"textLines":1,"bbox":[700,24,516,32]}
+{"kind":"textbox","id":"sh/65gnqlk7","slide":16,"text":"ICLO: 확인된 사실과 남은 검증","textPreview":"ICLO: 확인된 사실과 남은 검증","textChars":19,"textLines":1,"bbox":[64,62,1152,52]}
+{"kind":"textbox","id":"sh/t87ml0ji","slide":16,"text":"프로그램 선정과 제품·데이터 경계는 검증의 기반이지만, 현재 Snowflake 상태는 외부 공유 전에 확인해야 합니다.","textPreview":"프로그램 선정과 제품·데이터 경계는 검증의 기반이지만, 현재 Snowflake 상태는 외부 공유 전에 확인해야 합니다.","textChars":66,"textLines":1,"bbox":[64,121,1120,52]}
+{"kind":"shape","id":"sh/s7y5sv2x","slide":16,"bbox":[64,177,1152,2]}
+{"kind":"shape","id":"sh/na5476l8","slide":16,"bbox":[64,177,88,2]}
+{"kind":"shape","id":"sh/m9c3e1kn","slide":16,"bbox":[64,680,1152,1]}
+{"kind":"textbox","id":"sh/hsvat0fa","slide":16,"text":"×","textPreview":"×","textChars":1,"textLines":1,"bbox":[128,686,18,18]}
+{"kind":"textbox","id":"sh/vqdsrqx4","slide":16,"text":"ICLO 내부 검토 자료","textPreview":"ICLO 내부 검토 자료","textChars":13,"textLines":1,"bbox":[244,687,360,18]}
+{"kind":"textbox","id":"sh/4vm9ovel","slide":16,"text":"16","textPreview":"16","textChars":2,"textLines":1,"bbox":[1168,687,48,18]}
+{"kind":"textbox","id":"sh/5wvax0f6","slide":16,"text":"ICLO 핵심 정보","textPreview":"ICLO 핵심 정보","textChars":10,"textLines":1,"bbox":[64,209,220,25]}
+{"kind":"shape","id":"sh/it4rm5wv","slide":16,"bbox":[64,250,28,28]}
+{"kind":"textbox","id":"sh/judsvqxg","slide":16,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[64,253,28,22]}
+{"kind":"textbox","id":"sh/0z29cbyh","slide":16,"text":"회사\n주식회사 아이클로 (ICLO Co., Ltd.) · 제주 · 국내 B2C·B2B 상용화 단계 · 핵심 인력 12명","textPreview":"회사 | 주식회사 아이클로 (ICLO Co., Ltd.) · 제주 · 국내 B2C·B2B 상용화 단계 · 핵심 인력 12명","textChars":66,"textLines":2,"bbox":[108,250,1000,52]}
+{"kind":"shape","id":"sh/l0bqlgf2","slide":16,"bbox":[64,320,28,28]}
+{"kind":"textbox","id":"sh/1kjyt83e","slide":16,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[64,323,28,22]}
+{"kind":"textbox","id":"sh/gjax03m9","slide":16,"text":"제품\nHomeDen SaaS(PMS·EMR·CRM)와 임직원 치아보험 이용지원·청구 근거 설계","textPreview":"제품 | HomeDen SaaS(PMS·EMR·CRM)와 임직원 치아보험 이용지원·청구 근거 설계","textChars":52,"textLines":2,"bbox":[108,320,1000,52]}
+{"kind":"shape","id":"sh/fi1grylo","slide":16,"bbox":[64,390,28,28]}
+{"kind":"textbox","id":"sh/ehsfyt43","slide":16,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[64,393,28,22]}
+{"kind":"textbox","id":"sh/p8jyx83q","slide":16,"text":"선정\n핀테크지원센터 Fintech Cube 9기·신한퓨쳐스랩 12기 선정","textPreview":"선정 | 핀테크지원센터 Fintech Cube 9기·신한퓨쳐스랩 12기 선정","textChars":40,"textLines":2,"bbox":[108,390,1000,52]}
+{"kind":"shape","id":"sh/o7ah4nm5","slide":16,"bbox":[64,460,28,28]}
+{"kind":"textbox","id":"sh/361gvilk","slide":16,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[64,463,28,22]}
+{"kind":"textbox","id":"sh/25sf2d4z","slide":16,"text":"SNOWFLAKE 상태\nSnowflake와 함께 확인: 공식 프로그램명 · 스폰서 · 계정 · 클라우드 · 리전 · 크레딧 · 지원 담당자","textPreview":"SNOWFLAKE 상태 | Snowflake와 함께 확인: 공식 프로그램명 · 스폰서 · 계정 · 클라우드 · 리전 · 크레딧 · 지원 담당자","textChars":77,"textLines":2,"bbox":[108,460,1000,52]}
+{"kind":"shape","id":"sh/dc3y1s3m","slide":16,"bbox":[64,530,28,28]}
+{"kind":"textbox","id":"sh/cbuh8nmh","slide":16,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[64,533,28,22]}
+{"kind":"textbox","id":"sh/uh4v2pkj","slide":16,"text":"다음 입증\n미국 self-funded employer 치아보험 데이터 경로 1건과 계정팀 검토 1건","textPreview":"다음 입증 | 미국 self-funded employer 치아보험 데이터 경로 1건과 계정팀 검토 1건","textChars":55,"textLines":2,"bbox":[108,530,1000,52]}
+{"kind":"shape","id":"sh/vixcvu14","slide":16,"bbox":[660,202,556,430]}
+{"kind":"shape","id":"sh/wj6d4z2p","slide":16,"bbox":[686,222,250,25]}
+{"kind":"shape","id":"sh/hkfexkja","slide":16,"bbox":[686,270,160,24]}
+{"kind":"shape","id":"sh/ilov6pkv","slide":16,"bbox":[686,302,500,46]}
+{"kind":"shape","id":"sh/jmxwzu1g","slide":16,"bbox":[686,365,160,24]}
+{"kind":"shape","id":"sh/4n6d8z21","slide":16,"bbox":[686,397,500,40]}
+{"kind":"shape","id":"sh/5ofe14j6","slide":16,"bbox":[686,458,200,24]}
+{"kind":"shape","id":"sh/6p8va9kr","slide":16,"bbox":[686,490,500,92]}
+{"kind":"textbox","id":"sh/rqhw3e1c","slide":16,"text":"Snowflake 행은 이번 회의의 요청 사항입니다. 국내 상용화 단계와 프로그램 선정은 보험사 연동·인수·심사 또는 미국 성과를 입증하지 않습니다.","textPreview":"Snowflake 행은 이번 회의의 요청 사항입니다. 국내 상용화 단계와 프로그램 선정은 보험사 연동·인수·심사 또는 미국 성과를 입증하지 않습니다.","textChars":83,"textLines":1,"bbox":[108,606,1000,44]}
+{"kind":"image","id":"im/dwjidkva","slide":16,"name":"","bbox":[64.23,685,57.53,21]}
+{"kind":"image","id":"im/qtsz2pcj","slide":16,"name":"","bbox":[164.12,682,49.75,28]}
+{"kind":"notes","id":"nt/vaxsvy10","slide":16,"text":"대괄호 항목은 외부 공유 전 반드시 채운다. 프로그램 선정은 협업 준비 신호이며 보험사 연동·인수·심사 또는 미국 성과 완료를 뜻하지 않는다."}

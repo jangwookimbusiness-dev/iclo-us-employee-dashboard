@@ -246,7 +246,7 @@ quietly enjoyed: the fastest way to have a privacy incident at a booth was to ha
 | Red line | Enforcement |
 |---|---|
 | Forbidden terms: `diagnos*, cavit*, caries, decay, gingivit*, periodont*, abscess, lesion`; signal label "Review" banned (use "Priority") | `scripts/check-forbidden-terms.sh` |
-| No individual-level screens; no mock person profiles | PR review |
+| No individual-level screens **in employer views**; no mock person profiles there | PR review. Scoped 2026-08-15: `app.html` is a member's own surface and shows their own result and their profiles by design (`contracts` `surfaces`). Unscoped, this line forbade the employee app |
 | Cells with `n < 20` never show values | `test_suppression.py` |
 | **Band, never a numeric score — in employer views** | PR review. Settled 2026-08-14: the employee app (`app.html`) shows the member their own 0-100 score; employers still get bands only. `contracts` `surfaces` holds both. Individual scores never roll up |
 | Every figure derives from one source of truth | `test_single_source.py`, rewritten when A3 changes the source |

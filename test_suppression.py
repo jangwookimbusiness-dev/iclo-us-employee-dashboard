@@ -69,6 +69,13 @@ def render_dom(scen, dept, tab):
             [CHROME, "--headless=new", "--disable-gpu", "--dump-dom",
              "--virtual-time-budget=2000", page.as_uri()],
             capture_output=True, text=True, timeout=90)
+        # A failed render used to reach the parsers as an empty string, which
+        # then found nothing, which every assertion read as "no violations".
+        # The whole suite passed with CHROME=/bin/false. Verified 2026-08-15.
+        if out.returncode != 0:
+            sys.exit(f"chrome exited {out.returncode}: {out.stderr.strip()[:300]}")
+        if "</html>" not in out.stdout:
+            sys.exit("chrome returned no document — nothing was rendered")
         return out.stdout
 
 
@@ -104,12 +111,14 @@ def leaked_in_notice(dom):
 
 def main():
     failures = []
+    seen = 0                      # values actually parsed, not states walked
     for scen in SCENARIOS:
         for dept in DEPTS:
             for tab in TABS:
                 dom = render_dom(scen, dept, tab)
                 where = f"scen {scen} / {dept} / {tab}"
                 for label, value in displayed_counts(dom):
+                    seen += 1
                     if value < MIN_CELL and not label.startswith(DENOMINATOR_LABELS):
                         failures.append(f"{where}: '{label}' shows {value} (< {MIN_CELL})")
                 for leak in leaked_in_notice(dom):

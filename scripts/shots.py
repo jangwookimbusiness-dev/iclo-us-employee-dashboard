@@ -103,13 +103,20 @@ def main():
                 if query:
                     url += "?" + urlencode(query)
                 png = out / f"{name}.png"
-                subprocess.run(
+                # The PNGs are committed, so "the file exists" proves nothing —
+                # a failed run would report success over yesterday's images.
+                # Delete first, then require a fresh one.
+                png.unlink(missing_ok=True)
+                r = subprocess.run(
                     [chrome, "--headless=new", "--disable-gpu", "--hide-scrollbars",
                      f"--window-size={w},{h}", f"--screenshot={png}",
                      "--virtual-time-budget=2500", url],
                     capture_output=True, timeout=120)
-                if not png.exists():
-                    sys.exit(f"{name}: chrome produced no file")
+                if r.returncode != 0:
+                    sys.exit(f"{name}: chrome exited {r.returncode}: "
+                             f"{r.stderr.decode('utf-8', 'replace').strip()[:300]}")
+                if not png.exists() or png.stat().st_size < 2000:
+                    sys.exit(f"{name}: chrome produced no usable file")
                 print(f"  {name:24s} {png.stat().st_size // 1024:>4d} KB  {url}")
         finally:
             shutil.rmtree(tmp, ignore_errors=True)

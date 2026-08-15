@@ -82,7 +82,8 @@
   .blocked{border-left-color:var(--coral)}
 
   .acts{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 16px}
-  .acts button{width:auto;flex:1 1 46%}
+  .acts button,.acts .btn{width:auto;flex:1 1 46%}
+  .acts .btn{color:var(--ink)}
   .acts .followup{flex:1 1 100%}
   .clinic{display:flex;gap:12px;align-items:flex-start}
   .clinic .meta{flex:1}
@@ -314,8 +315,12 @@ const VIEWS = {
     // preselected — not even the account holder, who is the obvious default
     // and exactly the wrong one on a shared phone.
     if (S.step === 0){
-      const eligible = managed().filter(p => p.consents && p.consents.photo);
-      const blocked  = managed().filter(p => p.consents && !p.consents.photo);
+      // Every purpose that gates a capture, not just the photo one. Withdrawing
+      // "data processing" used to leave the whole flow open, which made the
+      // sentence in settings about processing stopping simply untrue.
+      const ok = p => p.consents && p.consents.processing && p.consents.photo;
+      const eligible = managed().filter(ok);
+      const blocked  = managed().filter(p => p.consents && !ok(p));
       return `<h1>Who is this check-in for?</h1>
         <p>Pick every time. This is not remembered between check-ins — on a shared phone,
         carrying the last choice forward is how a photo ends up on the wrong person.</p>
@@ -328,8 +333,10 @@ const VIEWS = {
         ${blocked.map(p=>`
           <div class="privacy blocked">
             <b>${esc(p.name)} is not available</b>
-            <ul><li>Photo analysis consent is off for this profile. Turn it on in settings before
-                    taking a check-in.</li></ul>
+            <ul><li>${p.consents.processing
+                      ? "Photo analysis consent is off for this profile."
+                      : "Data processing consent is withdrawn, so nothing is processed for this profile."}
+                    Turn it back on in settings before taking a check-in.</li></ul>
           </div>`).join("")}`;
     }
 
@@ -402,9 +409,11 @@ const VIEWS = {
         <span class="pill in">In network</span>
       </div>
       <div class="acts" data-clinic="${i}">
-        <button data-call="${i}">Call ${esc(c.phone)}</button>
+        <a class="btn" href="tel:${esc(c.phone.replace(/[^0-9+]/g,""))}"
+           data-call="${i}" style="text-align:center;text-decoration:none;display:block">Call ${esc(c.phone)}</a>
         ${c.online
-          ? `<button data-site="${i}">Book on their site ↗</button>`
+          ? `<a class="btn" href="https://example.invalid/book" target="_blank" rel="noopener"
+               data-site="${i}" style="text-align:center;text-decoration:none;display:block">Book on their site ↗</a>`
           : `<span class="muted" style="display:block;padding:6px 2px 0">Phone only — this practice does not take web bookings</span>`}
       </div>`).join("");
     return `<h1>Dentists in the network</h1>
@@ -412,7 +421,9 @@ const VIEWS = {
       the practice — by phone, or on their own site where they have one.</p>
       ${rows}
       <p class="muted">Going out of network is your choice; the estimate just changes. Telling us once
-      you are booked is what lets us stop reminding you.</p>`;
+      you are booked is what turns the reminders off for that item — you can also switch them off
+      entirely in settings. The booking links here point nowhere in this demo; a real build carries
+      each practice's own URL from the network directory.</p>`;
   },
 
   settings(){
@@ -499,7 +510,9 @@ document.addEventListener("click", e=>{
     p.consents[k] = !p.consents[k];
     // Photo consent feeds the signal. Revoking it takes the profile out of the
     // capture flow rather than leaving a score updating off a withdrawn input.
-    if (k === "photo" && !p.consents[k] && S.subject === pid) S.subject = null;
+    // Either gate closing drops the profile mid-flow rather than leaving a
+    // capture running against a consent that was just withdrawn.
+    if ((k === "photo" || k === "processing") && !p.consents[k] && S.subject === pid) S.subject = null;
     return render();
   }
 

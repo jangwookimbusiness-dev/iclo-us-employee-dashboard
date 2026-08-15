@@ -86,6 +86,15 @@ def render(patched_html, tab):
             [CHROME, "--headless=new", "--disable-gpu", "--dump-dom",
              "--virtual-time-budget=2000", page.as_uri()],
             capture_output=True, text=True, timeout=90)
+        # A failed render used to arrive as an empty string. The expectations
+        # are "token X appears" and "token Y does not", and an empty document
+        # satisfies neither loudly — the forbid half passes and the expect half
+        # was the only thing failing. The whole suite passed with
+        # CHROME=/bin/false. Verified 2026-08-15.
+        if out.returncode != 0:
+            sys.exit(f"chrome exited {out.returncode}: {out.stderr.strip()[:300]}")
+        if "</html>" not in out.stdout:
+            sys.exit("chrome returned no document — nothing was rendered")
         # strip the constants block itself — we are testing what reaches the
         # screen, and the block is inline in the page source
         return re.sub(r"single source of truth.*?const pct", "", out.stdout, flags=re.S)

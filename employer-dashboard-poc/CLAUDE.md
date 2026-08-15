@@ -27,7 +27,7 @@ Deliverables and dates are PRD §3.2 and the Handoff Brief. Read them there, not
 
 1. `/office-hours` on `docs/PRD.md` before any code. Premises broken there flow back into the PRD via PR.
 2. `/plan-ceo-review` → `/plan-eng-review` → `/plan-design-review` (end-user UI, so the design review applies).
-3. Either agent implements against PRD §3.3. WS0 (consent text) is gone with the booth capture — there is no consent surface in this code.
+3. Either agent implements against PRD §3.3. WS0's booth consent text is gone with the capture. `app.html` does carry a consent surface — per person, per purpose — since 2026-08-15; it is the member's own, not the booth's.
 4. `/review` + `/qa` on every PR, by the model that did not write it. Before `/ship`: `bash scripts/check-forbidden-terms.sh`, `scripts/check-package-consistency.py`, `test_single_source.py`, `test_suppression.py` and the kill-ai-slop Mode B scan must all pass.
 5. `/ship` → Pages deploy from the repo root.
 
