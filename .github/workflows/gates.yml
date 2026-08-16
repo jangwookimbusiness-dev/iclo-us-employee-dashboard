@@ -1,10 +1,14 @@
 name: gates
 
-# The four checks that were only ever run by hand. Two of them had quietly
-# stopped working before anyone noticed — test_single_source matched a literal
-# string that changed, and check-forbidden-terms never looked at the repo root
-# where the shipped code lives. A check nobody runs is a check that dies
-# silently, so they run here.
+# The checks that were only ever run by hand. THREE of them had quietly stopped
+# working before anyone noticed:
+#   test_single_source      matched a literal string that had changed
+#   check-forbidden-terms   never looked at the repo root, where the shipped code lives
+#   test_suppression        passed while Chrome failed to render anything at all
+# The third is the worst kind: it reported success over an empty page, because
+# "found no violations" and "found nothing" were the same result to it. Every
+# check here now proves it ran and counts what it saw. A check nobody runs is a
+# check that dies silently, so they run here.
 #
 # Linux runners only. The private-repo free tier is 2,000 Linux minutes a
 # month and this job takes seconds; macOS minutes are the scarce ones and

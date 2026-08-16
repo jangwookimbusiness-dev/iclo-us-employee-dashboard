@@ -96,10 +96,14 @@ dashboard:
       value: 0.38
       definition_ko: 가입 + 첫 문진 완료 / 자격자
       source: App · consent + events
-    - label: Valid capture (passed photo-quality gate)
+    - label: People with a valid capture
       const: FRAC.valid
       value: 0.28
-      definition_ko: 품질 게이트를 통과한 촬영
+      # 2026-08-16: 라벨이 "Valid capture (passed photo-quality gate)" 였다. 그러면
+      # 촬영을 세는 것으로 읽히고, 아래 metric_time_contracts.signal_distribution 이
+      # 정한 사람 단위와 어긋난다. 퍼널의 앞뒤 단계가 전부 사람인데 이 단계만 촬영이면
+      # 겹치지 않는다 — funnel_nesting 이 금지하는 상태다.
+      definition_ko: 품질 게이트를 통과한 촬영을 그 창 안에 1건 이상 만든 사람
       source: App · photo-derived signals (versioned)
       gap: 기술문서 §3 화면 지표표에 이 항목이 없다 — 추가해야 한다
     - label: Open care actions

@@ -127,6 +127,7 @@ def check_dashboard(c):
         if not re.search(rf'key:\s*"{key}",\s*share:\s*{share}\b', h):
             fail("signal", f"{key} {share}% 가 index.html 과 다름")
 
+
     # 시나리오
     for emp, pmpm in c["scenarios"]:
         if not re.search(rf"employees:\s*{emp}\s*,\s*pmpm:\s*{pmpm}\b", h):
@@ -157,14 +158,24 @@ def check_dashboard(c):
         if re.search(rf"\b{w}\w*", h, re.I):
             fail("disease_word", f'index.html 에 금지어 "{w}"')
 
-    # 금지 용어 — 문서뿐 아니라 화면에도 걸어야 한다.
-    # 원천 칩("HRIS · 834 eligibility")은 원천 시스템과 파일 형식을 나란히 적은 것이라 예외.
-    for wrong, right in c["forbidden"]:
-        for m in re.finditer(re.escape(wrong), h):
-            if h[max(0, m.start() - 2):m.start()] == "· ":
-                continue
-            line = h[:m.start()].count("\n") + 1
-            fail("terminology", f'index.html:{line} 금지어 "{wrong}" → "{right}"')
+    # 금지 용어 — 문서뿐 아니라 화면에도 건다. 여기에는 2026-08-16 까지
+    # "원천 칩은 원천 시스템과 파일 형식을 나란히 적은 것이라 예외" 라는 면제가
+    # 적혀 있었다. 검사가 못 본 게 아니라 보고도 넘기라고 쓰여 있었던 것이고,
+    # 그 덕에 화면과 제안서 캡처가 금지어를 달고 나갔다. 면제를 지운다.
+    # 구두점을 접어서 보는 이유도 같다 — 가운뎃점 하나로 피해갈 수 있으면
+    # 그건 검사가 아니라 권고다.
+    def squash(s):
+        return re.sub(r"[\s·\-–—/|,]+", "", s)
+
+    for path in ("index.html", "app.html"):
+        f = ROOT / path
+        if not f.exists():
+            fail("screen_missing", f"{path} 없음")
+            continue
+        flat = squash(f.read_text(encoding="utf-8"))
+        for wrong, right in c["forbidden"]:
+            if squash(wrong) in flat:
+                fail("terminology", f'{path}: 금지어 "{wrong}" → "{right}"')
 
     # 합성 데이터 표시
     if "Synthetic data" not in h:
@@ -205,6 +216,16 @@ def check_docs(c, use_pdf):
     ]:
         if (v11 / rel).exists():
             targets[label] = v11 / rel
+
+    # v12. 2026-08-16 까지 이 검사는 v10 과 일부 v11 만 봤고, 정작 밖으로 나갈
+    # 문서인 v12 를 안 봤다. 그런데 v12 부록이 "자동 검사가 어긋남을 잡는다" 고
+    # 썼다 — 자기 자신에 대해 거짓인 문장이었다. 실제로 v12 는 정본이 금지한
+    # "HRIS 834" 를 쓰고 있었고 검사는 통과했다.
+    v12 = ROOT / "output/proposal-v12/제안서-v12-KO.md"
+    if v12.exists():
+        targets["proposal_v12_ko"] = v12
+
+    checked = 0
     for name, p in targets.items():
         if not p.exists():
             warn("missing", f"{name}: {p.name} 없음")
@@ -212,6 +233,7 @@ def check_docs(c, use_pdf):
         t = doc_text(p, use_pdf)
         if t is None:
             continue
+        checked += 1
         # PDF 는 줄바꿈으로 단어가 쪼개지므로 공백을 접어서 검사
         flat = re.sub(r"\s+", "", t)
 
@@ -237,6 +259,13 @@ def check_docs(c, use_pdf):
         if name.startswith(("report", "proposal")):
             if not any(re.sub(r"\s+", "", hd) in flat for hd in c["headings"]):
                 warn("screen_names", f"{name}: 대시보드 화면 이름이 하나도 안 나옴 (SYNC-06)")
+
+    # 한 건도 못 읽었으면 "위반 없음" 이 아니라 검사가 안 돈 것이다. 이 저장소가
+    # 조용히 죽은 검사를 세 번 겪은 이유가 정확히 이 구별을 안 한 것이었다.
+    if checked == 0:
+        fail("no_docs", "문서를 한 건도 읽지 못했다 — 경로가 바뀌었거나 pdftotext 가 없다")
+    else:
+        print(f"문서 {checked}건 검사")
 
     # Report 와 Proposal 의 머리글이 같으면 받는 쪽이 구분할 수 없다
     b = ROOT / "tmp/iclo-snowflake-proposal-v10/build_reports_v10.py"

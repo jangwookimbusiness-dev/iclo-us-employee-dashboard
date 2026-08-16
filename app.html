@@ -58,6 +58,8 @@
   .rowlab{display:flex;justify-content:space-between;font-size:13px;gap:12px}
   .rowlab .v{font-family:var(--mono)}
   .muted{color:var(--ink2);font-size:12.5px}
+  .tpalink{display:inline-block;margin-top:9px;font-size:12.5px;text-decoration:none;
+           min-height:44px;line-height:44px;color:var(--data)}
 
   button,.btn{min-height:44px;font:inherit;font-size:15px;border-radius:10px;
               border:1px solid var(--line);background:var(--panel);color:var(--ink);
@@ -170,7 +172,9 @@ const ACCOUNT = {                     // one credential — this device's login
   employer: "Employer A",
   plan: "PPO Dental — Employee + Family",
   planYear: "2026-01-01 → 2026-12-31",
-  annualMax: 1500, usedToDate: 412,
+  // No annualMax / usedToDate here on purpose. A remaining balance we could
+  // render is a remaining balance someone will render — see balanceCard().
+  tpa: "Meridian Benefits", tpaPortal: "https://example.invalid/benefits",
   coverage: [
     {k:"Preventive (cleanings, exams)", pct:100, note:"2 per plan year, no deductible"},
     {k:"Basic services",                pct:80,  note:"after $50 deductible"},
@@ -239,11 +243,27 @@ const CLS = {Low:"b-low", Moderate:"b-mod", Priority:"b-pri"};
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const usd = n => "$" + n.toLocaleString("en-US");
 const party = id => PARTIES.find(p => p.id === id);
 const managed = () => PARTIES.filter(p => p.access);
 const latest = p => p.history.length ? p.history[p.history.length-1] : null;
-const remaining = () => ACCOUNT.annualMax - ACCOUNT.usedToDate;
+// The remaining annual maximum is deliberately NOT shown. The design doc calls
+// this the single most important constraint of the benefits feature and says it
+// is not a negotiable item: a balance computed from our own claim warehouse is
+// wrong whenever a recent visit has not been filed yet — median 45 days, long
+// tail 180 — and it is wrong in the direction that sends someone to a chair
+// expecting coverage they no longer have. The correct source is a live X12
+// 270/271 eligibility+benefits inquiry, which does not exist yet. Until it does,
+// the field stays empty and links out. A blank beats a confident wrong number.
+// (output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md, "먼저: 잔여
+// 한도를 우리 청구 창고에서 계산하면 안 됩니다")
+const balanceCard = () => `
+  <div class="card">
+    <div class="rowlab"><span>Annual maximum remaining</span><span class="v muted">not shown</span></div>
+    <div class="muted">We only see claims your dentist has already filed, and those run weeks
+      behind. A balance from that would be wrong often enough to matter, so we do not print one.</div>
+    <a class="tpalink" href="${esc(ACCOUNT.tpaPortal)}" target="_blank" rel="noopener noreferrer">Check
+      your balance with ${esc(ACCOUNT.tpa)} &rarr;</a>
+  </div>`;
 
 const TABS = [["home","Home"],["capture","Capture"],["coverage","Coverage"],["care","Find care"]];
 
@@ -336,11 +356,7 @@ const VIEWS = {
 
       ${privacyBlock()}
       <h2>Your plan right now</h2>
-      <div class="card">
-        <div class="rowlab"><span>Annual maximum remaining</span><span class="v">${usd(remaining())}</span></div>
-        <div class="track"><div class="fill" style="width:${(remaining()/ACCOUNT.annualMax)*100}%;background:var(--barMid)"></div></div>
-        <div class="muted">${usd(ACCOUNT.usedToDate)} used of ${usd(ACCOUNT.annualMax)} · plan year ${esc(ACCOUNT.planYear)}</div>
-      </div>
+      ${balanceCard()}
       <button class="primary" data-go="capture">Start a check-in</button>`;
   },
 
@@ -439,14 +455,10 @@ const VIEWS = {
       </div>`).join("");
     return `<h1>What the plan covers</h1>
       <p>${esc(ACCOUNT.plan)} · plan year ${esc(ACCOUNT.planYear)}</p>
-      <div class="card">
-        <div class="rowlab"><span>Annual maximum remaining</span><span class="v">${usd(remaining())}</span></div>
-        <div class="track"><div class="fill" style="width:${(remaining()/ACCOUNT.annualMax)*100}%;background:var(--barMid)"></div></div>
-        <div class="muted">${usd(ACCOUNT.usedToDate)} used of ${usd(ACCOUNT.annualMax)} — the family shares one maximum</div>
-      </div>
+      ${balanceCard()}
       ${rows}
-      <p class="muted">Balances follow claims a dentist has already filed, so a recent visit may not
-      be counted yet. The plan documents are the authority, not this screen.</p>`;
+      <p class="muted">Coverage percentages come from the plan document. The plan document is the
+      authority, not this screen.</p>`;
   },
 
   care(){

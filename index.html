@@ -211,8 +211,13 @@ const SIGNALS = [
   {key:"Priority", share:15, color:"var(--coral)", note:"general dental consult suggested — not a clinical finding"},
 ];
 const SRC = {
-  eligible:{chip:"HRIS · 834 eligibility", via:"SFTP monthly → staged load"},
-  members:{chip:"HRIS · 834 dependents", via:"SFTP monthly → staged load"},
+  // Naming an HRIS as the source of an 834 is a canon-forbidden term: an HRIS
+  // does not emit one. The employer or its benefits administrator does. The old
+  // chips carried that phrasing behind a middot, and the consistency check had
+  // an explicit exemption for them — so it shipped into a proposal screenshot.
+  // The exemption is gone and the check now folds punctuation.
+  eligible:{chip:"Eligibility file · X12 834", via:"Employer / benefits administrator → SFTP monthly"},
+  members:{chip:"Eligibility file · 834 dependents", via:"Employer / benefits administrator → SFTP monthly"},
   app:{chip:"App · consent + events", via:"API event stream"},
   gap:{chip:"App events + TPA claims-confirmed", via:"API + 837D/835"},
   claims:{chip:"TPA · 837D/835 allowed", via:"SFTP / Secure Data Sharing"},
@@ -343,15 +348,22 @@ function render(){
       Aggregate only — no individual results exist anywhere in this product for employers.</p>
       ${rows}
       <div style="margin-top:-4px">${chip(SRC.signal)}</div>
-      <p class="vsub" style="margin-top:10px">Counts are of valid captures. Any consult is employee-initiated
-      (opt-in) — the product never routes anyone to care automatically.</p></div>`;
+      <p class="vsub" style="margin-top:10px">Counts are of <b>people</b>, not captures — one person's most
+      recent valid capture in the last 12 months, counted once. Someone who checks in monthly does not
+      weigh twelve times. Any consult is employee-initiated (opt-in) — the product never routes anyone
+      to care automatically.</p></div>`;
   }
 
   if(S.tab==="funnel"){
     const funnel = [
       {label:"Eligible employees", v:employees, src:SRC.eligible},
       {label:"Activated (registered + first questionnaire)", v:Math.round(sc.employees*FRAC.activated*scale), src:SRC.app},
-      {label:"Valid capture (passed photo-quality gate)", v:valid, src:SRC.app},
+      // Person grain, like every other stage. The canon calls the shared
+      // definition valid_capture: quality gate passed, deduped per person-day,
+      // capped at 4 a month — so this is people who produced one, not captures.
+      // Counting captures here would let one enthusiastic person outrank a
+      // department and would break funnel nesting against the stages around it.
+      {label:"People with a valid capture", v:valid, src:SRC.app},
       {label:"Open care actions", v:Math.round(sc.employees*FRAC.gap*scale), src:SRC.gap},
       {label:"Completed actions", v:Math.round(sc.employees*FRAC.closed*scale), src:SRC.gap},
     ];

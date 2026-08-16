@@ -39,13 +39,13 @@ def find_chrome():
 # headless lays out at 500 regardless of --window-size and a narrower shot
 # clips rather than reflows.
 SHOTS = [
-    ("dashboard-overview",   "index.html", {"tab": "overview"},                              (1280, 1400)),
-    ("dashboard-signals",    "index.html", {"tab": "signals"},                               (1280, 1400)),
-    ("dashboard-funnel",     "index.html", {"tab": "funnel"},                                (1280, 1400)),
-    ("dashboard-suppressed", "index.html", {"tab": "overview", "dept": "Facilities (pilot site)"}, (1280, 1400)),
-    ("dashboard-members",    "index.html", {"tab": "overview", "lens": "members"},           (1280, 1400)),
-    ("app-home",             "app.html",   {},                                               (500, 1500)),
-    ("app-coverage",         "app.html",   {},                                               (500, 1050)),
+    ("dashboard-overview",   "index.html", {"tab": "overview"},                              (1280, 660)),
+    ("dashboard-signals",    "index.html", {"tab": "signals"},                               (1280, 720)),
+    ("dashboard-funnel",     "index.html", {"tab": "funnel"},                                (1280, 850)),
+    ("dashboard-suppressed", "index.html", {"tab": "overview", "dept": "Facilities (pilot site)"}, (1280, 700)),
+    ("dashboard-members",    "index.html", {"tab": "overview", "lens": "members"},           (1280, 660)),
+    ("app-home",             "app.html",   {},                                               (500, 1700)),
+    ("app-coverage",         "app.html",   {},                                               (500, 830)),
     ("app-care",             "app.html",   {},                                               (500, 1050)),
     ("app-settings",         "app.html",   {},                                               (500, 1400)),
     ("app-whoisit",          "app.html",   {},                                               (500, 1050)),
