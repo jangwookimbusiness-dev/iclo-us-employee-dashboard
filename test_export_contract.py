@@ -103,6 +103,14 @@ def check_file(path, spec):
             if leaked:
                 fail(name, f"months[{i}] 억제 행인데 {', '.join(leaked)} 가 남아 있음")
 
+    # Reserved test employers must not reach an artifact. The row access policy
+    # does not cover this: R_ENGINEER and R_ANALYST bypass it, so anything an
+    # internal role produces can carry test rows. contracts employer_id_classes.
+    ids = {doc.get("employer_id")} | {r.get("employer_id") for r in months}
+    leaked = sorted(i for i in ids if isinstance(i, str) and i.startswith("_TEST_"))
+    if leaked:
+        fail(name, f"내부 테스트 employer_id 가 산출물에 있음: {', '.join(leaked)}")
+
     if doc.get("employer_id") and any(
             r.get("employer_id") not in (None, doc["employer_id"]) for r in months):
         fail(name, "다른 employer_id 의 행이 섞여 있음 — 격리가 깨졌다")
