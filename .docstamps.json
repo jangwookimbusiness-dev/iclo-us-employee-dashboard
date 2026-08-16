@@ -7,8 +7,8 @@
   }
  },
  "proposal_v12": {
-  "artifact": "4f82916b5a0aaab039726e3547f4b2a141a61fabd64517246e3d2274824ed40e",
-  "pages": 36,
+  "artifact": "04b715ad8c214f2c855ec789765942a21a14527e88f54e3c602563926dce7c00",
+  "pages": 32,
   "sources": {
    "output/proposal-v12/assets/app-camera.png": "9783b7581452ba0c27e27e98df5b014f1f9f49fb56e1ff91d09aa82190f830b2",
    "output/proposal-v12/assets/app-care.png": "e4096c9b60c5dc2a3953ee1ce8c5c53748eea69cb03e110a67940f15e75d0840",
@@ -23,7 +23,7 @@
    "output/proposal-v12/assets/dashboard-signals.png": "3a8350b511f2d7f44f7e6eac52b9fde549af7320575c23e37f27a08978d4fe56",
    "output/proposal-v12/assets/dashboard-suppressed.png": "1d454e2abf25c780c77623d6bc27e23a23e95caab8b3a9746b364c49844d76a1",
    "output/proposal-v12/assets/dataflow.svg": "f39dd6354eb8e9f16fb3db3a8ca67826bea89a6d8070398b26f22e1e4df4f749",
-   "output/proposal-v12/제안서-v12-KO.md": "8cfbaa1b82c8770dfb280dec31d4dd8e8be7e7f05fd5cab018a18a397020cbcc"
+   "output/proposal-v12/제안서-v12-KO.md": "eacd56fc158bde21b2683cf137496be23136225b8e19107e02db74c9b17ecffb"
   }
  },
  "screenshots": {
