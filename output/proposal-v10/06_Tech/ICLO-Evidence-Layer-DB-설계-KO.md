@@ -151,7 +151,32 @@ Snowflake에 들어가는 것은 `image_uri`, `captured_at`, `model_version`, `q
 
 `image_uri`는 그 자체로는 이미지를 열 수 없어야 합니다. 서명된 임시 URL을 별도 권한으로 발급받아야 접근되는 구조여야 하고, Snowflake 권한만으로는 사진에 도달할 수 없어야 합니다.
 
-**아직 정해지지 않은 것:** 저장소 벤더·계정 소유자, 암호화 키 관리 주체, 보존·삭제 규칙, 감사 경로, 사고 대응 경계. 제안서에서도 이 부분은 "Controlled U.S. object storage / PHI vault" 한 줄뿐이며, Snowflake 보안 담당자가 가장 먼저 물어볼 지점입니다.
+**Snowflake 보안 담당자가 가장 먼저 물어볼 지점입니다.** 제안서는 여기를 "Controlled U.S. object storage / PHI vault" 한 줄로 넘겼고, 앱은 "사진은 보존 일정을 따릅니다"라고 썼는데 **그 일정이 없었습니다.** 없는 정책을 있는 것처럼 쓰는 것이 이 문서가 가장 경계하는 종류의 문장이라, 초안을 여기 둡니다.
+
+#### 2.4 사진 보존 — 초안 (미승인)
+
+> **상태: 초안입니다.** 저장소가 아직 없으므로 이 규칙은 아직 아무것도 강제하지 않습니다. 승인 주체는 16절 7번(보존과 삭제)이고, **파일럿 개통 전에 닫아야 합니다.** 앱 화면은 이것을 "정책은 초안이고 아직 운영되지 않는다"고 적어야 하며, 시행 중인 것처럼 적으면 안 됩니다.
+
+| | 원본 이미지 | 파생 신호 (`oral_signal`) | 동의 기록 |
+|---|---|---|---|
+| 어디에 | ICLO 운영 미국 리전 객체 저장소 | Snowflake CANONICAL | Snowflake CANONICAL |
+| 기본 보존 | **촬영 후 24개월** | 자격 종료 후 7년 | **영구** |
+| 왜 그 기간인가 | 모델 재학습·품질 이의 제기·오귀속 조사에 필요한 창. 그보다 길게 두면 목적 없이 PHI를 쥐고 있는 것이 된다 | 청구 롱테일 180일 + 연간 리포트 재현 + HIPAA 기록 보존 관행 | 아래 참조 |
+| 삭제 요청이 오면 | 요청 접수 후 30일 내 파기, 파기 로그만 남김 | 개인 식별 연결을 끊고 집계 기여분은 남김 (7절 rebuild 미정 항목과 연결) | **지우지 않는다** |
+
+**동의 기록을 영구 보존하는 이유가 반직관적이라 적어둡니다.** 삭제 요청이 와도 "우리가 그날 무엇을 할 권한이 있었는가"에는 답할 수 있어야 합니다. 동의 이력을 지우면 그 답이 사라지고, **동의 없이 처리했다는 주장에 반증할 방법이 없어집니다.** 지우는 것은 사진과 그 사람으로의 연결이지 허가의 기록이 아닙니다.
+
+**아직 정해지지 않은 것 — 이것들이 닫히기 전에는 사진을 받지 않습니다:**
+
+| | 항목 | 왜 착수 전인가 |
+|---|---|---|
+| 1 | 저장소 벤더와 **계정 소유자** | BAA 체인이 여기서 갈린다. ICLO 계정인지 기업 계정인지에 따라 covered entity 판정이 바뀐다 |
+| 2 | 암호화 키 **관리 주체** | 벤더가 키를 쥐면 벤더가 데이터를 볼 수 있다. 고객 관리 키(CMK)와 그 키의 보관 위치를 정해야 한다 |
+| 3 | 서명 URL의 **수명과 발급 권한** | `image_uri`가 그 자체로 이미지를 열지 못한다는 2.3절 전제가 여기에 달려 있다 |
+| 4 | **사고 대응 경계** | 저장소 침해 시 통지 의무 주체가 ICLO인지 기업인지. HIPAA breach notification 시계가 여기서 시작된다 |
+| 5 | 파기 **증명** | 객체 저장소의 삭제는 즉시 복구 불가를 보장하지 않는다. 버전 관리·백업·복제본까지 포함한 파기 정의가 필요하다 |
+
+5번이 가장 자주 빠집니다. 버킷 버전 관리가 켜져 있으면 "삭제"는 삭제 마커를 하나 놓는 일이고, **원본은 그대로 있습니다.**
 
 
 ---
@@ -1283,6 +1308,13 @@ GROUP BY 1, 2, 3, 4;
 
 -- R_ENGINEER 가 버전 선택과 grain 접기를 끝내고 party_sk 를 남긴 테이블.
 ALTER TABLE mart.person_month_fact  SET AGGREGATION POLICY gov.min_cell_20 ENTITY KEY (party_sk);
+
+-- 2026-08-16 추가. 집계 정책만 붙어 있었다. 두 정책은 서로 다른 일을 하고 하나가
+-- 다른 하나를 대신하지 못한다 — 집계 정책은 "그룹이 20명 미만이면 내주지 마라"이고,
+-- 행 접근 정책은 "애초에 남의 회사 행을 보지 마라"이다. 집계 정책만 있으면 A사 롤이
+-- B사 사람 40명을 한 그룹으로 묶어 최소 그룹 크기를 통과시킬 수 있다.
+ALTER TABLE mart.person_month_fact
+  ADD ROW ACCESS POLICY gov.employer_isolation ON (employer_id);
 ```
 
 > **`ENTITY KEY`가 이 설계 전체에서 가장 중요한 한 줄입니다.** `MIN_GROUP_SIZE`는 기본적으로 **행 수**를 셉니다. `claim_line`·`app_event`·`oral_signal`은 한 사람이 여러 행을 가지므로, **한 사람이 청구 라인 20개만 만들어도 그룹 크기 20을 충족**합니다. 그러면 기업 화면에 실제로는 1명짜리 집계가 나오고, 제안서와 부스 덱이 내건 "최소 20명" 약속이 **DDL 수준에서 성립하지 않습니다.** `ENTITY KEY (party_sk)`를 지정해야 distinct 사람 수로 셉니다.
@@ -1445,6 +1477,108 @@ CREATE TABLE mart.party_department (
 
 
 ---
+
+### 11.2 EMPLOYER 스키마 — 기업 롤이 실제로 여는 것
+
+7.2절과 10.1절이 "기업 사용자는 EMPLOYER 뷰만 본다"고 규정해 놓고 **그 뷰의 DDL이 이 문서에 없었습니다.** 2026-08-16 까지 노출 경로는 문장으로만 존재했고, 그래서 "기업별 롤이 각각 내보내기"는 실행 가능한 설계가 아니었습니다. 여기서 닫습니다.
+
+**뷰가 미리 집계하지 않습니다.** 이게 반직관적이라 먼저 적습니다. 집계 정책은 **쿼리를 던지는 롤**에 걸리므로, 뷰가 이미 `GROUP BY`를 끝내 놓으면 기업 롤이 보는 것은 이미 만들어진 행이고 최소 그룹 크기가 개입할 자리가 없습니다. 뷰는 **사람·월 grain을 그대로 통과**시키고, `GROUP BY`는 기업 롤이 직접 던집니다. 그때 `party_sk`를 `ENTITY KEY`로 세는 정책이 작동합니다.
+
+바꿔 말하면 **이 뷰들은 데이터를 줄이는 장치가 아니라 컬럼을 제한하는 장치**입니다. 줄이는 일은 정책이 합니다.
+
+```sql
+CREATE SCHEMA IF NOT EXISTS employer;
+
+-- SECURE 인 이유 둘. 뷰 정의가 기업 사용자에게 보이지 않아야 하고, 비-secure 뷰는
+-- 옵티마이저가 술어를 뷰 안쪽으로 밀어 넣으면서 행 존재 여부를 오류 메시지·타이밍
+-- 으로 흘릴 수 있다. 거버넌스 경계에 놓는 뷰는 secure 로 만든다.
+CREATE OR REPLACE SECURE VIEW employer.v_person_month AS
+SELECT
+    f.party_sk,          -- ENTITY KEY 로만 쓰인다. 아래 마스킹 참조
+    f.employer_id,
+    f.month_start,
+    f.department,
+    f.member_months,
+    f.subscriber_rows,
+    f.allowed
+FROM mart.person_month_fact f;
+-- 정책은 기반 테이블에 붙어 있고 뷰를 통해서도 적용된다. 뷰에 다시 걸지 않는다 —
+-- 두 곳에 걸면 어느 쪽이 유효한지가 사고 시점에 헷갈린다.
+
+-- 신호는 사람·창 grain 이다. 정본 metric_time_contracts.signal_distribution 이
+-- "사람당 그 창의 최신 유효 촬영 1건" 으로 규정하므로, 그 선택을 여기서 끝낸다.
+-- 기업 롤은 윈도우 함수를 못 쓰기 때문에 기업 롤에게 시킬 수 없는 일이다.
+CREATE OR REPLACE TABLE mart.person_signal_fact AS
+SELECT party_sk, employer_id, window_start, department, band, model_version
+FROM (
+  SELECT s.party_sk, s.employer_id, s.window_start, d.department, s.band, s.model_version,
+         ROW_NUMBER() OVER (PARTITION BY s.party_sk, s.window_start
+                            ORDER BY s.captured_at DESC) AS rn
+  FROM canonical.oral_signal s
+  LEFT JOIN mart.party_department d
+         ON d.party_sk = s.party_sk AND d.employer_id = s.employer_id
+  WHERE s.quality_passed
+) WHERE rn = 1;
+
+ALTER TABLE mart.person_signal_fact SET AGGREGATION POLICY gov.min_cell_20 ENTITY KEY (party_sk);
+ALTER TABLE mart.person_signal_fact ADD ROW ACCESS POLICY gov.employer_isolation ON (employer_id);
+
+CREATE OR REPLACE SECURE VIEW employer.v_person_signal AS
+SELECT party_sk, employer_id, window_start, department, band, model_version
+FROM mart.person_signal_fact;
+
+-- 부서 카탈로그. 이름과 규모만 나가고 사람은 나가지 않는다.
+CREATE OR REPLACE SECURE VIEW employer.v_department AS
+SELECT employer_id, department, COUNT(DISTINCT party_sk) AS n
+FROM mart.person_month_fact
+GROUP BY 1, 2;
+
+GRANT USAGE ON SCHEMA employer TO ROLE R_EMPLOYER_ACME;
+GRANT SELECT ON ALL VIEWS IN SCHEMA employer TO ROLE R_EMPLOYER_ACME;
+-- CANONICAL·MART 에는 어떤 권한도 주지 않는다. 10.1 절 표가 그것이다.
+```
+
+**`party_sk` 를 왜 뷰에 남기는가.** `ENTITY KEY` 가 성립하려면 정책이 걸린 객체에 그 컬럼이 있어야 합니다. 다만 기업 롤이 그 값을 **읽을** 이유는 없으므로 마스킹 정책을 겁니다 — 세는 데는 쓰이고 보이지는 않습니다.
+
+```sql
+CREATE MASKING POLICY gov.mask_party_sk AS (v VARCHAR) RETURNS VARCHAR ->
+  CASE WHEN CURRENT_ROLE() IN ('R_ENGINEER','R_ANALYST') THEN v ELSE NULL END;
+
+ALTER TABLE mart.person_month_fact  MODIFY COLUMN party_sk SET MASKING POLICY gov.mask_party_sk;
+ALTER TABLE mart.person_signal_fact MODIFY COLUMN party_sk SET MASKING POLICY gov.mask_party_sk;
+```
+
+> **개통 전에 확인할 것.** 마스킹된 컬럼이 `ENTITY KEY` 로서 여전히 distinct 사람 수를 세는지. 마스킹이 `NULL` 을 돌려주면 모든 행의 키가 같아져 그룹 크기가 1로 붕괴할 수 있고, 그러면 **정반대 방향으로 조용히 고장** 납니다 — 억제가 과하게 걸려 화면이 텅 비는 쪽입니다. 13.1절의 두 기업 시험에 이 케이스를 포함합니다. 문서로 판단하지 말고 쿼리로 확인합니다.
+
+### 11.3 차분 공격 — n ≥ 20 만으로는 부족합니다
+
+16절 5번 항목이 "20은 관행적 값이지 법적 기준이 아니고, 차분 공격 방어까지 고려하면 쿼리 이력 기반 통제가 추가로 필요할 수 있다"고 등록해 두었습니다. 그 통제가 어디에도 설계돼 있지 않았습니다.
+
+**공격은 이렇게 성립합니다.** 최소 그룹 크기는 *한 쿼리 안*에서만 성립합니다. 두 번 나눠 던지면 뺄셈이 남습니다.
+
+```
+쿼리 1:  영업부 전체 24명 · Priority 6명
+쿼리 2:  영업부 중 입사 2년 이상 23명 · Priority 5명
+         ─────────────────────────────────────────
+차이:    1명. 그 1명이 누구인지는 담당자가 압니다.
+```
+
+두 쿼리 모두 최소 그룹 크기를 통과합니다. 정책은 위반되지 않았고, 개인이 특정됐습니다.
+
+**막는 방법 넷.** 완전한 방어는 없고, 넷을 겹쳐서 비용을 올립니다.
+
+| | 무엇 | 왜 이것만으로는 부족한가 |
+|---|---|---|
+| 1 | **필터 축을 고정한다.** 기업 롤이 던질 수 있는 술어를 부서·월로 제한하고, 임의 필터를 허용하지 않는다 | 부서×월 조합만으로도 차분이 가능하다 |
+| 2 | **인접 그룹 차이가 임계 미만이면 둘 다 억제한다** (complementary suppression) | 어떤 그룹이 인접인지 정의해야 하고, 그 정의를 벗어나는 축이 남는다 |
+| 3 | **쿼리 이력을 본다.** 같은 롤이 짧은 창 안에 던진 술어 집합이 포함 관계를 이루면 뒤엣것을 거부한다 | 롤을 나눠 쓰거나 창을 넓히면 우회된다 |
+| 4 | **한도를 건다.** 롤·기간당 서로 다른 술어 조합 수에 상한을 두고, 넘으면 사람이 검토한다 | 정상 사용을 막을 수 있어 임계 조정이 필요하다 |
+
+3번이 `ACCESS_HISTORY` 를 필요로 하는 항목이고 **Enterprise 이상**입니다. 9절 가정 A5 의 에디션 판단에 이 항목을 포함시켜야 합니다.
+
+**지금 결정한 것은 1번뿐입니다.** 대시보드가 임의 쿼리 인터페이스를 주지 않고 부서·월 축만 주므로 1번은 이미 사실상 성립합니다. 2·3·4는 **설계돼 있지 않고, 파일럿 전에 정해야 합니다.** 그래서 이 절은 닫힌 설계가 아니라 열린 항목이고, 16절 5번은 열린 채로 둡니다.
+
+> **대외 문서에서 `n ≥ 20` 을 "개인은 절대 보이지 않는다" 의 근거로 쓰면 안 됩니다.** 정확한 문장은 "한 번의 조회로는 개인이 드러나지 않는다" 입니다. 반복 조회를 막는 것은 위의 2·3·4이고 아직 없습니다.
 
 ## 12. 데이터 품질
 

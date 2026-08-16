@@ -89,29 +89,47 @@ def main():
 
         tmp = ROOT / ".shots-tmp"
         tmp.mkdir(exist_ok=True)
+
+        # app.html fetches data/member-demo.json by relative path. A patched
+        # copy lives one directory down in .shots-tmp/, where that path resolves
+        # to .shots-tmp/data/... and 404s — the app would then render its "no
+        # member data" screen and every app shot would be that error, silently.
+        # A <base> restores the original resolution. Rewriting the fetch string
+        # instead would mean the shots no longer exercise the real path.
+        def patch(src, anchor, repl, name):
+            if src.count(anchor) != 1:
+                sys.exit(f"app.html: state initialiser not found — shots.py is stale")
+            if "<base " in src:
+                sys.exit("app.html already has a <base> — shots.py would inject a second")
+            # app.html has no <head> element; it opens straight into <meta
+            # charset>. The first version of this anchored on "<head>", found
+            # nothing, and injected nothing — and every app shot came out as the
+            # "no member data" error screen while the run reported 12 successes.
+            # Assert the injection took.
+            head = '<meta charset="utf-8">'
+            if src.count(head) != 1:
+                sys.exit("app.html: charset meta not found — shots.py is stale")
+            src = src.replace(head, head + '\n<base href="../">', 1)
+            if '<base href="../">' not in src:
+                sys.exit("app.html: <base> injection failed")
+            target = f".shots-tmp/{name}.html"
+            (ROOT / target).write_text(src.replace(anchor, repl, 1), encoding="utf-8")
+            return target
+
         try:
             for name, page, query, (w, h) in SHOTS:
                 target = page
+                anchor = 'let S = { tab:"home", step:0, subject:null };'
                 if name in APP_STATE:
-                    src = (ROOT / page).read_text(encoding="utf-8")
-                    anchor = 'let S = { tab:"home", step:0, subject:null };'
-                    if src.count(anchor) != 1:
-                        sys.exit(f"{page}: state initialiser not found — shots.py is stale")
-                    target = f".shots-tmp/{name}.html"
-                    (ROOT / target).write_text(src.replace(anchor, APP_STATE[name], 1),
-                                               encoding="utf-8")
+                    target = patch((ROOT / page).read_text(encoding="utf-8"),
+                                   anchor, APP_STATE[name], name)
                 elif name in APP_TAB:
-                    src = (ROOT / page).read_text(encoding="utf-8")
-                    anchor = 'let S = { tab:"home", step:0, subject:null };'
                     # Check the anchor exists rather than that the text changed:
                     # the home shot patches "home" to "home" and a changed-text
                     # check reads that no-op as a stale script.
-                    if src.count(anchor) != 1:
-                        sys.exit(f"{page}: state initialiser not found — shots.py is stale")
-                    patched = src.replace(
-                        anchor, 'let S = { tab:"%s", step:0, subject:null };' % APP_TAB[name], 1)
-                    target = f".shots-tmp/{name}.html"
-                    (ROOT / target).write_text(patched, encoding="utf-8")
+                    target = patch((ROOT / page).read_text(encoding="utf-8"), anchor,
+                                   'let S = { tab:"%s", step:0, subject:null };' % APP_TAB[name],
+                                   name)
 
                 url = f"http://127.0.0.1:{PORT}/{target}"
                 if query:

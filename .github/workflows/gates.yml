@@ -68,10 +68,13 @@ jobs:
       - name: Cell suppression (54 states)
         run: python3 test_suppression.py
 
+      - name: Consent enforcement and the app's data boundary
+        run: python3 test_consent.py
+
       - name: Export contract
         # Exit 2 means there is nothing to check yet — A3 has not produced an
         # export. That is printed, not swallowed: a check that quietly passes
-        # while verifying nothing is how two checks in this repo died.
+        # while verifying nothing is how three checks in this repo died.
         run: |
           python3 test_export_contract.py || [ $? -eq 2 ]
 

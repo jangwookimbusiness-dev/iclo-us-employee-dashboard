@@ -1,0 +1,136 @@
+{
+  "_comment": [
+    "Demo member data. Synthetic — no real person appears here.",
+    "",
+    "This file exists so that 'the same screen shows that person's own data once",
+    "real data arrives' is a data swap and not a rewrite. Until 2026-08-16 the",
+    "account, plan, coverage, clinics and every consent flag were inline",
+    "constants in app.html, which made that sentence false: swapping them meant",
+    "editing the screen. The shape below IS the contract the backend has to",
+    "return. app.html reads it and nothing else.",
+    "",
+    "What is still faked, and cannot be fixed by a data swap: the Core AI call",
+    "behind a score, the payer gateway behind a balance, the network directory,",
+    "and booking. contracts/proposal-package-v11.yml status.does_not_exist lists",
+    "them."
+  ],
+
+  "schema_version": 1,
+
+  "policy_version": "2026-06-01",
+  "_policy_version": [
+    "The consent policy text currently in force. A consent record granted under",
+    "an older version is NOT active — it shows as needing re-consent rather than",
+    "silently continuing. That is the whole reason consent is a list of records",
+    "and not a boolean: a boolean cannot express 'agreed, but to something we no",
+    "longer do'."
+  ],
+
+  "account": {
+    "credential": "cred-8841",
+    "employer": "Employer A",
+    "plan": "PPO Dental — Employee + Family",
+    "planYear": "2026-01-01 → 2026-12-31",
+    "_balance": [
+      "No annualMax / usedToDate on purpose. A remaining balance computed from",
+      "our own claim warehouse is wrong whenever a recent visit has not been",
+      "filed yet. The correct source is X12 270/271 and it does not exist yet."
+    ],
+    "tpa": "Meridian Benefits",
+    "tpaPortal": "https://example.invalid/benefits",
+    "coverage": [
+      {"k": "Preventive (cleanings, exams)", "pct": 100, "note": "2 per plan year, no deductible"},
+      {"k": "Basic services", "pct": 80, "note": "after $50 deductible"},
+      {"k": "Major services", "pct": 50, "note": "12-month waiting period"}
+    ],
+    "clinics": [
+      {"name": "Bay Ridge Dental Group", "mi": 0.6, "phone": "(555) 010-4417", "online": true, "est": 0},
+      {"name": "Harbor Family Dental", "mi": 1.2, "phone": "(555) 010-2288", "online": false, "est": 0},
+      {"name": "Lakeside Dental Care", "mi": 2.8, "phone": "(555) 010-7734", "online": true, "est": null}
+    ]
+  },
+
+  "_parties": [
+    "The 834 gives names, dates of birth and relationships. It does not carry",
+    "contact details for family, which is why an adult family member is reached",
+    "through the employee rather than directly."
+  ],
+  "parties": [
+    {
+      "id": "P1", "name": "Jordan Reyes", "rel": "Subscriber",
+      "minor": false, "access": "SELF",
+      "consent": [
+        {"purpose": "processing", "granted": true, "policy_version": "2026-06-01", "at": "2026-06-04T10:12:00Z"},
+        {"purpose": "photo",      "granted": true, "policy_version": "2026-06-01", "at": "2026-06-04T10:12:00Z"},
+        {"purpose": "claims",     "granted": true, "policy_version": "2026-06-01", "at": "2026-06-04T10:12:00Z"}
+      ],
+      "history": [
+        {"on": "2025-10-05", "score": 69},
+        {"on": "2026-01-18", "score": 64},
+        {"on": "2026-05-02", "score": 71},
+        {"on": "2026-08-09", "score": 78}
+      ]
+    },
+    {
+      "_note": [
+        "Adult family, deliberately with no access row on this credential. The",
+        "'employee agrees for the family' checkbox is the most legally dangerous",
+        "shortcut available: it voids the basis for the spouse's data."
+      ],
+      "id": "P2", "name": "Sam Reyes", "rel": "Spouse",
+      "minor": false, "access": null,
+      "invited": "2026-08-11",
+      "consent": [],
+      "history": []
+    },
+    {
+      "_note": [
+        "Consent for claims linking was given under the previous policy text.",
+        "It is not active, and the screen says so rather than treating it as on.",
+        "This is the case a boolean cannot represent."
+      ],
+      "id": "P3", "name": "Ellie Reyes", "rel": "Child",
+      "minor": true, "access": "GUARDIAN",
+      "consent": [
+        {"purpose": "processing", "granted": true, "policy_version": "2026-06-01", "at": "2026-06-04T10:20:00Z"},
+        {"purpose": "photo",      "granted": true, "policy_version": "2026-06-01", "at": "2026-06-04T10:20:00Z"},
+        {"purpose": "claims",     "granted": true, "policy_version": "2025-11-01", "at": "2025-11-14T09:03:00Z"}
+      ],
+      "history": [
+        {"on": "2026-02-14", "score": 81},
+        {"on": "2026-07-30", "score": 85}
+      ]
+    },
+    {
+      "_note": [
+        "Photo analysis was granted and then withdrawn. Both records stay — the",
+        "withdrawal is an event, not an erasure, or there is no way to answer",
+        "'what were we allowed to do on the day we processed this?'"
+      ],
+      "id": "P4", "name": "Theo Reyes", "rel": "Child",
+      "minor": true, "access": "GUARDIAN",
+      "consent": [
+        {"purpose": "processing", "granted": true,  "policy_version": "2026-06-01", "at": "2026-06-04T10:24:00Z"},
+        {"purpose": "photo",      "granted": true,  "policy_version": "2026-06-01", "at": "2026-06-04T10:24:00Z"},
+        {"purpose": "photo",      "granted": false, "policy_version": "2026-06-01", "at": "2026-07-19T18:41:00Z"},
+        {"purpose": "claims",     "granted": true,  "policy_version": "2026-06-01", "at": "2026-06-04T10:24:00Z"}
+      ],
+      "history": []
+    }
+  ],
+
+  "_sample": [
+    "Not one of the account's profiles. Using a real profile as the example put",
+    "'not Jordan Reyes' directly above a card headed Jordan Reyes, which undid",
+    "the separation the screen exists to make."
+  ],
+  "sample": {
+    "id": "SAMPLE", "name": "Sample member", "rel": "example",
+    "minor": false, "access": null,
+    "consent": [],
+    "history": [
+      {"on": "2026-03-11", "score": 66},
+      {"on": "2026-08-02", "score": 74}
+    ]
+  }
+}

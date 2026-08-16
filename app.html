@@ -167,58 +167,78 @@
 // gateway behind a balance, the network directory, booking, and any backend at
 // all. contracts status.does_not_exist is the list.
 // ─────────────────────────────────────────────────────────────
-const ACCOUNT = {                     // one credential — this device's login
-  credential: "cred-8841",
-  employer: "Employer A",
-  plan: "PPO Dental — Employee + Family",
-  planYear: "2026-01-01 → 2026-12-31",
-  // No annualMax / usedToDate here on purpose. A remaining balance we could
-  // render is a remaining balance someone will render — see balanceCard().
-  tpa: "Meridian Benefits", tpaPortal: "https://example.invalid/benefits",
-  coverage: [
-    {k:"Preventive (cleanings, exams)", pct:100, note:"2 per plan year, no deductible"},
-    {k:"Basic services",                pct:80,  note:"after $50 deductible"},
-    {k:"Major services",                pct:50,  note:"12-month waiting period"},
-  ],
-  clinics: [
-    {name:"Bay Ridge Dental Group", mi:0.6, phone:"(555) 010-4417", online:true,  est:0},
-    {name:"Harbor Family Dental",   mi:1.2, phone:"(555) 010-2288", online:false, est:0},
-    {name:"Lakeside Dental Care",   mi:2.8, phone:"(555) 010-7734", online:true,  est:null},
-  ],
-};
+// ── data boundary ───────────────────────────────────────────
+// Everything member-specific comes from data/member-demo.json and nowhere else.
+// Until 2026-08-16 the account, plan, coverage, clinics and consent flags were
+// inline constants right here, which made "the same screen shows that person's
+// own data once real data arrives" false — swapping data meant editing the
+// screen. Now the JSON shape IS the contract a backend has to satisfy.
+//
+// There is no baked-in fallback on purpose. A fallback would let the demo keep
+// working while reading nothing, which is the exact failure this repo has hit
+// three times: "found nothing" rendered as "nothing wrong". If the fetch fails
+// the screen says so and stops.
+let DATA = null, ACCOUNT = null, PARTIES = [], SAMPLE = null, POLICY = null;
 
-// The 834 gives names, dates of birth and relationships. It does not carry
-// contact details for family, which is why an adult family member is reached
-// through the employee rather than directly (§4.4).
-const PARTIES = [
-  {id:"P1", name:"Jordan Reyes", rel:"Subscriber", minor:false, access:"SELF",
-   consents:{processing:true, photo:true, claims:true},
-   history:[{on:"2025-10-05",score:69},{on:"2026-01-18",score:64},
-            {on:"2026-05-02",score:71},{on:"2026-08-09",score:78}]},
+async function loadData(){
+  const r = await fetch("data/member-demo.json", {cache:"no-store"});
+  if (!r.ok) throw new Error(`member-demo.json: HTTP ${r.status}`);
+  const d = await r.json();
+  if (d.schema_version !== 1) throw new Error(`schema_version ${d.schema_version}, expected 1`);
+  if (!Array.isArray(d.parties) || !d.parties.length) throw new Error("no parties in member-demo.json");
+  DATA = d; ACCOUNT = d.account; PARTIES = d.parties; SAMPLE = d.sample;
+  POLICY = d.policy_version;
+}
 
-  // Adult family, deliberately with no access row on this credential. §4.2
-  // calls the "employee agrees for the family" checkbox the most legally
-  // dangerous shortcut available: it voids the basis for the spouse's data.
-  {id:"P2", name:"Sam Reyes", rel:"Spouse", minor:false, access:null,
-   invited:"2026-08-11", consents:null, history:[]},
-
-  {id:"P3", name:"Ellie Reyes", rel:"Child", minor:true, access:"GUARDIAN",
-   consents:{processing:true, photo:true, claims:true},
-   history:[{on:"2026-02-14",score:81},{on:"2026-07-30",score:85}]},
-
-  {id:"P4", name:"Theo Reyes", rel:"Child", minor:true, access:"GUARDIAN",
-   consents:{processing:true, photo:false, claims:true},   // photo refused
-   history:[]},
+// ── consent ─────────────────────────────────────────────────
+// Consent is a list of records, not three booleans, and it is evaluated when a
+// purpose is about to be exercised rather than read off a flag set at signup.
+// Three things a boolean cannot express, all of which occur in the fixture:
+//
+//   · agreed, but to a policy text we have since replaced  → needs re-consent
+//   · agreed and later withdrew                            → both events kept
+//   · never asked                                          → not the same as no
+//
+// The last record for a purpose wins. Nothing is deleted: the question
+// "what were we allowed to do on the day we processed this?" has to stay
+// answerable after a withdrawal, and an erasing model cannot answer it.
+const PURPOSES = [
+  ["processing", "Data processing"],
+  ["photo",      "Photo capture and analysis"],
+  ["claims",     "Claims linking"],
 ];
 
-// Not one of the account's profiles. Using a real profile as the example put
-// "not Jordan Reyes" directly above a card headed Jordan Reyes, which undid the
-// separation the screen exists to make.
-const SAMPLE = {
-  id:"SAMPLE", name:"Sample member", rel:"example", minor:false, access:null,
-  consents:null,
-  history:[{on:"2026-03-11",score:66},{on:"2026-08-02",score:74}],
+function consentRecord(p, purpose){
+  const rs = (p.consent || []).filter(r => r.purpose === purpose);
+  return rs.length ? rs[rs.length - 1] : null;
+}
+
+// ACTIVE · WITHDRAWN · STALE (granted under superseded policy) · NEVER
+function consentState(p, purpose){
+  const r = consentRecord(p, purpose);
+  if (!r) return "NEVER";
+  if (!r.granted) return "WITHDRAWN";
+  return r.policy_version === POLICY ? "ACTIVE" : "STALE";
+}
+const consentOk = (p, purpose) => consentState(p, purpose) === "ACTIVE";
+
+// The gate a capture has to pass. Both purposes, evaluated now — withdrawing
+// processing has to stop a capture even though the photo switch is still on,
+// because processing is the basis the photo purpose rests on.
+const mayCapture = p => consentOk(p, "processing") && consentOk(p, "photo");
+
+const CONSENT_COPY = {
+  ACTIVE:    "On",
+  WITHDRAWN: "Withdrawn",
+  STALE:     "Needs re-consent",
+  NEVER:     "Not given",
 };
+
+function recordConsent(p, purpose, granted){
+  (p.consent = p.consent || []).push({
+    purpose, granted, policy_version: POLICY, at: new Date().toISOString(),
+  });
+}
 
 const BAND = s => s >= 80 ? "Low" : s >= 68 ? "Moderate" : "Priority";
 
@@ -338,9 +358,9 @@ const VIEWS = {
           ${l ? `<div class="rowlab" style="margin-top:8px">
                    <span class="muted">Latest ${esc(l.on)}</span>
                    <span class="bandtag ${CLS[BAND(l.score)]}">${esc(BAND(l.score))}</span></div>`
-              : `<div class="muted" style="margin-top:8px">${p.consents && !p.consents.photo
-                   ? "Photo analysis is off for this profile — no check-ins are taken."
-                   : "No check-in yet."}</div>`}
+              : `<div class="muted" style="margin-top:8px">${mayCapture(p)
+                   ? "No check-in yet."
+                   : "Photo analysis is not active for this profile — no check-ins are taken."}</div>`}
         </div>`;}).join("")}
 
       ${adults.map(p=>`
@@ -365,12 +385,13 @@ const VIEWS = {
     // preselected — not even the account holder, who is the obvious default
     // and exactly the wrong one on a shared phone.
     if (S.step === 0){
-      // Every purpose that gates a capture, not just the photo one. Withdrawing
-      // "data processing" used to leave the whole flow open, which made the
-      // sentence in settings about processing stopping simply untrue.
-      const ok = p => p.consents && p.consents.processing && p.consents.photo;
-      const eligible = managed().filter(ok);
-      const blocked  = managed().filter(p => p.consents && !ok(p));
+      // Evaluated here, at the moment the purpose is about to be exercised —
+      // not read off a flag decided at signup. A profile whose consent was
+      // granted under a superseded policy text is blocked the same as one that
+      // withdrew: we are not allowed to keep processing under text the person
+      // never saw.
+      const eligible = managed().filter(mayCapture);
+      const blocked  = managed().filter(p => !mayCapture(p));
       return `<h1>Who is this check-in for?</h1>
         <p>Pick every time. This is not remembered between check-ins — on a shared phone,
         carrying the last choice forward is how a photo ends up on the wrong person.</p>
@@ -383,10 +404,12 @@ const VIEWS = {
         ${blocked.map(p=>`
           <div class="privacy blocked">
             <b>${esc(p.name)} is not available</b>
-            <ul><li>${p.consents.processing
-                      ? "Photo analysis consent is off for this profile."
-                      : "Data processing consent is withdrawn, so nothing is processed for this profile."}
-                    Turn it back on in settings before taking a check-in.</li></ul>
+            <ul><li>${!consentOk(p, "processing")
+                      ? `Data processing consent is ${CONSENT_COPY[consentState(p, "processing")].toLowerCase()},
+                         so nothing is processed for this profile.`
+                      : `Photo capture and analysis is ${CONSENT_COPY[consentState(p, "photo")].toLowerCase()}
+                         for this profile.`}
+                    Settle it in settings before taking a check-in.</li></ul>
           </div>`).join("")}`;
     }
 
@@ -493,17 +516,19 @@ const VIEWS = {
   },
 
   settings(){
-    const PURPOSES = [["processing","Data processing"],["photo","Photo capture and analysis"],
-                      ["claims","Claims linkage"]];
     const blocks = managed().map(p=>`
       <h2>${esc(p.name)} <span class="muted">${esc(p.rel)} · consented as ${esc(p.access)}</span></h2>
       <div class="card" style="padding:4px 16px">
-        ${PURPOSES.map(([k,label])=>`
-          <div class="srow">
+        ${PURPOSES.map(([k,label])=>{
+          const st = consentState(p, k);
+          const when = consentRecord(p, k);
+          return `<div class="srow">
             <div class="t"><b>${esc(label)}</b>
-              <span class="muted">${p.consents[k] ? "On" : "Withdrawn"}</span></div>
-            <button class="toggle" data-consent="${esc(p.id)}:${k}">${p.consents[k] ? "Withdraw" : "Re-agree"}</button>
-          </div>`).join("")}
+              <span class="muted">${esc(CONSENT_COPY[st])}${when ? ` · ${esc(when.at.slice(0,10))}` : ""}${
+                st === "STALE" ? ` · agreed to policy ${esc(when.policy_version)}, now ${esc(POLICY)}` : ""}</span></div>
+            <button class="toggle" data-consent="${esc(p.id)}:${k}">${
+              st === "ACTIVE" ? "Withdraw" : st === "STALE" ? "Agree to the current policy" : "Agree"}</button>
+          </div>`;}).join("")}
       </div>`).join("");
 
     const adults = PARTIES.filter(x => !x.access && !x.minor).map(p=>`
@@ -524,15 +549,23 @@ const VIEWS = {
       <div class="privacy">
         <b>What withdrawing does</b>
         <ul>
-          <li>Processing for that purpose stops going forward.</li>
+          <li>Processing for that purpose stops going forward. It is checked at the moment we are
+              about to do the thing, not once at signup.</li>
+          <li>The record of your earlier agreement is kept rather than erased. Without it we could
+              not answer what we were permitted to do on the day something was processed — and that
+              question is the one an auditor asks first.</li>
+          <li>If we replace the consent text, agreement to the old text stops counting and shows
+              here as needing re-consent. We do not carry it forward silently.</li>
           <li>Figures already published to the employer are aggregate and do not identify anyone, and
               whether past aggregates get rebuilt is <b>still being decided</b> — we will not claim
               either way here.</li>
-          <li>Photos stay in controlled storage under the retention schedule, not deleted on the spot.</li>
+          <li>Photo retention and deletion follow a written schedule; that policy is drafted and not
+              yet operating, because there is no photo storage yet.</li>
         </ul>
       </div>
-      <p class="muted">Nothing here is wired to a backend in this demo — the state lives in the page
-      and resets on reload.</p>`;
+      <p class="muted">Consent records in this demo live in the page and reset on reload — a real
+      build writes them to the consent table and evaluates them server-side. The evaluation rules
+      above are the real ones; only the storage is stubbed.</p>`;
   },
 };
 
@@ -669,12 +702,14 @@ document.addEventListener("click", e=>{
   if (cs){
     const [pid, k] = cs.dataset.consent.split(":");
     const p = party(pid);
-    p.consents[k] = !p.consents[k];
-    // Photo consent feeds the signal. Revoking it takes the profile out of the
-    // capture flow rather than leaving a score updating off a withdrawn input.
+    // Append, never overwrite. Re-agreeing after a policy change writes a new
+    // record carrying the current policy version, which is what moves it from
+    // STALE to ACTIVE — the old record stays as evidence of what was agreed
+    // when. Withdrawing appends a granted:false record for the same reason.
+    recordConsent(p, k, !consentOk(p, k));
     // Either gate closing drops the profile mid-flow rather than leaving a
     // capture running against a consent that was just withdrawn.
-    if ((k === "photo" || k === "processing") && !p.consents[k] && S.subject === pid) S.subject = null;
+    if ((k === "photo" || k === "processing") && !mayCapture(p) && S.subject === pid) S.subject = null;
     return render();
   }
 
@@ -696,5 +731,23 @@ document.addEventListener("click", e=>{
       Noted — we will confirm it against the claims when they arrive.</div>`;
   }
 });
-render();
+
+// Boot. The screen renders only after the data is in hand — there is no
+// half-loaded state to reason about, and a failure is loud. Opening this file
+// over file:// will land here: fetch is blocked by CORS on a file URL, which is
+// the honest cost of having a data boundary at all.
+loadData().then(render).catch(err => {
+  document.getElementById("view").innerHTML =
+    `<h1>No member data</h1>
+     <div class="privacy blocked">
+       <b>${esc(err.message)}</b>
+       <ul>
+         <li>This screen reads <code>data/member-demo.json</code> and has no built-in copy
+             of it. A fallback would let the app render while reading nothing, which is
+             exactly the failure mode this project keeps hitting.</li>
+         <li>Over <code>file://</code> the browser blocks that read. Run
+             <code>scripts/serve.sh</code> and open the served address instead.</li>
+       </ul>
+     </div>`;
+});
 </script>
