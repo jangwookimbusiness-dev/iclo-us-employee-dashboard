@@ -40,12 +40,32 @@ def check_contract_parses():
         warns.append(("contract_yaml", "PyYAML 없음 — 정본 파싱 검증을 건너뜀"))
         return
     try:
-        yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
+        doc = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
         mark = getattr(e, "problem_mark", None)
         where = f" ({mark.line + 1}행 {mark.column + 1}열)" if mark else ""
         fails.append(("contract_yaml",
                       f"정본이 YAML 로 파싱되지 않음{where}: {getattr(e, 'problem', e)}"))
+        return
+
+    # 파싱되는 것과 의도대로 파싱되는 것은 다르다. 산문 항목 안의 따옴표 없는
+    # ': ' 는 에러가 아니라 그 줄을 통째로 매핑으로 바꾼다 — 조용히, 초록불로.
+    # 2026-08-16 에 status.does_not_exist 의 첫 항목이 그 상태였다. "없는 것은
+    # 그 뒤의 전부다: 인증·백엔드" 가 키 하나짜리 dict 이 되어 있었고, 목록을
+    # 읽는 쪽은 전부 문자열을 기대한다. 위 검사는 통과시켰다.
+    def scan(node, path):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                scan(v, f"{path}.{k}")
+        elif isinstance(node, list):
+            for i, v in enumerate(node):
+                if isinstance(v, dict) and len(v) == 1 and len(str(next(iter(v)))) > 40:
+                    fails.append(("contract_yaml",
+                                  f"{path}[{i}] 이 문자열이 아니라 매핑으로 파싱됐다 — "
+                                  f"따옴표 없는 ': ' 로 보인다: {str(next(iter(v)))[:50]}…"))
+                scan(v, f"{path}[{i}]")
+
+    scan(doc, "")
 
 
 def check_surfaces():
