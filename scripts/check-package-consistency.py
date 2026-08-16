@@ -108,6 +108,9 @@ def load_contract():
     c["forbidden"] = re.findall(r'\{wrong:\s*"([^"]+)",\s*right:\s*"([^"]+)"', t)
     c["disease"] = re.search(r"disease_words_banned:.*?\n\s*\[([^\]]+)\]", t, re.S).group(1)
     c["disease"] = [w.strip() for w in c["disease"].split(",")]
+    sup = re.search(r"^superseded:$(.*?)(?:^\w|\Z)", t, re.S | re.M)
+    c["superseded"] = set(re.findall(r"artifacts:\s*\[([^\]]+)\]", sup.group(1))[0].split(", ")) \
+        if sup and re.findall(r"artifacts:\s*\[([^\]]+)\]", sup.group(1)) else set()
     g = re.search(r"^start_gates:$(.*?)^\w", t, re.S | re.M).group(1)
     c["gates_ko"] = [x.strip() for x in re.findall(r"^\s+ko:\s*(.+)$", g, re.M)]
     c["gates_en"] = [x.strip() for x in re.findall(r"^\s+en:\s*(.+)$", g, re.M)]
@@ -245,7 +248,7 @@ def check_docs(c, use_pdf):
     if v12.exists():
         targets["proposal_v12_ko"] = v12
 
-    checked = 0
+    checked, skipped = 0, []
     for name, p in targets.items():
         if not p.exists():
             warn("missing", f"{name}: {p.name} 없음")
@@ -261,6 +264,14 @@ def check_docs(c, use_pdf):
         for wrong, right in c["forbidden"]:
             if re.sub(r"\s+", "", wrong) in flat:
                 fail("terminology", f'{name}: 금지어 "{wrong}" → "{right}"')
+
+        # 발송된 판은 저작 요건 검사에서 뺀다. 이미 상대 손에 있는 문서를 지금
+        # 고치면 받은 쪽 사본과 저장소가 달라진다. 다만 조용히 빼지는 않는다 —
+        # 몇 건을 왜 건너뛰었는지 매번 출력한다. 경고가 상시로 켜져 있으면
+        # 다음에 진짜 경고가 떠도 안 보이고, 조용히 빼면 뺀 사실이 잊힌다.
+        if name in c["superseded"]:
+            skipped.append(name)
+            continue
 
         # 착수 게이트 노출 (대외 문서에서 빠지면 다 만들어진 제품처럼 읽힌다)
         gates = c["gates_ko"] if name.endswith("_ko") or name == "tech" else c["gates_en"]
@@ -285,7 +296,8 @@ def check_docs(c, use_pdf):
     if checked == 0:
         fail("no_docs", "문서를 한 건도 읽지 못했다 — 경로가 바뀌었거나 pdftotext 가 없다")
     else:
-        print(f"문서 {checked}건 검사")
+        note = f" · 발송분 {len(skipped)}건 건너뜀 ({', '.join(skipped)})" if skipped else ""
+        print(f"문서 {checked}건 검사{note}")
 
     # Report 와 Proposal 의 머리글이 같으면 받는 쪽이 구분할 수 없다
     b = ROOT / "tmp/iclo-snowflake-proposal-v10/build_reports_v10.py"

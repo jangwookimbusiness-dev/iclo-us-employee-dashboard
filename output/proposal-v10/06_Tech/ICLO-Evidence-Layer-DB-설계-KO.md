@@ -1505,18 +1505,31 @@ FROM mart.person_month_fact f;
 -- 정책은 기반 테이블에 붙어 있고 뷰를 통해서도 적용된다. 뷰에 다시 걸지 않는다 —
 -- 두 곳에 걸면 어느 쪽이 유효한지가 사고 시점에 헷갈린다.
 
--- 신호는 사람·창 grain 이다. 정본 metric_time_contracts.signal_distribution 이
--- "사람당 그 창의 최신 유효 촬영 1건" 으로 규정하므로, 그 선택을 여기서 끝낸다.
--- 기업 롤은 윈도우 함수를 못 쓰기 때문에 기업 롤에게 시킬 수 없는 일이다.
+-- 신호는 사람·보고월 grain 이다. 정본 metric_time_contracts.signal_distribution 이
+-- "사람당 그 창의 최신 유효 촬영 1건, 롤링 12개월" 으로 규정하므로, 그 선택을
+-- 여기서 끝낸다. 기업 롤은 윈도우 함수를 못 쓰므로 기업 롤에게 시킬 수 없다.
+--
+-- 2026-08-16 정정: 이 블록의 첫 판은 s.window_start 와 s.band 를 읽었는데
+-- canonical.oral_signal 에 그런 컬럼이 없다. 창은 저장된 값이 아니라 질의 개념
+-- 이고(달력 조인으로 만든다), 밴드 컬럼 이름은 signal_band 다. 실행해 본 적이
+-- 없으니 문서가 통과시켰다 — 이 문서의 SQL 은 아직 아무도 돌려보지 않았다는
+-- 사실을 여기 적어둔다.
 CREATE OR REPLACE TABLE mart.person_signal_fact AS
-SELECT party_sk, employer_id, window_start, department, band, model_version
+SELECT party_sk, employer_id, report_month, department, signal_band, model_version
 FROM (
-  SELECT s.party_sk, s.employer_id, s.window_start, d.department, s.band, s.model_version,
-         ROW_NUMBER() OVER (PARTITION BY s.party_sk, s.window_start
+  SELECT s.party_sk, s.employer_id, m.month_start AS report_month,
+         COALESCE(d.department, 'UNMATCHED') AS department,
+         s.signal_band, s.model_version,
+         ROW_NUMBER() OVER (PARTITION BY s.party_sk, m.month_start
                             ORDER BY s.captured_at DESC) AS rn
-  FROM canonical.oral_signal s
+  FROM util.month_spine m                        -- 8.1 절. 월 달력.
+  JOIN canonical.oral_signal s
+    ON s.captured_at >= DATEADD('month', -12, m.month_start)
+   AND s.captured_at <  DATEADD('month',   1, m.month_start)
   LEFT JOIN mart.party_department d
          ON d.party_sk = s.party_sk AND d.employer_id = s.employer_id
+        AND m.month_start >= d.effective_date
+        AND m.month_start <  COALESCE(d.end_date, '9999-12-31'::DATE)
   WHERE s.quality_passed
 ) WHERE rn = 1;
 
@@ -1524,14 +1537,21 @@ ALTER TABLE mart.person_signal_fact SET AGGREGATION POLICY gov.min_cell_20 ENTIT
 ALTER TABLE mart.person_signal_fact ADD ROW ACCESS POLICY gov.employer_isolation ON (employer_id);
 
 CREATE OR REPLACE SECURE VIEW employer.v_person_signal AS
-SELECT party_sk, employer_id, window_start, department, band, model_version
+SELECT party_sk, employer_id, report_month, department, signal_band, model_version
 FROM mart.person_signal_fact;
 
--- 부서 카탈로그. 이름과 규모만 나가고 사람은 나가지 않는다.
-CREATE OR REPLACE SECURE VIEW employer.v_department AS
-SELECT employer_id, department, COUNT(DISTINCT party_sk) AS n
+-- 부서 카탈로그. 아래 11.2.1 을 먼저 읽을 것 — 이 뷰는 정책을 우회하는 것이
+-- 아니라, 우회가 필요한 지점을 명시적으로 좁혀 만든 예외다.
+CREATE OR REPLACE TABLE mart.department_size AS
+SELECT employer_id, department, month_start, COUNT(DISTINCT party_sk) AS n
 FROM mart.person_month_fact
-GROUP BY 1, 2;
+GROUP BY 1, 2, 3;
+
+-- 행 접근 정책은 건다. 집계 정책은 걸지 않는다. 그 차이가 11.2.1 의 내용이다.
+ALTER TABLE mart.department_size ADD ROW ACCESS POLICY gov.employer_isolation ON (employer_id);
+
+CREATE OR REPLACE SECURE VIEW employer.v_department AS
+SELECT employer_id, department, month_start, n FROM mart.department_size;
 
 GRANT USAGE ON SCHEMA employer TO ROLE R_EMPLOYER_ACME;
 GRANT SELECT ON ALL VIEWS IN SCHEMA employer TO ROLE R_EMPLOYER_ACME;
@@ -1549,6 +1569,34 @@ ALTER TABLE mart.person_signal_fact MODIFY COLUMN party_sk SET MASKING POLICY go
 ```
 
 > **개통 전에 확인할 것.** 마스킹된 컬럼이 `ENTITY KEY` 로서 여전히 distinct 사람 수를 세는지. 마스킹이 `NULL` 을 돌려주면 모든 행의 키가 같아져 그룹 크기가 1로 붕괴할 수 있고, 그러면 **정반대 방향으로 조용히 고장** 납니다 — 억제가 과하게 걸려 화면이 텅 비는 쪽입니다. 13.1절의 두 기업 시험에 이 케이스를 포함합니다. 문서로 판단하지 말고 쿼리로 확인합니다.
+
+#### 11.2.1 분모는 최소 셀 아래에서도 나와야 한다 — 정책과 충돌한다
+
+**이 충돌은 2026-08-16 까지 아무 곳에도 등록돼 있지 않았습니다.** 화면은 이렇게 동작합니다:
+
+```
+Facilities (pilot site) · 14      ← 부서 선택 드롭다운. 14 가 보인다
+  Eligible employees      14      ← 분모. 보인다
+  Activated          Suppressed   ← 지표. 가려진다
+```
+
+그리고 정본이 이것을 의도로 규정합니다 — **"분모는 남는다. 그룹 크기는 억제 문구가 어차피 밝히는 정보"** 이고, `test_suppression.py` 도 `DENOMINATOR_LABELS` 로 이 둘만 명시적으로 예외 처리합니다.
+
+**그런데 집계 정책 아래에서는 저 14 가 돌아오지 않습니다.** `MIN_GROUP_SIZE => 20` 은 무엇을 세든 그룹이 작으면 NULL 키 remainder 로 접습니다. `COUNT(*)` 도 예외가 아닙니다. 즉 **A3 로 옮기는 순간 화면의 억제 표시가 현재 모양으로 재현되지 않습니다** — 부서 이름조차 드롭다운에서 사라지고, "이 부서는 14명이라 가렸습니다" 라는 문장을 만들 근거가 없어집니다.
+
+**해결은 `mart.department_size` 를 집계 정책 밖에 두는 것입니다.** 대신 그 예외를 최대한 좁힙니다.
+
+| | |
+|---|---|
+| 나가는 컬럼 | `employer_id · department · month_start · n` **넷뿐** |
+| 안 걸리는 것 | 집계 정책 |
+| 걸리는 것 | 행 접근 정책 (기업 간 격리는 그대로) |
+| 왜 안전한가 | `n` 은 억제 문구가 어차피 말하는 값이다. 여기서 새로 새는 정보가 없다 |
+| 왜 위험한가 | **11.3 절 차분 공격의 재료다.** 부서 규모의 월별 변화를 자유롭게 볼 수 있으면 소규모 부서의 입·퇴사가 드러난다 |
+
+**마지막 줄을 지우지 않습니다.** 이건 해결이 아니라 **한 위험을 다른 위험으로 옮긴 것**이고, 옮겨간 쪽이 11.3 절의 열린 항목입니다. `department_size` 는 11.3 의 방어 설계가 정해질 때 **가장 먼저 다시 볼 객체**입니다.
+
+> **대안으로 검토했으나 택하지 않은 것:** `n` 을 구간으로 반올림해서 내보내기(예: `10-19`, `20-49`). 차분 공격 재료를 줄이지만, 억제 문구가 "이 셀은 최소 20 미만" 이라고 이미 말하고 있어 **구간이 주는 보호가 문구가 이미 준 정보를 넘지 못합니다.** 정확한 값을 숨기는 대신 화면이 부정확해지기만 합니다. 11.3 이 정해지면 다시 판단합니다.
 
 ### 11.3 차분 공격 — n ≥ 20 만으로는 부족합니다
 
