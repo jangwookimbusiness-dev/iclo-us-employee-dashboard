@@ -2271,3 +2271,20 @@ CREATE TABLE gov.export_request (
 | 화면 접근성 | 탭 ARIA 불완전 · ingestion이 호버 전용 | 개통 전 해소 (11.1절) |
 
 데모는 **기업이 무엇을 보게 되는지**를 보여주는 화면이고, 이 문서는 **그 화면 뒤에 무엇이 있어야 하는지**입니다. 두 개를 같은 것으로 설명하지 않아야 합니다.
+
+<!-- 인쇄 레이아웃. GitHub 은 style 태그를 무시하므로 PDF 빌드에서만 적용된다.
+
+     break-before 는 실제로 동작을 바꾼다 — 이걸 넣고 이 문서의 쪽수가 늘었고,
+     모든 절이 페이지 첫머리에서 시작하는 것을 pdftotext 로 확인했다.
+
+     아래 셋은 2026-08-16 기준 make-pdf 의 기본 동작과 같다. 확인 방법:
+     table 에 break-inside:auto 를 주면 표가 두 페이지로 갈라지고, 빼면 안 갈라진다.
+     즉 지금은 없어도 결과가 같다. 그래도 적어두는 이유는 이것이 우리가 요구하는
+     성질이고 도구 기본값은 우리 것이 아니기 때문이다 — 업그레이드로 기본값이
+     바뀌면 표가 조용히 갈라진다. -->
+<style>
+  h2 { break-before: page; }
+  table, figure { break-inside: avoid; }
+  thead { display: table-header-group; }
+  h3, h4, h5 { break-after: avoid; }
+</style>
