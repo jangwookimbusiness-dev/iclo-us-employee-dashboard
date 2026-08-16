@@ -68,6 +68,9 @@ jobs:
       - name: Cell suppression (54 states)
         run: python3 test_suppression.py
 
+      - name: Design-doc SQL names columns that exist
+        run: python3 test_tech_sql.py
+
       - name: Consent enforcement and the app's data boundary
         run: python3 test_consent.py
 

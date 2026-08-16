@@ -873,6 +873,18 @@ WHERE s.superseded_by IS NULL                     -- 현행 버전만. 아래 �
 
 `util.month_spine`은 월 달력 테이블입니다. 이렇게 하면 자격이 중간에 끊긴 사람도 정확히 처리됩니다.
 
+**2026-08-16 추가 — 이 테이블은 여기서 쓰이기만 하고 어디에도 정의돼 있지 않았습니다.** 그 탓에 11.2 절이 이 테이블의 컬럼을 `month_start` 로 잘못 적었고(실제는 `month_date`), 참조만 있고 선언이 없으니 아무 검사도 그걸 볼 수 없었습니다. 정의를 여기 둡니다.
+
+```sql
+-- 한 행이 한 달. month_date 는 그 달의 1일이다.
+-- 위 8.1 절 쿼리의 DATE_TRUNC('MONTH', d.month_date) 는 그래서 방어적 표현이고,
+-- 일 단위 달력으로 바뀌면 member_month 가 달마다 30배로 늘어난다 — 이 테이블의
+-- 입도(粒度)가 분모 전체를 결정한다.
+CREATE TABLE util.month_spine (
+  month_date  DATE  NOT NULL PRIMARY KEY
+);
+```
+
 `GREATEST(..., 0)`과 `WHERE` 절은 **역전된 span**을 막습니다. 834 정정 파일에서 종료일이 시작일보다 앞선 행이 실제로 들어오는데, 이걸 그대로 계산하면 `covered_days`가 음수가 되어 분모를 갉아먹습니다. 오류로 터지지 않고 조용히 PMPM을 부풀리기 때문에 위험합니다. 걸러낸 행은 12절 예외 테이블로 보냅니다.
 
 ### 6.3 청구 지연 — 화면의 `60-day lag`가 나오는 곳
@@ -1509,27 +1521,33 @@ FROM mart.person_month_fact f;
 -- "사람당 그 창의 최신 유효 촬영 1건, 롤링 12개월" 으로 규정하므로, 그 선택을
 -- 여기서 끝낸다. 기업 롤은 윈도우 함수를 못 쓰므로 기업 롤에게 시킬 수 없다.
 --
--- 2026-08-16 정정: 이 블록의 첫 판은 s.window_start 와 s.band 를 읽었는데
--- canonical.oral_signal 에 그런 컬럼이 없다. 창은 저장된 값이 아니라 질의 개념
--- 이고(달력 조인으로 만든다), 밴드 컬럼 이름은 signal_band 다. 실행해 본 적이
--- 없으니 문서가 통과시켰다 — 이 문서의 SQL 은 아직 아무도 돌려보지 않았다는
--- 사실을 여기 적어둔다.
+-- 2026-08-16 정정 두 번. 첫 판은 s.window_start 와 s.band 를 읽었는데
+-- canonical.oral_signal 에 둘 다 없다. 고치면서 m.month_start 를 썼는데
+-- util.month_spine 의 컬럼은 month_date 다 — 컬럼 이름 둘을 고치는 김에 세
+-- 번째를 새로 넣었다.
+--
+-- 이 문서의 SQL 은 아직 한 줄도 실행된 적이 없다. 그래서 컬럼 이름이 틀려도
+-- 아무것도 항의하지 않고, 눈으로 읽는 검토는 이 종류를 세 번 연속 놓쳤다.
+-- 1단계에서 가장 먼저 할 일은 이 DDL 을 합성 데이터에 그대로 돌려보는 것이다.
 CREATE OR REPLACE TABLE mart.person_signal_fact AS
 SELECT party_sk, employer_id, report_month, department, signal_band, model_version
 FROM (
-  SELECT s.party_sk, s.employer_id, m.month_start AS report_month,
+  -- month_spine 을 CTE 로 한 번 감싸지 않고 직접 조인한다. 감싸면 별칭이
+  -- 파생 테이블에 묶여 test_tech_sql.py 가 이 참조를 해석하지 못하고 건너뛴다 —
+  -- 그러면 여기서 컬럼 이름을 또 틀려도 아무도 모른다.
+  SELECT s.party_sk, s.employer_id, m.month_date AS report_month,
          COALESCE(d.department, 'UNMATCHED') AS department,
          s.signal_band, s.model_version,
-         ROW_NUMBER() OVER (PARTITION BY s.party_sk, m.month_start
+         ROW_NUMBER() OVER (PARTITION BY s.party_sk, m.month_date
                             ORDER BY s.captured_at DESC) AS rn
-  FROM util.month_spine m                        -- 8.1 절. 월 달력.
+  FROM util.month_spine m
   JOIN canonical.oral_signal s
-    ON s.captured_at >= DATEADD('month', -12, m.month_start)
-   AND s.captured_at <  DATEADD('month',   1, m.month_start)
+    ON s.captured_at >= DATEADD('month', -12, m.month_date)
+   AND s.captured_at <  DATEADD('month',   1, m.month_date)
   LEFT JOIN mart.party_department d
          ON d.party_sk = s.party_sk AND d.employer_id = s.employer_id
-        AND m.month_start >= d.effective_date
-        AND m.month_start <  COALESCE(d.end_date, '9999-12-31'::DATE)
+        AND m.month_date >= d.effective_date
+        AND m.month_date <  COALESCE(d.end_date, '9999-12-31'::DATE)
   WHERE s.quality_passed
 ) WHERE rn = 1;
 
