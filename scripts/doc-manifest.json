@@ -1,0 +1,69 @@
+{
+  "_comment": [
+    "무엇이 무엇에서 만들어지는가 — 문서 동기화의 정본.",
+    "",
+    "scripts/docs_build.py 가 이 목록대로 빌드하고 .docstamps.json 에 원본 해시를",
+    "적는다. test_doc_freshness.py 가 그 스탬프를 현재 파일과 대조한다 — 원본을",
+    "고치고 산출물을 안 만들면 커밋과 CI 가 막힌다.",
+    "",
+    "여기 없는 산출물은 아무도 지켜주지 않는다. 새 문서를 만들면 여기에 넣는 것까지가",
+    "만드는 일이다.",
+    "",
+    "screenshots 가 pdfs 보다 먼저다 — 제안서 PDF 가 스크린샷을 인라인하므로,",
+    "화면이 바뀌면 스크린샷이 다시 떠야 하고 그러면 제안서 PDF 도 다시 떠야 한다.",
+    "빌더는 이 순서를 그대로 따른다."
+  ],
+
+  "screenshots": {
+    "inputs": [
+      "index.html",
+      "app.html",
+      "data/member-demo.json",
+      "scripts/shots.py"
+    ],
+    "outdir": "output/proposal-v12/assets",
+    "artifacts": [
+      "output/proposal-v12/assets/app-camera.png",
+      "output/proposal-v12/assets/app-care.png",
+      "output/proposal-v12/assets/app-coverage.png",
+      "output/proposal-v12/assets/app-home.png",
+      "output/proposal-v12/assets/app-notanalysed.png",
+      "output/proposal-v12/assets/app-settings.png",
+      "output/proposal-v12/assets/app-whoisit.png",
+      "output/proposal-v12/assets/dashboard-funnel.png",
+      "output/proposal-v12/assets/dashboard-members.png",
+      "output/proposal-v12/assets/dashboard-overview.png",
+      "output/proposal-v12/assets/dashboard-signals.png",
+      "output/proposal-v12/assets/dashboard-suppressed.png"
+    ]
+  },
+
+  "pdfs": [
+    {
+      "name": "proposal_v12",
+      "sources": [
+        "output/proposal-v12/제안서-v12-KO.md",
+        "output/proposal-v12/assets/*"
+      ],
+      "out": "output/proposal-v12/ICLO-Snowflake-제안서-v12-KO.pdf",
+      "flags": ["--cover", "--toc"]
+    },
+    {
+      "name": "tech",
+      "sources": [
+        "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md",
+        "output/proposal-v10/06_Tech/ICLO-데이터흐름도-A-원천과정본.svg",
+        "output/proposal-v10/06_Tech/ICLO-데이터흐름도-B-통제와노출.svg",
+        "output/proposal-v10/06_Tech/ICLO-데이터흐름도-C-경계와미결.svg"
+      ],
+      "out": "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.pdf",
+      "flags": ["--cover", "--toc"]
+    },
+    {
+      "name": "customer_analysis",
+      "sources": ["output/analysis/고객-비용-이익-분석-KO.md"],
+      "out": "output/analysis/ICLO-고객-비용-이익-분석-KO.pdf",
+      "flags": ["--cover", "--toc"]
+    }
+  ]
+}

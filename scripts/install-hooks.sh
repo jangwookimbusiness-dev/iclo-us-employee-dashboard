@@ -39,6 +39,16 @@ else
   printf 'FAIL\n%s\n' "$out"; fail=1
 fi
 
+# 순수 해시 대조라 1초 안에 끝난다. md 를 고치고 PDF·스크린샷을 안 만들면 여기서
+# 멈춘다 — 기술문서 PDF 가 md 와 다른 판으로 커밋된 일이 실제로 있었고, 잡은 것은
+# 검사가 아니라 우연한 질문이었다. 고치는 명령은 실패 메시지가 알려준다.
+printf 'pre-commit: doc freshness … '
+if out=$(python3 test_doc_freshness.py 2>&1); then
+  printf 'ok\n'
+else
+  printf 'FAIL\n%s\n' "$out"; fail=1
+fi
+
 if [ "$fail" -ne 0 ]; then
   printf '\nCommit stopped. Fix the above, or use --no-verify if you mean it.\n'
   exit 1
@@ -48,5 +58,5 @@ HOOK_BODY
 
 chmod +x "$HOOK"
 echo "installed → .git/hooks/pre-commit"
-echo "  runs: check-forbidden-terms.sh, check-package-consistency.py"
+echo "  runs: check-forbidden-terms.sh, check-package-consistency.py, test_doc_freshness.py"
 echo "  the two render tests stay in CI (.github/workflows/gates.yml)"

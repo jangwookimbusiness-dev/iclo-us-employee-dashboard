@@ -1,0 +1,61 @@
+{
+ "customer_analysis": {
+  "artifact": "61a041511420b412774d7b2fec159d3e9c1e0567fed9e9e0a0554deb54e41164",
+  "pages": 11,
+  "sources": {
+   "output/analysis/고객-비용-이익-분석-KO.md": "aeba4afde33795d0d5d400665fba73b2637fdbf1fd377f7b9a9d73396ec64727"
+  }
+ },
+ "proposal_v12": {
+  "artifact": "4f82916b5a0aaab039726e3547f4b2a141a61fabd64517246e3d2274824ed40e",
+  "pages": 36,
+  "sources": {
+   "output/proposal-v12/assets/app-camera.png": "9783b7581452ba0c27e27e98df5b014f1f9f49fb56e1ff91d09aa82190f830b2",
+   "output/proposal-v12/assets/app-care.png": "e4096c9b60c5dc2a3953ee1ce8c5c53748eea69cb03e110a67940f15e75d0840",
+   "output/proposal-v12/assets/app-coverage.png": "b1020c72688dbded66f5db0367f09fb37a1fbbbdda8f9c0f99d1c91b135a843b",
+   "output/proposal-v12/assets/app-home.png": "db584cc243bd658423ea030b141b69ba37f40263d10d93212d7dc4f74228a33e",
+   "output/proposal-v12/assets/app-notanalysed.png": "dfb3c53de867862d60f412cc0eb14c50091b8126c9ccc570782d38f63e8caac3",
+   "output/proposal-v12/assets/app-settings.png": "a5f15afd18076af4dd3845a3583e1e251b4ca66f6701f938193d9e9872a63b5f",
+   "output/proposal-v12/assets/app-whoisit.png": "c27419426aae8f0465c84c445ae947a5e0a986a373bff472e6cf93c003f006f6",
+   "output/proposal-v12/assets/dashboard-funnel.png": "44e996be9f78a8f1999f19574b8bc056db1237add4380885d5ca9a7bc70a284d",
+   "output/proposal-v12/assets/dashboard-members.png": "f90b1d014819e2b6b123f8faea5c907fa86ab3364d5667c92e3444d8e3d46bbe",
+   "output/proposal-v12/assets/dashboard-overview.png": "2fbe2c941c22b4b6269e93ba3394765324b6c6543032485f0cb3f6de74be4f66",
+   "output/proposal-v12/assets/dashboard-signals.png": "3a8350b511f2d7f44f7e6eac52b9fde549af7320575c23e37f27a08978d4fe56",
+   "output/proposal-v12/assets/dashboard-suppressed.png": "1d454e2abf25c780c77623d6bc27e23a23e95caab8b3a9746b364c49844d76a1",
+   "output/proposal-v12/assets/dataflow.svg": "f39dd6354eb8e9f16fb3db3a8ca67826bea89a6d8070398b26f22e1e4df4f749",
+   "output/proposal-v12/제안서-v12-KO.md": "8cfbaa1b82c8770dfb280dec31d4dd8e8be7e7f05fd5cab018a18a397020cbcc"
+  }
+ },
+ "screenshots": {
+  "artifacts": {
+   "output/proposal-v12/assets/app-camera.png": "9783b7581452ba0c27e27e98df5b014f1f9f49fb56e1ff91d09aa82190f830b2",
+   "output/proposal-v12/assets/app-care.png": "e4096c9b60c5dc2a3953ee1ce8c5c53748eea69cb03e110a67940f15e75d0840",
+   "output/proposal-v12/assets/app-coverage.png": "b1020c72688dbded66f5db0367f09fb37a1fbbbdda8f9c0f99d1c91b135a843b",
+   "output/proposal-v12/assets/app-home.png": "db584cc243bd658423ea030b141b69ba37f40263d10d93212d7dc4f74228a33e",
+   "output/proposal-v12/assets/app-notanalysed.png": "dfb3c53de867862d60f412cc0eb14c50091b8126c9ccc570782d38f63e8caac3",
+   "output/proposal-v12/assets/app-settings.png": "a5f15afd18076af4dd3845a3583e1e251b4ca66f6701f938193d9e9872a63b5f",
+   "output/proposal-v12/assets/app-whoisit.png": "c27419426aae8f0465c84c445ae947a5e0a986a373bff472e6cf93c003f006f6",
+   "output/proposal-v12/assets/dashboard-funnel.png": "44e996be9f78a8f1999f19574b8bc056db1237add4380885d5ca9a7bc70a284d",
+   "output/proposal-v12/assets/dashboard-members.png": "f90b1d014819e2b6b123f8faea5c907fa86ab3364d5667c92e3444d8e3d46bbe",
+   "output/proposal-v12/assets/dashboard-overview.png": "2fbe2c941c22b4b6269e93ba3394765324b6c6543032485f0cb3f6de74be4f66",
+   "output/proposal-v12/assets/dashboard-signals.png": "3a8350b511f2d7f44f7e6eac52b9fde549af7320575c23e37f27a08978d4fe56",
+   "output/proposal-v12/assets/dashboard-suppressed.png": "1d454e2abf25c780c77623d6bc27e23a23e95caab8b3a9746b364c49844d76a1"
+  },
+  "sources": {
+   "app.html": "19146809370cdee824d90ed21f1cbf377972cbb1123e38c05c8a038737f7ee8e",
+   "data/member-demo.json": "a41c0b2c4f0b9317709a5dcc8ba1c30106b08f810d558610082d99f56c7fb299",
+   "index.html": "aa39a50ee197df6f4375f514697e81401554ddfea8b8b77859b898b093a1d9a5",
+   "scripts/shots.py": "5e6cf11e426a5448f8909b2bad195873945eba61bf9c8bdd13944319a2f15766"
+  }
+ },
+ "tech": {
+  "artifact": "2c20bc8d7410aaac712c483023cc8168489fbeab20f6e699ba82c23641209bb7",
+  "pages": 105,
+  "sources": {
+   "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md": "16e61be7d9fefd2e179e8fb398d6b8b7f1454d88bb5715ff1ef848d5e2ac8623",
+   "output/proposal-v10/06_Tech/ICLO-데이터흐름도-A-원천과정본.svg": "95f8e16d87f08d0f93d975e98d7f372b15348e206c07e5b2a9a1431acf7fd06a",
+   "output/proposal-v10/06_Tech/ICLO-데이터흐름도-B-통제와노출.svg": "24bc2b2a634066ddb763e68d979e195ccf4ab57081b7dad5947b9c9a47e3df80",
+   "output/proposal-v10/06_Tech/ICLO-데이터흐름도-C-경계와미결.svg": "757723c8d5431d320813614b2cfe4ae213ab5f143f1e3d47a05af348b2e7bdc1"
+  }
+ }
+}

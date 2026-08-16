@@ -103,7 +103,27 @@ def check_awaiting_decision():
             fail("awaiting",
                  f'{eid}: {where} 에 "{marker}" 가 없다. 결정이 났다면 '
                  f"awaiting_decision 에서 닫고, 안 났다면 문서의 미결 표시가 사라진 것이다")
-    print(f"결정 대기 {len(entries)}건 — 전부 해당 문서에서 미결 상태 확인")
+
+    # 결정된 항목의 대칭 검사. 대기 항목은 문서에 "미결" 표시가 있어야 하고,
+    # 결정된 항목은 문서에 결정 기록이 있어야 한다. 이게 없으면 어제 같은 일이
+    # 반복된다 — 레지스터 5·7번이 자기 주제가 결정된 것을 모른 채 발견될 때까지
+    # 낡아 있었다. 이제 결정 기록을 문서에서 지우면 여기서 걸린다.
+    dm = re.search(r"^decided:$(.*?)(?=^#|^\w)", t, re.S | re.M)
+    dentries = re.findall(
+        r"- id:\s*(\S+).*?marker:\s*(.+?)\n.*?where:\s*(\S+)",
+        dm.group(1), re.S) if dm else []
+    for eid, marker, where in dentries:
+        marker = marker.strip().strip("'\"")
+        f = ROOT / where
+        if not f.exists():
+            fail("decided", f"{eid}: 가리키는 {where} 가 없음")
+            continue
+        if marker not in f.read_text(encoding="utf-8"):
+            fail("decided",
+                 f'{eid}: {where} 에 결정 기록 "{marker}" 가 없다. 결정이 뒤집혔다면 '
+                 f"decided 에서 빼고, 아니라면 문서가 결정을 잃어버린 것이다")
+
+    print(f"결정 대기 {len(entries)}건 · 결정 기록 {len(dentries)}건 — 전부 해당 문서에서 확인")
 
 
 def check_surfaces():
