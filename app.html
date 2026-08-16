@@ -44,10 +44,10 @@
   .card{background:var(--field);border:1px solid var(--line);border-radius:12px;
         padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
 
-  /* Score. A number, deliberately, and never a clinical claim next to it. */
-  .score{display:flex;align-items:baseline;gap:10px;margin:2px 0 6px}
-  .score b{font-size:52px;font-weight:800;line-height:1;font-family:var(--mono);letter-spacing:-.03em}
-  .score .of{font-size:14px;color:var(--ink2);font-family:var(--mono)}
+  /* The band is the result. There is no number on this screen by design —
+     see the comment above direction() in the script. */
+  .bandhero{display:inline-block;font-size:30px;font-weight:800;letter-spacing:-.01em;
+            color:#fff;border-radius:12px;padding:10px 20px;margin:6px 0 4px}
   .bandtag{display:inline-block;font-family:var(--mono);font-size:12px;
            padding:4px 10px;border-radius:999px;color:#fff}
   .b-low{background:var(--barLow)} .b-mod{background:var(--barMid)} .b-pri{background:var(--coral)}
@@ -106,9 +106,10 @@
   .hist{display:flex;align-items:flex-end;gap:8px;height:96px;margin:4px 0 10px}
   .hist .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;
              align-items:center;gap:6px;height:100%}
-  .hist .bar{width:100%;border-radius:6px 6px 0 0;background:var(--barMid)}
-  .hist .col.now .bar{background:var(--strong)}
-  .hist .n{font-family:var(--mono);font-size:12px}
+  .hist{height:auto}
+  .hist .chip{width:100%;text-align:center;color:#fff;border-radius:8px;
+              padding:10px 4px;font-family:var(--mono);font-size:11px}
+  .hist .col.now .chip{outline:2px solid var(--strong);outline-offset:2px}
   .hist .d{font-family:var(--mono);font-size:10px;color:var(--ink2)}
 
   .srow{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
@@ -195,6 +196,19 @@ const PARTIES = [
 ];
 
 const BAND = s => s >= 80 ? "Low" : s >= 68 ? "Moderate" : "Priority";
+
+// The underlying figure is computed — bands and direction need it — and never
+// rendered. An image-derived number presented to a person as their oral status
+// reads outside the general-wellness boundary, so it stays internal until FDA
+// clearance. contracts surfaces.employee_app.numeric_score holds the condition.
+// A scale position with the numerals removed is the same number in disguise and
+// is not an escape from this.
+function direction(prev, now){
+  const step = 3;                       // below this, call it steady rather than movement
+  if (now - prev >= step)  return "Better than your last check-in";
+  if (prev - now >= step)  return "Some ground lost since your last check-in";
+  return "About the same as your last check-in";
+}
 const ADVICE = {
   Low:"Keep the current routine.",
   Moderate:"A guided check-in is worth booking when convenient.",
@@ -238,12 +252,10 @@ function scoreCard(p){
     <p style="margin:8px 0 0">No check-in yet.</p></div>`;
   const b = BAND(l.score);
   const prev = p.history.length > 1 ? p.history[p.history.length-2].score : null;
-  const d = prev === null ? null : l.score - prev;
   return `<div class="card">
     <div class="muted">${esc(p.name)} · ${esc(l.on)}</div>
-    <div class="score"><b>${l.score}</b><span class="of">/ 100</span></div>
-    <span class="bandtag ${CLS[b]}">${esc(b)}</span>
-    ${d === null ? "" : `<div class="delta">${d>0?"+":""}${d} since the last check-in</div>`}
+    <div class="bandhero ${CLS[b]}">${esc(b)}</div>
+    ${prev === null ? "" : `<div class="delta">${esc(direction(prev, l.score))}</div>`}
     <p style="margin-top:12px">${esc(ADVICE[b])}</p>
     <p class="muted" style="margin:0">A wellness signal from a guided photo. Not a clinical finding
     and not medical advice. Only a dentist can say what is happening in a mouth.</p>
@@ -252,14 +264,15 @@ function scoreCard(p){
 
 function historyStrip(p){
   if (p.history.length < 2) return "";
-  const hi = Math.max(...p.history.map(x=>x.score));
-  return `<div class="card"><div class="hist">${p.history.map((x,i)=>`
-    <div class="col${i===p.history.length-1?" now":""}">
-      <span class="n">${x.score}</span>
-      <div class="bar" style="height:${Math.round((x.score/hi)*100)}%"></div>
+  // Bands over time, not bars over a scale. Heights carried the hidden number
+  // back onto the screen — a taller bar is a higher score read off a picture.
+  return `<div class="card"><div class="hist">${p.history.map((x,i)=>{
+    const b = BAND(x.score);
+    return `<div class="col${i===p.history.length-1?" now":""}">
+      <div class="chip ${CLS[b]}">${esc(b)}</div>
       <span class="d">${esc(x.on.slice(2))}</span>
-    </div>`).join("")}</div>
-    <div class="muted">A single number says little; the direction is the part worth reading.</div>
+    </div>`;}).join("")}</div>
+    <div class="muted">Your last ${p.history.length} check-ins. The direction is the part worth reading.</div>
   </div>`;
 }
 
@@ -283,7 +296,7 @@ const VIEWS = {
           </div>
           ${l ? `<div class="rowlab" style="margin-top:8px">
                    <span class="muted">Latest ${esc(l.on)}</span>
-                   <span class="v">${l.score} · ${esc(BAND(l.score))}</span></div>`
+                   <span class="bandtag ${CLS[BAND(l.score)]}">${esc(BAND(l.score))}</span></div>`
               : `<div class="muted" style="margin-top:8px">${p.consents && !p.consents.photo
                    ? "Photo analysis is off for this profile — no check-ins are taken."
                    : "No check-in yet."}</div>`}

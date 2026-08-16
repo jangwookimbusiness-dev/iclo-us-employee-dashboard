@@ -246,9 +246,10 @@ quietly enjoyed: the fastest way to have a privacy incident at a booth was to ha
 | Red line | Enforcement |
 |---|---|
 | Forbidden terms: `diagnos*, cavit*, caries, decay, gingivit*, periodont*, abscess, lesion`; signal label "Review" banned (use "Priority") | `scripts/check-forbidden-terms.sh` |
-| No individual-level screens **in employer views**; no mock person profiles there | PR review. Scoped 2026-08-15: `app.html` is a member's own surface and shows their own result and their profiles by design (`contracts` `surfaces`). Unscoped, this line forbade the employee app |
+| No individual-level screens **in employer views**; no mock person profiles there | PR review. Scoped 2026-08-15: `app.html` is a member's own surface and shows their own result and their profiles by design (`contracts` `surfaces`) |
+| **Band, never a number — on both surfaces, until FDA clearance** | PR review. Reversed 2026-08-16: the app briefly showed a 0-100 score. An image-derived figure presented to a person as their oral status reads outside the general-wellness boundary. The score is still computed; it is not rendered |
 | Cells with `n < 20` never show values | `test_suppression.py` |
-| **Band, never a numeric score — in employer views** | PR review. Settled 2026-08-14: the employee app (`app.html`) shows the member their own 0-100 score; employers still get bands only. `contracts` `surfaces` holds both. Individual scores never roll up |
+| ~~Band, never a numeric score — in employer views~~ | Superseded 2026-08-16 by the row above. The 08-14 settlement had the app showing a 0-100 score; that is reversed |
 | Every figure derives from one source of truth | `test_single_source.py`, rewritten when A3 changes the source |
 | Every view labeled "Synthetic data — illustrative only" | screenshot test |
 | No AI-slop visual patterns | kill-ai-slop Mode B gate before `/ship` |
