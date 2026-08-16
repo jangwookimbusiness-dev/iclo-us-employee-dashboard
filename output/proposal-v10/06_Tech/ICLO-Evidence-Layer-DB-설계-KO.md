@@ -2283,6 +2283,13 @@ CREATE TABLE gov.export_request (
      성질이고 도구 기본값은 우리 것이 아니기 때문이다 — 업그레이드로 기본값이
      바뀌면 표가 조용히 갈라진다. -->
 <style>
+  /* 한글은 단어 안에서 줄을 끊으면 안 된다. 기본값이 그렇게 하고 있었고,
+     표지 제목이 "청구서보다 먼저 보 / 는 치과 비용" 으로 잘렸다.
+     keep-all 이 어절 경계에서만 끊게 하고, 그래도 안 들어가는 긴 토큰
+     (URL·식별자)은 overflow-wrap 이 받는다. 코드는 원래대로 둔다. */
+  body { word-break: keep-all; overflow-wrap: break-word; }
+  pre, code { word-break: normal; overflow-wrap: normal; }
+
   h2 { break-before: page; }
   table, figure { break-inside: avoid; }
   thead { display: table-header-group; }
