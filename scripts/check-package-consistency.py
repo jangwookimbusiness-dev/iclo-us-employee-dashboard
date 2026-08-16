@@ -68,6 +68,44 @@ def check_contract_parses():
     scan(doc, "")
 
 
+def check_awaiting_decision():
+    """결정 대기 목록의 각 항목이 실제로 아직 대기 중인가.
+
+    목록만 두면 그 목록이 낡는다. 이 파일이 방금 그랬다 — SYNC-07·09 가 이미
+    고쳐졌는데 몇 달째 "미해결" 로 올라와 있었고, 남은 일을 물었을 때 없는 일이
+    섞여 나왔다.
+
+    그래서 항목마다 marker 를 요구한다. marker 는 그 문서가 "나 아직 미결이다"
+    라고 말하는 문자열이다. 결정이 나면 문서에서 초안 표시를 지우게 되고, 그러면
+    이 검사가 깨지면서 목록도 같이 닫으라고 말한다. 결정이 안 났는데 문서에서
+    표시만 사라진 경우도 같은 신호다 — 그쪽이 더 위험하다.
+
+    ponytail: 정규식으로 읽는다. PyYAML 이 있으면 그걸 쓰겠지만 이 파일의 다른
+    부분이 이미 무의존성 파서로 돌고 있어 한쪽만 의존성을 늘리지 않는다.
+    """
+    t = CONTRACT.read_text(encoding="utf-8")
+    m = re.search(r"^awaiting_decision:$(.*?)(?=^#|^\w)", t, re.S | re.M)
+    if not m:
+        return warn("awaiting", "정본에 awaiting_decision 블록이 없음")
+
+    entries = re.findall(
+        r"- id:\s*(\S+).*?where:\s*(\S+).*?marker:\s*(.+?)\n", m.group(1), re.S)
+    if not entries:
+        return fail("awaiting", "awaiting_decision 이 비어 있거나 파싱되지 않음")
+
+    for eid, where, marker in entries:
+        marker = marker.strip().strip("'\"")
+        f = ROOT / where
+        if not f.exists():
+            fail("awaiting", f"{eid}: 가리키는 {where} 가 없음")
+            continue
+        if marker not in f.read_text(encoding="utf-8"):
+            fail("awaiting",
+                 f'{eid}: {where} 에 "{marker}" 가 없다. 결정이 났다면 '
+                 f"awaiting_decision 에서 닫고, 안 났다면 문서의 미결 표시가 사라진 것이다")
+    print(f"결정 대기 {len(entries)}건 — 전부 해당 문서에서 미결 상태 확인")
+
+
 def check_surfaces():
     """정본 surfaces 가 가리키는 파일이 실제로 있는가.
 
@@ -313,6 +351,7 @@ def main():
         return 1
     check_contract_parses()
     check_surfaces()
+    check_awaiting_decision()
     c = load_contract()
     check_dashboard(c)
     check_docs(c, use_pdf)

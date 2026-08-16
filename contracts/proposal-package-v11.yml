@@ -516,6 +516,93 @@ required_disclosure:
   tech:         [assumptions_table]
 
 # ─────────────────────────────────────────────────────────────
+# 결정 대기 — 사람이 정해야 멈춘 것이 풀리는 항목
+#
+# 2026-08-16 신설. 문서마다 "승인 주체는 J. Kim" 이라고 적어두면 적은 쪽은
+# 기록했다고 여기지만, 정할 사람은 그 문장이 어느 문서 몇 절에 있는지 모른다.
+# 세 문서를 열어야 알 수 있는 상태였다. 여기가 유일한 목록이다.
+#
+# marker 는 "그 문서가 아직 미결이라고 말하는 문자열" 이다. 검사기가 파일에
+# 그 문자열이 실제로 있는지 본다. 결정이 나서 문서의 초안 표시를 지우면 검사가
+# 깨지고, 그때 이 항목도 같이 닫게 된다. 이 장치가 없으면 이 목록도 SYNC-07·09
+# 처럼 이미 끝난 일을 몇 달째 붙들고 있게 된다 — 그게 이 파일에서 방금 있었던 일이다.
+# ─────────────────────────────────────────────────────────────
+awaiting_decision:
+  - id: STOP-CRITERIA
+    what: 접는 기준 셋을 확정할 것인가
+    who: J. Kim
+    where: output/proposal-v12/제안서-v12-KO.md
+    section: '10.2'
+    marker: 승인 주체는 J. Kim
+    blocks: |
+      제안서 발송. 초안 표시를 단 채로 나가면 상대는 "이 사람들은 언제 접을지
+      아직 안 정했다" 로 읽는다. 접는 기준은 있는 편이 신뢰를 얻는 항목이라
+      미정으로 보내면 넣은 효과가 반대로 난다.
+    since: 2026-08-16
+
+  - id: PHOTO-RETENTION
+    what: 사진 보존·삭제 일정을 확정할 것인가 (기술문서 16절 7번)
+    who: J. Kim + 법무
+    where: output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md
+    section: '2.4'
+    marker: '상태: 초안입니다.'
+    blocks: |
+      사진을 한 장도 받을 수 없다. 게이트가 아니라 선행 조건이다 — 저장소 벤더·
+      계정 소유자·키 관리·서명 URL 수명·사고 대응 경계·파기 증명 여섯이 닫혀야
+      한다. app.html 과 제안서가 지금 "초안이고 운영되지 않는다" 고 적고 있다.
+    since: 2026-08-16
+
+  - id: WELLNESS-BOUNDARY
+    what: 웰니스 경계 판단에 규제 자문 검토를 받을 것인가
+    who: J. Kim + 외부 규제 자문
+    where: output/proposal-v12/제안서-v12-KO.md
+    section: '10.4'
+    marker: 규제 자문 검토 전입니다
+    blocks: |
+      밴드만·숫자 없음·질환어 금지는 PRD 가 "규제 요건이지 취향이 아니다" 라고
+      써왔는데 인용 근거가 저장소 어디에도 없다. 화면을 보수적으로 만드는 근거
+      로는 충분하지만 대외 문서에서 확정 사실로 쓸 수 없다. PoC 파트너 법무가
+      물으면 첫 질문이 될 가능성이 높다. Snowflake 에 물을 일은 아니다.
+    since: 2026-08-16
+
+  - id: DIFFERENCING-DEFENCE
+    what: 차분 공격 방어 2·3·4 를 어디까지 만들 것인가
+    who: J. Kim
+    where: output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md
+    section: '11.3'
+    marker: 설계돼 있지 않고, 파일럿 전에 정해야
+    blocks: |
+      기업 보안 검토. 지금 결정된 방어는 축 고정 하나뿐이고, 11.2.1 의
+      department_size 예외가 이 위험을 키우는 방향으로 놓여 있다. 3번(쿼리 이력)
+      은 ACCESS_HISTORY 를 쓰므로 에디션 판단에도 물린다.
+    since: 2026-08-16
+
+  # 아래 둘은 metric_time_contracts.open_questions 에 본문이 있다. 여기서는
+  # 같은 사람을 기다리고 있다는 사실만 가리킨다 — 내용을 복사하면 두 곳이 갈린다.
+  - id: CONSENT-WITHDRAWAL-RETRO
+    what: 동의 철회자의 소급 처리 (이미 배포된 집계를 다시 만드는가)
+    who: J. Kim
+    where: contracts/proposal-package-v11.yml
+    section: dashboard.metric_time_contracts.open_questions
+    marker: 정하는 사람은 J. Kim
+    blocks: |
+      앱 설정 화면이 "아직 정하지 않았다" 고 적고 있다. 정책 결정이지 지표
+      정의가 아니므로 만들어서 풀리지 않는다.
+    since: 2026-08-14
+
+  - id: CLAIMS-LAG-P90
+    what: 청구지연 P90 실측값
+    who: 실데이터가 답한다 (결정 아님)
+    where: contracts/proposal-package-v11.yml
+    section: dashboard.metric_time_contracts.open_questions
+    marker: 정하는 사람은 J. Kim
+    blocks: |
+      completed_actions 의 성숙 코호트 분모. 확정 전까지 "잠정" 으로 표시한다.
+      사람이 정하는 것이 아니라 첫 분기 측정이 정한다 — 목록에 두는 이유는
+      잊지 않기 위해서지 결정을 기다려서가 아니다.
+    since: 2026-08-14
+
+# ─────────────────────────────────────────────────────────────
 # 알려진 미해결 — 감사에서 나왔고 아직 안 고친 것
 #
 # 2026-08-16: 이 목록이 이미 고쳐진 것 둘(SYNC-07·SYNC-09)을 계속 들고 있었다.
