@@ -118,6 +118,18 @@
   .srow .t b{font-size:14px;font-weight:600;display:block}
   .toggle{width:auto;min-width:76px;flex:0 0 auto;font-family:var(--mono);font-size:12px}
 
+  .cam{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;
+       background:#0B1120;margin-bottom:12px}
+  .cam video,.cam canvas{width:100%;height:100%;object-fit:cover;display:block}
+  .cam .guide{position:absolute;inset:12% 8%;border:2px dashed rgba(255,255,255,.55);
+              border-radius:10px;pointer-events:none}
+  .cam .dot{position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:6px;
+            font-family:var(--mono);font-size:10px;color:#fff;background:rgba(0,0,0,.45);
+            padding:4px 8px;border-radius:999px}
+  .cam .dot i{width:7px;height:7px;border-radius:999px;background:#FF5A5A;display:block}
+  .local{border-left:3px solid var(--data);background:var(--field);border-radius:0 10px 10px 0;
+         padding:11px 14px;margin:0 0 12px;font-size:13px;color:var(--ink2)}
+  .local b{color:var(--ink);display:block;margin-bottom:3px;font-size:13.5px}
   .frame{aspect-ratio:4/3;border:2px dashed var(--line);border-radius:12px;
          display:flex;align-items:center;justify-content:center;color:var(--ink2);
          font-family:var(--mono);font-size:12.5px;text-align:center;padding:16px;margin-bottom:12px}
@@ -194,6 +206,15 @@ const PARTIES = [
    consents:{processing:true, photo:false, claims:true},   // photo refused
    history:[]},
 ];
+
+// Not one of the account's profiles. Using a real profile as the example put
+// "not Jordan Reyes" directly above a card headed Jordan Reyes, which undid the
+// separation the screen exists to make.
+const SAMPLE = {
+  id:"SAMPLE", name:"Sample member", rel:"example", minor:false, access:null,
+  consents:null,
+  history:[{on:"2026-03-11",score:66},{on:"2026-08-02",score:74}],
+};
 
 const BAND = s => s >= 80 ? "Low" : s >= 68 ? "Moderate" : "Priority";
 
@@ -363,24 +384,44 @@ const VIEWS = {
 
     if (S.step === 1) return `${subject}
       <h1>Upper arch</h1>
-      <div class="frame">camera preview<br><span class="muted">(not wired up in this demo)</span></div>
-      <p>Line the upper teeth up with the guide and hold still. Four photos in all.</p>
-      <button class="primary" data-step="2">Capture</button>
+      <div class="cam">
+        <video id="cam" playsinline muted autoplay></video>
+        <div class="guide"></div>
+        <div class="dot"><i></i>LIVE · this device</div>
+      </div>
+      ${localNotice()}
+      <p>Fill the guide with the upper teeth and hold still.</p>
+      <button class="primary" data-shoot>Capture</button>
       <button class="ghost" data-step="0" style="margin-top:8px">Not ${esc(p.name)} — go back</button>`;
 
     if (S.step === 2) return `${subject}
-      <h1>Reading the photos</h1>
-      <div class="frame">processing…<br><span class="muted">the Core AI call this stands in for does not exist yet</span></div>
-      <p>Four photos passed the quality gate.</p>
-      <button class="primary" data-step="3">See result</button>`;
+      <h1>Your photo</h1>
+      <div class="cam"><canvas id="shot"></canvas><div class="guide"></div></div>
+      ${localNotice()}
+      <div id="quality" class="card"><div class="muted">Checking on this device…</div></div>
+      <button class="primary" data-step="3">Continue</button>
+      <button class="ghost" data-step="1" style="margin-top:8px">Retake</button>`;
 
+    // The photo is not analysed — there is nothing to analyse it with, and a
+    // band invented about a real person's real mouth would be a claim about
+    // them. The flow is shown end to end; the result belongs to the sample
+    // member and says so.
+    const sample = SAMPLE;
     return `${subject}
-      <h1>Result</h1>
-      ${scoreCard(p)}
+      <h1>What happens next</h1>
+      <div class="local">
+        <b>Your photo was not analysed</b>
+        It stayed on this device and is gone now. The step that reads a photo is
+        an ICLO service call that this demo does not make, so there is no result
+        for ${esc(p.name)} and nothing has been stored.
+      </div>
+      <h2>A result looks like this</h2>
+      <p class="muted">Someone else entirely — synthetic, and nothing to do with ${esc(p.name)}.</p>
+      ${scoreCard(sample)}
       <div class="card">
-        <div class="rowlab"><span class="muted">Taken by</span>
+        <div class="rowlab"><span class="muted">Would be recorded as taken by</span>
           <span class="v">${esc(ACCOUNT.credential)}</span></div>
-        <div class="muted" style="margin-top:6px">Recorded separately from whose check-in it is.
+        <div class="muted" style="margin-top:6px">Kept separately from whose check-in it is.
         One login taking five people's photos in three minutes is a family checkup day, or a
         mistake — keeping both makes the difference readable later.</div>
       </div>
@@ -483,6 +524,94 @@ const VIEWS = {
   },
 };
 
+// ── Camera ───────────────────────────────────────────────────────────────
+// The stream lives here, outside render(), because render() rebuilds the DOM
+// and a fresh <video> each time. Two rules this code exists to keep:
+//   the frame never leaves the page, and the camera is released the moment the
+//   flow is left. A light that stays on after someone navigates away is its own
+//   kind of broken promise.
+let stream = null;
+let shot = null;                       // ImageData, held only until the step changes
+
+// DEMO-ONLY BEHAVIOUR — do not carry this copy into a real build.
+//
+// Keeping the frame in the page is a property of this demo, not of the product.
+// The product uploads it: §2.1 puts oral images in controlled US object storage
+// and passes an image_uri to the Core AI call (§8.2). That path needs photo
+// consent, a retention schedule, and a deletion route, none of which exist yet
+// — which is exactly why the demo does not take it.
+//
+// The wording says "in this demo" for that reason. Unqualified, it would be a
+// promise the shipped product breaks on its first capture.
+function localNotice(){
+  return `<div class="local">
+    <b>In this demo, the photo stays on your phone</b>
+    Nothing is uploaded and nothing is stored — leave this screen and it is gone.
+    The real service does send it to ICLO to be read, with your consent and under
+    a retention schedule.
+  </div>`;
+}
+
+function stopCamera(){
+  if (stream){ stream.getTracks().forEach(t => t.stop()); stream = null; }
+}
+
+async function startCamera(){
+  const v = $("cam");
+  if (!v) return;
+  try {
+    if (!stream){
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment", width: { ideal: 1280 } }, audio: false });
+    }
+    v.srcObject = stream;
+  } catch (err) {
+    // Denied, absent, or blocked. Say which and keep the flow walkable — the
+    // point of the demo is the shape of the journey, not the hardware.
+    v.closest(".cam").outerHTML =
+      `<div class="frame">no camera here — ${esc(err && err.name || "unavailable")}
+       <br><span class="muted">the rest of the flow still works</span></div>`;
+  }
+}
+
+function capture(){
+  const v = $("cam");
+  if (!v || !v.videoWidth) { S.step = 2; shot = null; return render(); }
+  const c = document.createElement("canvas");
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  c.getContext("2d").drawImage(v, 0, 0);
+  shot = c;
+  stopCamera();                         // release as soon as the frame is taken
+  S.step = 2;
+  render();
+}
+
+// A real quality gate runs in the ICLO service. This is a stand-in that is at
+// least honest: it measures the frame on this device and says so. Too dark is
+// the failure a guided capture actually hits, and it is cheap to detect.
+function checkQuality(){
+  const box = $("quality"), cv = $("shot");
+  if (!box) return;
+  if (!shot || !cv){
+    box.innerHTML = `<div class="muted">No frame captured — the flow continues anyway.</div>`;
+    return;
+  }
+  cv.width = shot.width; cv.height = shot.height;
+  cv.getContext("2d").drawImage(shot, 0, 0);
+  const d = cv.getContext("2d").getImageData(0, 0, cv.width, cv.height).data;
+  let sum = 0;
+  for (let i = 0; i < d.length; i += 4 * 97)      // sample, not every pixel
+    sum += (d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114);
+  const lum = sum / (d.length / (4 * 97));
+  const dark = lum < 55;
+  box.innerHTML = `
+    <div class="rowlab"><span>Brightness</span>
+      <span class="v">${dark ? "too dark" : "ok"}</span></div>
+    <div class="muted" style="margin-top:6px">Measured here on the device — a stand-in for the
+    real quality gate, which runs in the ICLO service and checks framing and focus too.
+    ${dark ? "Try again somewhere brighter; daylight beats a bathroom light." : ""}</div>`;
+}
+
 function paintNav(){
   $("nav").innerHTML = TABS.map(([k,l])=>
     `<button data-go="${k}" aria-current="${k===S.tab}">${l}</button>`).join("");
@@ -493,6 +622,12 @@ function render(){
   $("view").innerHTML = VIEWS[S.tab]();
   paintNav();
   window.scrollTo(0,0);
+  // Anything that is not the live step releases the camera. Cheaper to make
+  // this unconditional than to reason about which transitions need it.
+  if (!(S.tab === "capture" && S.step === 1)) stopCamera();
+  if (S.tab === "capture" && S.step === 1) startCamera();
+  if (S.tab === "capture" && S.step === 2) checkQuality();
+  if (!(S.tab === "capture" && S.step === 2)) shot = null;
 }
 
 document.addEventListener("click", e=>{
@@ -508,6 +643,8 @@ document.addEventListener("click", e=>{
 
   const sub = e.target.closest("[data-subject]");
   if (sub){ S.subject = sub.dataset.subject; S.step = 1; return render(); }
+
+  if (e.target.closest("[data-shoot]")) return capture();
 
   const st = e.target.closest("[data-step]");
   if (st){

@@ -49,12 +49,18 @@ SHOTS = [
     ("app-care",             "app.html",   {},                                               (500, 1050)),
     ("app-settings",         "app.html",   {},                                               (500, 1400)),
     ("app-whoisit",          "app.html",   {},                                               (500, 1050)),
+    ("app-camera",           "app.html",   {},                                               (500, 1100)),
+    ("app-notanalysed",      "app.html",   {},                                               (500, 1400)),
 ]
 
 # app.html keeps its screen in a JS variable rather than the URL — it is a
 # single-member demo, so there is nothing to deep-link to yet. Patch instead.
 APP_TAB = {"app-home": "home", "app-coverage": "coverage", "app-care": "care",
            "app-settings": "settings", "app-whoisit": "capture"}
+# Two shots need a subject picked and a step set, which is not URL state — the
+# app is a single-member demo with nothing to deep-link to yet.
+APP_STATE = {"app-camera":      'let S = { tab:"capture", step:1, subject:"P1" };',
+             "app-notanalysed": 'let S = { tab:"capture", step:3, subject:"P1" };'}
 
 
 def main():
@@ -86,7 +92,15 @@ def main():
         try:
             for name, page, query, (w, h) in SHOTS:
                 target = page
-                if name in APP_TAB:
+                if name in APP_STATE:
+                    src = (ROOT / page).read_text(encoding="utf-8")
+                    anchor = 'let S = { tab:"home", step:0, subject:null };'
+                    if src.count(anchor) != 1:
+                        sys.exit(f"{page}: state initialiser not found — shots.py is stale")
+                    target = f".shots-tmp/{name}.html"
+                    (ROOT / target).write_text(src.replace(anchor, APP_STATE[name], 1),
+                                               encoding="utf-8")
+                elif name in APP_TAB:
                     src = (ROOT / page).read_text(encoding="utf-8")
                     anchor = 'let S = { tab:"home", step:0, subject:null };'
                     # Check the anchor exists rather than that the text changed:
@@ -107,10 +121,12 @@ def main():
                 # a failed run would report success over yesterday's images.
                 # Delete first, then require a fresh one.
                 png.unlink(missing_ok=True)
+                cam = (["--use-fake-device-for-media-stream",
+                        "--use-fake-ui-for-media-stream"] if name == "app-camera" else [])
                 r = subprocess.run(
                     [chrome, "--headless=new", "--disable-gpu", "--hide-scrollbars",
-                     f"--window-size={w},{h}", f"--screenshot={png}",
-                     "--virtual-time-budget=2500", url],
+                     *cam, f"--window-size={w},{h}", f"--screenshot={png}",
+                     "--virtual-time-budget=3000", url],
                     capture_output=True, timeout=120)
                 if r.returncode != 0:
                     sys.exit(f"{name}: chrome exited {r.returncode}: "
