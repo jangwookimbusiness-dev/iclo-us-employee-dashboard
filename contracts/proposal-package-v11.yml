@@ -395,6 +395,10 @@ terminology:
     - {wrong: "보험사가 지급",  right: "플랜이 지급",  why: 같음}
     - {wrong: "HRIS 834",      right: "기업 또는 benefits administrator 가 제공하는 자격 파일, 통상 X12 834", why: 834 를 HRIS 가 직접 뱉는 것이 아니다}
     - {wrong: "Review",        right: "Priority",     why: PRD 레드라인. 신호 라벨}
+    # 2026-08-16. surfaces.employee_app.numeric_score 가 FDA clearance 전까지 개인에게
+    # 숫자를 주지 않기로 정했는데, PRD 는 그 뒤로도 "read their own score" 라고 쓰고
+    # 있었다. 결정을 정본에만 적고 문서를 검사하지 않으면 결정이 문서에 도달하지 않는다.
+    - {wrong: "read their own score", right: "read their own band and which way it moved", why: 개인에게 숫자를 주지 않는다 (surfaces.employee_app)}
   disease_words_banned:      # PRD §5.6 · scripts/check-forbidden-terms.sh
     [diagnos, cavit, caries, decay, gingivit, periodont, abscess, lesion]
   pairs:                     # 두 개념을 섞어 쓰지 않는다

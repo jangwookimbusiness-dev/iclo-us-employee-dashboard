@@ -286,6 +286,14 @@ def check_docs(c, use_pdf):
     if v12.exists():
         targets["proposal_v12_ko"] = v12
 
+    # PRD. 2026-08-16 까지 이 검사는 PRD 를 한 번도 열지 않았고, 그 사이 PRD §2.1 은
+    # 임직원이 "자기 점수" 와 "남은 한도" 를 읽는다고 계속 쓰고 있었다. 둘 다 그날
+    # 앱에서 빠졌고 빠진 이유가 규제와 사용자 피해다. 스펙이 없어진 제품을 설명하면
+    # 그건 스펙이 아니다.
+    prd = ROOT / "employer-dashboard-poc/docs/PRD.md"
+    if prd.exists():
+        targets["prd"] = prd
+
     checked, skipped = 0, []
     for name, p in targets.items():
         if not p.exists():
@@ -298,9 +306,24 @@ def check_docs(c, use_pdf):
         # PDF 는 줄바꿈으로 단어가 쪼개지므로 공백을 접어서 검사
         flat = re.sub(r"\s+", "", t)
 
-        # 금지 용어
+        # 금지 용어. 다만 **따옴표 안에 든 것은 인용이지 사용이 아니다.**
+        # 규칙을 적는 문서는 금지어를 이름으로 불러야 한다 — PRD 의 레드라인 표가
+        # `signal label "Review" banned (use "Priority")` 라고 쓰는 것이 그것이고,
+        # 정정 노트가 `"read their own score" 라고 썼었다` 고 쓰는 것도 그것이다.
+        # 이걸 위반으로 세면 규칙을 문서화할 방법이 없어지고, 그러면 사람들이
+        # 검사를 끈다. 실제 사용은 따옴표 없이 문장 안에 놓인다 — v12 가 §5 에서
+        # "원천(HRIS 834 · TPA …)" 이라고 쓴 것이 그 형태였다.
+        raw = t
         for wrong, right in c["forbidden"]:
-            if re.sub(r"\s+", "", wrong) in flat:
+            used = False
+            for m in re.finditer(re.escape(wrong), raw):
+                before = raw[max(0, m.start() - 1):m.start()]
+                after = raw[m.end():m.end() + 1]
+                if before in ('"', "`", "'") and after in ('"', "`", "'"):
+                    continue        # 인용
+                used = True
+            if used or (re.sub(r"\s+", "", wrong) in flat
+                        and not re.search(r'["`\']' + re.escape(wrong) + r'["`\']', raw)):
                 fail("terminology", f'{name}: 금지어 "{wrong}" → "{right}"')
 
         # 발송된 판은 저작 요건 검사에서 뺀다. 이미 상대 손에 있는 문서를 지금
@@ -314,7 +337,7 @@ def check_docs(c, use_pdf):
         # 착수 게이트 노출 (대외 문서에서 빠지면 다 만들어진 제품처럼 읽힌다)
         gates = c["gates_ko"] if name.endswith("_ko") or name == "tech" else c["gates_en"]
         missing = [g for g in gates if re.sub(r"\s+", "", g) not in flat]
-        if missing and name != "tech":
+        if missing and name not in ("tech", "prd"):   # 둘 다 대내 문서다
             sev = fail if name.startswith("report") else warn
             sev("start_gates", f"{name}: 착수 게이트 미노출 — {', '.join(missing)}")
 

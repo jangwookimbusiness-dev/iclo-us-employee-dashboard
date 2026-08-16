@@ -60,9 +60,14 @@ US evidence-layer work startable.
 
 **2.1 Concept.** Two surfaces, one file each, both vanilla HTML at the repo root. `index.html` is the
 employer dashboard. `app.html` is the employee app — added 2026-08-14, synthetic, a click-through of the
-five things a member does: check in, read their own score, see what the plan covers, see what is left, and
-find an in-network dentist. Neither has a backend. Opened from the Pages URL or
-locally. Three views over three synthetic employers. No backend today.
+five things a member does: check in, read **their own band and which way it moved**, see what the plan
+covers, see **why the remaining maximum is deliberately blank**, and find an in-network dentist. Neither
+has a backend. Opened from the Pages URL or locally. Three views over three synthetic employers.
+
+This sentence said "read their own score" and "see what is left" until 2026-08-16. Both were removed from
+the app that day — the score until FDA clearance, the balance because computing one from our own claim
+warehouse sends people to a chair expecting coverage they no longer have. The spec kept describing the
+app it used to be, which is how a spec stops being a spec.
 
 > **Opening it locally has a shelf life.** It works now because every number is a constant inside the file.
 > The moment the screen fetches its data, `file://` stops working — a page with an opaque origin cannot
