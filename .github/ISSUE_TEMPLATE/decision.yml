@@ -1,0 +1,46 @@
+name: Decision gate
+description: A product, regulatory, commercial, or architecture decision that blocks work
+title: "[Decision] "
+labels: ["type:decision", "status:blocked"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Decision required
+      description: Ask one concrete question and explain what cannot proceed without it.
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options and tradeoffs
+      description: Include the recommended option and consequences of each realistic choice.
+    validations:
+      required: true
+  - type: input
+    id: owner
+    attributes:
+      label: Decision owner
+      description: Person accountable for obtaining and recording the decision.
+    validations:
+      required: true
+  - type: input
+    id: trigger
+    attributes:
+      label: Due date or review trigger
+      description: Use a date or an event such as "before A2 real-data load".
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: Describe the written evidence that closes the gate and where it must be recorded.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Contract or plan source
+    validations:
+      required: true

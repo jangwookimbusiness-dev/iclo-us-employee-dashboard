@@ -1,0 +1,51 @@
+name: Work item
+description: A backlog-ready implementation, test, documentation, or operations task
+title: "[Work] "
+labels: ["type:work", "status:ready"]
+body:
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options: [P1, P2, P3]
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [app, data, ci, docs, operations, security, product]
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome and user impact
+      description: State the result, not only the files to edit.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List machine-verifiable or observable completion conditions.
+      placeholder: "- [ ] ..."
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and blockers
+      description: Link prerequisite issues and name the person or event that can unblock this.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Closure evidence
+      description: Name the tests, screenshots, documents, or external written decision required.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source plan or decision
+      description: Link the plan section, contract ID, or review finding that created this work.

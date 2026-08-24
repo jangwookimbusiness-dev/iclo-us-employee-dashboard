@@ -22,14 +22,15 @@ Skip-if-fresh is what makes this runnable on every commit without churn: a
 no-op build touches nothing, so PNGs and PDFs only change in commits where
 their sources changed.
 
-Builds need make-pdf and Chrome, which CI does not have — CI runs only the
-freshness check. That split is deliberate: the machine that edits is the
-machine that builds; CI just refuses drift.
+Builds need make-pdf and Chrome, so CI intentionally runs only the freshness
+check. That split is deliberate: the machine that edits is the machine that
+builds; CI just refuses drift.
 """
 import glob
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -39,7 +40,14 @@ ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / "scripts/doc-manifest.json"
 STAMPS = ROOT / ".docstamps.json"
 
-MAKE_PDF = Path.home() / ".claude/skills/gstack/make-pdf/dist/pdf"
+MAKE_PDF_CANDIDATES = [
+    Path(os.environ["MAKE_PDF_BIN"]).expanduser()
+    if os.environ.get("MAKE_PDF_BIN") else None,
+    Path.home() / ".codex/skills/gstack/make-pdf/dist/pdf",
+    Path.home() / ".claude/skills/gstack/make-pdf/dist/pdf",
+    Path.home() / ".gstack/repos/gstack/make-pdf/dist/pdf",
+]
+MAKE_PDF = next((p for p in MAKE_PDF_CANDIDATES if p and p.exists()), None)
 
 
 def sha(p: Path) -> str:
@@ -88,17 +96,26 @@ def build_pdf(entry, stamps, force):
         print(f"  {entry['name']:<18} 최신 — 건너뜀")
         return False
 
-    if not MAKE_PDF.exists():
-        sys.exit(f"docs_build: make-pdf 없음 ({MAKE_PDF}) — 이 기계에서는 빌드 불가")
-    # make-pdf 는 TMPDIR 이 샌드박스 허용 경로 안이어야 한다. /private/tmp 밑에 만든다.
-    tmp = tempfile.mkdtemp(prefix="pdf", dir="/private/tmp")
+    if not MAKE_PDF:
+        checked = ", ".join(str(p) for p in MAKE_PDF_CANDIDATES if p)
+        sys.exit("docs_build: make-pdf 없음 — gstack을 설치하거나 "
+                 f"MAKE_PDF_BIN을 지정하세요. 확인한 경로: {checked}")
+    # macOS 샌드박스에서는 /private/tmp를 선호하고, Linux에서는 시스템 임시
+    # 디렉터리로 폴백한다. 어느 쪽이든 빌드가 끝나면 제거한다.
+    preferred_tmp = Path("/private/tmp")
+    tmp_root = preferred_tmp if preferred_tmp.is_dir() else Path(tempfile.gettempdir())
+    tmp = tempfile.mkdtemp(prefix="pdf", dir=tmp_root)
     # 한글 출력 파일명을 make-pdf 가 거부하는 경우가 있어 ASCII 임시명으로 만들고 옮긴다.
     tmp_out = out.parent / f".build-{entry['name']}.pdf"
-    r = subprocess.run(
-        [str(MAKE_PDF), "generate", str(srcs[0]), str(tmp_out), *entry.get("flags", [])],
-        env={**os.environ, "TMPDIR": tmp}, capture_output=True, text=True, cwd=ROOT)
-    if r.returncode != 0 or not tmp_out.exists():
-        sys.exit(f"docs_build: {entry['name']} 빌드 실패\n{r.stderr[-400:]}")
+    try:
+        r = subprocess.run(
+            [str(MAKE_PDF), "generate", str(srcs[0]), str(tmp_out), *entry.get("flags", [])],
+            env={**os.environ, "TMPDIR": tmp}, capture_output=True, text=True, cwd=ROOT)
+        if r.returncode != 0 or not tmp_out.exists():
+            tmp_out.unlink(missing_ok=True)
+            sys.exit(f"docs_build: {entry['name']} 빌드 실패\n{r.stderr[-400:]}")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
     tmp_out.replace(out)
 
     import re
