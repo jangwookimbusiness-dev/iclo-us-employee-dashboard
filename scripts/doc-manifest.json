@@ -64,6 +64,12 @@
       "sources": ["output/analysis/고객-비용-이익-분석-KO.md"],
       "out": "output/analysis/ICLO-고객-비용-이익-분석-KO.pdf",
       "flags": ["--cover", "--toc"]
+    },
+    {
+      "name": "status_2026_08_16",
+      "sources": ["output/status/STATUS-2026-08-16.md"],
+      "out": "output/status/STATUS-2026-08-16.pdf",
+      "flags": ["--cover", "--toc"]
     }
   ]
 }

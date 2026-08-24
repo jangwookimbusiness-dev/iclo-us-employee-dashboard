@@ -1,0 +1,43 @@
+flowchart TB
+  subgraph INPUT["Input contracts"]
+    direction LR
+    GEN["Synthetic generator<br/>3 employers · 36 months"]
+    FIX["7 base fixtures<br/>PMPM · member-month<br/>KPI / 19·20·21 expansion pending"]
+    A2["A2 real-data boundary<br/>Business Critical + BAA<br/>auth · consent · private delivery"]
+  end
+
+  subgraph SF["Snowflake Enterprise target · A3"]
+    direction LR
+    RAW["RAW<br/>immutable landing"]
+    STG["STAGED<br/>parse · type · standardize"]
+    CAN["CANONICAL<br/>identity · eligibility · claims · app"]
+    PMF["Person-grain MART<br/>person × employer × month"]
+    MET["Metric marts / queries<br/>time contracts applied"]
+    POL["Policy boundary<br/>row access · min cell 20<br/>ENTITY KEY · masking"]
+  end
+
+  subgraph RELEASE["Synthetic release boundary"]
+    direction LR
+    ROLE["R_EMPLOYER_A / B / C<br/>tenant-scoped queries"]
+    JSON["Atomic JSON release<br/>A/B/C + catalog (D8)<br/>run · schema · snapshot"]
+    GATE["Release gates<br/>isolation · suppression<br/>freshness · provenance"]
+    PAGE["Allowlisted Pages demo<br/>synthetic data only"]
+  end
+
+  GEN --> RAW --> STG --> CAN --> PMF --> MET --> ROLE --> JSON --> GATE --> PAGE
+  FIX -. validates base transforms .-> CAN
+  FIX -. future KPI cases .-> MET
+  POL -. attached here; counts unique people .-> PMF
+  A2 -. "replace inputs and delivery only after written gates" .-> RAW
+
+  classDef source fill:#E8F1F5,stroke:#007A87,color:#1B2A4A
+  classDef data fill:#F6F8FB,stroke:#1B2A4A,color:#1B2A4A
+  classDef policy fill:#FFF1F1,stroke:#C2333A,color:#1B2A4A
+  classDef release fill:#FFF8E8,stroke:#A66A00,color:#1B2A4A
+  classDef future fill:#F3EFFA,stroke:#6A4C93,color:#1B2A4A
+
+  class GEN,FIX source
+  class RAW,STG,CAN,PMF,MET data
+  class POL policy
+  class ROLE,JSON,GATE,PAGE release
+  class A2 future

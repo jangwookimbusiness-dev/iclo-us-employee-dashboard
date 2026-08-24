@@ -1,69 +1,69 @@
-# Setup — employer-dashboard-poc (Claude Code + Codex · gstack + ponytail)
+# Development environment setup
 
-One-time environment setup, ~15 minutes. Step 1 is per-repo; steps 2–4 are per-machine.
+This is the clean-clone setup for the standalone
+`jangwookimbusiness-dev/iclo-us-employee-dashboard` repository.
 
-## 0. Prerequisites
-- macOS with git and push access to the `iclo` repo
-- **Node.js ≥ 18 on PATH** (`node -v`) — ponytail's lifecycle hooks require it
-- **Bun ≥ 1.0** (`bun -v`; install: `curl -fsSL https://bun.sh/install | bash`) — gstack requires it
-- Claude Code and Codex CLI installed and signed in
-- (optional) `gh` CLI
+## Prerequisites
 
-## 1. Place this folder in the iclo repo
+- Git with push access for maintainers
+- Python **3.14.7** (`python3.14` on PATH)
+- Google Chrome or Chromium
+- GNU Make
+- GitHub CLI (`gh`) for Issue/PR work
+- Optional: Claude Code, Codex, and gstack for the documented cross-model workflow
+
+On macOS with Homebrew:
+
 ```bash
-git clone https://github.com/[FILL: owner]/iclo && cd iclo
-# copy the employer-dashboard-poc/ folder from this kit into the repo root, then:
-mkdir -p .github/workflows
-# GitHub only runs workflows from the repo-root .github/ — move the CI file there:
-mv <kit>/_repo-root/.github/workflows/employer-dashboard-poc-ci.yml .github/workflows/
-git checkout -b bootstrap/employer-dashboard-poc
-git add employer-dashboard-poc .github/workflows/employer-dashboard-poc-ci.yml
-git commit -m "chore: bootstrap employer-dashboard-poc (PRD, agent context, red-line CI)"
-git push -u origin bootstrap/employer-dashboard-poc   # open the PR, merge it
+brew install python@3.14 gh
 ```
 
-## 2. Install gstack
-Open Claude Code and paste this (Claude runs the install itself):
+Chrome may be installed from its official package. On Ubuntu, use the Chrome or
+Chromium package supplied for your distribution.
 
-> Install gstack: run `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup`
+## Clean clone
 
-The project `CLAUDE.md` in this folder already contains the required gstack section, so skip any "add to CLAUDE.md" step.
-
-Optional: give Codex the same gstack skills (recommended for the cross-check setup):
 ```bash
-cd ~/.claude/skills/gstack && ./setup --host codex   # installs to ~/.codex/skills/gstack-*/
+git clone https://github.com/jangwookimbusiness-dev/iclo-us-employee-dashboard.git
+cd iclo-us-employee-dashboard
+make setup
+make check
+make install-hooks
+make serve
 ```
-Verify: open a new Claude Code session inside `employer-dashboard-poc/` → typing `/office-hours` autocompletes.
 
-## 3. Install ponytail (BOTH agents)
-Claude Code:
-```
-/plugin marketplace add DietrichGebert/ponytail
-/plugin install ponytail@ponytail
-```
-Codex: install the ponytail plugin the same way from its plugin flow, then **restart the Codex app**. (Rule-file alternative: copy ponytail's Codex `AGENTS.md` rules from its repo, though the plugin route is preferred.)
+Open `http://localhost:8000/`. Do not work from
+`employer-dashboard-poc/`; the shipped application and supported commands are at
+the repository root.
 
-> **Activation trap:** copying SKILL.md into a skills folder yields ~zero self-activation. The plugin's SessionStart hook is what injects the ruleset — plugin install is required, and `node` must be on PATH.
+## GitHub access
 
-Verify: start a fresh session in each agent. `/ponytail` commands are listed, and the ruleset loads at session start.
-
-## 4. Protect main
-GitHub → `iclo` repo → Settings → Branches → add rule for `main`: require a pull request before merging (1 approval). Agents never self-merge; Jangwoo Kim is the only merger.
-
-## 5. First session
 ```bash
-cd iclo/employer-dashboard-poc
-claude
+gh auth status
+gh auth login -h github.com
 ```
-Then, in order:
-1. `/office-hours` — "Read docs/PRD.md and pressure-test this PoC." Broken premises → PRD update PR.
-2. `/plan-ceo-review` → `/plan-eng-review` → `/plan-design-review`.
-3. Hand the locked plan to Codex against the workstreams in PRD §3.3. WS0 (the Korean consent text) gates every capture-side deliverable.
-4. Every Codex PR: `/review` + `/qa`. Before `/ship`: `bash scripts/check-forbidden-terms.sh` + kill-ai-slop Mode B scan.
 
-## Environment exit checklist
-Setup is done when all four hold. Delivery dates and acceptance are PRD §3.2 and §4a, not this file.
-- [ ] `/office-hours` design doc accepted
-- [ ] Red-line CI job green on a PR
-- [ ] ponytail active on **both** agents, verified in fresh sessions
-- [ ] `bash scripts/check-forbidden-terms.sh` exits 0 from a clean clone
+Work starts from a GitHub Issue and a feature branch. `main` is protected; direct
+pushes and deployments that bypass `gates` are not part of the workflow.
+
+## Optional agent tools
+
+Install agent tooling from its own maintained instructions. It is not a runtime
+or test dependency of this repository. After installation, start the agent from
+the repository root so `AGENTS.md` and `CLAUDE.md` govern `index.html` and
+`app.html`.
+
+## Environment verification
+
+- [ ] `python3.14 --version` reports 3.14.7
+- [ ] `make setup` creates `.venv` and installs the exact versions in `requirements-dev.txt`
+- [ ] `make check` passes all ten gates
+- [ ] `gh auth status` succeeds for maintainers
+- [ ] `make serve` opens the two demo surfaces over HTTP
+- [ ] `make install-hooks` installs the fast local guard
+
+## Document builds
+
+`make docs` additionally needs gstack's `make-pdf` binary. The builder searches
+Codex, Claude, and shared gstack locations; `MAKE_PDF_BIN=/absolute/path/to/pdf`
+overrides discovery. CI validates document freshness but does not regenerate PDFs.

@@ -9,8 +9,9 @@
 > Kept for the §4 contracts (suppression, denominators, provenance), which still hold and are still
 > the ones the red-line checks enforce.
 
-**Read order: `docs/PRD.md` (why + acceptance) → this file (how) → `AGENTS.md` (commands + red lines).**
-Audience: both coding agents. Whoever authors, the other checks (PRD §3.1). Owner: Jangwoo Kim.
+**Historical reference only. Do not include this file in the implementation read order.**
+Current work starts from a GitHub Issue, then reads the root `AGENTS.md`, `docs/PRD.md`,
+and `contracts/proposal-package-v11.yml`. Owner: Jangwoo Kim.
 
 ---
 
