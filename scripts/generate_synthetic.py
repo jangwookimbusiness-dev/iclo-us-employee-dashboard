@@ -19,10 +19,19 @@ SQL 을 생성기 조정으로 상쇄할 수 있다 — 변환이 분모를 두 
 의 손 계산 기대값이 잡고 `test_fixtures.py` 가 입력에서 재계산한다. 이 생성기가
 맞추는 것은 스크린샷용 규모감뿐이다.
 
-그래서 창발 지표를 두 등급으로 나눠 검사한다. 직접 배정하는 activated·repeat 는
-어긋나면 실패다 (§14.3 이 화면 상수에서 역산한 값이므로). 파이프라인을 타고 나오는
-valid·gap·closed 는 어긋나면 경고이고 델타를 찍는다 — 여기서 조용히 맞추면 위의
-함정에 그대로 빠진다.
+그래서 검사를 두 종류로 나눈다.
+
+**정본 대조 (어긋나면 실패)** — activated 와 DEP_RATIO. 둘은 배정에서 나오므로
+어긋나면 생성기가 틀린 것이다. member_month 총량과 부서 합도 여기 속한다.
+
+**측정값 (델타만 찍는다)** — repeat 과 valid. 둘은 아래 SPEC 의 촬영 빈도·품질
+게이트가 정하는 값이고, 정본에 맞추려 허용치를 넓히는 것은 파라미터를 돌리는 것과
+같다. 첫 판의 repeat 허용치 0.08 은 측정된 0.073 을 담으려고 고른 숫자였고, 그것이
+바로 위에서 경고한 상쇄다. 대신 **파라미터와 무관하게 성립해야 하는 불변식**을
+단언한다 — 2회 이상은 1회 이상의 부분집합이고, 촬영한 사람은 활성이어야 한다.
+
+gap·closed 는 care_action 이 있어야 나오고 그 테이블은 아직 없다. 없는 것을
+창발값처럼 찍지 않는다.
 
 사용법:
   python3 scripts/generate_synthetic.py              # 3사 36개월 · 약 297만 행
@@ -60,10 +69,14 @@ SPEC = {
     # 절대값이고 의도적으로 최소 셀 미만이다. 이 부서의 존재 이유가 그것 하나다 —
     # 생성기가 모르면 억제가 조용히 안 걸리고 데모 당일에 안다 (결정 5).
     "tiny_department": {"name": "Facilities (pilot site)", "n": {"A": 14, "B": 8, "C": 16}},
-    "sporadic_regular_ratio": (13, 10),  # §14.3 의 13% : 10%
+    # ONE_SHOT : SPORADIC : REGULAR. §14.3 이 산문으로 준 15 : 13 : 10 이고, 그것이
+    # **유일한 출처**다. 정본은 이 셋의 비율을 강제하지 않는다 (§14.3, 2026-08-25 철회분).
+    "participation_split": (15, 13, 10),
     "family_participation_factor": 0.55, # §14.3 "가족 참여율이 임직원보다 낮다"
     "regular_interval_days": (90, 30),   # §14.3 평균 90일 · 표준편차 30일
     "sporadic_per_year": (1, 2),         # §14.3 연 1~2회
+    # 정본 metric_time_contracts 의 유효 촬영 정의가 사람·날짜당 1건, 월 4건 상한이다.
+    "max_captures_per_month": 4,
     # 첫 촬영과 그 이후를 다르게 둔다. §14 에는 없고 정본이 말없이 요구한다 —
     # 화면 퍼널 10,000 → 3,800 활성 → 2,800 유효촬영은 활성 중 1,000명이 쓸 만한
     # 사진을 한 장도 못 만든다는 뜻이다. 2회 이상이 2,318명이므로 정확히 1회는
@@ -107,22 +120,30 @@ def load_contract():
     }
 
 
-def participation_mix(activated, repeat):
-    """§14.3 의 네 유형을 정본 두 값에서 역산한다.
+def participation_mix(activated):
+    """§14.3 의 네 유형을 정본 `FRAC.activated` 하나에서 만든다.
 
-    §14.3: "두 지표가 세 비율을 함께 결정하므로 하나만 바꾸면 다른 하나가 깨진다.
-    생성기에서도 NEVER = 1 - FRAC.activated 로 계산해 대시보드 상수와 한 곳에 묶는다."
+    **FRAC.repeat 을 쓰지 않는다.** 첫 판은 `repeaters = activated * repeat` 으로
+    SPORADIC+REGULAR 를 만들었는데, 그것은 §14.3 의 `23 / 38` 유도를 구현한 것이고
+    그 유도는 2026-08-25 에 철회됐다 — 품질 게이트가 없어서 "재참여하는 유형" 과
+    "유효 촬영 2건을 달성한 사람" 을 같은 것으로 셌다. 문서에서 유도를 철회하면서
+    코드는 그대로 뒀고, codex 재검토가 그것을 잡았다.
 
-    Activated  = ONE_SHOT + SPORADIC + REGULAR       (가입 + 첫 문진 / 자격자)
-    Repeat     = (SPORADIC + REGULAR) / Activated    (2회 이상 / 활성)
+    이제 남는 것은 둘뿐이다.
+
+      NEVER = 1 - FRAC.activated        ← 정본. §14.3 이 명시적으로 이렇게 묶으라 한다
+      나머지 = 15 : 13 : 10             ← §14.3 산문. 정본이 강제하지 않는 관찰값
+
+    그래서 repeat 은 **배정되지 않고 측정된다.** 품질 게이트를 통과한 촬영 수가
+    그것을 만들며, 그게 정본 정의가 요구하는 바다.
     """
-    repeaters = activated * repeat
-    a, b = SPEC["sporadic_regular_ratio"]
+    one, spor, reg = SPEC["participation_split"]
+    total = one + spor + reg
     return {
         "NEVER": 1.0 - activated,
-        "ONE_SHOT": activated - repeaters,
-        "SPORADIC": repeaters * a / (a + b),
-        "REGULAR": repeaters * b / (a + b),
+        "ONE_SHOT": activated * one / total,
+        "SPORADIC": activated * spor / total,
+        "REGULAR": activated * reg / total,
     }
 
 
@@ -243,9 +264,29 @@ def generate_behaviour(key, contract, months, rng, writers, roster, stats):
         # 촬영한 사람 / 활성" 으로 정의하므로, 유형이 아니라 품질 게이트를 통과한
         # 촬영 수가 그 지표를 만든다. 배정해버리면 품질 게이트를 잘못 걸어도
         # repeat 이 그대로 맞게 나와 지표가 아무것도 안 지킨다.
+        # 같은 달에 두 번 찍는 것을 버리지 않는다. 첫 판은 `sorted(set(...))` 이었고,
+        # REGULAR 의 간격이 평균 90일·표준편차 30일이라 `int(cur // 30.4)` 가 같은 달을
+        # 두 번 내는 일이 **400명 중 31명(7.8%)** 에게 일어난다. set() 이 그걸 조용히
+        # 버려 12개월 창의 repeat 분자를 깎았다 (codex 재검토, 2026-08-25).
+        #
+        # 정본이 규칙을 이미 정해뒀다 — 사람·날짜당 1건, 월 4건 상한
+        # (metric_time_contracts 의 유효 촬영 정의). 그래서 달별로 묶어 상한까지만
+        # 남기고, 같은 달 안에서는 서로 다른 날에 배치한다.
+        by_month = {}
+        for ym in capture_months:
+            by_month.setdefault(ym, 0)
+            by_month[ym] += 1
+
+        events = []
+        for ym in sorted(by_month):
+            n = min(by_month[ym], SPEC["max_captures_per_month"])
+            days = rng.sample(range(1, month_days(ym) + 1), min(n, month_days(ym)))
+            y, m = (int(x) for x in ym.split("-"))
+            for d in sorted(days):
+                events.append((ym, date(y, m, d).isoformat()))
+
         valid_in_window = 0
-        for i, ym in enumerate(sorted(set(capture_months))):
-            when = day_in_month(rng, ym)
+        for i, (ym, when) in enumerate(events):
             gate = SPEC["first_capture_quality_pass"] if i == 0 \
                 else SPEC["repeat_capture_quality_pass"]
             passed = rng.random() < gate
@@ -336,43 +377,8 @@ def main():
         return self_check()
 
     contract = load_contract()
-    months = month_seq(SPEC["first_month"], args.months)
-    args.outdir.mkdir(parents=True, exist_ok=True)
-
-    handles, writers = {}, {}
-    for name, header in TABLES.items():
-        fh = (args.outdir / f"{name}.csv").open("w", newline="", encoding="utf-8")
-        handles[name] = fh
-        writers[name] = csv.writer(fh)
-        writers[name].writerow(header)
-
-    totals = {k: 0 for k in ("employees", "parties", "member_months", "eligible_final",
-                             "activated", "repeaters", "valid_people", "claims",
-                             "match_defects", "rewrites")}
-    per_employer = {}
-
-    for key in sorted(contract["scenarios"]):
-        rng = random.Random(f"{args.seed}:{key}")     # 기업별 독립 시드 — 하나를 바꿔도 나머지가 안 움직인다
-        print(f"  {key} · 자격자 {contract['scenarios'][key]['employees']:,} · "
-              f"{args.months}개월 …", flush=True)
-        roster = []
-        stats, depts = generate_employer(key, contract, months, rng, writers, roster)
-        generate_behaviour(key, contract, months, rng, writers, roster, stats)
-        for name, n in depts.items():
-            writers["department"].writerow(
-                [key, name, n, "true" if n < contract["min_cell"] else "false"])
-        per_employer[key] = dict(stats, departments=depts)
-        for k in totals:
-            totals[k] += stats[k]
-
-    for fh in handles.values():
-        fh.close()
-
-    files = {}
-    for name in TABLES:
-        p = args.outdir / f"{name}.csv"
-        files[name] = {"rows": sum(1 for _ in p.open(encoding="utf-8")) - 1,
-                       "bytes": p.stat().st_size, "sha256": sha256(p)}
+    totals, per_employer, files = _generate(
+        contract, args.months, args.seed, args.outdir)
 
     params = {"seed": args.seed, "months": args.months, "spec": SPEC,
               "from_contract": contract}
@@ -398,6 +404,56 @@ def main():
     return 0 if emergent["ok"] else 1
 
 
+def _generate(contract, n_months, seed, outdir, quiet=False):
+    """CSV 를 만들고 (totals, per_employer, files) 를 돌려준다.
+
+    main() 에서 떼어낸 이유는 self_check 가 결정성을 증명하려고 이걸 두 번 부르기
+    때문이다. main() 안에 인라인이면 "같은 시드는 같은 바이트" 를 코드로 확인할
+    방법이 없고, 첫 판이 정확히 그 상태였다.
+    """
+    months = month_seq(SPEC["first_month"], n_months)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    handles, writers = {}, {}
+    for name, header in TABLES.items():
+        fh = (outdir / f"{name}.csv").open("w", newline="", encoding="utf-8")
+        handles[name] = fh
+        writers[name] = csv.writer(fh)
+        writers[name].writerow(header)
+
+    totals = {k: 0 for k in ("employees", "parties", "member_months", "eligible_final",
+                             "activated", "repeaters", "valid_people", "claims",
+                             "match_defects", "rewrites",
+                             "employee_month_frac", "member_month_frac")}
+    per_employer = {}
+
+    for key in sorted(contract["scenarios"]):
+        rng = random.Random(f"{seed}:{key}")     # 기업별 독립 시드 — 하나를 바꿔도 나머지가 안 움직인다
+        if not quiet:
+            print(f"  {key} · 자격자 {contract['scenarios'][key]['employees']:,} · "
+                  f"{n_months}개월 …", flush=True)
+        roster = []
+        stats, depts = generate_employer(key, contract, months, rng, writers, roster)
+        generate_behaviour(key, contract, months, rng, writers, roster, stats)
+        for name, n in depts.items():
+            writers["department"].writerow(
+                [key, name, n, "true" if n < contract["min_cell"] else "false"])
+        per_employer[key] = dict(stats, departments=depts)
+        for k in totals:
+            totals[k] += stats[k]
+
+    for fh in handles.values():
+        fh.close()
+
+    files = {}
+    for name in TABLES:
+        p = outdir / f"{name}.csv"
+        files[name] = {"rows": sum(1 for _ in p.open(encoding="utf-8")) - 1,
+                       "bytes": p.stat().st_size, "sha256": sha256(p)}
+
+    return totals, per_employer, files
+
+
 def generate_employer(key, contract, months, rng, writers, roster):
     """한 기업의 사람·자격·member_month 를 만들고 roster 를 behaviour 단계로 넘긴다.
 
@@ -409,7 +465,7 @@ def generate_employer(key, contract, months, rng, writers, roster):
     target = scen["employees"]
     tiny_n = SPEC["tiny_department"]["n"][key]
     depts = department_split(target, tiny_n)
-    mix = participation_mix(contract["activated"], contract["repeat"])
+    mix = participation_mix(contract["activated"])
     monthly_leave = SPEC["annual_turnover"][key] / 12.0
 
     dept_slots = [d for d, n in depts.items() for _ in range(n)]
@@ -420,7 +476,8 @@ def generate_employer(key, contract, months, rng, writers, roster):
     pid = 0
     stats = {k: 0 for k in ("employees", "parties", "member_months", "eligible_final",
                             "activated", "repeaters", "valid_people", "claims",
-                            "match_defects", "rewrites")}
+                            "match_defects", "rewrites",
+                            "employee_month_frac", "member_month_frac")}
 
     def new_employee(dept, hire_month):
         nonlocal pid
@@ -436,8 +493,13 @@ def generate_employer(key, contract, months, rng, writers, roster):
                 dtype = "NEVER"
             family.append({"sk": f"{sk}-D{d + 1}", "ptype": dtype,
                            "rel": "SPOUSE" if d == 0 else "CHILD"})
+        # 입사일을 월 안의 실제 날짜로 잡는다. 첫 판은 월 경계에서만 입·퇴사시켜
+        # 모든 행이 month_days 전체를 받았고, 그래서 docstring 의 "부분 월 처리가
+        # 시험된다" 가 거짓이었다 (codex 재검토, 2026-08-25). 첫 달 재직자는 이미
+        # 근무 중이므로 1일, 중도 입사자는 그 달의 임의 날짜다.
+        hire_day = 1 if hire_month == months[0] else rng.randint(2, month_days(hire_month))
         return {"sk": sk, "dept": dept, "ptype": ptype, "family": family,
-                "hire": hire_month, "term": None}
+                "hire": hire_month, "hire_day": hire_day, "term": None, "term_day": None}
 
     active = [new_employee(d, months[0]) for d in dept_slots]
 
@@ -446,30 +508,50 @@ def generate_employer(key, contract, months, rng, writers, roster):
         writers["party"].writerow([emp["sk"], key, "EMPLOYEE", "SELF",
                                    emp["ptype"], emp["dept"]])
         writers["party_department"].writerow([emp["sk"], key, emp["dept"]])
-        writers["eligibility_span"].writerow([emp["sk"], key, emp["hire"], term or ""])
+        span_from = f"{emp['hire']}-{emp['hire_day']:02d}"
+        span_to = f"{term}-{emp['term_day']:02d}" if term else ""
+        writers["eligibility_span"].writerow([emp["sk"], key, span_from, span_to])
         roster.append((emp["sk"], emp["ptype"], emp["dept"], emp["hire"], term, True))
         for f in emp["family"]:
             writers["party"].writerow([f["sk"], key, "DEPENDENT", f["rel"],
                                        f["ptype"], emp["dept"]])
             writers["party_department"].writerow([f["sk"], key, emp["dept"]])
-            writers["eligibility_span"].writerow([f["sk"], key, emp["hire"], term or ""])
+            writers["eligibility_span"].writerow([f["sk"], key, span_from, span_to])
             roster.append((f["sk"], f["ptype"], emp["dept"], emp["hire"], term, False))
         stats["employees"] += 1
         stats["parties"] += 1 + len(emp["family"])
 
     mm = writers["member_month"]
+
+    def covered(emp, ym):
+        """그 달에 실제로 보장된 일수. 입·퇴사 달은 전체가 아니다 (§14.2 부분 월)."""
+        d = month_days(ym)
+        start = emp["hire_day"] if emp["hire"] == ym else 1
+        end = emp["term_day"] if emp["term"] == ym else d
+        return max(0, end - start + 1)
+
     for mi, ym in enumerate(months):
-        days = month_days(ym)
+        d = month_days(ym)
         for emp in active:
-            mm.writerow([key, ym, emp["sk"], emp["dept"], "SELF", days])
+            cd = covered(emp, ym)
+            if cd <= 0:
+                continue
+            mm.writerow([key, ym, emp["sk"], emp["dept"], "SELF", cd])
             stats["member_months"] += 1
+            # 가중 분모. 행 수가 아니라 보장 일수 비중이 member-month 의 정의다 —
+            # 짧은 span 과 온전한 달을 같은 1로 세면 DEP_RATIO 검사가 무의미해진다.
+            stats["employee_month_frac"] += cd / d
+            stats["member_month_frac"] += cd / d
             for f in emp["family"]:
-                mm.writerow([key, ym, f["sk"], emp["dept"], f["rel"], days])
+                mm.writerow([key, ym, f["sk"], emp["dept"], f["rel"], cd])
                 stats["member_months"] += 1
+                stats["member_month_frac"] += cd / d
         if mi == len(months) - 1:
             break
         for emp in [e for e in active if rng.random() < monthly_leave]:
             emp["term"] = ym
+            lo = emp["hire_day"] if emp["hire"] == ym else 1
+            emp["term_day"] = rng.randint(lo, month_days(ym))
             close_out(emp)
             active.remove(emp)
             active.append(new_employee(emp["dept"], months[mi + 1]))
@@ -494,7 +576,12 @@ def report(contract, totals, per_employer, months):
     # 빠지는 동시에 분모에서도 빠져야 지표가 촬영 품질에 따라 흔들리지 않는다.
     repeat = (totals["repeaters"] / totals["valid_people"]
               if totals["valid_people"] else 0.0)
-    dep_ratio = totals["parties"] / totals["employees"]
+    # DEP_RATIO 는 사람 수 비가 아니라 **member-month 비**다. 첫 판은 생애 사람 수를
+    # 생애 임직원 수로 나눠서, 두 달 다니고 나간 사람과 36개월 재직자를 같은 1로 셌다
+    # (codex 재검토, 2026-08-25). 보장 일수로 가중해야 정본이 말하는 분모가 된다.
+    dep_ratio = (totals["member_month_frac"] / totals["employee_month_frac"]
+                 if totals["employee_month_frac"] else 0.0)
+    dep_ratio_headcount = totals["parties"] / totals["employees"]
 
     # activated 와 dep_ratio 는 배정에서 나온다. 어긋나면 생성기가 틀린 것이다.
     hard = [
@@ -505,15 +592,22 @@ def report(contract, totals, per_employer, months):
     # 분모로 재면 repeat 은 성립 범위 안이고, valid 는 촬영 품질 파라미터가 정하므로
     # 여기서 정본에 맞춰 돌리지 않는다 — §14 가 경고한 상쇄를 내 손으로 하는 짓이다.
     # gap·closed 는 care_action 이 있어야 나오고 그 테이블은 #7 이 만든다.
+    # repeat·valid 는 정본 대조 대상이 아니다. 둘은 SPEC 의 촬영 빈도·품질 게이트가
+    # 정하는 값이고, 정본에 맞춰 허용치를 넓히는 것은 파라미터를 돌리는 것과 같다 —
+    # 첫 판의 허용치 0.08 은 측정된 0.073 을 담으려고 고른 숫자였다 (codex 재검토).
+    # 그래서 델타만 찍고, 대신 **파라미터와 무관하게 성립해야 하는 불변식**을 단언한다.
     soft = [
-        ("repeat", repeat, contract["repeat"], 0.08),
-        ("valid", valid, contract["valid"], 0.02),
+        ("repeat", repeat, contract["repeat"], None),
+        ("valid", valid, contract["valid"], None),
     ]
 
     print(f"\n  member_month {totals['member_months']:,} 행 "
           f"(목표 {expected_mm:,} · {totals['member_months'] / expected_mm - 1:+.1%})")
     print(f"  사람 {totals['parties']:,} · 임직원(생애) {totals['employees']:,} · "
           f"보고월 자격자 {totals['eligible_final']:,}")
+    print(f"  member-month 가중 {totals['member_month_frac']:,.0f} / "
+          f"employee-month 가중 {totals['employee_month_frac']:,.0f} "
+          f"(행 수 기준 사람비 {dep_ratio_headcount:.4f} — 참고값)")
     print(f"  청구 {totals['claims']:,} · 매칭결함 {totals['match_defects']:,} · "
           f"재작성 {totals['rewrites']:,}")
 
@@ -523,10 +617,26 @@ def report(contract, totals, per_employer, months):
         ok = ok and not bad
         print(f"  {'FAIL' if bad else 'ok  '} {name:<10} {got:.4f} vs 정본 {want} "
               f"(허용 ±{tol})")
-    for name, got, want, tol in soft:
-        flag = "warn" if abs(got - want) > tol else "ok  "
-        print(f"  {flag} {name:<10} {got:.4f} vs 정본 {want} "
-              f"(창발값 — 여기서 보정하지 않는다)")
+    for name, got, want, _ in soft:
+        print(f"  --   {name:<10} {got:.4f} vs 정본 {want} ({got - want:+.4f}) "
+              f"— 측정값. SPEC 파라미터가 정하므로 정본에 맞추지 않는다")
+
+    # 불변식. 2회 이상은 1회 이상의 부분집합이어야 하고, 활성이 아닌 사람은
+    # 촬영할 수 없다. 파라미터를 어떻게 잡아도 깨지면 세는 코드가 틀린 것이다.
+    inv = [
+        ("repeaters ⊆ valid_people",
+         totals["repeaters"] <= totals["valid_people"]),
+        ("valid_people ⊆ activated",
+         totals["valid_people"] <= totals["activated"]),
+        ("activated ⊆ eligible_final",
+         totals["activated"] <= totals["eligible_final"]),
+        ("member_month_frac ≥ employee_month_frac",
+         totals["member_month_frac"] >= totals["employee_month_frac"]),
+    ]
+    for label, held in inv:
+        if not held:
+            ok = False
+        print(f"  {'ok  ' if held else 'FAIL'} 불변식 {label}")
 
     if abs(totals["member_months"] / expected_mm - 1) > 0.03:
         print(f"  FAIL member_month 가 목표의 ±3% 를 벗어났다")
@@ -593,16 +703,27 @@ def self_check():
     """순수 함수만 본다. 전체 생성은 몇 분이 걸리므로 pre-commit 에 못 넣는다."""
     c = load_contract()
 
-    mix = participation_mix(c["activated"], c["repeat"])
+    mix = participation_mix(c["activated"])
     assert abs(sum(mix.values()) - 1.0) < 1e-9, mix
     assert abs(mix["NEVER"] - (1 - c["activated"])) < 1e-9
-    got_repeat = (mix["SPORADIC"] + mix["REGULAR"]) / c["activated"]
-    assert abs(got_repeat - c["repeat"]) < 1e-9, got_repeat
-    # §14.3 이 산문으로 준 62/15/13/10 을 정본에서 역산해도 같은지
+    # §14.3 이 산문으로 준 62/15/13/10 을 재현하는지. FRAC.repeat 은 안 쓴다.
     assert abs(mix["NEVER"] - 0.62) < 0.005, mix["NEVER"]
-    assert abs(mix["ONE_SHOT"] - 0.148) < 0.005, mix["ONE_SHOT"]
-    assert abs(mix["SPORADIC"] - 0.131) < 0.005, mix["SPORADIC"]
-    assert abs(mix["REGULAR"] - 0.101) < 0.005, mix["REGULAR"]
+    assert abs(mix["ONE_SHOT"] - 0.15) < 0.005, mix["ONE_SHOT"]
+    assert abs(mix["SPORADIC"] - 0.13) < 0.005, mix["SPORADIC"]
+    assert abs(mix["REGULAR"] - 0.10) < 0.005, mix["REGULAR"]
+
+    # 혼합이 정본에서 **파생**되는지 — 값을 하드코딩해도 위 단언들은 오늘의 상수와
+    # 맞으므로 통과한다 (codex 재검토가 짚은 우회). 정본 값을 흔들어 혼합이 따라
+    # 움직이는지 본다. 안 움직이면 파생이 아니라 베껴 적은 것이다.
+    for probe in (0.20, 0.55):
+        m = participation_mix(probe)
+        assert abs(m["NEVER"] - (1 - probe)) < 1e-9, (probe, m)
+        assert abs(sum(m.values()) - 1.0) < 1e-9, (probe, m)
+        assert abs((m["ONE_SHOT"] + m["SPORADIC"] + m["REGULAR"]) - probe) < 1e-9, (probe, m)
+        one, spor, reg = SPEC["participation_split"]
+        assert abs(m["SPORADIC"] / m["REGULAR"] - spor / reg) < 1e-9, (probe, m)
+        assert abs(m["ONE_SHOT"] - mix["ONE_SHOT"]) > 1e-6, \
+            f"activated={probe} 인데 ONE_SHOT 이 안 움직였다 — 상수가 하드코딩됐다"
 
     for key, scen in c["scenarios"].items():
         emp = scen["employees"]
@@ -627,11 +748,33 @@ def self_check():
                      * c["dep_ratio"] * 36)
     assert expected == 2_970_000, expected
 
+    # 결정성을 **실제로** 증명한다. 첫 판은 "같은 시드는 같은 바이트" 를 docstring 에
+    # 적어두고 아무것도 안 확인했다 (codex 재검토, 2026-08-25). 36개월 전체를 두 번
+    # 돌리면 320MB 를 쓰므로, 1개월로 두 번 돌려 파일별 sha256 을 대조한다 — 시드
+    # 사용 순서가 깨지면 1개월에서도 즉시 갈린다.
+    import shutil
+    import tempfile
+    runs = []
+    tmp = Path(tempfile.mkdtemp(prefix="synthetic-determinism-"))
+    try:
+        for _ in range(2):
+            out = Path(tempfile.mkdtemp(dir=tmp))
+            _generate(c, 1, SPEC["seed"], out, quiet=True)
+            runs.append({f.name: sha256(f) for f in sorted(out.glob("*.csv"))})
+        assert runs[0] and runs[1], "결정성 검사가 파일을 하나도 안 만들었다"
+        diff = [n for n in runs[0] if runs[0][n] != runs[1].get(n)]
+        assert not diff, f"같은 시드가 다른 바이트를 냈다: {diff}"
+        tables = len(runs[0])
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
     print(f"PASS — 참여 혼합 {' · '.join(f'{k} {v:.3f}' for k, v in mix.items())}")
     print(f"       부서 분할 3사 전부 100% · 최소셀 미만 부서 유지")
     print(f"       member_month 목표 {expected:,} 행 = 자격자 "
           f"{sum(s['employees'] for s in c['scenarios'].values()):,} × "
           f"{c['dep_ratio']} × 36")
+    print(f"       혼합이 정본에서 파생됨 (activated 를 흔들면 따라 움직인다)")
+    print(f"       같은 시드 → 같은 바이트, 1개월 2회 실행 테이블 {tables}종 대조")
     return 0
 
 

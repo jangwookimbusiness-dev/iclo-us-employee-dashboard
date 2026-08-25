@@ -7,7 +7,7 @@
   }
  },
  "proposal_v12": {
-  "artifact": "c8c82eda5fc4d0a7cd87be3097a6e4e17352d1f5f8e2a980f989e9ef7556d530",
+  "artifact": "19c4a3b8967f34455878a5ba161256370e31b0f9869d746a01f109d7254fc192",
   "pages": 32,
   "sources": {
    "output/proposal-v12/assets/app-camera.png": "9783b7581452ba0c27e27e98df5b014f1f9f49fb56e1ff91d09aa82190f830b2",
@@ -18,10 +18,10 @@
    "output/proposal-v12/assets/app-settings.png": "a5f15afd18076af4dd3845a3583e1e251b4ca66f6701f938193d9e9872a63b5f",
    "output/proposal-v12/assets/app-whoisit.png": "c27419426aae8f0465c84c445ae947a5e0a986a373bff472e6cf93c003f006f6",
    "output/proposal-v12/assets/dashboard-funnel.png": "44e996be9f78a8f1999f19574b8bc056db1237add4380885d5ca9a7bc70a284d",
-   "output/proposal-v12/assets/dashboard-members.png": "335aea5c8f6358a81a658abafb7e99cef178fe5acb94b3cc98bd107b604aef05",
-   "output/proposal-v12/assets/dashboard-overview.png": "fe856978c8a58ee2eb12aeaa58a706bbeb41c1527b3902ac65091087a5d517b2",
+   "output/proposal-v12/assets/dashboard-members.png": "94698705eacd8850209da5fd1e4a2a24a5a5d936711890d7a94802284d2a303c",
+   "output/proposal-v12/assets/dashboard-overview.png": "9223ab0949569a55bf0a5ce2331e74a99626190fafb371ab6200035016b29de9",
    "output/proposal-v12/assets/dashboard-signals.png": "3a8350b511f2d7f44f7e6eac52b9fde549af7320575c23e37f27a08978d4fe56",
-   "output/proposal-v12/assets/dashboard-suppressed.png": "1d454e2abf25c780c77623d6bc27e23a23e95caab8b3a9746b364c49844d76a1",
+   "output/proposal-v12/assets/dashboard-suppressed.png": "a716de56a19e11b58b181d2043bfe88bbb8e9079ff7df45c9ef3407d80328cb0",
    "output/proposal-v12/assets/dataflow.svg": "f39dd6354eb8e9f16fb3db3a8ca67826bea89a6d8070398b26f22e1e4df4f749",
    "output/proposal-v12/제안서-v12-KO.md": "eacd56fc158bde21b2683cf137496be23136225b8e19107e02db74c9b17ecffb"
   }
@@ -36,15 +36,15 @@
    "output/proposal-v12/assets/app-settings.png": "a5f15afd18076af4dd3845a3583e1e251b4ca66f6701f938193d9e9872a63b5f",
    "output/proposal-v12/assets/app-whoisit.png": "c27419426aae8f0465c84c445ae947a5e0a986a373bff472e6cf93c003f006f6",
    "output/proposal-v12/assets/dashboard-funnel.png": "44e996be9f78a8f1999f19574b8bc056db1237add4380885d5ca9a7bc70a284d",
-   "output/proposal-v12/assets/dashboard-members.png": "335aea5c8f6358a81a658abafb7e99cef178fe5acb94b3cc98bd107b604aef05",
-   "output/proposal-v12/assets/dashboard-overview.png": "fe856978c8a58ee2eb12aeaa58a706bbeb41c1527b3902ac65091087a5d517b2",
+   "output/proposal-v12/assets/dashboard-members.png": "94698705eacd8850209da5fd1e4a2a24a5a5d936711890d7a94802284d2a303c",
+   "output/proposal-v12/assets/dashboard-overview.png": "9223ab0949569a55bf0a5ce2331e74a99626190fafb371ab6200035016b29de9",
    "output/proposal-v12/assets/dashboard-signals.png": "3a8350b511f2d7f44f7e6eac52b9fde549af7320575c23e37f27a08978d4fe56",
-   "output/proposal-v12/assets/dashboard-suppressed.png": "1d454e2abf25c780c77623d6bc27e23a23e95caab8b3a9746b364c49844d76a1"
+   "output/proposal-v12/assets/dashboard-suppressed.png": "a716de56a19e11b58b181d2043bfe88bbb8e9079ff7df45c9ef3407d80328cb0"
   },
   "sources": {
    "app.html": "19146809370cdee824d90ed21f1cbf377972cbb1123e38c05c8a038737f7ee8e",
    "data/member-demo.json": "a41c0b2c4f0b9317709a5dcc8ba1c30106b08f810d558610082d99f56c7fb299",
-   "index.html": "24073ff659f94ec5f0fbcef14d0562ca2ded2333d4b44b7f1756637c6541f218",
+   "index.html": "e315fd2b1a3da7811a14356d4b619c7a956dfd98250a4eb18efa258ae31697db",
    "scripts/shots.py": "5e6cf11e426a5448f8909b2bad195873945eba61bf9c8bdd13944319a2f15766"
   }
  },
@@ -56,10 +56,10 @@
   }
  },
  "tech": {
-  "artifact": "ede6fa16de65fbd89e101326a20d9dbe7d776fb6df68347f1628aa96ad3182e8",
+  "artifact": "79d63826ac90f3959daad3fcd8c1b3d7c735e0c2a79fdd71669a597554126f8e",
   "pages": 108,
   "sources": {
-   "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md": "5366f9d2777e724965beaec70bb75216df950c425eae65b2d8784c3637348162",
+   "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md": "2c2d5243277080244e8abe2181f403093f55c0f72603c26cb26446b5c496dc37",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-A-원천과정본.svg": "95f8e16d87f08d0f93d975e98d7f372b15348e206c07e5b2a9a1431acf7fd06a",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-B-통제와노출.svg": "24bc2b2a634066ddb763e68d979e195ccf4ab57081b7dad5947b9c9a47e3df80",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-C-경계와미결.svg": "757723c8d5431d320813614b2cfe4ae213ab5f143f1e3d47a05af348b2e7bdc1"
