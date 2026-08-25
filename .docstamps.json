@@ -49,10 +49,10 @@
   }
  },
  "tech": {
-  "artifact": "2c20bc8d7410aaac712c483023cc8168489fbeab20f6e699ba82c23641209bb7",
-  "pages": 105,
+  "artifact": "9da30e307078379e54057e4c373f6f218d374dc1e3038655a0279602c52efeef",
+  "pages": 108,
   "sources": {
-   "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md": "16e61be7d9fefd2e179e8fb398d6b8b7f1454d88bb5715ff1ef848d5e2ac8623",
+   "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md": "eeeb2a9d8144e05a15e5acd17dc68c07376cca27140a07ed4d2d65fc3cfb80b4",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-A-원천과정본.svg": "95f8e16d87f08d0f93d975e98d7f372b15348e206c07e5b2a9a1431acf7fd06a",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-B-통제와노출.svg": "24bc2b2a634066ddb763e68d979e195ccf4ab57081b7dad5947b9c9a47e3df80",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-C-경계와미결.svg": "757723c8d5431d320813614b2cfe4ae213ab5f143f1e3d47a05af348b2e7bdc1"
