@@ -94,6 +94,78 @@ def check_pages_publish_boundary():
         fail("pages_boundary", f"Pages artifact staging 실패: {detail}")
 
 
+def check_local_matches_ci():
+    """`make check` 과 gates.yml 이 같은 검사를 돌리는지 본다.
+
+    왜 필요한가. 같은 숫자가 네 곳에서 달랐다. 이슈 #1 본문은 nine gates,
+    Makefile 과 AGENTS.md 는 ten, CI 는 실제로 twelve 였다. 그리고 개수만 어긋난
+    것이 아니라 **`make check` 이 새 게이트 둘을 아예 안 돌리고 있었다** — 즉
+    로컬에서 통과시키고 PR 에서 처음 실패하는 상태였다. #1 의 수락기준이
+    "make check runs the same gates as CI" 인데 그것이 거짓이었다.
+
+    사람이 세는 방식으로는 다시 어긋난다. 개수가 아니라 **집합**을 비교한다.
+    """
+    wf_path = ROOT / ".github/workflows/gates.yml"
+    mk_path = ROOT / "Makefile"
+    if not wf_path.exists() or not mk_path.exists():
+        fail("local_vs_ci", "gates.yml 또는 Makefile 이 없음")
+        return
+    try:
+        import yaml
+    except ImportError:
+        fail("local_vs_ci", "PyYAML 없음 — 'make setup' 후 다시 실행")
+        return
+
+    def norm(line):
+        m = re.search(r"(?:python3?|bash|\$\(PYTHON\))\s+(\S+\.(?:py|sh))(.*)", line)
+        if not m or "pip install" in line:
+            return None
+        return m.group(1) + (" --check" if "--check" in m.group(2) else "")
+
+    wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
+    ci = {norm(l) for st in wf["jobs"]["gates"]["steps"]
+          for l in str(st.get("run", "")).splitlines()} - {None}
+
+    text = mk_path.read_text(encoding="utf-8")
+    # check 는 check-fast 를 부르므로 두 타깃을 합쳐 본다. 다음 타깃 전까지 자른다.
+    local = set()
+    for target in ("check:", "check-fast:"):
+        i = text.find(f"\n{target}")
+        if i < 0:
+            fail("local_vs_ci", f"Makefile 에 {target} 타깃이 없음")
+            return
+        body = text[i + 1:]
+        end = re.search(r"\n(?=\S+:)", body)
+        local |= {norm(l) for l in (body[:end.start()] if end else body).splitlines()} - {None}
+
+    only_ci, only_local = sorted(ci - local), sorted(local - ci)
+    if only_ci:
+        fail("local_vs_ci",
+             f"CI 만 돌리는 검사 — 로컬에서 통과시키고 PR 에서 처음 깨진다: {only_ci}")
+    if only_local:
+        fail("local_vs_ci",
+             f"make 만 돌리는 검사 — CI 가 안 지키므로 병합을 막지 못한다: {only_local}")
+
+    # 문서가 말하는 개수도 같이 잡는다. 세 곳이 서로 달랐던 것이 이 검사의 출발점이다.
+    n = len(ci)
+    words = {9: "nine", 10: "ten", 11: "eleven", 12: "twelve", 13: "thirteen",
+             14: "fourteen", 15: "fifteen"}
+    word = words.get(n)
+    for doc in ("Makefile", "AGENTS.md"):
+        p = ROOT / doc
+        if not p.exists():
+            continue
+        t = p.read_text(encoding="utf-8")
+        m = re.search(r"the same (\w+) gates as CI", t)
+        if not m:
+            continue
+        if word and m.group(1) != word:
+            fail("local_vs_ci",
+                 f"{doc} 는 '{m.group(1)} gates' 라 쓰는데 실제 {n}개다 ('{word}')")
+
+    print(f"make check 와 CI 가 같은 검사 {n}개를 돌린다")
+
+
 def check_contract_parses():
     """정본이 YAML 로서 성립하는지 본다.
 
@@ -564,6 +636,7 @@ def main():
     check_repository_artifacts()
     check_pages_publish_boundary()
     check_contract_parses()
+    check_local_matches_ci()
     check_start_gates()
     check_surfaces()
     check_awaiting_decision()
