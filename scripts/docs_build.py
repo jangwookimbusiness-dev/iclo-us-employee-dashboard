@@ -86,6 +86,86 @@ def load_stamps() -> dict:
     return {}
 
 
+def normalize_pdf_dates(pdf: Path, digest: str) -> None:
+    """PDF 안의 생성·수정 시각을 소스 내용에서 유도한 고정값으로 바꾼다.
+
+    왜. make-pdf 는 빌드 시각을 박으므로 **같은 소스를 두 번 빌드하면 바이트가
+    달라진다** — 측정해보면 크기는 같고 다른 바이트가 딱 4개, 전부 타임스탬프다.
+    그래서 내용이 안 바뀐 재빌드도 git 에 새 blob 을 하나 더 얹는다. 2026-08-25
+    시점에 히스토리의 1MiB 초과 blob 201MiB 중 **110MiB(55%)가 관리 PDF 두 개의
+    34개 판본**이었고(이슈 #23 인벤토리), 그 대부분이 이 시각 때문이다.
+
+    고정값을 소스 digest 에서 유도하는 이유는 두 가지다. 상수로 박으면 서로 다른
+    내용의 문서가 같은 날짜를 갖게 되어 사람이 볼 때 거짓이 되고, 실제 시각을 쓰면
+    결정성이 깨진다. digest 에서 유도하면 **내용이 같으면 같고 다르면 다르다.**
+
+    ponytail: PyMuPDF 는 이미 requirements-dev.txt 에 핀돼 있다. 새 의존성 없음.
+    실패하면 조용히 넘긴다 — 결정성은 좋은 것이지 문서 빌드를 막을 이유가 아니다.
+    """
+    try:
+        import pymupdf
+    except ImportError:
+        try:
+            import fitz as pymupdf          # 구버전 이름
+        except ImportError:
+            return
+    try:
+        # digest 는 문자열이 아니라 경로→해시 매핑이다. 안정적으로 직렬화해 한 번 더
+        # 해싱한다 — 정렬하지 않으면 dict 순서가 값에 새어 들어온다.
+        import datetime
+        import hashlib
+        import json as _json
+        key = hashlib.sha256(
+            _json.dumps(digest, sort_keys=True, ensure_ascii=False).encode()
+        ).hexdigest()
+        offset = int(key[:8], 16) % (20 * 365 * 24 * 3600)
+        when = datetime.datetime(2000, 1, 1) + datetime.timedelta(seconds=offset)
+        stamp = when.strftime("D:%Y%m%d%H%M%S+00'00'")
+
+        doc = pymupdf.open(pdf)
+        md = doc.metadata or {}
+        md["creationDate"] = stamp
+        md["modDate"] = stamp
+        doc.set_metadata(md)
+        # XMP 에도 날짜가 실린다. 비워야 한 군데만 고치고 다른 데가 남는 일이 없다.
+        doc.set_xml_metadata("")
+        # saveIncr() 은 **덧붙이기**라 옛 CreationDate 가 파일에 그대로 남고 새 것이
+        # 뒤에 붙는다. 첫 판이 그래서 여전히 비결정적이었다. garbage=4 로 전체를
+        # 다시 쓰면 옛 객체가 사라진다.
+        rewritten = pdf.with_suffix(".normalized.pdf")
+        doc.save(str(rewritten), garbage=4, deflate=True)
+        doc.close()
+
+        # 마지막 비결정 요소: 트레일러의 `/ID [<..><..>]`. PDF 작성기가 저장마다
+        # 난수로 만들고 PyMuPDF 는 이걸 지정하는 API 가 없다. 측정해보면 날짜를
+        # 고정한 뒤에도 남는 차이가 정확히 이 59바이트였다. 같은 **길이**의
+        # 결정적 값으로 바꾼다 — 트레일러는 xref 뒤에 오므로 길이를 유지하면
+        # startxref 오프셋이 안 흔들린다.
+        import re as _re
+        raw = rewritten.read_bytes()
+
+        def _fixed_id(match):
+            body = match.group(0)
+            hexes = _re.findall(rb"<([0-9a-fA-F]+)>", body)
+            out = body
+            for i, h in enumerate(hexes):
+                repl = hashlib.sha256(f"{key}:{i}".encode()).hexdigest()[:len(h)]
+                repl = repl.upper().encode() if h.isupper() else repl.encode()
+                out = out.replace(b"<" + h + b">", b"<" + repl + b">", 1)
+            return out
+
+        patched = _re.sub(rb"/ID\s*\[\s*<[0-9a-fA-F]+>\s*<[0-9a-fA-F]+>\s*\]",
+                          _fixed_id, raw)
+        if len(patched) != len(raw):
+            raise ValueError("/ID 치환이 길이를 바꿨다 — xref 가 깨진다")
+        rewritten.write_bytes(patched)
+        rewritten.replace(pdf)
+    except Exception as exc:
+        # 결정성은 좋은 것이지 문서 빌드를 막을 이유가 아니다. 다만 조용히 넘기면
+        # 이 함수가 죽은 것을 아무도 모르므로 한 줄 남긴다.
+        print(f"  (PDF 날짜 정규화 건너뜀: {type(exc).__name__}: {exc})")
+
+
 def build_pdf(entry, stamps, force):
     srcs = resolve(entry["sources"])
     digest = source_digest(srcs)
@@ -116,6 +196,7 @@ def build_pdf(entry, stamps, force):
             sys.exit(f"docs_build: {entry['name']} 빌드 실패\n{r.stderr[-400:]}")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+    normalize_pdf_dates(tmp_out, digest)
     tmp_out.replace(out)
 
     import re
