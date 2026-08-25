@@ -128,7 +128,21 @@ def check_status_headers():
                 ["git", "log", "-1", "--format=%ad", "--date=short", sha],
                 cwd=ROOT, stderr=subprocess.DEVNULL).decode().strip()
         except (OSError, subprocess.CalledProcessError):
-            fail("status_header", f"{doc.name}: 헤더의 커밋 {sha} 가 저장소에 없다")
+            # 커밋을 못 찾는 데는 두 가지 이유가 있고 심각도가 다르다. 얕은 클론이면
+            # 히스토리가 없는 것이고 (CI 의 actions/checkout 기본값이 fetch-depth 1
+            # 이다 — 이 검사의 첫 CI 실행이 그래서 죽었다), 그게 아니면 문서가 없는
+            # 해시를 가리키는 것이다. 둘을 같은 실패로 묶으면 CI 를 초록불로 만들려고
+            # 검사를 경고로 낮추게 되고, 그게 이 저장소에서 검사 셋이 죽은 방식이다.
+            # gates.yml 은 fetch-depth: 0 을 쓰므로 CI 에서도 이 갈래로 안 온다.
+            shallow = subprocess.run(
+                ["git", "rev-parse", "--is-shallow-repository"], cwd=ROOT,
+                capture_output=True, text=True).stdout.strip() == "true"
+            if shallow:
+                warn("status_header",
+                     f"{doc.name}: 얕은 클론이라 커밋 {sha} 를 확인할 수 없다 — "
+                     f"검사하려면 fetch-depth: 0")
+            else:
+                fail("status_header", f"{doc.name}: 헤더의 커밋 {sha} 가 저장소에 없다")
             continue
         if actual != declared_date:
             fail("status_header",
