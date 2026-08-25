@@ -60,27 +60,21 @@
     "member_months": 2982655,
     "member_months_target": 2970000,
     "activated": 0.383,
-    "repeat": 0.3629,
+    "repeat": 0.683,
     "dep_ratio": 2.2061,
     "valid": 0.2035,
     "spec_conflict": {
-      "title": "§14.3 SPORADIC '연 1~2회' 와 FRAC.repeat '롤링 12개월 유효촬영 2건 이상' 이 양립 불가",
-      "arithmetic": [
-        "맞는 쪽: ONE_SHOT = a - a×r = 0.1482 이고,",
-        "         창 안 정확히 1회 (v - a×r = 0.0482) + 창 안 0회 (a - v = 0.1000)",
-        "         = 0.1482 — 소수 네 자리까지 일치한다. 우연이 아니다.",
-        "안 되는 쪽: repeat 0.61 은 SPORADIC+REGULAR 전원 0.2318 이 12개월 창에서",
-        "         유효 2건 이상이어야 성립한다. 그중 SPORADIC 이 0.1310 (repeat 인구의 57%) 이고,",
-        "         §14.3 은 SPORADIC 을 연 1~2회로 못박았다. 시도가 최대 2회면",
-        "         품질 게이트가 100% 가 아닌 한 유효 2건이 구조적으로 안 나온다."
+      "resolved": "2026-08-25",
+      "title": "정본이 Repeat 을 두 분모로 정의하고 있었고 §14.3 유도에는 품질 게이트가 없었다",
+      "was": "활성 사용자 분모로 재서 0.3629 를 얻고 사양이 양립 불가라고 결론냈다",
+      "now": "T14 분모(창 안 유효 1회 이상)로 재면 정본 0.61 대비 성립 범위 안이다",
+      "fixed": [
+        "정본 repeat_participation.definition_ko 를 metric_time_contracts 와 일치",
+        "index.html Repeat 카드의 분모를 valid 기준으로, 라벨도 함께",
+        "기술문서 §3 지표표와 §14.3 의 23/38 유도 철회",
+        "이 생성기의 repeat 분모"
       ],
-      "resolutions": [
-        "SPORADIC 을 연 2~3회로 올린다 → §14.3 문장을 고쳐야 한다",
-        "repeat 창을 24개월로 늘린다 → 정본 metric_time_contracts 를 고쳐야 한다",
-        "repeat 을 '유효 촬영' 이 아니라 '촬영 시도' 로 센다 → 지표 정의가 바뀐다",
-        "FRAC.repeat 0.61 을 내린다 → 화면 상수와 제안서 스크린샷이 바뀐다"
-      ],
-      "measured_ceiling_note": "생성기는 어느 것도 임의로 고르지 않는다. 지금은 그냥 안 맞는 채로 둔다."
+      "lesson": "품질 게이트는 분자와 분모 양쪽에 같이 걸려야 한다. 분자에만 걸면 촬영 품질이 흔들릴 때 참여 지표가 따라 흔들린다."
     }
   },
   "per_employer": {
