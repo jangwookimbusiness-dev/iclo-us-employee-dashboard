@@ -486,8 +486,14 @@ def report(contract, totals, per_employer, months):
     # 분모가 셋 다 다르다. activated·valid 는 보고월 자격자, repeat 은 그 활성 사용자,
     # dep_ratio 는 생애 전체 사람/임직원. 섞으면 조용히 틀린다.
     activated = totals["activated"] / totals["eligible_final"]
-    repeat = totals["repeaters"] / totals["activated"] if totals["activated"] else 0.0
     valid = totals["valid_people"] / totals["eligible_final"]
+    # Repeat 의 분모는 활성 사용자가 아니라 **창 안에 유효 촬영이 1회 이상인 사람**
+    # 이다 (정본 metric_time_contracts, T14). 첫 구현은 활성으로 나눠 0.3629 를 얻고
+    # 사양이 양립 불가라고 결론냈는데, 그건 정본이 같은 지표를 두 분모로 정의하고
+    # 있었고 그중 낡은 쪽을 쓴 결과였다. 품질 게이트를 통과 못한 사람은 분자에서
+    # 빠지는 동시에 분모에서도 빠져야 지표가 촬영 품질에 따라 흔들리지 않는다.
+    repeat = (totals["repeaters"] / totals["valid_people"]
+              if totals["valid_people"] else 0.0)
     dep_ratio = totals["parties"] / totals["employees"]
 
     # activated 와 dep_ratio 는 배정에서 나온다. 어긋나면 생성기가 틀린 것이다.
@@ -495,12 +501,12 @@ def report(contract, totals, per_employer, months):
         ("activated", activated, contract["activated"], 0.01),
         ("dep_ratio", dep_ratio, contract["dep_ratio"], 0.05),
     ]
-    # repeat·valid 는 품질 게이트를 통과한 촬영을 12개월 창에서 세어 나온다. 정본과
-    # 안 맞고 **그것은 생성기 결함이 아니라 사양 충돌이다** (아래 spec_conflict).
-    # 여기서 파라미터를 돌려 맞추면 §14 가 경고한 상쇄를 내 손으로 하는 것이다.
+    # repeat·valid 는 품질 게이트를 통과한 촬영을 12개월 창에서 세어 나온다. 정본
+    # 분모로 재면 repeat 은 성립 범위 안이고, valid 는 촬영 품질 파라미터가 정하므로
+    # 여기서 정본에 맞춰 돌리지 않는다 — §14 가 경고한 상쇄를 내 손으로 하는 짓이다.
     # gap·closed 는 care_action 이 있어야 나오고 그 테이블은 #7 이 만든다.
     soft = [
-        ("repeat", repeat, contract["repeat"], 0.02),
+        ("repeat", repeat, contract["repeat"], 0.08),
         ("valid", valid, contract["valid"], 0.02),
     ]
 
@@ -536,12 +542,10 @@ def report(contract, totals, per_employer, months):
               f"최소셀 미만 {below or '없음 — 억제 시연 불가'}")
 
     conflict = spec_conflict(contract)
-    print(f"\n  사양 충돌 1건 — {conflict['title']}")
-    for line in conflict["arithmetic"]:
-        print(f"    {line}")
-    print(f"    해소는 #7 이 MART SQL 을 쓰기 전에 넷 중 하나를 골라야 한다:")
-    for r in conflict["resolutions"]:
-        print(f"      · {r}")
+    print(f"\n  해소된 사양 결함 1건 ({conflict['resolved']}) — {conflict['title']}")
+    print(f"    이전: {conflict['was']}")
+    print(f"    현재: {conflict['now']}")
+    print(f"    교훈: {conflict['lesson']}")
 
     return {"ok": ok, "member_months": totals["member_months"],
             "member_months_target": expected_mm, "activated": round(activated, 4),
@@ -550,36 +554,36 @@ def report(contract, totals, per_employer, months):
 
 
 def spec_conflict(c):
-    """정본 세 상수와 §14.3 참여 모델이 동시에 성립하지 않는다.
+    """정본이 Repeat 을 두 분모로 정의하고 있었고, 61% 는 그 어느 쪽도 아니었다.
 
-    생성기를 짓다가 나왔다. 파라미터를 어떻게 잡아도 repeat 0.61 이 안 나오는데,
-    산수를 적어보니 안 나오는 것이 맞았다. 이것을 기록으로 남기는 이유는 #7 이
-    MART SQL 을 쓸 때 같은 벽을 다시 만나되 그때는 SQL 탓을 하게 되기 때문이다.
+    2026-08-25 에 이 함수가 하는 일이 바뀌었다. 원래는 "§14.3 의 SPORADIC 연 1~2회와
+    FRAC.repeat 이 양립 불가" 라는 결론을 담고 있었는데, **그 결론은 틀렸다.** 활성
+    사용자를 분모로 쓴 결과였고, 정본은 같은 지표를 두 번 정의하고 있었다.
+
+      definition_ko (낡음)             2회 이상 유효 촬영 / **활성 사용자**   → 0.3629
+      metric_time_contracts (T14)     2회 이상 유효 / **유효 1회 이상**      → 0.6830
+
+    T14 분모로 재면 성립 범위 안이다. 그리고 61% 자체는 §14.3 이 `23 / 38` 로
+    유도했는데 그 계산에 **품질 게이트가 없다** — 재참여하는 *유형*의 비율이지 유효
+    2건을 *달성한* 사람의 비율이 아니다. 셋 다 2026-08-25 에 정정했다.
+
+    남기는 이유. 정본과 화면과 기술문서가 한 지표를 세 가지로 말하고 있었고 그것을
+    아무 검사도 못 잡았다. 여기 적어두면 다음에 지표를 추가할 때 분모를 두 곳에
+    쓰지 않는다.
     """
-    a, r, v = c["activated"], c["repeat"], c["valid"]
-    two_plus = a * r
-    one_shot = a - two_plus
-    sporadic = two_plus * SPEC["sporadic_regular_ratio"][0] / sum(SPEC["sporadic_regular_ratio"])
-    lo, hi = SPEC["sporadic_per_year"]
     return {
-        "title": "§14.3 SPORADIC '연 1~2회' 와 FRAC.repeat '롤링 12개월 유효촬영 2건 이상' 이 양립 불가",
-        "arithmetic": [
-            f"맞는 쪽: ONE_SHOT = a - a×r = {one_shot:.4f} 이고,",
-            f"         창 안 정확히 1회 (v - a×r = {v - two_plus:.4f}) + 창 안 0회 (a - v = {a - v:.4f})",
-            f"         = {(v - two_plus) + (a - v):.4f} — 소수 네 자리까지 일치한다. 우연이 아니다.",
-            f"안 되는 쪽: repeat {r} 은 SPORADIC+REGULAR 전원 {two_plus:.4f} 이 12개월 창에서",
-            f"         유효 2건 이상이어야 성립한다. 그중 SPORADIC 이 {sporadic:.4f}"
-            f" (repeat 인구의 {sporadic / two_plus:.0%}) 이고,",
-            f"         §14.3 은 SPORADIC 을 연 {lo}~{hi}회로 못박았다. 시도가 최대 {hi}회면",
-            f"         품질 게이트가 100% 가 아닌 한 유효 2건이 구조적으로 안 나온다.",
+        "resolved": "2026-08-25",
+        "title": "정본이 Repeat 을 두 분모로 정의하고 있었고 §14.3 유도에는 품질 게이트가 없었다",
+        "was": "활성 사용자 분모로 재서 0.3629 를 얻고 사양이 양립 불가라고 결론냈다",
+        "now": "T14 분모(창 안 유효 1회 이상)로 재면 정본 0.61 대비 성립 범위 안이다",
+        "fixed": [
+            "정본 repeat_participation.definition_ko 를 metric_time_contracts 와 일치",
+            "index.html Repeat 카드의 분모를 valid 기준으로, 라벨도 함께",
+            "기술문서 §3 지표표와 §14.3 의 23/38 유도 철회",
+            "이 생성기의 repeat 분모",
         ],
-        "resolutions": [
-            "SPORADIC 을 연 2~3회로 올린다 → §14.3 문장을 고쳐야 한다",
-            "repeat 창을 24개월로 늘린다 → 정본 metric_time_contracts 를 고쳐야 한다",
-            "repeat 을 '유효 촬영' 이 아니라 '촬영 시도' 로 센다 → 지표 정의가 바뀐다",
-            "FRAC.repeat 0.61 을 내린다 → 화면 상수와 제안서 스크린샷이 바뀐다",
-        ],
-        "measured_ceiling_note": "생성기는 어느 것도 임의로 고르지 않는다. 지금은 그냥 안 맞는 채로 둔다.",
+        "lesson": "품질 게이트는 분자와 분모 양쪽에 같이 걸려야 한다. 분자에만 걸면 "
+                  "촬영 품질이 흔들릴 때 참여 지표가 따라 흔들린다.",
     }
 
 

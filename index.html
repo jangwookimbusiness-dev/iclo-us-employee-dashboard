@@ -317,12 +317,20 @@ function render(){
     // Each rate stands on its own underlying count, so each is tested on its own.
     // A percentage over a small group identifies people just as well as the count.
     const nActivated = Math.round(employees*FRAC.activated);
-    const nRepeat = Math.round(nActivated*FRAC.repeat);
+    // Repeat's denominator is people with a valid capture in the window, not
+    // activated users. The canon says both: repeat_participation.definition_ko
+    // said "of activated" while metric_time_contracts said "같은 12개월에 유효
+    // 촬영이 1회 이상인 사람", and the second one is T14's deliberate decision
+    // from 2026-08-14 with its rationale written down. This card had been
+    // rendering the first. The quality gate has to sit on both sides of the
+    // ratio or the number moves when capture quality moves, which is the
+    // opposite of what a participation metric is for.
+    const nRepeat = Math.round(valid*FRAC.repeat);
     const cards = [
       card({lab:"Eligible employees", val:fmt(employees), denom:"funnel denominator", src:SRC.eligible, hot:hotE}),
       card({lab:"Covered members", val:fmt(members), unit:"est. ×"+DEP_RATIO, denom:"cost denominator (member-months)", src:SRC.members, hot:hotM}),
       card({lab:"Activated", val:pct(FRAC.activated), denom:"of eligible employees", src:SRC.app, hot:hotE, supp:supp||cellSupp(nActivated), n:D.n, revealN:supp}),
-      card({lab:"Repeat participation", val:pct(FRAC.repeat), denom:"of activated", src:SRC.app, supp:supp||cellSupp(nRepeat), n:D.n, revealN:supp}),
+      card({lab:"Repeat participation", val:pct(FRAC.repeat), denom:"of people with a valid capture", src:SRC.app, supp:supp||cellSupp(nRepeat), n:D.n, revealN:supp}),
       card({lab:"Dental PMPM (allowed)", val:"$"+sc.pmpm.toFixed(2), denom:"per covered member-month", src:SRC.claims, hot:hotM, supp:supp||cellSupp(members), n:D.n, revealN:supp}),
     ].join("");
     html = `<h2 class="vt">Program overview</h2>
