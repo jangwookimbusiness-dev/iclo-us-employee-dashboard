@@ -23,12 +23,12 @@ Available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-desig
 /unfreeze, /gstack-upgrade, /learn.
 
 ## Sprint for this project
-Deliverables and dates are PRD §3.2 and the Handoff Brief. Read them there, not here. The review loop around them:
+GitHub Issues and Milestones are the live backlog. PRD §3.2 and the Handoff Brief provide scope and acceptance context, not a second task queue. The review loop:
 
 1. `/office-hours` on `docs/PRD.md` before any code. Premises broken there flow back into the PRD via PR.
 2. `/plan-ceo-review` → `/plan-eng-review` → `/plan-design-review` (end-user UI, so the design review applies).
 3. Either agent implements against PRD §3.3. WS0's booth consent text is gone with the capture. `app.html` does carry a consent surface — per person, per purpose — since 2026-08-15; it is the member's own, not the booth's.
-4. `/review` + `/qa` on every PR, by the model that did not write it. Before `/ship`: `bash scripts/check-forbidden-terms.sh`, `scripts/check-package-consistency.py`, `test_single_source.py`, `test_suppression.py` and the kill-ai-slop Mode B scan must all pass.
+4. `/review` + `/qa` on every PR, by the model that did not write it. Before `/ship`, `make check` and the kill-ai-slop Mode B scan must pass.
 5. `/ship` → Pages deploy from the repo root.
 
 **No hard dates.** The 8/25 freeze, the 8/26 rehearsal and the 8/27 event applied to a booth demo that was scrapped on 2026-08-13. The 9/5 freeze and the US-stay plan were v0.4 and were superseded before that. See the PRD status block; the next dated work is in the CEO plan, not here.

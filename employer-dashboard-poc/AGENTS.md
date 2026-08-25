@@ -8,37 +8,40 @@ What it is for now: the screenshot source for the proposal, and the artifact the
 
 **Spec canon: `docs/PRD.md`, whose values come from `contracts/proposal-package-v11.yml` at the repo root. Read both before planning any change. Spec changes only via PR (living document).**
 
-**The shipped code is `index.html` and `app.html` at the REPO ROOT, not in this folder.** `index.html` is the employer dashboard, `app.html` the employee app (added 2026-08-14). This folder holds only spec and scripts — there is no `package.json`, `src/` or `dist/`. The npm commands below do not run.
+**The shipped code is `index.html` and `app.html` at the REPO ROOT, not in this folder.** `index.html` is the employer dashboard, `app.html` the employee app (added 2026-08-14). Start agents and run commands from the repository root so the root `AGENTS.md` governs the shipped files.
 
 ## Commands
-Only the red-line check runs. The npm commands are the v0.4 Vite plan, which PRD §3.4 records as not adopted; they are kept here only so a build that revives them inherits the same names.
-- `npm ci` — install
-- `npm run generate` — regenerate synthetic data (fixed seed; two runs must diff to zero)
-- `npm run dev` — local dev server
-- `npm run build` — static build to `dist/`
-- `npm test` — unit tests
-- `bash scripts/check-forbidden-terms.sh` — red-line grep, must exit 0
+- `make setup` — pinned Python environment
+- `make check` — the same ten gates as CI
+- `make check-fast` — non-browser pre-commit subset
+- `make serve` — local HTTP server
+- `make docs` — managed screenshots and PDFs
+- `make install-hooks` — local pre-commit guard
+
+There is no npm/Vite/React build. The v0.4 plan is archived in `BUILD.md` and must not be revived by accident.
 
 ## Red lines — violation = auto-reject (PRD §5.6)
 - Forbidden terms in `src`/`dist`/`docs`: `diagnos*, cavit*, caries, decay, gingivit*, periodont*, abscess, lesion`. Signal label "Review" is banned — use **"Priority"**.
-- No individual-level screens; no mock person profiles.
+- No individual-level screens or mock person profiles **in employer views**.
+  `app.html` is the member's own surface and may show only that member's own
+  band, direction, coverage, consent state, and synthetic demo profiles.
 - "Synthetic data — illustrative only" label on **every** view.
 - Cells with `n < 20` never show values — render "Suppressed (n<20)".
 - No AI-slop visuals (indigo/violet gradients, glassmorphism). Brand: Coral `#C2333A` (was `#FF7A79` — 2.53:1 on white, WCAG AA fail) · Navy `#1B2A4A` · Teal `#007A87` · white background.
 
 ## Automation — what runs itself now
-`.github/workflows/gates.yml` runs all four gates on every push to `main` and on PRs, on a Linux runner,
+`.github/workflows/gates.yml` runs all ten gates on every push to `main` and on PRs, on a Linux runner,
 with `concurrency` + `cancel-in-progress` so a superseded run never keeps burning minutes. Before this
 existed the gates were hand-run, and two of them had quietly stopped working without anyone noticing.
 
-- `bash scripts/install-hooks.sh` — once per clone. Pre-commit runs the two fast checks so an obvious
+- `make install-hooks` — once per clone. Pre-commit runs the three fast checks so an obvious
   break does not spend CI minutes. `--no-verify` still works; it is a guard, not a gate.
-- `python3 scripts/shots.py` — regenerates every proposal screenshot deterministically into
+- `make shots` — regenerates every proposal screenshot deterministically into
   `output/shots/`. Re-running produces byte-identical files. Every dashboard state is a URL
   (`?tab=`, `?scen=`, `?dept=`, `?lens=`), including the suppressed view.
 
 ## Running it locally
-`bash scripts/serve.sh` then open `http://localhost:8000/`. Opening the file directly still works today but
+`make serve` then open `http://localhost:8000/`. Opening the file directly still works today but
 will not once the screen fetches data — `fetch()` from a `file://` page is blocked. gstack `browse` also
 refuses `file://` URLs outside `/private/tmp`. Append `?v=$(date +%s)` when iterating; the browser caches
 hard between reloads and will show stale CSS after an edit.
@@ -50,7 +53,7 @@ enums: check them against an allowlist instead of escaping. Every string is a li
 rule for when the screen starts reading a data file, not a live hole.
 
 ## Conduct
-- Ambiguity → open a `question`-labeled issue. **Guessing is prohibited.**
+- Ambiguity → open a `type:decision` issue. **Guessing is prohibited.**
 - YAGNI: no unrequested features; any new dependency needs a stated reason in the PR (ponytail ruleset applies).
 - Cross-review: the authoring agent never approves its own work. Human (Jangwoo Kim) merges — agents never self-merge.
 
@@ -79,5 +82,5 @@ Two things make the review worth having:
   uncontaminated reviewer finds different defects; a contaminated one agrees.
 - **Tell it to verify, not read.** Give it the artifact *and* the paths to check
   against, and ask it to open them. Reviewers that only read the artifact agree with it.
-- Escalation: `blocked` label + mention the decision-maker.
-- Always work from this folder (`employer-dashboard-poc/`), not the repo root — nested AGENTS.md/CLAUDE.md apply here.
+- Escalation: `status:blocked` label + mention the decision-maker.
+- Always work from the repository root. The root agent files govern the shipped application.

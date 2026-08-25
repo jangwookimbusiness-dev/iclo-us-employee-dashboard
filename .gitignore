@@ -1,6 +1,12 @@
 .DS_Store
 _repo-root/
 .gstack/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+_site/
 
 # build intermediates and superseded deliverables (1.1GB, never commit)
 tmp/

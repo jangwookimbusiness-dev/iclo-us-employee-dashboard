@@ -151,8 +151,9 @@ ported by hand, so the second draft costs twice and yields once.
 rehearsal, 8/27 event) applied to a demo that no longer happens. The remaining event obligations — mini-session
 speaker info, staff list, promo video, backwall — are not this repo's.
 
-The next work on this code is the US evidence layer, and it has its own plan
-(`~/.gstack/projects/…/ceo-plans/2026-08-13-dashboard-and-employee-app.md`).
+The next work on this code is the US evidence layer. Its shared work queue is the
+repository's `A3 Evidence Layer` GitHub Milestone; `BACKLOG.md` defines the issue
+schema. Local gstack plans preserve rationale but are not the live backlog.
 
 **3.3 Stack.**
 
@@ -181,11 +182,8 @@ PMPM · 52·33·15 signal mix · funnel 3,800 → 2,800 → 950 → 420 on A.
 Canonical values live in `contracts/proposal-package-v11.yml`. Change that file first.
 
 **3.5 Repo.** Subfolder `employer-dashboard-poc/` holds spec and scripts only. Shipped code is at the repo
-root. Work happens on a feature branch and merges to `main`; cross-review per §3.1 is the gate that matters.
-
-> `main` is **not** branch-protected on GitHub, and this line claimed it was until 2026-08-13. Protection was
-> never configured. Nothing is enforcing the review rule mechanically — §3.1 holds because the agents follow
-> it, not because a server rejects the push. Worth either configuring or continuing to state plainly.
+root. Work starts from a GitHub Issue, happens on a feature branch, and merges to protected `main` only after
+the required `gates` check. Cross-model review is recorded in the pull request; the human owner merges.
 
 **3.6 Deploy.** GitHub Pages. No offline bundle — dropped with the booth. Locally, `bash scripts/serve.sh`
 (see the note in §2.1 for why double-clicking the file will stop being enough).
@@ -199,19 +197,16 @@ booked, privacy incidents) all measured an event this code no longer appears at.
 
 ### 4a. Machine-verifiable acceptance
 
-- [ ] All 3 views render for all 3 employers; zero console errors
-- [ ] Scenario A/B/C values match §3.4 exactly
-- [ ] Any cell with `n < 20` masks values and prints "Suppressed (n<20)" with the reason inline
-- [ ] The result is a band, never a numeric score
-- [ ] `?scen=` · `?tab=` · `?dept=` · `?lens=` each open the screen onto the named state, and the
+- All 3 views render for all 3 employers; zero console errors
+- Scenario A/B/C values match §3.4 exactly
+- Any cell with `n < 20` masks values and prints "Suppressed (n<20)" with the reason inline
+- The result is a band, never a numeric score
+- `?scen=` · `?tab=` · `?dept=` · `?lens=` each open the screen onto the named state, and the
       department control shows the department that is actually selected
-- [ ] "Synthetic data — illustrative only" on every view
-- [ ] Provenance chip present and tappable on every figure
-- [ ] `python3 test_single_source.py` passes
-- [ ] `python3 test_suppression.py` passes
-- [ ] `bash employer-dashboard-poc/scripts/check-forbidden-terms.sh` exits 0
-- [ ] `python3 scripts/check-package-consistency.py` exits 0
-- [ ] kill-ai-slop Mode B scan pass
+- "Synthetic data — illustrative only" on every view
+- Provenance chip present and tappable on every figure
+- `make check` passes all ten repository gates
+- kill-ai-slop Mode B scan passes before a UI release
 
 ### 4b. Human check
 
@@ -291,7 +286,7 @@ Next work is the US evidence layer, planned separately.
 
 ### Communication
 - **Decision-maker**: Jangwoo Kim (single)
-- **Channel**: GitHub Issues/PR (ambiguity → `question` label; guessing prohibited)
+- **Channel**: GitHub Issues/PR (ambiguity → `type:decision`; work blocked on it also gets `status:blocked`; guessing prohibited)
 - **Spec canon**: this document; values = `contracts/proposal-package-v11.yml`; changes via PR only
 
 ---

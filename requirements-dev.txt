@@ -1,0 +1,4 @@
+# Keep this file exact. Dependabot opens upgrades; CI and local setup install it verbatim.
+pip==26.2.1
+PyMuPDF==1.28.2
+PyYAML==6.0.3

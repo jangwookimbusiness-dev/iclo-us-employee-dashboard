@@ -288,9 +288,11 @@ employer_id_classes:
 # ─────────────────────────────────────────────────────────────
 export_contract:
   files: employer-a.json · employer-b.json · employer-c.json + departments.json
-  produced_by: 기업별 롤 각각. R_ENGINEER 로 뽑으면 집계 정책이 면제라 억제를 우회한다
+  produced_by:
+    employer_files: 기업별 롤 각각. R_ENGINEER 로 뽑으면 조건부 집계 정책의 면제 여부에 따라 억제를 우회할 수 있으므로 정책 본문과 함께 검증한다
+    departments: D8 결정 대기. 기업별 카탈로그 3개 또는 부서명 전용의 좁은 발행 롤
 
-  envelope:                 # 모든 파일이 공유. 세 파일에서 값이 같아야 한다
+  envelope:                 # 세 employer 파일이 공유. 세 파일에서 값이 같아야 한다
     schema_version: 정수. 렌더러가 모르는 버전이면 숫자를 그리지 말고 멈춘다
     run_id: 한 번의 내보내기 실행. 세 파일이 다르면 회차가 섞인 것이다
     report_snapshot_seq: 어느 스냅샷 기준인가
@@ -319,6 +321,8 @@ export_contract:
       "억제됨" 으로 그린다. 행을 빼면 안 된다 — 빼면 그 부서가 존재하는지도 모른다.
 
   departments:              # 별도 파일. 억제된 부서도 이름은 남는다
+    release_envelope: [schema_version, run_id, report_snapshot_seq, exported_at, synthetic]
+    rows_key: departments
     fields: [department, employer_id]
     why: 셀 억제는 값을 가리는 것이지 부서의 존재를 숨기는 것이 아니다. 필터에 남아야 시연이 된다
 

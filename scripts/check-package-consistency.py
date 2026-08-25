@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
-"""제안 패키지 6종이 contracts/proposal-package-v11.yml 과 어긋나는지 검사한다.
+"""제안 패키지와 저장소 산출물이 정본·운영 규칙과 어긋나는지 검사한다.
 
-CI 가 아니라 빌드 끝단에서 돈다 (비공개 저장소 Actions 한도).
+CI 와 로컬 ``make check`` 양쪽에서 실행한다.
 exit 0 = 일치, exit 1 = 불일치.
 
   python3 scripts/check-package-consistency.py           # 전체
   python3 scripts/check-package-consistency.py --no-pdf  # PDF 건너뛰기 (빠름)
 """
-import json, re, subprocess, sys
+import re
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTRACT = ROOT / "contracts/proposal-package-v11.yml"
+MAX_TRACKED_FILE_BYTES = 15 * 1024 * 1024
 fails, warns = [], []
 
 
@@ -23,6 +26,74 @@ def warn(check, detail):
     warns.append((check, detail))
 
 
+def check_repository_artifacts():
+    """Keep a single generated file from silently becoming repository history.
+
+    Historical PDFs and handoff archives already account for most of this
+    repository's size. Rewriting published history is a separate, coordinated
+    operation; this forward guard prevents the problem from getting worse.
+    """
+    try:
+        tracked = subprocess.check_output(
+            ["git", "ls-files", "-z"], cwd=ROOT
+        ).decode("utf-8").split("\0")
+    except (OSError, subprocess.CalledProcessError, UnicodeDecodeError) as exc:
+        fail("artifact_size", f"tracked file 목록을 읽지 못함: {exc}")
+        return
+
+    oversized = []
+    for relative in tracked:
+        if not relative:
+            continue
+        path = ROOT / relative
+        if path.is_file() and path.stat().st_size > MAX_TRACKED_FILE_BYTES:
+            oversized.append((relative, path.stat().st_size))
+
+    for relative, size in oversized:
+        fail(
+            "artifact_size",
+            f"{relative} = {size / 1024 / 1024:.1f} MiB; 15 MiB 초과 파일은 "
+            "ARTIFACTS.md 정책에 따라 Release 또는 승인된 저장소로 옮겨야 함",
+        )
+
+
+def check_pages_publish_boundary():
+    """Refuse to make the repository root a public Pages artifact.
+
+    The workflow text check protects the deployment boundary, while executing
+    the builder here makes PR checks exercise the same staging path that the
+    post-merge deploy job uses.
+    """
+    workflow_path = ROOT / ".github/workflows/gates.yml"
+    builder_path = ROOT / "scripts/build_pages_site.py"
+    if not workflow_path.exists() or not builder_path.exists():
+        fail("pages_boundary", "Pages workflow 또는 allowlist builder 가 없음")
+        return
+
+    workflow = workflow_path.read_text(encoding="utf-8")
+    if re.search(r"^\s*path:\s*\.\s*$", workflow, re.M):
+        fail("pages_boundary", "Pages artifact 가 저장소 전체(path: .)를 공개함")
+    for required in ("python3 scripts/build_pages_site.py", "path: _site"):
+        if required not in workflow:
+            fail("pages_boundary", f"workflow 에 {required!r} 없음")
+
+    builder = builder_path.read_text(encoding="utf-8")
+    for public_file in ("index.html", "app.html", "data/member-demo.json"):
+        if f'Path("{public_file}")' not in builder:
+            fail("pages_boundary", f"공개 allowlist 에 {public_file} 없음")
+
+    result = subprocess.run(
+        [sys.executable, str(builder_path)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode:
+        detail = (result.stdout + result.stderr).strip() or "출력 없음"
+        fail("pages_boundary", f"Pages artifact staging 실패: {detail}")
+
+
 def check_contract_parses():
     """정본이 YAML 로서 성립하는지 본다.
 
@@ -31,13 +102,13 @@ def check_contract_parses():
     note: 를 붙이고 있었고, 항목 하나는 따옴표 없는 스칼라 안에 ': ' 를 담고
     있었다. 셋 다 PyYAML 에서 에러다. 검사기는 계속 초록불이었다.
 
-    ponytail: PyYAML 을 필수 의존성으로 만들지 않는다. 있으면 검증하고 없으면
-    건너뛴다 — 이 검사가 있어서 무의존성이 깨지면 목적과 수단이 뒤바뀐다.
+    PyYAML 은 requirements-dev.txt 의 필수 개발 의존성이다. 정본을 실제 YAML 로
+    읽지 못한 검사는 성공할 수 없다.
     """
     try:
         import yaml
     except ImportError:
-        warns.append(("contract_yaml", "PyYAML 없음 — 정본 파싱 검증을 건너뜀"))
+        fails.append(("contract_yaml", "PyYAML 없음 — 'make setup' 후 다시 실행"))
         return
     try:
         doc = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
@@ -367,11 +438,11 @@ def doc_text(p: Path, use_pdf: bool):
         return p.read_text(encoding="utf-8")
     if p.suffix == ".pdf" and use_pdf:
         try:
-            import fitz
-            d = fitz.open(p)
+            import pymupdf
+            d = pymupdf.open(p)
             return "\n".join(d[i].get_text() for i in range(d.page_count))
         except Exception as e:
-            warn("pdf", f"{p.name} 읽기 실패: {e}")
+            fail("pdf", f"{p.name} 읽기 실패: {e}")
     return None
 
 
@@ -479,7 +550,7 @@ def check_docs(c, use_pdf):
         print(f"문서 {checked}건 검사{note}")
 
     # Report 와 Proposal 의 머리글이 같으면 받는 쪽이 구분할 수 없다
-    b = ROOT / "tmp/iclo-snowflake-proposal-v10/build_reports_v10.py"
+    b = ROOT / "scripts/build/iclo-snowflake-proposal-v10/build_reports_v10.py"
     if b.exists() and 'else "JOINT VALIDATION PROPOSAL"' in b.read_text(encoding="utf-8"):
         fail("header", "build_reports_v10.py: Report 의 머리글이 'JOINT VALIDATION PROPOSAL' — "
                        "Proposal 덱과 구분되지 않는다")
@@ -490,6 +561,8 @@ def main():
     if not CONTRACT.exists():
         print(f"정본 없음: {CONTRACT}")
         return 1
+    check_repository_artifacts()
+    check_pages_publish_boundary()
     check_contract_parses()
     check_start_gates()
     check_surfaces()
@@ -504,10 +577,8 @@ def main():
             for chk, d in items:
                 print(f"  {mark} [{chk}] {d}")
     if not fails and not warns:
-        print("일치 — 6종이 정본과 어긋나지 않음")
-    elif not fails:
-        print(f"\n불일치 없음 (경고 {len(warns)}건)")
-    return 1 if fails else 0
+        print("일치 — 정본·문서·저장소 규칙과 어긋나지 않음")
+    return 1 if fails or warns else 0
 
 
 if __name__ == "__main__":
