@@ -124,9 +124,12 @@ def check_status_headers():
         declared_date, sha = m.groups()
         seen += 1
         try:
-            actual = subprocess.check_output(
-                ["git", "log", "-1", "--format=%ad", "--date=short", sha],
-                cwd=ROOT, stderr=subprocess.DEVNULL).decode().strip()
+            # %cd (커밋 날짜), %ad 아님. "이 문서는 커밋 X 시점" 이 뜻하는 것은 그
+            # 커밋이 **언제 나무에 올라왔는지**다. %ad 는 작성 시각이라 cherry-pick
+            # 이나 rebase 로 나중에 올라온 커밋이 옛 날짜로 통과한다 (codex 재검토).
+            actual, author_date = subprocess.check_output(
+                ["git", "log", "-1", "--format=%cd|%ad", "--date=short", sha],
+                cwd=ROOT, stderr=subprocess.DEVNULL).decode().strip().split("|")
         except (OSError, subprocess.CalledProcessError):
             # 커밋을 못 찾는 데는 두 가지 이유가 있고 심각도가 다르다. 얕은 클론이면
             # 히스토리가 없는 것이고 (CI 의 actions/checkout 기본값이 fetch-depth 1
@@ -146,8 +149,13 @@ def check_status_headers():
             continue
         if actual != declared_date:
             fail("status_header",
-                 f"{doc.name}: 헤더는 {declared_date} 라 쓰는데 커밋 {sha} 는 "
-                 f"{actual} 이다. 그 사이 커밋이 문서를 낡게 만들었을 수 있다")
+                 f"{doc.name}: 헤더는 {declared_date} 라 쓰는데 커밋 {sha} 의 "
+                 f"커밋 날짜는 {actual} 이다. 그 사이 커밋이 문서를 낡게 만들었을 수 있다")
+        elif author_date != actual:
+            warn("status_header",
+                 f"{doc.name}: 커밋 {sha} 의 작성일({author_date})과 커밋일({actual})이 "
+                 f"다르다 — rebase 나 cherry-pick 을 거쳤다는 뜻이고, 문서가 기준으로 "
+                 f"삼는 시점은 커밋일 쪽이다")
 
     if seen:
         print(f"현황 문서 {seen}건 — 헤더의 커밋과 날짜가 실재")
@@ -182,7 +190,26 @@ def check_local_matches_ci():
         return m.group(1) + (" --check" if "--check" in m.group(2) else "")
 
     wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
-    ci = {norm(l) for st in wf["jobs"]["gates"]["steps"]
+    steps = wf["jobs"]["gates"]["steps"]
+
+    # 스텝이 **실제로 강제되는지**까지 본다. 첫 판은 run: 줄만 걷어서, `if: false` 나
+    # `continue-on-error: true` 를 붙여 게이트를 무력화해도 집합이 그대로라 통과했다
+    # (codex 재검토, 2026-08-25). 목록에 있는 것과 병합을 막는 것은 다르다.
+    for st in steps:
+        run = str(st.get("run", ""))
+        if not any(norm(l) for l in run.splitlines()):
+            continue
+        label = st.get("name") or (norm(run.splitlines()[0]) or "?")
+        if st.get("continue-on-error"):
+            fail("local_vs_ci",
+                 f"CI 스텝 '{label}' 에 continue-on-error 가 붙어 실패해도 병합을 "
+                 f"막지 못한다 — 게이트로 세면 안 된다")
+        if "if" in st:
+            fail("local_vs_ci",
+                 f"CI 스텝 '{label}' 에 조건 `if: {st['if']}` 가 붙어 항상 돌지 "
+                 f"않는다 — 조건부 스텝은 필수 게이트가 아니다")
+
+    ci = {norm(l) for st in steps
           for l in str(st.get("run", "")).splitlines()} - {None}
 
     text = mk_path.read_text(encoding="utf-8")
@@ -405,12 +432,33 @@ def check_start_gates():
             warn("start_gates",
                  f"게이트 {g['id']} 는 §16 번호 항목이 아니므로 kind 로 성질을 밝혀야 한다")
 
-    # 정본이 드는 수가 기술문서의 대조표와 같은지.
-    if not re.search(rf"그것이 드는 (다섯|{len(gates)}개|넷)", text):
-        warn("start_gates",
-             f"기술문서가 정본 게이트 수({len(gates)})를 본문에서 말하지 않는다")
+    # 기술문서가 정본 게이트 수를 말하는 모든 자리를 찾아 **전부** 같은지 본다.
+    #
+    # 이 검사의 첫 판은 `그것이 드는 (다섯|N개|넷)` 이었다. **정답과 오답을 같은
+    # 정규식에 나열했으므로 아무것도 검증하지 않았다.** 그리고 그 상태로 실제
+    # 모순을 통과시켰다 — 같은 커밋이 §16 에 "그것이 드는 다섯" 을 넣으면서 §17.1
+    # 의 "드는 넷" 을 그대로 뒀고, 검사는 초록불이었다 (codex 재검토, 2026-08-25).
+    #
+    # 그래서 대안(alternation)을 쓰지 않는다. 숫자를 말하는 자리를 전부 걷어와
+    # 기대값 하나와 대조하고, 자리가 0개면 그것도 실패다.
+    want_word = {1: "하나", 2: "둘", 3: "셋", 4: "넷", 5: "다섯",
+                 6: "여섯", 7: "일곱"}.get(len(gates))
+    stated = re.findall(r"드는\s+(하나|둘|셋|넷|다섯|여섯|일곱|\d+개)", text)
+    if not stated:
+        fail("start_gates",
+             f"기술문서가 정본 게이트 수({len(gates)})를 어디서도 말하지 않는다")
+    else:
+        expected = {want_word, f"{len(gates)}개"} - {None}
+        wrong = sorted(set(stated) - expected)
+        if wrong:
+            fail("start_gates",
+                 f"기술문서가 정본 게이트 수를 {sorted(set(stated))} 로 말한다 — "
+                 f"실제 {len(gates)}건이므로 {sorted(expected)} 여야 한다. "
+                 f"한 절만 고치고 다른 절을 두면 이 검사가 그것을 잡는다")
+
     print(f"착수 게이트 {len(gates)}건 · 법무 레지스터 {total}개 "
-          f"(본문 {body_items} + §16.1 {enumerated}) — 출처 전부 실재")
+          f"(본문 {body_items} + §16.1 {enumerated}) · "
+          f"문서가 수를 말하는 자리 {len(stated)}곳 전부 일치 — 출처 전부 실재")
 
 
 def check_surfaces():

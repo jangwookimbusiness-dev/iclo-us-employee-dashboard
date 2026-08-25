@@ -3,39 +3,39 @@
   "months": 36,
   "files": {
     "party": {
-      "rows": 118270,
-      "bytes": 5489005,
-      "sha256": "19bd6229b497b6d42395563b7c5545b16f279f76e8e8e9e8492d2f595bd097e1"
+      "rows": 117970,
+      "bytes": 5474880,
+      "sha256": "89f2334a305d9099f46a1edca7be36b24f69fd0f0c32b9edb88c86ab298ba1a8"
     },
     "party_department": {
-      "rows": 118270,
-      "bytes": 2865285,
-      "sha256": "45269202fa6f81bb84b18fbbb88317b2b908d5d3812622919a9a7427fec52e86"
+      "rows": 117970,
+      "bytes": 2857947,
+      "sha256": "f1813a80dbadacfcde19d5189072a25c9f96096a08a93992fd0fc6b82b733d39"
     },
     "eligibility_span": {
-      "rows": 118270,
-      "bytes": 3043172,
-      "sha256": "de9145f32b6e951988efd9d44fc174a65a29bc36a199638d1cc2004c4d5204d8"
+      "rows": 117970,
+      "bytes": 3494317,
+      "sha256": "a3aec778b11324587902ff1a5e18ca7d9f934152b1a8194a2f44786d05fbf995"
     },
     "member_month": {
-      "rows": 2982655,
-      "bytes": 122531152,
-      "sha256": "6e3037c32ed425fde54fc7d6a622f7c63fb0f9cc70b15d8e17c7236f179e68a5"
+      "rows": 2978105,
+      "bytes": 122343951,
+      "sha256": "3cad55df2fdd9c446fd8ca56c32a937d8b3f83cdfab585ee7f9e8c4821991cf4"
     },
     "app_event": {
-      "rows": 191711,
-      "bytes": 6908035,
-      "sha256": "f37a61914f9fc952d6ac48c67c888c229b1f94d285138282265d834f2762a4cd"
+      "rows": 191147,
+      "bytes": 6887889,
+      "sha256": "3905b4ecd6ea65d7a60b250787cb7b43452c0c16118e416f7e8d4d4eb916b032"
     },
     "oral_signal": {
-      "rows": 123483,
-      "bytes": 5674268,
-      "sha256": "cbc05d91b1aec6e1506ee8d0a4579cd787086c56718c7d3e7008a7b8c2a4f18b"
+      "rows": 123095,
+      "bytes": 5650662,
+      "sha256": "0eac287ef5c1ec4a989d6533f971fee014841ac4f2fba21893bf6a721d94da17"
     },
     "claim_line": {
-      "rows": 110645,
-      "bytes": 6589678,
-      "sha256": "a8ced8719c8fd5df143e92b9ceb71ddf9fa49129dcd08b726dbdea6869d6b57f"
+      "rows": 110415,
+      "bytes": 6577196,
+      "sha256": "73c31ac654df9cda10214055ab17e3e248f8178eb00e912ecf164ac627a4c333"
     },
     "department": {
       "rows": 15,
@@ -44,25 +44,27 @@
     }
   },
   "totals": {
-    "employees": 53610,
-    "parties": 118270,
-    "member_months": 2982655,
+    "employees": 53551,
+    "parties": 117970,
+    "member_months": 2978105,
     "eligible_final": 37500,
-    "activated": 14361,
-    "repeaters": 5211,
-    "valid_people": 7630,
-    "claims": 110645,
-    "match_defects": 4349,
-    "rewrites": 4337
+    "activated": 14273,
+    "repeaters": 5256,
+    "valid_people": 7549,
+    "claims": 110415,
+    "match_defects": 4401,
+    "rewrites": 4403,
+    "employee_month_frac": 1341963.199041262,
+    "member_month_frac": 2960383.969172103
   },
   "emergent": {
     "ok": true,
-    "member_months": 2982655,
+    "member_months": 2978105,
     "member_months_target": 2970000,
-    "activated": 0.383,
-    "repeat": 0.683,
-    "dep_ratio": 2.2061,
-    "valid": 0.2035,
+    "activated": 0.3806,
+    "repeat": 0.6963,
+    "dep_ratio": 2.206,
+    "valid": 0.2013,
     "spec_conflict": {
       "resolved": "2026-08-25",
       "title": "정본이 Repeat 을 두 분모로 정의하고 있었고 §14.3 유도에는 품질 게이트가 없었다",

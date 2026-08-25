@@ -336,12 +336,15 @@ function render(){
     html = `<h2 class="vt">Program overview</h2>
       <p class="vsub">Participation and cost for the period, on the eligible-employee base. Aggregate only — cells under n ≥ ${MIN_CELL} are withheld.</p>
       <div class="grid g5">${cards}</div>
-      <p class="lead">Denominator discipline: participation uses <b>eligible employees</b> — staff at
-      contracted employers who are plan-eligible in the period, per the employer eligibility file
-      (typically X12 834). That is the population,
-      not the app users; the app users are the <b>Activated</b> share of it. Cost uses
-      <b>covered member-months</b> (employees + enrolled dependents, counted per month). The two are
-      never mixed — the lens above highlights which one each figure stands on.</p>`;
+      <p class="lead">Denominator discipline: three denominators, named. <b>Eligible employees</b> —
+      staff at contracted employers who are plan-eligible in the period, per the employer
+      eligibility file (typically X12 834) — is the base for <b>Activated</b>. That is the
+      population, not the app users. <b>Repeat participation</b> stands on a narrower base:
+      people who produced at least one quality-passing capture in the trailing 12 months, so
+      the quality gate applies to both sides of that ratio and the figure does not move when
+      capture quality moves. Cost uses <b>covered member-months</b> (employees + enrolled
+      dependents, counted per month). No figure mixes two of them — the lens above highlights
+      which one each stands on, and every card names its own below the value.</p>`;
   }
 
   if(S.tab==="signals"){

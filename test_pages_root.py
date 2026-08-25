@@ -30,6 +30,7 @@
 """
 import subprocess
 import sys
+from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -39,10 +40,56 @@ SITE = ROOT / "_site"
 # 라이브 사이트. 리다이렉트가 여기를 가리켜야 한다.
 LIVE_HOST = "grin-mauve.vercel.app"
 
+
+class RootDoc(HTMLParser):
+    """발행된 루트를 구조로 읽는다. 부분문자열로 보면 우회가 쉽다.
+
+    첫 판은 html 전체에 대해 `LIVE_HOST in html` · `"location.replace" in html` 을
+    봤다. 그러면 **폐기된 대시보드에 그 단어들을 담은 HTML 주석 한 줄만 붙여도
+    전부 통과한다** (codex 재검토, 2026-08-25). 주석과 스크립트와 메타 태그는
+    브라우저에게 전혀 다른 것이므로 검사도 구분해야 한다.
+
+    HTMLParser 는 주석을 handle_comment 로 따로 준다. 그래서 주석 내용은 어디에도
+    누적하지 않는다 — 그게 이 클래스의 존재 이유다.
+    """
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.script = []          # <script> 본문만
+        self.refresh = []         # <meta http-equiv=refresh> 의 content
+        self.canonical = []       # <link rel=canonical> 의 href
+        self.text = []            # 사람이 보는 본문 텍스트
+        self._in_script = False
+
+    def handle_starttag(self, tag, attrs):
+        a = {k.lower(): (v or "") for k, v in attrs}
+        if tag == "script":
+            self._in_script = True
+        elif tag == "meta" and a.get("http-equiv", "").lower() == "refresh":
+            self.refresh.append(a.get("content", ""))
+        elif tag == "link" and "canonical" in a.get("rel", "").lower():
+            self.canonical.append(a.get("href", ""))
+        elif tag == "a" and a.get("href"):
+            self.text.append(a["href"])
+
+    def handle_endtag(self, tag):
+        if tag == "script":
+            self._in_script = False
+
+    def handle_data(self, data):
+        (self.script if self._in_script else self.text).append(data)
+
+    def handle_comment(self, data):
+        pass          # 의도적으로 버린다. 주석은 브라우저 동작이 아니다
+
 # 폐기된 기업 데모의 지문. index.html 이 루트로 발행되면 이것들이 따라온다.
 # 상수 블록이라 데모가 살아 있는 한 사라지지 않고, 사라졌다면 그건 데모가
 # 아니므로 어느 쪽이든 이 검사가 맞다.
 DEMO_FINGERPRINTS = ("const MIN_CELL", "const DEP_RATIO", "const FRAC")
+
+# 리다이렉트 stub 의 상한. 현재 약 1.3KB 이고 index.html 은 26KB 다. 지문 이름을
+# 바꿔 위 검사를 피해도 크기는 남는다.
+MAX_ROOT_BYTES = 8192
 
 
 def main() -> int:
@@ -65,31 +112,53 @@ def main() -> int:
         print(f"FAIL — 발행된 루트가 없다: {root}")
         return 1
     html = root.read_text(encoding="utf-8")
+    doc = RootDoc()
+    doc.feed(html)
+    script = "".join(doc.script)
     checked += 1
 
-    # 1. 루트가 라이브 사이트로 보낸다.
-    if LIVE_HOST not in html:
-        fails.append(f"발행된 루트가 {LIVE_HOST} 를 안 가리킨다")
+    # 1. 리다이렉트 목적지가 **실행되는 자리**에 있다. 스크립트 본문이든 meta
+    #    refresh 의 content 든 canonical href 든, 브라우저가 실제로 쓰는 곳이어야
+    #    한다. 주석은 위 파서가 버렸으므로 여기 안 들어온다.
+    live_in = [w for w, hay in (("script", script),
+                                ("meta refresh", " ".join(doc.refresh)),
+                                ("canonical", " ".join(doc.canonical)))
+               if LIVE_HOST in hay]
+    if not live_in:
+        fails.append(
+            f"{LIVE_HOST} 가 실행되는 자리에 없다 — 스크립트·meta refresh·canonical "
+            f"어디에도 없다 (주석에만 있는 것은 리다이렉트가 아니다)")
     checked += 1
 
-    # 2. JS 로 즉시 넘긴다. 인쇄된 QR 로 온 사람이 뒤로가기를 눌렀을 때 이 stub
-    #    으로 다시 떨어지지 않아야 하므로 history 를 남기지 않는 replace 여야 한다.
-    if "location.replace" not in html:
-        fails.append("루트에 location.replace 가 없다 — 뒤로가기가 stub 으로 되돌아온다")
+    # 2. history 를 남기지 않는 replace 로 넘긴다. 인쇄된 QR 로 온 사람이 뒤로가기를
+    #    눌렀을 때 이 stub 으로 다시 떨어지지 않아야 한다. 스크립트 본문에서만 본다.
+    if "location.replace" not in script:
+        fails.append("스크립트에 location.replace 가 없다 — 뒤로가기가 stub 으로 되돌아온다")
     checked += 1
 
-    # 3. no-JS 대비가 있다.
-    if "http-equiv" not in html.lower() or "refresh" not in html.lower():
-        fails.append("루트에 meta refresh 대비가 없다 — JS 없는 환경에서 아무 데도 안 간다")
+    # 3. no-JS 대비. 태그로 확인한다.
+    if not doc.refresh:
+        fails.append("meta http-equiv=refresh 태그가 없다 — JS 없는 환경에서 아무 데도 안 간다")
+    elif not any(LIVE_HOST in c for c in doc.refresh):
+        fails.append(f"meta refresh 가 있는데 {LIVE_HOST} 를 안 가리킨다")
     checked += 1
 
-    # 4. **핵심.** 루트가 폐기된 기업 데모가 아니다.
-    leaked = [f for f in DEMO_FINGERPRINTS if f in html]
+    # 4. **핵심.** 루트가 폐기된 기업 데모가 아니다. 지문은 상수 블록이므로
+    #    스크립트 본문에서 찾는다 — 주석에 적힌 같은 문자열은 데모가 아니다.
+    leaked = [f for f in DEMO_FINGERPRINTS if f in script]
     if leaked:
         fails.append(
-            f"발행된 루트가 폐기된 기업 데모다 — 지문 {leaked} 가 있다. "
+            f"발행된 루트가 폐기된 기업 데모다 — 스크립트에 지문 {leaked} 가 있다. "
             f"index.html 이 리다이렉트 대신 루트로 발행됐다는 뜻이고, "
             f"인쇄된 부스 QR 이 그 화면을 다시 서빙한다")
+    checked += 1
+
+    # 5. 리다이렉트 stub 은 작다. 대시보드는 안 작다. 지문 이름을 바꿔 4번을
+    #    피하더라도 크기는 못 숨긴다 — 상수 이름을 고쳐도 화면 코드는 그대로다.
+    if len(html) > MAX_ROOT_BYTES:
+        fails.append(
+            f"발행된 루트가 {len(html):,} 바이트다 — 리다이렉트 stub 이 "
+            f"{MAX_ROOT_BYTES:,} 를 넘을 이유가 없다. 앱이 루트로 발행됐을 수 있다")
     checked += 1
 
     # 5. 원본 리다이렉트 파일이 자기 이름으로도 발행되지 않는다. 발행 이름은
