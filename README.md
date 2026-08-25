@@ -4,7 +4,12 @@ Aggregate, privacy-safe oral-health dashboard for US self-funded employers.
 
 > **Synthetic data — illustrative only.** Every number here is a fixed synthetic sample, not ICLO performance evidence.
 
-**Live:** https://jangwookimbusiness-dev.github.io/iclo-us-employee-dashboard/
+**Not live.** The booth demo was scrapped on 2026-08-13. The Pages root —
+https://jangwookimbusiness-dev.github.io/iclo-us-employee-dashboard/ — now
+redirects to https://grin-mauve.vercel.app/, because the printed booth QR code
+encodes that root and the copy Snowflake holds cannot be recalled. Pages
+publishes only the allowlist in `scripts/build_pages_site.py`; run the dashboard
+locally with `bash scripts/serve.sh`.
 
 ## What it shows
 

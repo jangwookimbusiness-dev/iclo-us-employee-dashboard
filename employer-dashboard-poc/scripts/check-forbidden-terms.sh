@@ -13,7 +13,7 @@ fail=0
 # app.html have been. The red line has to cover what ships.
 # 제안서도 본다. 배포 코드만 검사하고 밖으로 나가는 문서를 빼두면, 레드라인이
 # 가장 많이 읽히는 곳에서만 안 걸린다.
-for f in ../index.html ../app.html ../output/proposal-v12/*.md ../output/status/*.md ../output/analysis/*.md; do
+for f in ../index.html ../app.html ../pages-root-redirect.html ../output/proposal-v12/*.md ../output/status/*.md ../output/analysis/*.md; do
   [ -f "$f" ] || continue
   hits=$(grep -niE "$PAT" "$f" 2>/dev/null || true)
   if [ -n "$hits" ]; then echo "RED LINE - forbidden terms in $(basename "$f"):"; echo "$hits"; fail=1; fi
