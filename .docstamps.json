@@ -1,13 +1,13 @@
 {
  "customer_analysis": {
-  "artifact": "61a041511420b412774d7b2fec159d3e9c1e0567fed9e9e0a0554deb54e41164",
+  "artifact": "4a2e66587f64fafdeec2ef34da6c3381731b98b8953a9b0a7616f16ad89c65b1",
   "pages": 11,
   "sources": {
    "output/analysis/고객-비용-이익-분석-KO.md": "aeba4afde33795d0d5d400665fba73b2637fdbf1fd377f7b9a9d73396ec64727"
   }
  },
  "proposal_v12": {
-  "artifact": "19c4a3b8967f34455878a5ba161256370e31b0f9869d746a01f109d7254fc192",
+  "artifact": "cb3c9962d68cca63a5914161bdfbc3043f989a41e5265f06e915ba7d47e22797",
   "pages": 32,
   "sources": {
    "output/proposal-v12/assets/app-camera.png": "9783b7581452ba0c27e27e98df5b014f1f9f49fb56e1ff91d09aa82190f830b2",
@@ -49,14 +49,14 @@
   }
  },
  "status_2026_08_16": {
-  "artifact": "29300d1f04640d31305f9097d850e47988d7679d43460bfff80002d896e71fb1",
+  "artifact": "938c701363e48ec65ed8593159cee0bf7d489576ffee29e7ca61a79a92aa145a",
   "pages": 10,
   "sources": {
    "output/status/STATUS-2026-08-16.md": "cb4c7f0f51620078ad385e8033078bf1796e7097c8205dfb7c28dd79f4ad5113"
   }
  },
  "tech": {
-  "artifact": "79d63826ac90f3959daad3fcd8c1b3d7c735e0c2a79fdd71669a597554126f8e",
+  "artifact": "289667253a519fb588aa6f1469dd869b492fdd2e16a430ba1e5d6f6b206658b4",
   "pages": 108,
   "sources": {
    "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md": "2c2d5243277080244e8abe2181f403093f55c0f72603c26cb26446b5c496dc37",
