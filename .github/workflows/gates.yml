@@ -88,6 +88,15 @@ jobs:
       - name: Fixtures parse and agree with their own arithmetic
         run: python3 test_fixtures.py
 
+      - name: Published Pages root is the redirect, not the scrapped demo
+        # Lives outside build_pages_site.py on purpose. That script already
+        # checks the redirect, but the check sits inside the file a merge would
+        # replace, and a replacement passes by comparing its own new
+        # PUBLIC_FILES definition against itself. This asserts the outcome in
+        # _site/ instead, so it survives whatever shape the builder takes. What
+        # it protects is a printed booth QR that cannot be recalled.
+        run: python3 test_pages_root.py
+
       - name: Synthetic generator derives its rates from the canon
         # Pure functions only — the full 36-month run writes 160 MB and takes
         # seconds, neither of which belongs in a required check. What this
