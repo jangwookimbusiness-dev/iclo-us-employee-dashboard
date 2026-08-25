@@ -94,6 +94,51 @@ def check_pages_publish_boundary():
         fail("pages_boundary", f"Pages artifact staging 실패: {detail}")
 
 
+def check_status_headers():
+    """현황 문서가 자기 헤더에 적은 커밋과 날짜가 실제로 맞는지 본다.
+
+    doc-manifest 와 .docstamps.json 은 **PDF 가 md 와 같은지**를 증명한다. md 가
+    저장소와 같은지는 증명하지 않는다. 그 틈에 실제로 뭐가 빠졌는지가 이 검사의
+    이유다 — `STATUS-2026-08-16.md` 가 헤더에 `2026-08-16 · 커밋 dc7bb5e` 라 적고
+    있었는데 `dc7bb5e` 는 2026-08-15 커밋이고, 그 사이 하루에 커밋 31개가 들어와
+    문서가 "없다" 고 쓴 것들을 만들었다. 해시 스탬프는 전부 초록불이었다.
+
+    ponytail: 문서 내용 전체를 저장소와 대조하지 않는다. 그건 불가능하다. 기계가
+    확인할 수 있는 주장 하나 — "이 문서는 커밋 X 시점이고 X 는 날짜 D 다" — 만 본다.
+    """
+    status_dir = ROOT / "output/status"
+    if not status_dir.is_dir():
+        return
+    docs = sorted(status_dir.glob("*.md"))
+    if not docs:
+        return
+
+    seen = 0
+    for doc in docs:
+        head = doc.read_text(encoding="utf-8")[:4000]
+        m = re.search(r"\*\*(\d{4}-\d{2}-\d{2})\s*·\s*커밋\s*`([0-9a-f]{7,40})`\*\*", head)
+        if not m:
+            warn("status_header",
+                 f"{doc.name}: '**날짜 · 커밋 `해시`**' 헤더가 없어 대조할 수 없다")
+            continue
+        declared_date, sha = m.groups()
+        seen += 1
+        try:
+            actual = subprocess.check_output(
+                ["git", "log", "-1", "--format=%ad", "--date=short", sha],
+                cwd=ROOT, stderr=subprocess.DEVNULL).decode().strip()
+        except (OSError, subprocess.CalledProcessError):
+            fail("status_header", f"{doc.name}: 헤더의 커밋 {sha} 가 저장소에 없다")
+            continue
+        if actual != declared_date:
+            fail("status_header",
+                 f"{doc.name}: 헤더는 {declared_date} 라 쓰는데 커밋 {sha} 는 "
+                 f"{actual} 이다. 그 사이 커밋이 문서를 낡게 만들었을 수 있다")
+
+    if seen:
+        print(f"현황 문서 {seen}건 — 헤더의 커밋과 날짜가 실재")
+
+
 def check_local_matches_ci():
     """`make check` 과 gates.yml 이 같은 검사를 돌리는지 본다.
 
@@ -636,6 +681,7 @@ def main():
     check_repository_artifacts()
     check_pages_publish_boundary()
     check_contract_parses()
+    check_status_headers()
     check_local_matches_ci()
     check_start_gates()
     check_surfaces()
