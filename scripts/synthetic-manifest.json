@@ -1,0 +1,109 @@
+{
+  "seed": 20260825,
+  "months": 36,
+  "files": {
+    "party": {
+      "rows": 118270,
+      "bytes": 5489005,
+      "sha256": "19bd6229b497b6d42395563b7c5545b16f279f76e8e8e9e8492d2f595bd097e1"
+    },
+    "party_department": {
+      "rows": 118270,
+      "bytes": 2865285,
+      "sha256": "45269202fa6f81bb84b18fbbb88317b2b908d5d3812622919a9a7427fec52e86"
+    },
+    "eligibility_span": {
+      "rows": 118270,
+      "bytes": 3043172,
+      "sha256": "de9145f32b6e951988efd9d44fc174a65a29bc36a199638d1cc2004c4d5204d8"
+    },
+    "member_month": {
+      "rows": 2982655,
+      "bytes": 122531152,
+      "sha256": "6e3037c32ed425fde54fc7d6a622f7c63fb0f9cc70b15d8e17c7236f179e68a5"
+    },
+    "app_event": {
+      "rows": 191711,
+      "bytes": 6908035,
+      "sha256": "f37a61914f9fc952d6ac48c67c888c229b1f94d285138282265d834f2762a4cd"
+    },
+    "oral_signal": {
+      "rows": 123483,
+      "bytes": 5674268,
+      "sha256": "cbc05d91b1aec6e1506ee8d0a4579cd787086c56718c7d3e7008a7b8c2a4f18b"
+    },
+    "claim_line": {
+      "rows": 110645,
+      "bytes": 6589678,
+      "sha256": "a8ced8719c8fd5df143e92b9ceb71ddf9fa49129dcd08b726dbdea6869d6b57f"
+    },
+    "department": {
+      "rows": 15,
+      "bytes": 429,
+      "sha256": "99b11d471690d90106d33b2f03a93c49b3bdd3970316b23d120358407970f995"
+    }
+  },
+  "totals": {
+    "employees": 53610,
+    "parties": 118270,
+    "member_months": 2982655,
+    "eligible_final": 37500,
+    "activated": 14361,
+    "repeaters": 5211,
+    "valid_people": 7630,
+    "claims": 110645,
+    "match_defects": 4349,
+    "rewrites": 4337
+  },
+  "emergent": {
+    "ok": true,
+    "member_months": 2982655,
+    "member_months_target": 2970000,
+    "activated": 0.383,
+    "repeat": 0.3629,
+    "dep_ratio": 2.2061,
+    "valid": 0.2035,
+    "spec_conflict": {
+      "title": "§14.3 SPORADIC '연 1~2회' 와 FRAC.repeat '롤링 12개월 유효촬영 2건 이상' 이 양립 불가",
+      "arithmetic": [
+        "맞는 쪽: ONE_SHOT = a - a×r = 0.1482 이고,",
+        "         창 안 정확히 1회 (v - a×r = 0.0482) + 창 안 0회 (a - v = 0.1000)",
+        "         = 0.1482 — 소수 네 자리까지 일치한다. 우연이 아니다.",
+        "안 되는 쪽: repeat 0.61 은 SPORADIC+REGULAR 전원 0.2318 이 12개월 창에서",
+        "         유효 2건 이상이어야 성립한다. 그중 SPORADIC 이 0.1310 (repeat 인구의 57%) 이고,",
+        "         §14.3 은 SPORADIC 을 연 1~2회로 못박았다. 시도가 최대 2회면",
+        "         품질 게이트가 100% 가 아닌 한 유효 2건이 구조적으로 안 나온다."
+      ],
+      "resolutions": [
+        "SPORADIC 을 연 2~3회로 올린다 → §14.3 문장을 고쳐야 한다",
+        "repeat 창을 24개월로 늘린다 → 정본 metric_time_contracts 를 고쳐야 한다",
+        "repeat 을 '유효 촬영' 이 아니라 '촬영 시도' 로 센다 → 지표 정의가 바뀐다",
+        "FRAC.repeat 0.61 을 내린다 → 화면 상수와 제안서 스크린샷이 바뀐다"
+      ],
+      "measured_ceiling_note": "생성기는 어느 것도 임의로 고르지 않는다. 지금은 그냥 안 맞는 채로 둔다."
+    }
+  },
+  "per_employer": {
+    "A": {
+      "Operations": 4415,
+      "Sales": 2733,
+      "Engineering": 1997,
+      "Finance": 841,
+      "Facilities (pilot site)": 14
+    },
+    "B": {
+      "Operations": 1102,
+      "Sales": 682,
+      "Engineering": 498,
+      "Finance": 210,
+      "Facilities (pilot site)": 8
+    },
+    "C": {
+      "Operations": 11045,
+      "Sales": 6838,
+      "Engineering": 4997,
+      "Finance": 2104,
+      "Facilities (pilot site)": 16
+    }
+  }
+}

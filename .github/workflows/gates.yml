@@ -88,6 +88,16 @@ jobs:
       - name: Fixtures parse and agree with their own arithmetic
         run: python3 test_fixtures.py
 
+      - name: Synthetic generator derives its rates from the canon
+        # Pure functions only — the full 36-month run writes 160 MB and takes
+        # seconds, neither of which belongs in a required check. What this
+        # guards is the part that can rot silently: the participation mix is
+        # derived from FRAC.activated and FRAC.repeat rather than restated, and
+        # every department split lands on the exact headcount while keeping the
+        # below-minimum-cell department. Both break the moment someone edits a
+        # constant in the canon and nothing else.
+        run: python3 scripts/generate_synthetic.py --check
+
   # Pages used to be built by GitHub's own branch builder, which served the
   # repository root verbatim on every push — internal notes and all, and with no
   # gate in front of it. Deployment now runs here, after the gates, and publishes
