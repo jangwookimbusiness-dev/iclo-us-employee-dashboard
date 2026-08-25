@@ -126,6 +126,91 @@ def check_awaiting_decision():
     print(f"결정 대기 {len(entries)}건 · 결정 기록 {len(dentries)}건 — 전부 해당 문서에서 확인")
 
 
+TECH_DOC = ROOT / "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md"
+
+
+def check_start_gates():
+    """정본 start_gates 와 기술문서 §16 법무 레지스터가 서로를 안 배신하는지 본다.
+
+    왜 이 검사가 있는가. 2026-08-25 까지 두 문서가 **서로 다른 넷**을 세고 있었다.
+    정본은 HIPAA 역할·데이터 권리·기준선 적재·공통 식별키를 들었고, §17.1 은
+    2026-08-15 에 "요약이 BAA·리전을 넷에 넣고 있었는데 그건 §16 번호 항목이 아니라
+    §9 가정 A5" 라고 바로잡았다. 그런데 그때 정본 쪽에 항목을 안 넣어서 총계가
+    4 대 5 로 어긋난 채 남았다. 문서 한쪽만 고치면 다음 사람이 반대쪽을 읽는다.
+
+    그리고 §16 본문 요약이 `12~21 · 10개 항목` 이라 쓰면서 §16.1 은 11개를
+    열거하고 있었다. 빠진 것은 SSN 수집·보관 근거였다. 같은 숫자가 세 곳에서
+    달랐고 아무도 안 세어봤다.
+
+    ponytail: 항목 내용까지 대조하지 않는다. 번호 체계와 개수, 그리고 각 게이트의
+    출처가 실재하는지만 본다. 그 셋이 어긋난 것이 실제로 일어난 사고였다.
+    """
+    try:
+        import yaml
+    except ImportError:
+        warn("start_gates", "PyYAML 없음 — 착수 게이트 대조를 건너뜀")
+        return
+    if not TECH_DOC.exists():
+        fail("start_gates", f"기술문서 없음: {TECH_DOC}")
+        return
+
+    doc = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
+    gates = doc.get("start_gates") or []
+    text = TECH_DOC.read_text(encoding="utf-8")
+
+    # §16.1 이 실제로 몇 개를 열거하는가. "### 16.1" 부터 다음 `---` 까지의 `N. ` 줄.
+    m = re.search(r"^### 16\.1.*?$(.*?)^---", text, re.S | re.M)
+    if not m:
+        fail("start_gates", "기술문서에서 §16.1 구간을 못 찾았다")
+        return
+    enumerated = len(re.findall(r"^\d+\. ", m.group(1), re.M))
+
+    # §16 본문 요약이 선언하는 범위와 개수.
+    m2 = re.search(r"^(\d+)~(\d+)\. \*\*계정·가족·이탈 관련 (\d+)개 항목\*\*", text, re.M)
+    if not m2:
+        fail("start_gates", "§16 본문의 '계정·가족·이탈 관련 N개 항목' 요약 줄을 못 찾았다")
+        return
+    lo, hi, claimed = (int(x) for x in m2.groups())
+
+    if hi - lo + 1 != claimed:
+        fail("start_gates",
+             f"§16 본문 요약의 범위와 개수가 안 맞는다: {lo}~{hi} 는 {hi - lo + 1}개인데 "
+             f"{claimed}개라고 쓴다")
+    if claimed != enumerated:
+        fail("start_gates",
+             f"§16 본문 요약은 {claimed}개라 쓰고 §16.1 은 {enumerated}개를 열거한다")
+
+    # §16 본문의 번호 항목 수 + §16.1 열거 수 = 레지스터 총계. 문서가 그 숫자를 말하는가.
+    body = text[text.index("## 16. "):text.index("### 16.1")]
+    body_items = len(re.findall(r"^\d+\. (?:~~)?\*\*", body, re.M))
+    total = body_items + enumerated
+    if not re.search(rf"유일한 법무 게이트 레지스터이고 {total}개 항목", text):
+        fail("start_gates",
+             f"레지스터 총계는 본문 {body_items} + §16.1 {enumerated} = {total}개인데 "
+             f"기술문서가 그 숫자를 선언하지 않는다")
+
+    # 각 게이트의 출처가 실재하는지. §16-N 을 가리키면 그 번호가 본문에 있어야 한다.
+    for g in gates:
+        src = str(g.get("source", ""))
+        n = re.search(r"§16-(\d+)|16절 (\d+)번", src)
+        if n:
+            idx = int(n.group(1) or n.group(2))
+            if not re.search(rf"^{idx}\. \*\*", body, re.M):
+                fail("start_gates", f"게이트 {g['id']} 가 §16-{idx} 를 가리키는데 그 항목이 없다")
+        elif "§9" not in src and "§17" not in src and "기술문서에 게이트로는 없음" not in src:
+            fail("start_gates", f"게이트 {g['id']} 의 출처가 해석 불가: {src!r}")
+        if not g.get("kind") and not n:
+            warn("start_gates",
+                 f"게이트 {g['id']} 는 §16 번호 항목이 아니므로 kind 로 성질을 밝혀야 한다")
+
+    # 정본이 드는 수가 기술문서의 대조표와 같은지.
+    if not re.search(rf"그것이 드는 (다섯|{len(gates)}개|넷)", text):
+        warn("start_gates",
+             f"기술문서가 정본 게이트 수({len(gates)})를 본문에서 말하지 않는다")
+    print(f"착수 게이트 {len(gates)}건 · 법무 레지스터 {total}개 "
+          f"(본문 {body_items} + §16.1 {enumerated}) — 출처 전부 실재")
+
+
 def check_surfaces():
     """정본 surfaces 가 가리키는 파일이 실제로 있는가.
 
@@ -170,8 +255,21 @@ def load_contract():
     c["superseded"] = set(re.findall(r"artifacts:\s*\[([^\]]+)\]", sup.group(1))[0].split(", ")) \
         if sup and re.findall(r"artifacts:\s*\[([^\]]+)\]", sup.group(1)) else set()
     g = re.search(r"^start_gates:$(.*?)^\w", t, re.S | re.M).group(1)
-    c["gates_ko"] = [x.strip() for x in re.findall(r"^\s+ko:\s*(.+)$", g, re.M)]
-    c["gates_en"] = [x.strip() for x in re.findall(r"^\s+en:\s*(.+)$", g, re.M)]
+    # `disclose: 대내` 게이트는 대외 노출 검사에서 뺀다. 지금 해당하는 것은
+    # baa_and_region 하나이고, 이유는 그 항목의 고유 내용이 **우리 Snowflake 계정의
+    # 에디션·리전**이기 때문이다. 고객이 알아야 할 BAA 체인 자체는 §16-1
+    # (hipaa_roles) 이 이미 대외로 들고 있으므로 중복이 아니라 분업이다.
+    # 이 필드가 없으면 정본에 게이트를 하나 넣는 순간 발송된 제안서 다섯이
+    # 전부 경고를 뿜고, 그 경고를 끄려고 대외 문서에 우리 계정 사정을 적게 된다.
+    blocks = re.split(r"^  - id:", g, flags=re.M)[1:]
+    c["gates_ko"], c["gates_en"] = [], []
+    for b in blocks:
+        if re.search(r"^\s+disclose:\s*대내", b, re.M):
+            continue
+        for key, dest in (("ko", c["gates_ko"]), ("en", c["gates_en"])):
+            m = re.search(rf"^\s+{key}:\s*(.+)$", b, re.M)
+            if m:
+                dest.append(m.group(1).strip())
     return c
 
 
@@ -393,6 +491,7 @@ def main():
         print(f"정본 없음: {CONTRACT}")
         return 1
     check_contract_parses()
+    check_start_gates()
     check_surfaces()
     check_awaiting_decision()
     c = load_contract()
