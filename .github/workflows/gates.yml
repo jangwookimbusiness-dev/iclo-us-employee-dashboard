@@ -39,6 +39,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history. The default is fetch-depth: 1, and the canon check
+          # resolves the commit hash a status document declares in its header --
+          # which is not in a shallow clone, so it failed on its first run here.
+          # Degrading that check to a warning in CI would make it a check nobody
+          # runs, which is how three checks in this repository died.
+          fetch-depth: 0
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
