@@ -88,6 +88,10 @@ jobs:
       - name: Fixtures parse and agree with their own arithmetic
         run: python3 test_fixtures.py
 
+  # Pages used to be built by GitHub's own branch builder, which served the
+  # repository root verbatim on every push — internal notes and all, and with no
+  # gate in front of it. Deployment now runs here, after the gates, and publishes
+  # only the allowlist in scripts/build_pages_site.py.
   deploy-pages:
     name: deploy-pages
     needs: gates
