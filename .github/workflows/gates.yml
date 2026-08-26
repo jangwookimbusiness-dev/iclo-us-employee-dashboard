@@ -109,6 +109,15 @@ jobs:
         # it protects is a printed booth QR that cannot be recalled.
         run: python3 test_pages_root.py
 
+      - name: Screens are built from the canon, not from copied literals
+        # Charter §4.2. Perturbs the canon, runs the real builder, and asserts the
+        # new value reached build/ while the old one did not. It replaces the old
+        # test_single_source at the build boundary rather than deleting it: reading
+        # the canon at build time removes the manual copy step only, and a template
+        # or a label can still hold a stale number. It found exactly that on its
+        # first run, in the template comment explaining why literals are bad.
+        run: python3 test_build_reads_canon.py
+
       - name: Synthetic generator derives its rates from the canon
         # Pure functions only — the full 36-month run writes 160 MB and takes
         # seconds, neither of which belongs in a required check. What this
