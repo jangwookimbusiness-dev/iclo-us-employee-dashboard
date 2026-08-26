@@ -7,7 +7,7 @@ PYTHON := $(VENV)/bin/python
 
 help:
 	@echo "make setup         Create the Python 3.14 virtual environment"
-	@echo "make check         Run the same twelve gates as CI"
+	@echo "make check         Run the same thirteen gates as CI"
 	@echo "make check-fast    Run non-browser pre-commit gates"
 	@echo "make serve         Serve the demo at http://localhost:8000"
 	@echo "make docs          Rebuild managed screenshots and PDFs"
@@ -30,6 +30,7 @@ check: check-fast
 	$(PYTHON) test_fixtures.py
 	$(PYTHON) test_pages_root.py
 	$(PYTHON) scripts/generate_synthetic.py --check
+	$(PYTHON) test_build_reads_canon.py
 
 check-fast:
 	@test -x $(PYTHON) || { echo "Run 'make setup' first"; exit 1; }

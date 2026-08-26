@@ -49,7 +49,7 @@ screen rules are requirements, not visual preferences.
 ## Supported commands
 
 - `make setup` — create `.venv` from the pinned Python version and dependencies
-- `make check` — run the same twelve gates as CI
+- `make check` — run the same thirteen gates as CI
 - `make check-fast` — run the non-browser pre-commit subset
 - `make serve` — serve the demo at `http://localhost:8000`
 - `make docs` — rebuild managed screenshots and PDFs
