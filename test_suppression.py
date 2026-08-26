@@ -124,13 +124,36 @@ def main():
                 for leak in leaked_in_notice(dom):
                     failures.append(f"{where}: suppression notice echoed {leak}")
 
-    checked = len(SCENARIOS) * len(DEPTS) * len(TABS)
+    states = len(SCENARIOS) * len(DEPTS) * len(TABS)
+
+    # `seen` 은 실제로 파싱한 값의 개수다. 2026-08-26 까지 이 변수는 증가만 하고
+    # 어디에도 쓰이지 않았고, 출력은 states 를 찍었다 — 계산된 상수다. 그래서
+    # displayed_counts() 가 54상태 전부에서 빈 리스트를 돌려줘도 "PASS — 54 states"
+    # 가 나왔다. 변수 주석은 "values actually parsed, not states walked" 라고
+    # 적혀 있었고 코드는 정확히 그 반대를 했다 (codex 재검토가 잡았다).
+    #
+    # 이 검사는 조용히 죽었다가 다시 세운 셋 중 하나다. 렌더가 실패해 빈 페이지가
+    # 나왔을 때 "위반 없음" 으로 읽은 것이 그 사고였다. 그때 넣은 방어가 이 변수인데
+    # 단언이 없어서 방어가 아니었다.
+    if not seen:
+        print(f"FAIL — {states} states walked but zero displayed values parsed. "
+              f"렌더가 비었거나 DOM 구조가 바뀌었다 — '위반 없음' 이 아니다")
+        sys.exit(1)
+
+    # 상태당 최소 몇 개는 나와야 한다. 한 상태에서만 값이 나오고 53개가 비어도
+    # 위 검사는 통과한다. 화면은 상태마다 KPI 를 렌더하므로 하한을 건다.
+    if seen < states:
+        print(f"FAIL — {states} states walked but only {seen} values parsed "
+              f"(상태당 1개 미만). 일부 상태가 렌더되지 않았다")
+        sys.exit(1)
+
     if failures:
-        print(f"FAIL — {len(failures)} violation(s) across {checked} states:")
+        print(f"FAIL — {len(failures)} violation(s) across {states} states:")
         for f in failures:
             print("  " + f)
         sys.exit(1)
-    print(f"PASS — {checked} states, no displayed count below {MIN_CELL}")
+    print(f"PASS — {states} states, {seen} displayed values parsed, "
+          f"none below {MIN_CELL}")
 
 
 if __name__ == "__main__":

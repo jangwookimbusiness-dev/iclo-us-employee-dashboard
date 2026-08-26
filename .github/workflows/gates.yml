@@ -113,10 +113,16 @@ jobs:
         # Pure functions only — the full 36-month run writes 160 MB and takes
         # seconds, neither of which belongs in a required check. What this
         # guards is the part that can rot silently: the participation mix is
-        # derived from FRAC.activated and FRAC.repeat rather than restated, and
-        # every department split lands on the exact headcount while keeping the
-        # below-minimum-cell department. Both break the moment someone edits a
-        # constant in the canon and nothing else.
+        # derived from FRAC.activated rather than restated, every department
+        # split lands on the exact headcount while keeping the below-minimum-cell
+        # department, and one month generated twice is byte-identical.
+        #
+        # This comment said "FRAC.activated and FRAC.repeat" until 2026-08-26.
+        # The FRAC.repeat coupling was deliberately removed the day before -- it
+        # implemented a derivation withdrawn from the design doc -- and the step
+        # description was not updated with it. A CI step that describes behaviour
+        # the code no longer has is the same defect class the step exists to
+        # catch, so it is worth saying where it came from.
         run: python3 scripts/generate_synthetic.py --check
 
   # Pages used to be built by GitHub's own branch builder, which served the
