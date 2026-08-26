@@ -26,3 +26,6 @@ _originals/
 _site/
 
 __pycache__/
+
+# scripts/build_screens.py 산출물 — 정본에서 재생성된다
+build/
