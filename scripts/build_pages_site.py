@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
-"""Stage the exact public GitHub Pages surface.
+"""Stage the exact public GitHub Pages surface: one redirect, nothing else.
 
-Until now Pages served the repository root verbatim, which made the internal
-design notes, contracts and historical deliverables web-addressable. Pages now
-receives only this explicit allowlist; adding a file is a reviewed change here.
+The printed booth QR code encodes the Pages root and the copy Snowflake holds
+cannot be recalled. The employer demo that used to answer there was scrapped on
+2026-08-13, so the root publishes a redirect to the live site.
 
-The first entry is published under a name it does not have in the repository.
-The booth QR code is printed and the copy Snowflake holds cannot be recalled;
-it encodes the Pages root. The employer demo that used to answer there was
-scrapped on 2026-08-13, so the root publishes a redirect to the live site
-instead. The redirect is its own file rather than a rewritten index.html
-because index.html is load-bearing for the gates: test_single_source and
-test_suppression parse its constants, check-package-consistency asserts fifteen
-contract values against it, shots.py renders five screenshots from it, and
-.docstamps.json records its hash.
+**2026-08-26: the demo is no longer published at all.** Until now the allowlist
+also carried `app.html` and `data/member-demo.json`, so the QR redirected while
+the employee app stayed reachable one path over. That made the public surface
+larger than the one thing it exists to do. The repository is restarting from a
+clean base, and a scrapped demo has no reason to be on the internet in the
+meantime.
+
+The redirect is its own file rather than a rewritten `index.html` because
+`index.html` is load-bearing locally: `test_single_source` and `test_suppression`
+parse its constants, `check-package-consistency` asserts contract values against
+it, `shots.py` renders proposal screenshots from it, and `.docstamps.json`
+records its hash. It stays in the repository as a proposal illustration; it just
+stops being served.
+
+Run it locally with `bash scripts/serve.sh`.
 """
 from pathlib import Path
 import shutil
@@ -23,11 +29,18 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "_site"
 
-# (repository source, path it is published under). The two differ for one entry.
+# (repository source, path it is published under). The two differ.
 PUBLIC_FILES = (
     (Path("pages-root-redirect.html"), Path("index.html")),
-    (Path("app.html"), Path("app.html")),
-    (Path("data/member-demo.json"), Path("data/member-demo.json")),
+)
+
+# Files that must NOT reach Pages. Listing them is the point: an allowlist says
+# what goes out, and this says what someone would plausibly put back. Both
+# screens and the app's data feed were published until 2026-08-26.
+FORBIDDEN_ON_PAGES = (
+    Path("index.html"),
+    Path("app.html"),
+    Path("data/member-demo.json"),
 )
 
 
@@ -69,6 +82,19 @@ def main() -> int:
     root_html = (OUT / "index.html").read_text(encoding="utf-8")
     if "grin-mauve.vercel.app" not in root_html:
         print("FAIL — published index.html does not carry the redirect target")
+        return 1
+
+    # And prove the demo did not come along. The drift check above compares the
+    # staged set against PUBLIC_FILES, which means it agrees with whatever
+    # PUBLIC_FILES currently says — it cannot notice a file being added to it.
+    # This names the files instead.
+    leaked = [str(f) for f in FORBIDDEN_ON_PAGES
+              if f.name != "index.html" and (OUT / f).exists()]
+    if (OUT / "index.html").stat().st_size > 8192:
+        leaked.append("index.html (too large for a redirect stub)")
+    if leaked:
+        print("FAIL — the scrapped demo reached the public surface: "
+              + ", ".join(leaked))
         return 1
 
     print("PASS — Pages artifact allowlist: " + ", ".join(sorted(actual)))

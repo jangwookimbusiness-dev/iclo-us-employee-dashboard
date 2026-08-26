@@ -4,12 +4,18 @@ Aggregate, privacy-safe oral-health dashboard for US self-funded employers.
 
 > **Synthetic data — illustrative only.** Every number here is a fixed synthetic sample, not ICLO performance evidence.
 
-**Not live.** The booth demo was scrapped on 2026-08-13. The Pages root —
-https://jangwookimbusiness-dev.github.io/iclo-us-employee-dashboard/ — now
-redirects to https://grin-mauve.vercel.app/, because the printed booth QR code
-encodes that root and the copy Snowflake holds cannot be recalled. Pages
-publishes only the allowlist in `scripts/build_pages_site.py`; run the dashboard
-locally with `bash scripts/serve.sh`.
+**Nothing is served but a redirect.** The booth demo was scrapped on
+2026-08-13. The Pages root —
+https://jangwookimbusiness-dev.github.io/iclo-us-employee-dashboard/ — redirects
+to https://grin-mauve.vercel.app/, because the printed booth QR code encodes that
+root and the copy Snowflake holds cannot be recalled.
+
+As of 2026-08-26 the redirect is the **entire** public surface. The allowlist in
+`scripts/build_pages_site.py` used to carry `app.html` and its data feed too, so
+the QR redirected while the employee app stayed reachable one path over. Three
+checks now refuse to put either back. The screens remain in the repository as
+proposal illustrations and as screenshot sources; run them locally with
+`bash scripts/serve.sh`.
 
 [![gates](https://github.com/jangwookimbusiness-dev/iclo-us-employee-dashboard/actions/workflows/gates.yml/badge.svg)](https://github.com/jangwookimbusiness-dev/iclo-us-employee-dashboard/actions/workflows/gates.yml)
 
