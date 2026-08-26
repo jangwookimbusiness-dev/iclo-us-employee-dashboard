@@ -84,17 +84,28 @@
   <div class="grid" id="kpis"></div>
 
   <p class="note">Aggregate only. Cells covering fewer than
-  <code>{{MIN_CELL}}</code> distinct people are withheld, and the threshold in
+  <code id="mincell">—</code> distinct people are withheld, and the threshold in
   that sentence comes from the canon too — a regulatory number stated in prose is
   still a number that must not be typed twice.</p>
 </main>
 
-<script id="canon" type="application/json">
-{{CANON}}
-</script>
 <script>
-  // The screen reads the canon block. It never contains a constant of its own.
-  const CANON = JSON.parse(document.getElementById("canon").textContent);
+  // The screen fetches canon.json from its own directory. It holds no constant.
+  // At A3 this same path serves a tenant export instead and the template does
+  // not change -- that is why the decision record put the values in a sibling
+  // file rather than inlining them here.
+  fetch("./canon.json", {cache: "no-store"})
+    .then(r => r.ok ? r.json() : Promise.reject(new Error("canon.json " + r.status)))
+    .then(paint)
+    .catch(e => {
+      // Never fall back to plausible numbers. A blank screen with a reason is
+      // recoverable; invented figures that look real are not.
+      document.getElementById("kpis").innerHTML =
+        '<div class="card"><div class="lab">Canon unavailable</div>' +
+        '<div class="val">—</div><div class="denom">' + e.message + '</div></div>';
+    });
+
+function paint(CANON){
   const pct = f => Math.round(f * 100) + "%";
   const fmt = n => n.toLocaleString("en-US");
   const esc = s => String(s).replace(/[&<>"]/g, c =>
@@ -119,6 +130,11 @@
       `<div class="val">${esc(val)}</div>` +
       `<div class="denom">${esc(denom)}</div></div>`
   ).join("");
+
+  // The regulatory sentence carries the threshold, and it comes from the same
+  // place. A number stated in prose is still a number that must not be typed twice.
+  document.getElementById("mincell").textContent = CANON.min_cell;
+}
 </script>
 </body>
 </html>

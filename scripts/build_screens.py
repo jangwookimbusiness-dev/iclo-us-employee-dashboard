@@ -24,7 +24,6 @@
   python3 scripts/build_screens.py --out DIR
 """
 import argparse
-import html
 import json
 import sys
 from pathlib import Path
@@ -66,23 +65,22 @@ def load_canon(path):
     }
 
 
-def render(canon):
-    """정본 값을 하나의 JSON 블록으로 만들어 템플릿에 넣는다.
+def render():
+    """템플릿을 그대로 낸다. 값은 여기 안 들어간다.
 
-    값을 HTML 본문에 문자열로 흩뿌리지 않는다. 한 블록으로 주면 화면 코드가 그것을
-    읽고, 변조 검사가 산출물에서 값을 찾을 자리도 한 곳이다. 그리고 정본 문자열이
-    HTML 문맥에 들어가므로 `json.dumps` 로 직렬화한 뒤 `<` 를 이스케이프한다 —
-    `</script>` 가 정본 산문에 들어오면 스크립트가 끊긴다.
+    첫 판은 정본 JSON 을 `<script type="application/json">` 블록으로 HTML 안에
+    박았다. **결정 기록(#37, 정본 `decided.REBUILD-FRAMEWORK`)이 다른 모양을
+    지정한다** — `canon.json` 을 같은 출력 디렉터리에 **별 파일**로 놓고 화면이
+    그것을 읽는다.
+
+    그 모양이 나은 이유는 A3 다. 전환하면 측정값이 기업별 export JSON 으로 가고
+    화면은 같은 자리에서 다른 파일을 읽는다. 값이 HTML 안에 박혀 있으면 그때
+    템플릿을 다시 손봐야 한다.
+
+    대가는 하나. 화면이 `fetch` 를 쓰므로 `file://` 로 못 열고 HTTP 가 필요하다.
+    `app.html` 이 이미 그랬고 `scripts/serve.sh` 가 있다.
     """
-    blob = json.dumps(canon, ensure_ascii=False, indent=2, sort_keys=True)
-    blob = blob.replace("<", "\\u003c")          # </script> 차단
-    tpl = TEMPLATE.read_text(encoding="utf-8")
-    if "{{CANON}}" not in tpl:
-        sys.exit(f"build_screens: {TEMPLATE} 에 {{{{CANON}}}} 자리가 없다")
-    out = tpl.replace("{{CANON}}", blob)
-    # 사람이 읽는 자리 하나. 억제 임계는 규제 문구이므로 화면 산문에도 나와야 하고,
-    # 그것도 정본에서 온다.
-    return out.replace("{{MIN_CELL}}", html.escape(str(canon["min_cell"])))
+    return TEMPLATE.read_text(encoding="utf-8")
 
 
 def main():
@@ -99,12 +97,17 @@ def main():
 
     canon = load_canon(args.canon)
     args.out.mkdir(parents=True, exist_ok=True)
+
+    # 정적 화면 계약을 별 파일로. A3 에서 이 자리가 export JSON 으로 바뀐다.
+    (args.out / "canon.json").write_text(
+        json.dumps(canon, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8")
     target = args.out / "employer.html"
-    target.write_text(render(canon), encoding="utf-8")
+    target.write_text(render(), encoding="utf-8")
 
     if not args.quiet:
-        print(f"build_screens: {target.relative_to(ROOT)} — 정본 값 "
-              f"{len(canon)}개 (min_cell={canon['min_cell']}, "
+        print(f"build_screens: {target.relative_to(ROOT)} + canon.json — "
+              f"정본 값 {len(canon)}개 (min_cell={canon['min_cell']}, "
               f"scenarios={len(canon['scenarios'])})")
     return 0
 
