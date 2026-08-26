@@ -551,11 +551,13 @@ required_disclosure:
   tech:         [assumptions_table]
 
 # ─────────────────────────────────────────────────────────────
-# 결정 대기 — 사람이 정해야 멈춘 것이 풀리는 항목
+# 제품·규제 결정 대기 — 사람이 정해야 멈춘 것이 풀리는 항목
 #
 # 2026-08-16 신설. 문서마다 "승인 주체는 J. Kim" 이라고 적어두면 적은 쪽은
 # 기록했다고 여기지만, 정할 사람은 그 문장이 어느 문서 몇 절에 있는지 모른다.
-# 세 문서를 열어야 알 수 있는 상태였다. 여기가 유일한 목록이다.
+# 세 문서를 열어야 알 수 있는 상태였다. 제품·규제 결정은 여기가 유일한 목록이다.
+# 저장소 구현 결정은 GitHub `type:decision` 이슈에서 대기시키고, 닫을 때 아래 decided 에
+# 같은 결정을 남긴다.
 #
 # marker 는 "그 문서가 아직 미결이라고 말하는 문자열" 이다. 검사기가 파일에
 # 그 문자열이 실제로 있는지 본다. 결정이 나서 문서의 초안 표시를 지우면 검사가
@@ -592,6 +594,35 @@ awaiting_decision:
 # 무엇이 여전히 열려 있는지도 적는다 (still_open · revisit).
 # ─────────────────────────────────────────────────────────────
 decided:
+  - id: REBUILD-FRAMEWORK
+    on: 2026-08-26
+    by: J. Kim (merge decision; Codex recommendation and spike)
+    marker: 프론트엔드 프레임워크를 넣지 않는다
+    what: |
+      Python 3.14 와 이미 고정된 PyYAML 로 vanilla HTML·CSS·JavaScript 와
+      canon.json 을 같은 출력 디렉터리에 빌드한다. canon.json 은 탭·제목·KPI 라벨·
+      최소 셀·색상·enum 같은 정적 화면 계약을 갖고, PROJECT_PHASE=demo 동안에는
+      현재 합성 시나리오·KPI 값·신선도도 정본에서 가져온다. A3/A2 로 전환하면
+      측정값·신선도는 기업별 export JSON 이 유일한 출처가 되고 synthetic 고지는
+      그 export 의 envelope 필드가 결정한다. 빌더는 정본 경로와 출력 디렉터리를
+      인자로 받아 test_single_source 가 임시로 변조한 정본을 같은 빌드 경계에 넣을
+      수 있어야 한다. 생성물은 추적하거나 손으로 고치지 않는다.
+    where: REBUILD-CHARTER.md §4.2
+    evidence: |
+      이슈 #36 의 재실행 가능한 스파이크. 변조된 activated 0.44 를 빌더가 무시했을
+      때 새 값 부재와 옛 값 잔존을 함께 검출했고, 같은 빌더가 임시 정본을 읽도록
+      하자 통과했다.
+    tracking: |
+      root AGENTS.md 와 REBUILD-CHARTER.md 가 열린 질문을 가리켰다. 저장소 구현 결정은
+      제품·규제 awaiting_decision 목록이 아니라 type:decision 이슈 #36 에서 추적했다.
+    still_open: |
+      빌더와 check_dashboard·test_single_source 재작성은 아직 구현 전이다. demo 에서는
+      현재 정본 소유 값 전부를 변조→빌드→렌더하고, A3 측정값의 export 변조→렌더 경계는
+      #8~#10 에서 PROJECT_PHASE 전환과 함께 필수화한다.
+    rejected: |
+      Vite·React 재도입과 새 템플릿 의존성은 두 판단 기준에 필요한 기능을 더하지
+      않는다. 런타임 원시 YAML 읽기는 빌드 시점 정본 읽기가 아니다.
+
   - id: STOP-CRITERIA
     on: 2026-08-16
     by: J. Kim
