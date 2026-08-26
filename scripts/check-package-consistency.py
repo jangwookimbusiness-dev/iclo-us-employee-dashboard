@@ -249,12 +249,20 @@ def check_local_matches_ci():
         if not p.exists():
             continue
         t = p.read_text(encoding="utf-8")
-        m = re.search(r"the same (\w+) gates as CI", t)
+        # 단위를 문구에 박는다. 전에는 "the same N gates as CI" 를 찾았고, `gates` 가
+        # CI 명령과 검증 단위 둘을 뜻해서 헌장이 21이라 하고 여기가 13이라 하는 상태를
+        # 만들었다 (R2). 그리고 문구를 못 찾으면 **조용히 건너뛰었다** — 문구를 고치는
+        # 순간 검사가 사라진다. 둘 다 고친다.
+        m = re.search(r"the same (\w+) CI commands as CI", t)
         if not m:
+            fail("local_vs_ci",
+                 f"{doc} 에 'the same N CI commands as CI' 문구가 없다 — 개수 대조를 "
+                 f"할 수 없다. 문구를 바꾸려면 이 검사도 같이 바꾼다")
             continue
         if word and m.group(1) != word:
             fail("local_vs_ci",
-                 f"{doc} 는 '{m.group(1)} gates' 라 쓰는데 실제 {n}개다 ('{word}')")
+                 f"{doc} 는 '{m.group(1)} CI commands' 라 쓰는데 실제 {n}개다 "
+                 f"('{word}')")
 
     print(f"make check 와 CI 가 같은 검사 {n}개를 돌린다")
 
