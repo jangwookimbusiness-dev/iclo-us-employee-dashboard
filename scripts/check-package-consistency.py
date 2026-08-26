@@ -439,6 +439,16 @@ def check_start_gates():
             warn("start_gates",
                  f"게이트 {g['id']} 는 §16 번호 항목이 아니므로 kind 로 성질을 밝혀야 한다")
 
+    # 정본 자신이 게이트 수를 말하는 자리도 본다. 2026-08-25 에 다섯 번째를 넣고
+    # 기술문서만 고쳤더니 정본의 주석·산문 세 곳이 "넷" 으로 남았고, 이 검사가
+    # 기술문서만 스캔해서 못 봤다 (codex 헌장 검토, 2026-08-26). **한 문서만 보는
+    # 검사는 두 문서가 어긋나는 것을 정의상 못 잡는다.**
+    canon_text = CONTRACT.read_text(encoding="utf-8")
+    canon_wrong = re.findall(
+        r"start_gates\s*(하나|둘|셋|넷|다섯|여섯|일곱)|"
+        r"게이트 — [^\n]*?하는 (하나|둘|셋|넷|다섯|여섯|일곱)", canon_text)
+    canon_words = {w for pair in canon_wrong for w in pair if w}
+
     # 기술문서가 정본 게이트 수를 말하는 모든 자리를 찾아 **전부** 같은지 본다.
     #
     # 이 검사의 첫 판은 `그것이 드는 (다섯|N개|넷)` 이었다. **정답과 오답을 같은
@@ -456,6 +466,11 @@ def check_start_gates():
              f"기술문서가 정본 게이트 수({len(gates)})를 어디서도 말하지 않는다")
     else:
         expected = {want_word, f"{len(gates)}개"} - {None}
+        canon_bad = sorted(canon_words - expected)
+        if canon_bad:
+            fail("start_gates",
+                 f"정본이 자기 게이트 수를 {canon_bad} 로 말한다 — 실제 {len(gates)}건. "
+                 f"기술문서만 고치고 정본을 두면 이 검사가 잡는다")
         wrong = sorted(set(stated) - expected)
         if wrong:
             fail("start_gates",
@@ -465,7 +480,8 @@ def check_start_gates():
 
     print(f"착수 게이트 {len(gates)}건 · 법무 레지스터 {total}개 "
           f"(본문 {body_items} + §16.1 {enumerated}) · "
-          f"문서가 수를 말하는 자리 {len(stated)}곳 전부 일치 — 출처 전부 실재")
+          f"수를 말하는 자리 기술문서 {len(stated)}곳 + 정본 {len(canon_words)}곳 "
+          f"전부 일치 — 출처 전부 실재")
 
 
 def check_surfaces():
