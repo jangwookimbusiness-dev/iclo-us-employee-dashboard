@@ -78,9 +78,16 @@ def check_pages_publish_boundary():
             fail("pages_boundary", f"workflow 에 {required!r} 없음")
 
     builder = builder_path.read_text(encoding="utf-8")
-    for public_file in ("index.html", "app.html", "data/member-demo.json"):
-        if f'Path("{public_file}")' not in builder:
-            fail("pages_boundary", f"공개 allowlist 에 {public_file} 없음")
+    # 2026-08-26 부터 공개 표면은 리다이렉트 하나다. 이전에는 여기서 index.html·
+    # app.html·member-demo.json 이 allowlist 에 **있는지**를 봤는데, 그건 데모가
+    # 공개돼 있어야 한다는 단언이었다. 지금은 반대를 본다.
+    if 'Path("pages-root-redirect.html")' not in builder:
+        fail("pages_boundary", "공개 allowlist 에 리다이렉트가 없음")
+    for demo_file in ("app.html", "data/member-demo.json"):
+        if f'(Path("{demo_file}")' in builder:
+            fail("pages_boundary",
+                 f"{demo_file} 이 공개 allowlist 에 돌아왔다 — 폐기된 데모는 "
+                 f"인터넷에 있을 이유가 없다")
 
     result = subprocess.run(
         [sys.executable, str(builder_path)],

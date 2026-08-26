@@ -167,10 +167,13 @@ def main() -> int:
         fails.append("pages-root-redirect.html 이 자기 이름으로도 발행됐다")
     checked += 1
 
-    # 6. 대시보드는 여전히 나가야 한다 — 루트가 아닌 곳에서. 이 검사가 리다이렉트만
-    #    보면 "둘 다 안 나간다" 도 통과시킨다.
-    if not (SITE / "app.html").is_file():
-        fails.append("app.html 이 발행되지 않았다")
+    # 6. 리다이렉트 **말고는 아무것도** 안 나간다. 2026-08-26 까지 이 자리에는
+    #    "app.html 이 발행돼야 한다" 가 있었다 — QR 은 리다이렉트되는데 임직원 앱은
+    #    한 경로 옆에서 그대로 도달 가능했고, 공개 표면이 존재 목적보다 넓었다.
+    published = sorted(f.relative_to(SITE).as_posix()
+                       for f in SITE.rglob("*") if f.is_file())
+    if published != ["index.html"]:
+        fails.append(f"공개 표면이 리다이렉트 하나가 아니다: {published}")
     checked += 1
 
     if not checked:
@@ -182,11 +185,9 @@ def main() -> int:
             print(f"  ✗ {f}")
         return 1
 
-    published = sorted(p.relative_to(SITE).as_posix()
-                       for p in SITE.rglob("*") if p.is_file())
     print(f"PASS — 검사 {checked}건. Pages 루트는 {LIVE_HOST} 리다이렉트이고 "
           f"기업 데모가 아니다")
-    print(f"       발행: {', '.join(published)}")
+    print(f"       발행: {', '.join(published)} — 이것뿐")
     return 0
 
 
