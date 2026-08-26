@@ -616,9 +616,11 @@ decided:
       root AGENTS.md 와 REBUILD-CHARTER.md 가 열린 질문을 가리켰다. 저장소 구현 결정은
       제품·규제 awaiting_decision 목록이 아니라 type:decision 이슈 #36 에서 추적했다.
     still_open: |
-      빌더와 check_dashboard·test_single_source 재작성은 아직 구현 전이다. demo 에서는
-      현재 정본 소유 값 전부를 변조→빌드→렌더하고, A3 측정값의 export 변조→렌더 경계는
-      #8~#10 에서 PROJECT_PHASE 전환과 함께 필수화한다.
+      #38·#39가 scripts/build_screens.py 와 test_build_reads_canon.py 로 빌더와 demo 의
+      첫 변조→빌드→렌더 경계를 구현했다. test_single_source 의 빌드 경계 역할은 새 검사로
+      옮겼고 헌 검사는 헌 화면을 지키는 동안 별도 명령으로 남는다. check_dashboard 의
+      빌드 산출물 경계 이동과 나머지 demo 정본 값의 변조 범위는 아직 열려 있다. A3/A2
+      측정값의 export 변조→렌더 경계는 #8~#10 에서 PROJECT_PHASE 전환과 함께 필수화한다.
     rejected: |
       Vite·React 재도입과 새 템플릿 의존성은 두 판단 기준에 필요한 기능을 더하지
       않는다. 런타임 원시 YAML 읽기는 빌드 시점 정본 읽기가 아니다.
