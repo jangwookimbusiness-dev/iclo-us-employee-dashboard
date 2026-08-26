@@ -7,7 +7,8 @@ This file governs the entire repository, including the shipped `index.html` and
 
 `REBUILD-CHARTER.md` governs the rebuild that started 2026-08-26. It carries the
 retrospective (five root causes across 28 recorded learnings), five behavioural
-rules, a reclassification of all sixteen gates, and an asset-versus-liability
+rules, a complete reclassification of the required CI commands and canon-consistency
+subchecks, and an asset-versus-liability
 judgement on everything the old build produced. It is a second edition: the first
 went through an independent codex review that returned twelve P1 findings, and §6
 tabulates where the first draft was wrong.
@@ -25,9 +26,14 @@ metric twice with different denominators; a withdrawal edited the prose and left
 the code; a consistency check scanned one of the two documents it was meant to
 reconcile. A check that reads one document cannot see two documents disagree.
 
-The open decision is the framework in §4.2, judged on two criteria only: whether
-the canon can be read at build time with no manual step, and whether a
-perturb-then-render check can attach at the build boundary.
+The framework decision in §4.2 is settled: add no frontend framework. The
+rebuild must use one Python 3.14/PyYAML builder to stage vanilla HTML, CSS, and
+JavaScript plus an allowlisted `canon.json`. The JSON owns static screen
+contract fields and, while `PROJECT_PHASE=demo`, the current synthetic values
+and freshness. At A3/A2 those runtime fields move to the tenant exports, whose
+`synthetic` envelope field governs the disclosure. The builder must accept
+alternate canon and output paths so the perturb-then-render check can invoke
+the same build boundary in a temporary directory.
 
 ## Canon and scope
 
