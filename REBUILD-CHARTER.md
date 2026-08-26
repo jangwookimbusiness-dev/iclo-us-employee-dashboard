@@ -218,6 +218,13 @@ Chrome DOM 에 새 값이 있고 옛 값이 없는지 본다. 이 빌더는 `mak
 2026-08-26 이슈 #36 의 재실행 가능한 스파이크에서 빌더가 변조된 정본을 무시하도록 만들자
 새 값 부재와 옛 값 잔존을 함께 검출했고, 정본을 읽도록 되돌리자 같은 경계가 통과했다.
 
+**구현 상태 (2026-08-26, #38·#39).** `scripts/build_screens.py` 가 정본에서 `canon.json` 과
+화면을 만들고, `test_build_reads_canon.py` 가 `min_cell`·`dep_ratio`·`activated` 세 값을
+변조해 JSON 과 Chrome DOM 이 함께 바뀌는지 본다. 헌 화면을 지키는
+`test_single_source.py` 는 아직 별도 명령으로 남아 있으므로 새 검사는 독립된 필수 CI
+명령이다. `check_dashboard` 의 빌드 산출물 경계 이동, 나머지 demo 정본 값의 변조 범위,
+A3/A2 export 변조→렌더 경계는 아직 열려 있다.
+
 Vite·React 재도입이나 새 템플릿 의존성도 두 기준을 만족시킬 수는 있지만, 이 경계에 더
 보태는 것이 없다. 런타임에 원시 YAML 을 직접 읽는 안은 빌드 시점 읽기가 아니므로 탈락이다.
 
@@ -230,7 +237,8 @@ codex 가 "유지" 9개 중 8개를 반박했다. 검증하고 반영했다. **�
 |---|---|---|---|
 | `check_contract_parses` (`check-package-consistency`) | 미분류 | **유지 + 선행 조건** | PyYAML 로 정본을 파싱한다. 빌더보다 먼저 같은 입력이 유효한 YAML 인지 보장한다 |
 | `test_suppression` | 다시 쓰기(행 부재로 반전) | **다시 쓰기 — 방향이 반대** | 서버 억제는 행을 **안 없앤다.** 작은 그룹을 NULL 키 remainder 로 접는다 (기술문서 1400·1532·1665, 정본 326). 단언은 "NULL remainder 행이 있고 측정값이 억제되며 화면이 그 NULL 을 억제로 표시하고, remainder-NULL 과 UNMATCHED-NULL 이 구분된다" |
-| `test_single_source` | 없애기 | **다시 쓰기 (§4.2)** | 변조→렌더 검사이고 빌드 시점 읽기가 그것을 대체하지 않는다 |
+| `test_single_source` | 없애기 | **다시 쓰기 (§4.2)** | 헌 화면의 변조→렌더는 빌드 시점 읽기가 대체하지 않는다. 새 화면 역할은 아래 `test_build_reads_canon` 으로 옮겼다 |
+| `test_build_reads_canon` | 없음 | **신설 (§4.2 구현)** | #38·#39가 정본→실제 빌더→`canon.json`→Chrome DOM 경계를 필수 CI 명령으로 붙였다 |
 | `check_dashboard` (`check-package-consistency`) | 미분류 | **다시 쓰기 (§4.2)** | 지금은 `index.html` 의 상수·라벨·색상을 정규식으로 읽는다. 빌드 뒤에는 `canon.json` 과 실제 빌드 산출물에서 같은 정적 계약을 대조해야 한다 |
 | `test_consent` | 유지 | **다시 쓰기** | `app.html` 의 상태 초기화·CSS 클래스·DOM 문구·`member-demo.json` 에 결합돼 있다. 구현 독립 경계가 아니다 |
 | `test_fixtures` | 유지 | **다시 쓰기** | 파이프라인을 안 돌린다. fixture 파일 안의 산술만 재계산한다. **재구축이 fixture 를 전부 무시해도 초록불이다.** fixture 는 자산으로 유지하되 게이트는 fixture→파이프라인→기대값 대조로 바꾼다 |
@@ -249,12 +257,13 @@ codex 가 "유지" 9개 중 8개를 반박했다. 검증하고 반영했다. **�
 | `check_surfaces` | 미분류 | **유지 + 선행 조건** | 정본이 지운 화면을 가리키면 실패 (§4.1-3) |
 | `check_repository_artifacts` (`check-package-consistency`) | 미분류 | **유지** | 추적 파일 15 MiB 상한을 지킨다. 생성된 화면 빌드 산출물은 추적하지 않는 결정과도 맞는다 |
 
-유지 4 · 유지+수정 7 · 다시쓰기 5 · 보류 3 · 강등 2 = **21.** 계산 단위는 필수 CI
-명령 12개 중 `check-package-consistency` 하나를 그 안의 blocking 하위검사 10개로 펼친 것,
-즉 나머지 명령 11 + 하위검사 10이다. 표의 `test_export_contract(+cases)` 는 CI 명령 둘을
-한 행에 적었으므로 표 20행이 검사 21개다. 1판은 12라 썼다. 2판 표는 21개 중 15개만
-다뤘고 정합성 하위검사 여섯을 빠뜨렸으며, 그 15개마저 16이라고 잘못 합산했다. 둘 다 CI
-명령과 함수 단위 검사를 섞어 센 오류다.
+유지 4 · 유지+수정 7 · 다시쓰기 5 · 보류 3 · 강등 2 · 신설 1 = **22.** 계산 단위는 필수
+CI 명령 13개 중 `check-package-consistency` 하나를 그 안의 blocking 하위검사 10개로 펼친
+것, 즉 나머지 명령 12 + 하위검사 10이다. 표의 `test_export_contract(+cases)` 는 CI 명령
+둘을 한 행에 적었으므로 현재 표 21행이 검사 22개다. 1판은 당시 CI 명령 수 12를 그대로
+검사 수라 썼다. 2판의 처음 표는 당시 21개 중 15개만 다뤘고 정합성 하위검사 여섯을
+빠뜨렸으며, 그 15개마저 16이라고 잘못 합산했다. 둘 다 CI 명령과 함수 단위 검사를 섞어
+센 오류다.
 
 ### 4.4 자산과 부채 — 재분류
 
