@@ -3,6 +3,32 @@
 This file governs the entire repository, including the shipped `index.html` and
 `app.html` files at the root.
 
+## Read this first
+
+`REBUILD-CHARTER.md` governs the rebuild that started 2026-08-26. It carries the
+retrospective (five root causes across 28 recorded learnings), five behavioural
+rules, a reclassification of all sixteen gates, and an asset-versus-liability
+judgement on everything the old build produced. It is a second edition: the first
+went through an independent codex review that returned twelve P1 findings, and §6
+tabulates where the first draft was wrong.
+
+Two things in it bind any agent working here.
+
+**A check is not committed until you have watched it fail.** Nine of the 28
+learnings are this one mistake. That includes prose: a docstring, commit message,
+CI step name or PR body claiming behaviour must be checked against the code in the
+same edit. A CI step in this repository described a coupling that had been removed
+the day before, in a step whose purpose is catching exactly that.
+
+**Before asserting a value, count where it is written.** The canon defined one
+metric twice with different denominators; a withdrawal edited the prose and left
+the code; a consistency check scanned one of the two documents it was meant to
+reconcile. A check that reads one document cannot see two documents disagree.
+
+The open decision is the framework in §4.2, judged on two criteria only: whether
+the canon can be read at build time with no manual step, and whether a
+perturb-then-render check can attach at the build boundary.
+
 ## Canon and scope
 
 - Product and regulatory canon: `employer-dashboard-poc/docs/PRD.md`
