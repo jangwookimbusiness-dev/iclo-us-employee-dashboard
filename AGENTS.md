@@ -6,14 +6,15 @@ This file governs the entire repository, including the shipped `index.html` and
 ## Read this first
 
 `REBUILD-CHARTER.md` governs the rebuild that started 2026-08-26. It carries the
-retrospective (five root causes across 28 recorded learnings), five behavioural
+retrospective (six root causes, five of them across 28 recorded learnings and
+one added the day the rebuild started), six behavioural
 rules, a complete reclassification of the required CI commands and canon-consistency
 subchecks, and an asset-versus-liability
 judgement on everything the old build produced. It is a second edition: the first
 went through an independent codex review that returned twelve P1 findings, and §6
 tabulates where the first draft was wrong.
 
-Two things in it bind any agent working here.
+Three things in it bind any agent working here.
 
 **A check is not committed until you have watched it fail.** Nine of the 28
 learnings are this one mistake. That includes prose: a docstring, commit message,
@@ -25,6 +26,20 @@ the day before, in a step whose purpose is catching exactly that.
 metric twice with different denominators; a withdrawal edited the prose and left
 the code; a consistency check scanned one of the two documents it was meant to
 reconcile. A check that reads one document cannot see two documents disagree.
+
+**Before starting work, look at open pull requests and the issue that owns it.**
+Run `gh pr list` and read the issue's scope line. This repository is worked by
+more than one agent at a time, in separate worktrees, and two of them collided
+twice on 2026-08-26. The first collision built an implementation while #36 was
+explicitly scoped "Decision only" and #37 sat waiting for a merge decision. The
+second opened a PR duplicating fixes that #40 landed mid-flight, which arrived as
+a conflict and cost half the work. Both were cheap to avoid and neither was
+noticed until after pushing.
+
+Two habits follow. When an issue says the scope is a decision, record the decision
+and stop -- the implementation is a separate issue with a separate review. And when
+a decision record and an implementation disagree, the record is the specification:
+move the code, not the record. That is how #39 was resolved.
 
 The framework decision in §4.2 is settled: add no frontend framework. The
 rebuild must use one Python 3.14/PyYAML builder to stage vanilla HTML, CSS, and
