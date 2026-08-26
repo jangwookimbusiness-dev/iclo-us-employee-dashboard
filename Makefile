@@ -7,7 +7,7 @@ PYTHON := $(VENV)/bin/python
 
 help:
 	@echo "make setup         Create the Python 3.14 virtual environment"
-	@echo "make check         Run the same thirteen gates as CI"
+	@echo "make check         Run the same thirteen CI commands as CI"
 	@echo "make check-fast    Run non-browser pre-commit gates"
 	@echo "make serve         Serve the demo at http://localhost:8000"
 	@echo "make docs          Rebuild managed screenshots and PDFs"
