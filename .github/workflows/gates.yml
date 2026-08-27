@@ -73,11 +73,7 @@ jobs:
       - name: Canon consistency
         run: python3 scripts/check-package-consistency.py
 
-      - name: Single source of truth
-        run: python3 test_single_source.py
 
-      - name: Cell suppression (54 states)
-        run: python3 test_suppression.py
 
       - name: Derived documents match their sources
         # 순수 해시 비교 — 빌드는 로컬(make-pdf 는 로컬 바이너리), CI 는 드리프트 거부만.

@@ -3,15 +3,14 @@ PYTHON_VERSION := 3.14.7
 VENV := .venv
 PYTHON := $(VENV)/bin/python
 
-.PHONY: help setup check check-fast serve docs shots install-hooks clean
+.PHONY: help setup check check-fast serve docs install-hooks clean
 
 help:
 	@echo "make setup         Create the Python 3.14 virtual environment"
-	@echo "make check         Run the same thirteen CI commands as CI"
+	@echo "make check         Run the same eleven CI commands as CI"
 	@echo "make check-fast    Run non-browser pre-commit gates"
 	@echo "make serve         Serve the demo at http://localhost:8000"
 	@echo "make docs          Rebuild managed screenshots and PDFs"
-	@echo "make shots         Regenerate deterministic screenshots"
 	@echo "make install-hooks Install the repository pre-commit hook"
 
 setup:
@@ -21,8 +20,6 @@ setup:
 	$(PYTHON) -m pip install --requirement requirements-dev.txt
 
 check: check-fast
-	$(PYTHON) test_single_source.py
-	$(PYTHON) test_suppression.py
 	$(PYTHON) test_tech_sql.py
 	$(PYTHON) test_consent.py
 	$(PYTHON) test_export_contract.py
@@ -44,10 +41,6 @@ serve:
 docs:
 	@test -x $(PYTHON) || { echo "Run 'make setup' first"; exit 1; }
 	$(PYTHON) scripts/docs_build.py
-
-shots:
-	@test -x $(PYTHON) || { echo "Run 'make setup' first"; exit 1; }
-	$(PYTHON) scripts/shots.py
 
 install-hooks:
 	bash scripts/install-hooks.sh

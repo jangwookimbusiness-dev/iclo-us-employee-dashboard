@@ -26,28 +26,6 @@
    "output/proposal-v12/제안서-v12-KO.md": "eacd56fc158bde21b2683cf137496be23136225b8e19107e02db74c9b17ecffb"
   }
  },
- "screenshots": {
-  "artifacts": {
-   "output/proposal-v12/assets/app-camera.png": "9783b7581452ba0c27e27e98df5b014f1f9f49fb56e1ff91d09aa82190f830b2",
-   "output/proposal-v12/assets/app-care.png": "e4096c9b60c5dc2a3953ee1ce8c5c53748eea69cb03e110a67940f15e75d0840",
-   "output/proposal-v12/assets/app-coverage.png": "b1020c72688dbded66f5db0367f09fb37a1fbbbdda8f9c0f99d1c91b135a843b",
-   "output/proposal-v12/assets/app-home.png": "db584cc243bd658423ea030b141b69ba37f40263d10d93212d7dc4f74228a33e",
-   "output/proposal-v12/assets/app-notanalysed.png": "dfb3c53de867862d60f412cc0eb14c50091b8126c9ccc570782d38f63e8caac3",
-   "output/proposal-v12/assets/app-settings.png": "a5f15afd18076af4dd3845a3583e1e251b4ca66f6701f938193d9e9872a63b5f",
-   "output/proposal-v12/assets/app-whoisit.png": "c27419426aae8f0465c84c445ae947a5e0a986a373bff472e6cf93c003f006f6",
-   "output/proposal-v12/assets/dashboard-funnel.png": "44e996be9f78a8f1999f19574b8bc056db1237add4380885d5ca9a7bc70a284d",
-   "output/proposal-v12/assets/dashboard-members.png": "94698705eacd8850209da5fd1e4a2a24a5a5d936711890d7a94802284d2a303c",
-   "output/proposal-v12/assets/dashboard-overview.png": "9223ab0949569a55bf0a5ce2331e74a99626190fafb371ab6200035016b29de9",
-   "output/proposal-v12/assets/dashboard-signals.png": "3a8350b511f2d7f44f7e6eac52b9fde549af7320575c23e37f27a08978d4fe56",
-   "output/proposal-v12/assets/dashboard-suppressed.png": "a716de56a19e11b58b181d2043bfe88bbb8e9079ff7df45c9ef3407d80328cb0"
-  },
-  "sources": {
-   "app.html": "19146809370cdee824d90ed21f1cbf377972cbb1123e38c05c8a038737f7ee8e",
-   "data/member-demo.json": "a41c0b2c4f0b9317709a5dcc8ba1c30106b08f810d558610082d99f56c7fb299",
-   "index.html": "e315fd2b1a3da7811a14356d4b619c7a956dfd98250a4eb18efa258ae31697db",
-   "scripts/shots.py": "5e6cf11e426a5448f8909b2bad195873945eba61bf9c8bdd13944319a2f15766"
-  }
- },
  "status_2026_08_16": {
   "artifact": "938c701363e48ec65ed8593159cee0bf7d489576ffee29e7ca61a79a92aa145a",
   "pages": 10,

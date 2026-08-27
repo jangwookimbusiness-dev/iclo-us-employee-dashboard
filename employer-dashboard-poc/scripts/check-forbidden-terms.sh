@@ -10,18 +10,20 @@ cd "$(dirname "$0")/.."   # always run from the project folder
 PAT='diagnos|cavit|caries|decay|gingivit|periodont|abscess|lesion'
 fail=0
 
-# 스캔 대상. 배포 코드는 저장소 루트에 있다. 2026-08-14 까지 이 스크립트는
-# employer-dashboard-poc 안의 src/·dist/·docs/ 만 봤고, 그래서 실제 화면인
-# index.html 이 한 번도 검사되지 않았다. 제안서도 본다 — 배포 코드만 검사하고
-# 밖으로 나가는 문서를 빼두면 레드라인이 가장 많이 읽히는 곳에서만 안 걸린다.
+# 스캔 대상. 2026-08-14 까지 이 스크립트는 employer-dashboard-poc 안의 src/·dist/·
+# docs/ 만 봤고, 그래서 실제 화면이 한 번도 검사되지 않았다. 제안서도 본다 —
+# 배포 코드만 검사하고 밖으로 나가는 문서를 빼두면 레드라인이 가장 많이 읽히는
+# 곳에서만 안 걸린다.
+#
+# 2026-08-27 (#49): `index.html` 과 `app.html` 이 목록에서 빠졌다. 지웠기 때문이고,
+# **없는 경로를 남겨두면 이 스크립트가 실패한다** — 그것이 #45 에서 넣은 규칙이다.
+# 두 화면의 자리는 아래 두 템플릿이 받는다.
 #
 # `screens/employer.html.in` 은 재구축 화면의 원본이다. 렌더된 화면 쪽은
 # `test_build_reads_canon.py` 의 `prose_guards` 가 정본 목록으로 본다 — 라벨이
 # 정본에서 오므로 파일만 읽어서는 화면 문구를 다 볼 수 없다. 이쪽은 템플릿 산문,
 # 저쪽은 렌더 결과이고 둘 다 필요하다.
 FILES=(
-  ../index.html
-  ../app.html
   ../pages-root-redirect.html
   ../screens/employer.html.in
   ../screens/member.html.in

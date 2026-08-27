@@ -409,6 +409,28 @@ def main():
                 fails.append(msg)
             checked += 1
 
+            # **임직원 화면도 같은 규칙을 받는다** (2026-08-27, #49). 이 화면의
+            # 문구는 대부분 정본에서 런타임에 온다 — 면책 문장, 조언 셋, 방향 문구,
+            # 데모 한정 문구, 밴드 이름. 템플릿 파일을 읽는 레드라인 스캔은 그것들을
+            # 볼 수가 없고, 정본 자체는 아무도 금지어로 스캔하지 않는다. 그 틈이 이
+            # 화면에서 더 위험한 이유는 여기 뜨는 문장이 **한 사람에게 자기 입에
+            # 대해 하는 말**이라는 것이다.
+            member_dom, err = dump_dom(
+                f"http://127.0.0.1:{port}/base/member.html")
+            if err:
+                fails.append(f"임직원 기준선 렌더 실패: {err}")
+            else:
+                member_visible = visible(member_dom)
+                # 빈 렌더가 "위반 없음" 이 되지 않게 밴드를 먼저 단언한다.
+                if not re.search(r'<div class="band [A-Za-z]+" id="band">\s*\w',
+                                 member_visible):
+                    fails.append("임직원 기준선 DOM 에 밴드가 없다 — 산문 검사가 "
+                                 "빈 화면을 통과로 읽는다")
+                else:
+                    for msg in prose_guards(member_visible):
+                        fails.append("임직원 화면: " + msg)
+                checked += 1
+
             for key, name, pattern, repl, new, dom_old, dom_new in CASES:
                 mutated, n = re.subn(pattern, repl, original, count=1, flags=re.M)
                 if n != 1:
@@ -601,6 +623,79 @@ def main():
                                 f"이어야 한다) — 폭이 지운 숫자를 그대로 싣는다")
                         checked += 1
 
+            # **`test_suppression` 에서 옮겨온 단언** (2026-08-27, #49). 헌 검사는
+            # `index.html` 의 상태 초기화 줄을 바꿔치기해 시나리오 3 × 부서 3 × 탭 6 =
+            # 54 상태를 걸으며 "화면에 뜬 어떤 값도 문턱 아래가 아니다" 를 봤다.
+            # 그것이 잡던 버그는 억제가 셀 값이 아니라 부서 인원(`D.n < 20`)을 보고
+            # 있어서 200명 부서가 "Priority · 8" 을 그린 것이다.
+            #
+            # **잃은 차원을 정직하게 적는다.** 새 화면에는 부서 필터가 없고 (정본 데모에
+            # 부서 데이터가 없다) 시나리오 선택기도 없다. 그래서 54 상태 중 걸을 수
+            # 있는 것은 시나리오 3 × 셀 탭 2 = 6 이다. 부서 차원은 `?dept=` 가 돌아올
+            # 때 함께 돌아온다 — 지금 그것을 걷는 척하는 검사를 쓰면 안 된다.
+            #
+            # 그리고 위 최소 셀 블록과 방향이 반대다. 그쪽은 자격자를 100명으로 낮춰
+            # **억제가 일어나는지** 보고, 이쪽은 실제 시나리오 셋에서 **억제될 것이
+            # 없는지** 본다. 둘 다 필요하다: 앞엣것만 있으면 언제나 억제하는 화면이
+            # 통과하고, 뒤엣것만 있으면 절대 억제하지 않는 화면이 통과한다.
+            min_cell = int(json.loads(
+                (tmp / "base/canon.json").read_text(encoding="utf-8"))["min_cell"])
+            scenarios = yaml.safe_load(original)["dashboard"]["scenarios"]
+            parsed, walked = 0, 0
+            for scen in scenarios:
+                mutated, n = re.subn(
+                    r"^(\s*- \{key: A, employees: )10000",
+                    rf"\g<1>{scen['employees']}", original, count=1, flags=re.M)
+                if n != 1:
+                    fails.append("억제 하한: 시나리오 A 를 못 찾았다 — 검사가 낡았다")
+                    break
+                slug = f"floor-{scen['key']}"
+                (tmp / f"canon-{slug}.yml").write_text(mutated, encoding="utf-8")
+                if build(tmp / f"canon-{slug}.yml", tmp / slug).returncode != 0:
+                    fails.append(f"억제 하한 {scen['key']}: 빌드 실패")
+                    continue
+                for tab in ("signals", "funnel"):
+                    raw, err = dump_dom(f"http://127.0.0.1:{port}/{slug}/"
+                                        f"employer.html?tab={tab}")
+                    if err:
+                        fails.append(f"억제 하한 {scen['key']}/{tab}: 렌더 실패 — {err}")
+                        continue
+                    walked += 1
+                    panel = re.search(
+                        rf'<section id="panel-{tab}"[^>]*>(.*?)</section>',
+                        visible(raw), re.S)
+                    if not panel:
+                        fails.append(f"억제 하한 {scen['key']}/{tab}: 패널이 없다")
+                        continue
+                    # 화면에 실제로 뜬 인원. `1,234` 꼴만 센다 — 비율(`38%`)과
+                    # 금액(`$31.40`)은 사람 수가 아니므로 문턱의 대상이 아니다.
+                    for figure in re.findall(
+                            r'<div class="(?:bval|snum)"[^>]*>(.*?)</div>',
+                            panel.group(1), re.S):
+                        if "withheld" in figure:
+                            continue
+                        m = re.search(r"·\s*([\d,]+)\s*$", figure.strip())
+                        if not m:
+                            continue
+                        parsed += 1
+                        value = int(m.group(1).replace(",", ""))
+                        # 자격자는 분모 자신이고 기업이 이미 아는 자기 인원수다.
+                        # 헌 검사도 같은 이유로 분모 라벨을 면제했다.
+                        if tab == "funnel" and value == scen["employees"]:
+                            continue
+                        if value < min_cell:
+                            fails.append(
+                                f"억제 하한 {scen['key']}/{tab}: 화면에 {value} 가 "
+                                f"떴다 (문턱 {min_cell}) — 억제되지 않았다")
+            # `seen` 이 증가만 하고 아무 데도 안 쓰이던 것이 헌 검사의 결함이었다.
+            # 0이면 렌더가 비었거나 DOM 구조가 바뀐 것이고, 그것은 '위반 없음' 이 아니다.
+            if walked and parsed < walked:
+                fails.append(f"억제 하한: {walked}상태를 걸었는데 파싱한 값이 "
+                             f"{parsed}개다 (상태당 1개 미만). 일부 상태가 "
+                             f"렌더되지 않았고, 안 읽은 화면은 통과가 아니다")
+            checked += 1
+            floor_walked, floor_parsed = walked, parsed
+
             # 임직원 화면. 같은 빌더, 다른 계약 파일과 다른 화면.
             member_staged = set(json.loads(
                 (tmp / "base/member-canon.json").read_text(encoding="utf-8")))
@@ -710,6 +805,9 @@ def main():
     print(f"       탭 {len(tabs)}개가 각각 자기 패널만 드러내고 모르는 ?tab= 은 첫 "
           f"탭으로 떨어진다. 자격자를 100명으로 낮추면 문턱 아래 셀이 인원·비율·"
           f"막대를 함께 감춘다")
+    print(f"       시나리오 {len(scenarios)}개 × 셀 탭 2개 = {floor_walked}상태에서 "
+          f"화면에 뜬 인원 {floor_parsed}개가 전부 문턱 위다 (test_suppression 에서 "
+          f"옮겨온 단언. 부서 차원은 ?dept= 와 함께 돌아온다)")
     print(f"       임직원 화면은 계약 키 {len(MEMBER_CASES)}건을 별 파일로 받는다 — "
           f"밴드 경계를 흔들면 같은 점수가 다른 밴드로 옮겨가고, 방향 문턱을 올리면 "
           f"같은 차이가 '비슷하다' 가 된다")

@@ -73,26 +73,14 @@ def main():
 
     errors, checked = [], 0
 
-    # 스크린샷: 화면·데이터·촬영 스크립트가 바뀌면 12장이 다시 떠야 한다
-    sc = m["screenshots"]
-    st = stamps.get("screenshots")
-    if not st:
-        errors.append(f"screenshots: 스탬프 없음 → {FIX}")
-    else:
-        digest, err = digest_sources(resolve(sc["inputs"]))
-        if err:
-            errors.append(f"screenshots: {err}")
-        elif digest != st.get("sources"):
-            diff = [k for k in digest if digest[k] != st["sources"].get(k)]
-            errors.append(f"screenshots: 원본이 빌드 이후 바뀜 ({', '.join(diff[:3])}) → {FIX}")
-        else:
-            for rel, want in st.get("artifacts", {}).items():
-                p = ROOT / rel
-                checked += 1
-                if not p.exists():
-                    errors.append(f"screenshots: {rel} 없음 → {FIX}")
-                elif sha(p) != want:
-                    errors.append(f"screenshots: {rel} 이 빌드 산출물과 다름 (손으로 바꿨나) → {FIX}")
+    # 스크린샷 단계는 2026-08-27 (#49) 에 없어졌다. 12장은 `index.html`·`app.html`
+    # 에서 떴고 두 화면이 없어졌다. 헌장 §4.1 이 발송된 제안서와 그 이미지를
+    # **보존하고 재현하지 않는다** 고 정하므로 PNG 는 저장소에 얼어붙은 자산으로
+    # 남는다. 손으로 바꾸는 것을 막는 것은 아래 proposal_v12 의 `assets/*` 글롭이다 —
+    # PNG 가 바뀌면 그 PDF 의 원본 다이제스트가 어긋난다. 여기서 따로 안 본다.
+    if "screenshots" in m or "screenshots" in stamps:
+        errors.append("screenshots 엔트리가 매니페스트나 스탬프에 남아 있다 — "
+                      "#49 에서 지웠고, 다시 넣으려면 찍을 화면이 있어야 한다")
 
     # PDF 들
     for entry in m["pdfs"]:
