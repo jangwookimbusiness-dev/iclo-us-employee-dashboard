@@ -24,6 +24,7 @@ FILES=(
   ../app.html
   ../pages-root-redirect.html
   ../screens/employer.html.in
+  ../screens/member.html.in
 )
 GLOBS=(
   '../output/proposal-v12/*.md'

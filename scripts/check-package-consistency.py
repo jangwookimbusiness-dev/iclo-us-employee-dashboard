@@ -189,11 +189,16 @@ def check_bar_contrast():
     dash = doc["dashboard"]
     col = dash["colors"]
 
-    # **밴드 집합이 색 집합과 같아야 한다.** 3:1 을 계산하기 전에 계산할 대상이 다
-    # 있는지 본다. 정본 `signals` 에 밴드를 하나 더하고 `colors.bars` 에 안 더하면
-    # 화면은 그 밴드의 막대를 색 없이 그린다 — 규칙을 어기는 것이 아니라 규칙이
-    # 적용될 값이 없는 상태이고, 비율 계산만 하는 검사는 그것을 통과시킨다.
-    # 2026-08-27 에 그 고장을 심어보고 통과하는 것을 확인한 뒤 이 단언을 넣었다.
+    # **밴드 집합 셋이 같아야 한다.** 3:1 을 계산하기 전에 계산할 대상이 다 있는지
+    # 본다. 정본 `signals` 에 밴드를 하나 더하고 `colors.bars` 에 안 더하면 화면은 그
+    # 밴드의 막대를 색 없이 그린다 — 규칙을 어기는 것이 아니라 규칙이 적용될 값이 없는
+    # 상태이고, 비율 계산만 하는 검사는 그것을 통과시킨다. 2026-08-27 에 그 고장을
+    # 심어보고 통과하는 것을 확인한 뒤 이 단언을 넣었다.
+    #
+    # `member_app.bands` 도 같은 집합이다 (2026-08-27, #48). 기업 화면은 밴드 분포를
+    # 보이고 임직원 화면은 그 사람의 밴드를 보이는데, **같은 이름이어야 두 화면이
+    # 같은 것을 말한다.** 한쪽에만 밴드가 있으면 분포에 안 나오는 밴드를 개인에게
+    # 말하거나 (그 사람은 자기가 어디 속하는지 알 수 없다) 그 반대가 된다.
     bands = {s["key"] for s in dash["signals"]}
     for mode in ("light", "dark"):
         have = {k for k, v in col["bars"][mode].items()
@@ -203,6 +208,13 @@ def check_bar_contrast():
                  f"{mode} 밴드 색이 정본 signals 와 다르다. 색 없는 밴드: "
                  f"{sorted(bands - have)}, 밴드 없는 색: {sorted(have - bands)}. "
                  f"색 없는 밴드는 막대가 안 보이고 3:1 을 잴 대상도 없다")
+    member_bands = {b["band"] for b in doc["member_app"]["bands"]}
+    if bands != member_bands:
+        fail("bar_contrast",
+             f"임직원 화면 밴드가 기업 화면 분포와 다르다. 분포에만: "
+             f"{sorted(bands - member_bands)}, 개인 화면에만: "
+             f"{sorted(member_bands - bands)}. 두 화면이 같은 이름을 써야 같은 "
+             f"것을 말한다")
 
     def luminance(h):
         srgb = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]

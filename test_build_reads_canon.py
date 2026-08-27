@@ -146,6 +146,49 @@ CASES = [
      "Dental PMPM (allowed)", "변조된 카드 라벨"),
 ]
 
+# 임직원 화면(#48). 별 계약 파일 `member-canon.json` 과 별 화면 `member.html` 이므로
+# 루프도 따로다 — 같은 루프에 넣으면 어느 화면의 어느 파일을 봐야 하는지가 케이스마다
+# 달라지고, 그 분기가 검사의 가장 조용한 고장 자리가 된다.
+#
+# (member-canon.json 키, 라벨, 정본 정규식, 치환, 기대값 또는 None, DOM 옛, DOM 새)
+MEMBER_CASES = [
+    # 밴드 경계. `min: 80` 을 70 으로 낮추면 78점인 사람이 Moderate 에서 Low 로 간다.
+    # **이 하나가 사람에게 어느 밴드라고 말할지를 바꾼다** — 그래서 정본으로 올렸다.
+    #
+    # 70 인 이유: 첫 판은 20 을 넣었고 빌더가 거부했다. [20, 68] 은 내림차순이 아니고,
+    # 그러면 첫 밴드가 전부를 받는다. 불변식이 변조 범위를 좁힌 것이며, 넓히려고
+    # 불변식을 풀면 검사가 지키려는 것을 검사가 없앤다. 68 < 70 ≤ 78 로 고른다.
+    ("bands", "bands[Low].min",
+     r"^(\s*min: )80$", r"\g<1>70", None, "Moderate", "Low"),
+    ("bands", "bands[].advice",
+     r"^(\s*advice: )A guided check-in is worth booking when convenient\.$",
+     r"\g<1>변조된 조언 문장", None,
+     "A guided check-in is worth booking when convenient.", "변조된 조언 문장"),
+    # 방향 문턱. 71→78 은 +7 이므로 step 3 에서는 "나아졌다" 다. step 을 40 으로
+    # 올리면 같은 차이가 "비슷하다" 가 된다.
+    ("direction", "direction.step",
+     r"^(\s*step: )3$", r"\g<1>40", None,
+     "Better than your last check-in", "About the same as your last check-in"),
+    ("direction", "direction.better",
+     r"^(\s*better: )Better than your last check-in$",
+     r"\g<1>변조된 방향 문구", None,
+     "Better than your last check-in", "변조된 방향 문구"),
+    # 치환이 첫 문장을 **먹는다.** 첫 판의 기대값에 먹힌 문장을 그대로 두었고 그래서
+    # 실패했다 — 검사가 틀린 것이고, 그 실패가 정확히 그것을 말했다.
+    ("disclaimer", "disclaimer",
+     r"(?s)^(\s*disclaimer: \|\n\s*)A wellness signal from a guided photo\.",
+     r"\g<1>변조된 면책 문구.",
+     "변조된 면책 문구. Not a clinical finding and not medical advice. "
+     "Only a dentist can say what is happening in a mouth.",
+     "A wellness signal from a guided photo.", "변조된 면책 문구"),
+    ("demo_scope", "demo_scope",
+     r"^(\s*demo_scope: )In this demo the photo stays on this page and is not uploaded\.$",
+     r"\g<1>변조된 데모 한정 문구",
+     "변조된 데모 한정 문구",
+     "In this demo the photo stays on this page and is not uploaded.",
+     "변조된 데모 한정 문구"),
+]
+
 # 빌드 시점에 템플릿으로 치환되는 값. `canon.json` 에 없으므로 위 CASES 와 단언이
 # 다르다 — **렌더된 DOM 이 아니라 빌드된 산출물 텍스트를 본다.**
 #
@@ -558,6 +601,67 @@ def main():
                                 f"이어야 한다) — 폭이 지운 숫자를 그대로 싣는다")
                         checked += 1
 
+            # 임직원 화면. 같은 빌더, 다른 계약 파일과 다른 화면.
+            member_staged = set(json.loads(
+                (tmp / "base/member-canon.json").read_text(encoding="utf-8")))
+            member_covered = {c[0] for c in MEMBER_CASES}
+            if member_staged != member_covered:
+                fails.append(
+                    f"member-canon.json 과 MEMBER_CASES 가 어긋난다. 케이스 없는 "
+                    f"키: {sorted(member_staged - member_covered)}, 키 없는 "
+                    f"케이스: {sorted(member_covered - member_staged)}")
+            checked += 1
+
+            for key, name, pattern, repl, new, dom_old, dom_new in MEMBER_CASES:
+                mutated, n = re.subn(pattern, repl, original, count=1, flags=re.M)
+                if n != 1:
+                    fails.append(f"member:{name}: 정본에서 변조 지점을 못 찾았다 — "
+                                 f"정본 구조가 바뀌었고 이 검사가 낡았다")
+                    continue
+
+                slug = "member-" + re.sub(r"[^A-Za-z0-9]+", "-", name).strip("-")
+                mcanon = tmp / f"canon-{slug}.yml"
+                mcanon.write_text(mutated, encoding="utf-8")
+                r = build(mcanon, tmp / slug)
+                if r.returncode != 0:
+                    fails.append(f"member:{name}: 변조한 정본으로 빌드가 실패했다: "
+                                 f"{(r.stdout + r.stderr).strip()[:150]}")
+                    continue
+
+                if new is not None:
+                    blob = json.loads((tmp / slug / "member-canon.json")
+                                      .read_text(encoding="utf-8"))
+                    got = blob.get(key)
+                    if str(got) != new:
+                        fails.append(f"member:{name}: 정본을 고쳤는데 "
+                                     f"member-canon.json 이 {got!r} 이다")
+                    checked += 1
+
+                raw, err = dump_dom(
+                    f"http://127.0.0.1:{port}/{slug}/member.html")
+                if err:
+                    fails.append(f"member:{name}: 렌더 실패 — {err}")
+                    continue
+                dom = visible(raw)
+
+                # 밴드가 그려졌는지 먼저 본다. 빈 화면은 "옛 값 없음" 을 공짜로
+                # 만족시킨다 — 이 파일이 세 번 밟은 함정이고 여기서도 같다.
+                if not re.search(r'<div class="band [A-Za-z]+" id="band">\s*\w', dom):
+                    fails.append(f"member:{name}: DOM 에 밴드가 없다 — fetch 가 "
+                                 f"실패했거나 화면이 계약을 못 읽었다")
+                    continue
+                checked += 1
+
+                if dom_new not in dom:
+                    fails.append(f"member:{name}: 정본을 고쳤는데 화면에 "
+                                 f"{dom_new!r} 가 안 나온다")
+                checked += 1
+                if dom_old is not None:
+                    if re.search(rf"(?<![\w.]){re.escape(dom_old)}(?![\w.])", dom):
+                        fails.append(f"member:{name}: 정본을 고쳤는데 화면에 옛 값 "
+                                     f"{dom_old!r} 가 남아 있다")
+                    checked += 1
+
             # 치환 값. 산출물 텍스트를 본다 (위 STYLE_CASES 주석의 이유).
             for name, pattern, repl, old, new in STYLE_CASES:
                 mutated, n = re.subn(pattern, repl, original, count=1, flags=re.M)
@@ -606,6 +710,9 @@ def main():
     print(f"       탭 {len(tabs)}개가 각각 자기 패널만 드러내고 모르는 ?tab= 은 첫 "
           f"탭으로 떨어진다. 자격자를 100명으로 낮추면 문턱 아래 셀이 인원·비율·"
           f"막대를 함께 감춘다")
+    print(f"       임직원 화면은 계약 키 {len(MEMBER_CASES)}건을 별 파일로 받는다 — "
+          f"밴드 경계를 흔들면 같은 점수가 다른 밴드로 옮겨가고, 방향 문턱을 올리면 "
+          f"같은 차이가 '비슷하다' 가 된다")
     print(f"       렌더된 화면에 금지어·금지 용어·범위 없는 절대 표현이 없고 "
           f"합성 고지가 있다")
     return 0
