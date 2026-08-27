@@ -33,6 +33,13 @@
    "output/status/STATUS-2026-08-16.md": "cb4c7f0f51620078ad385e8033078bf1796e7097c8205dfb7c28dd79f4ad5113"
   }
  },
+ "status_2026_08_27": {
+  "artifact": "1603839bc9de162b97f73c11d342253730370a1bb188706186b9d8968fde522c",
+  "pages": 11,
+  "sources": {
+   "output/status/STATUS-2026-08-27.md": "78ebaa80e23ea018cf24df06c81d7baf32818950b1d2ae70260f401d2fa4f2fd"
+  }
+ },
  "tech": {
   "artifact": "289667253a519fb588aa6f1469dd869b492fdd2e16a430ba1e5d6f6b206658b4",
   "pages": 108,
