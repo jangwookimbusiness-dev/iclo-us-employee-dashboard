@@ -37,6 +37,14 @@ BUILDER = ROOT / "scripts/build_screens.py"
 CANON = ROOT / "contracts/proposal-package-v11.yml"
 TEMPLATE = ROOT / "screens/employer.html.in"
 
+# 화면이 그리는 행 수. 손으로 3·5 라 적으면 정본에 밴드를 더하거나 빌더에 단계를
+# 더할 때 이 검사가 조용히 틀린 기대를 갖는다. 밴드는 정본이 정하고 **단계 수는
+# 빌더의 FUNNEL_STAGES 가 정한다** — 정본 `kpis` 는 지표 목록이고 그중 다섯만 퍼널이다.
+CANON_SIGNALS = yaml.safe_load(
+    CANON.read_text(encoding="utf-8"))["dashboard"]["signals"]
+sys.path.insert(0, str(ROOT / "scripts"))
+CANON_FUNNEL = __import__("build_screens").FUNNEL_STAGES
+
 
 def _find_chrome():
     env = os.environ.get("CHROME")
@@ -88,9 +96,43 @@ CASES = [
     ("completeness_pct", "completeness_pct",
      r"^(\s*completeness_pct:\s+)98\.4\b", r"\g<1>71.6", "71.6",
      "98.4%", "71.6%"),
-    ("heading", "heading",
-     r"^(\s*heading: )Program overview$", r"\g<1>변조된 개요 제목",
-     "변조된 개요 제목", "Program overview", "변조된 개요 제목"),
+    # tabs 는 리스트라 최상위 비교를 건너뛴다. 선택된 탭의 제목과 버튼 라벨을 각각 덮는다.
+    ("tabs", "tabs[overview].heading",
+     r"^(\s*heading: )Program overview$", r"\g<1>변조된 개요 제목", None,
+     "Program overview", "변조된 개요 제목"),
+    ("tabs", "tabs[signals].label",
+     r"^(\s*label: )Signals$", r"\g<1>변조된 탭 라벨", None,
+     "Signals", "변조된 탭 라벨"),
+    # signals 의 점유율은 합이 100 이어야 빌드가 통과하므로 **키**를 덮는다. 점유율은
+    # 한 줄만 고치면 합이 깨져 빌더가 거부하고, 그 거부 자체는 아래 고장 재현에서 본다.
+    ("signals", "signals[].key",
+     r"^(\s*- \{key: )Low(,\s+share: 52\})", r"\g<1>Lowest\g<2>", None,
+     "Low", "Lowest"),
+    ("signal_unit", "signal_unit",
+     r"^(\s*unit: )촬영이 아니라 \*\*사람\*\*\. 사람당 그 창의 최신 유효 촬영 1건만 센다",
+     r"\g<1>변조된 단위 진술", "변조된 단위 진술",
+     "사람당 그 창의 최신 유효 촬영 1건만 센다", "변조된 단위 진술"),
+    # `window: 롤링 12개월` 이 정본에 둘 있다 (repeat_participation·signal_distribution).
+    # 화면은 뒤엣것만 읽으므로 앞엣것을 고치면 DOM 이 안 바뀌고 이 검사가 거짓 실패한다.
+    # 그래서 앞줄 `unit:` 에 앵커를 걸어 뒤엣것을 특정한다.
+    ("signal_window", "signal_window",
+     r"(?s)(unit: 촬영이 아니라.*?\n\s*window: )롤링 12개월",
+     r"\g<1>변조된 창", "변조된 창", "롤링 12개월", "변조된 창"),
+    ("funnel", "funnel[valid].frac",
+     r"^(\s*value:\s+)0\.28\b", r"\g<1>0.31", None, "28%", "31%"),
+    ("funnel_nesting", "funnel_nesting",
+     r"^(\s*funnel_nesting: \|\n\s*)Activated → Valid capture",
+     r"\g<1>변조된 포개짐 규칙 Activated → Valid capture",
+     None, None, "변조된 포개짐 규칙"),
+    ("completed_provisional_label", "completed_provisional_label",
+     r"^(\s*provisional_label: )잠정 — 청구지연 P90 실측 전",
+     r"\g<1>변조된 잠정 문구", "변조된 잠정 문구",
+     "잠정 — 청구지연 P90 실측 전", "변조된 잠정 문구"),
+    # 깃발을 내리면 화면에서 문구가 **사라진다.** 새로 나타나는 문자열이 없으므로
+    # dom_new 를 None 으로 두고 부재만 단언한다 — 없어지는 것이 관측 가능한 효과다.
+    ("completed_provisional", "completed_provisional",
+     r"^(\s*provisional: )true$", r"\g<1>false", "False",
+     "잠정 — 청구지연 P90 실측 전", None),
     # scenarios 와 cards 는 리스트라 canon.json 최상위 값 비교를 건너뛰고(None)
     # DOM 으로만 본다. 화면이 첫 시나리오만 쓰므로 A 의 두 값을 각각 덮는다.
     ("scenarios", "scenarios[A].employees",
@@ -120,6 +162,11 @@ CASES = [
 # 충분하고, 별도로 DOM 을 다시 열지 않는다 — 같은 문자열이다.
 #
 # (이름, 정본 정규식, 치환, 산출물 옛, 산출물 새)
+# 옛 값의 **개수가 줄었는지**를 본다, 없어졌는지가 아니다. 색 값이 정본에 둘씩 있다 —
+# `colors.coral` 과 `colors.bars.light.Priority` 가 둘 다 #C2333A 고, 다크도 같다.
+# 한쪽만 변조하면 다른 쪽이 남으므로 "옛 값이 사라졌다" 는 거짓 실패가 된다. 개수
+# 비교는 그 경우를 정확히 다루고, 템플릿이 색을 손으로 품고 있으면 개수가 안 줄어서
+# 걸린다 — 잡으려던 고장은 그것이다.
 STYLE_CASES = [
     ("title", r"^(\s*title: )ICLO HomeDen Employer Analytics$",
      r"\g<1>변조된 제품 제목", "ICLO HomeDen Employer Analytics", "변조된 제품 제목"),
@@ -130,6 +177,21 @@ STYLE_CASES = [
     ("teal", r'^(\s*teal: )"#007A87"', r'\g<1>"#0E0E0E"', "#007A87", "#0E0E0E"),
     ("background", r'^(\s*background: )"#FFFFFF"', r'\g<1>"#0F0F0F"',
      "#FFFFFF", "#0F0F0F"),
+    ("bar_track", r'^(\s*light: )"#F7F8FA"', r'\g<1>"#1A1A1A"', "#F7F8FA", "#1A1A1A"),
+    ("bar_track_dark", r'^(\s*dark: )"#0F1930"', r'\g<1>"#1B1B1B"',
+     "#0F1930", "#1B1B1B"),
+    ("bar_low", r'^(\s*light: \{Low: )"#7E90AE"', r'\g<1>"#1C1C1C"',
+     "#7E90AE", "#1C1C1C"),
+    ("bar_moderate", r'(\{Low: "#7E90AE", Moderate: )"#4E8F98"', r'\g<1>"#1D1D1D"',
+     "#4E8F98", "#1D1D1D"),
+    ("bar_priority", r'(Moderate: "#4E8F98", Priority: )"#C2333A"', r'\g<1>"#1E1E1E"',
+     "#C2333A", "#1E1E1E"),
+    ("bar_low_dark", r'^(\s*dark:  \{Low: )"#5B7099"', r'\g<1>"#1F1F1F"',
+     "#5B7099", "#1F1F1F"),
+    ("bar_moderate_dark", r'(\{Low: "#5B7099", Moderate: )"#4FA0A9"',
+     r'\g<1>"#2A2A2A"', "#4FA0A9", "#2A2A2A"),
+    ("bar_priority_dark", r'(Moderate: "#4FA0A9", Priority: )"#FF8E8D"',
+     r'\g<1>"#2B2B2B"', "#FF8E8D", "#2B2B2B"),
 ]
 
 
@@ -238,6 +300,7 @@ def main():
             return 1
 
     original = CANON.read_text(encoding="utf-8")
+    tabs = yaml.safe_load(original)["dashboard"]["tabs"]
     checked, fails = 0, []
 
     with tempfile.TemporaryDirectory(prefix="build-canon-") as tmp:
@@ -281,6 +344,8 @@ def main():
                   f"자리 없는 케이스: {sorted(styled - holes)}")
             return 1
         checked += 1
+
+        base_html = (tmp / "base/employer.html").read_text(encoding="utf-8")
 
         httpd, port = serve(tmp)
         try:
@@ -341,19 +406,157 @@ def main():
                     continue
                 checked += 1
 
-                # 3. 새 값이 DOM 까지 갔는가
-                if dom_new not in dom:
-                    fails.append(f"{name}: 정본을 고쳤는데 화면에 {dom_new!r} 가 "
-                                 f"안 나온다. 값이 canon.json 까지만 갔다")
-                checked += 1
+                # 3. 새 값이 DOM 까지 갔는가. dom_new 가 None 인 경우가 있다 —
+                #    깃발을 내리는 변조는 새 문자열을 만들지 않고 문구를 없앤다.
+                #    관측 가능한 효과가 부재뿐이면 부재만 단언한다.
+                if dom_new is not None:
+                    if dom_new not in dom:
+                        fails.append(f"{name}: 정본을 고쳤는데 화면에 {dom_new!r} 가 "
+                                     f"안 나온다. 값이 canon.json 까지만 갔다")
+                    checked += 1
 
                 # 4. 옛 값이 화면에 남지 않았는가. 앞뒤에 문자·숫자·점이 붙으면 그 값이
                 #    아니다 — CSS 의 20px, 2026-07 의 20, 31.40 의 일부를 거른다.
                 #    오탐이 미탐보다 위험하다: 언제나 실패하는 검사는 곧 꺼진다.
-                if re.search(rf"(?<![\w.]){re.escape(dom_old)}(?![\w.])", dom):
-                    fails.append(f"{name}: 정본을 고쳤는데 화면에 옛 값 {dom_old!r} 가 "
-                                 f"남아 있다 — 템플릿이나 라벨이 손으로 적힌 값을 품고 있다")
+                #    dom_old 가 None 이면 옛 문구가 새 문구의 부분문자열인 경우다
+                #    (`funnel_nesting` — 규칙 문장 앞에 말을 붙인다).
+                if dom_old is not None:
+                    if re.search(rf"(?<![\w.]){re.escape(dom_old)}(?![\w.])", dom):
+                        fails.append(f"{name}: 정본을 고쳤는데 화면에 옛 값 "
+                                     f"{dom_old!r} 가 남아 있다 — 템플릿이나 라벨이 "
+                                     f"손으로 적힌 값을 품고 있다")
+                    checked += 1
+
+            # 탭. 값 단언은 위에서 **전체 DOM** 을 본다 — `hidden` 패널도 DOM 에
+            # 있으므로 어느 탭에 있든 값이 잡힌다. 그것은 "정본 값이 fetch→렌더 경로를
+            # 통과했나" 라는 판정에는 맞지만 "그 값이 보이나" 는 아니다. 그래서 탭은
+            # 여기서 따로 본다: `?tab=` 이 그 패널을 드러내고 나머지를 감추는가.
+            for tab in tabs:
+                raw, err = dump_dom(
+                    f"http://127.0.0.1:{port}/base/employer.html?tab={tab['key']}")
+                if err:
+                    fails.append(f"tab:{tab['key']}: 렌더 실패 — {err}")
+                    continue
+                for other in ("overview", "signals", "funnel"):
+                    m = re.search(rf'<section id="panel-{other}"[^>]*>', raw)
+                    if not m:
+                        fails.append(f"tab:{tab['key']}: panel-{other} 가 DOM 에 없다")
+                        continue
+                    is_hidden = "hidden" in m.group(0)
+                    if (other == tab["key"]) == is_hidden:
+                        fails.append(
+                            f"tab:{tab['key']}: panel-{other} 가 "
+                            f"{'감춰져' if is_hidden else '드러나'} 있다 — "
+                            f"?tab={tab['key']} 이면 그 패널만 드러나야 한다")
+                    checked += 1
+                if f'<h2 id="heading">{tab["heading"]}</h2>' not in raw:
+                    fails.append(f"tab:{tab['key']}: 제목이 {tab['heading']!r} 가 "
+                                 f"아니다 — 탭마다 정본 제목을 써야 한다")
                 checked += 1
+                sel = re.findall(r'data-key="(\w+)" aria-controls="[^"]*" '
+                                 r'aria-selected="true"', raw)
+                if sel != [tab["key"]]:
+                    fails.append(f"tab:{tab['key']}: aria-selected=true 인 탭이 "
+                                 f"{sel} 다. 색만으로 고른 탭을 알리면 색을 못 보는 "
+                                 f"사람에게 그 정보가 사라진다")
+                checked += 1
+
+            # 없는 `?tab=` 은 첫 탭으로 떨어진다. 빈 화면을 내면 안 된다.
+            raw, err = dump_dom(
+                f"http://127.0.0.1:{port}/base/employer.html?tab=nope")
+            if err:
+                fails.append(f"tab:fallback: 렌더 실패 — {err}")
+            elif 'class="card"' not in visible(raw):
+                fails.append("tab:fallback: 모르는 ?tab= 에 빈 화면이 나왔다 — "
+                             "첫 탭으로 떨어져야 한다")
+            checked += 1
+
+            # 컨트롤 크기. PRD §5.4 는 44px 미만 컨트롤을 금지한다. 계산된 높이는
+            # `--dump-dom` 이 안 주므로 **선언**을 본다. 색 검사와 같은 한계이고
+            # 같은 이유로 여기서 멈춘다 — 없는 검사보다 낫고, 약한 척하지 않는다.
+            if not re.search(r"\.tab\{[^}]*min-height:\s*44px", base_html):
+                fails.append("컨트롤 크기: `.tab` 에 min-height:44px 선언이 없다 "
+                             "(PRD §5.4 — 44px 미만 컨트롤 금지)")
+            checked += 1
+
+            # **최소 셀.** 자격자를 100명으로 낮추면 Priority 밴드가 15명,
+            # 완료 조치가 4명이 되어 둘 다 문턱 아래로 내려간다. 화면 아래 문구가
+            # 첫 판부터 "그런 셀은 값을 안 보인다" 고 주장하고 있었고 화면에는 셀이
+            # 아예 없었다 — 이제 있으므로 주장이 참이어야 한다 (PRD §5.4, n < 20).
+            mutated, n = re.subn(r"^(\s*- \{key: A, employees: )10000",
+                                 r"\g<1>100", original, count=1, flags=re.M)
+            if n != 1:
+                fails.append("최소 셀: 시나리오 A 를 못 찾았다 — 검사가 낡았다")
+            else:
+                mcanon = tmp / "canon-mincell.yml"
+                mcanon.write_text(mutated, encoding="utf-8")
+                if build(mcanon, tmp / "mincell").returncode != 0:
+                    fails.append("최소 셀: 변조한 정본으로 빌드가 실패했다")
+                else:
+                    for key in ("signals", "funnel"):
+                        raw, err = dump_dom(f"http://127.0.0.1:{port}/mincell/"
+                                            f"employer.html?tab={key}")
+                        if err:
+                            fails.append(f"최소 셀 {key}: 렌더 실패 — {err}")
+                            continue
+                        dom = visible(raw)
+                        if "withheld" not in dom:
+                            fails.append(
+                                f"최소 셀 {key}: 자격자 100명이면 문턱 아래 셀이 "
+                                f"생기는데 화면에 'withheld' 가 없다. 아래 문구가 "
+                                f"주장하는 것을 화면이 안 한다")
+                        checked += 1
+                    # **억제한 행에 비율이 남아 있으면 억제가 아니다.** Priority
+                    # 15명은 100 × 15% 이고 자격자 100 은 같은 화면에 공표돼 있다 —
+                    # 비율과 분모가 있으면 인원은 곱셈 한 번이다. 첫 판이 정확히 그
+                    # 상태로 돌았고 (`15% · withheld`), 템플릿 주석은 그러면 안 된다고
+                    # 쓰고 있었다. 그래서 억제된 행에서 `%` 를 찾는다.
+                    #
+                    # 채움 막대도 같이 본다. 정본이 "눈금 없는 막대에 위치를 표시하는
+                    # 것은 숫자를 숨긴 숫자" 라고 적는다 — 15% 폭 막대는 지운 숫자와
+                    # 같은 정보다.
+                    for key, rows_expected in (("signals", len(CANON_SIGNALS)),
+                                               ("funnel", len(CANON_FUNNEL))):
+                        raw, err = dump_dom(f"http://127.0.0.1:{port}/mincell/"
+                                            f"employer.html?tab={key}")
+                        if err:
+                            fails.append(f"최소 셀 누출 {key}: 렌더 실패 — {err}")
+                            continue
+                        # **그 패널 안에서만 센다.** 처음에 문서 전체를 셌고, 감춰진
+                        # 패널의 억제 행과 스크립트 소스의 `class="fill …"` 문자열
+                        # 리터럴이 같이 잡혀 3행·7막대가 나왔다. 실제 화면은 각각
+                        # 1행·2행이었다 — 검사가 틀렸고 화면은 맞았다.
+                        panel = re.search(
+                            rf'<section id="panel-{key}"[^>]*>(.*?)</section>',
+                            visible(raw), re.S)
+                        if not panel:
+                            fails.append(f"최소 셀 누출 {key}: 패널을 못 찾았다")
+                            continue
+                        body = panel.group(1)
+
+                        rows = re.findall(
+                            r'<div class="(?:brow|stage)">(.*?)(?=<div class="'
+                            r'(?:track|sbar)")', body, re.S)
+                        leaked = [r for r in rows if "withheld" in r and "%" in r]
+                        if leaked:
+                            fails.append(
+                                f"최소 셀 누출 {key}: 억제한 행 {len(leaked)}개에 "
+                                f"비율이 남아 있다. 공표된 분모와 곱하면 억제한 "
+                                f"인원이 그대로 나온다")
+                        checked += 1
+
+                        withheld = body.count("withheld (n &lt; 20)")
+                        fills = len(re.findall(r'class="(?:fill|sfill)[ "]', body))
+                        if withheld == 0:
+                            fails.append(
+                                f"최소 셀 누출 {key}: 자격자 100명인데 억제된 행이 "
+                                f"없다 — 이 검사가 아무것도 안 보고 있다")
+                        elif fills != rows_expected - withheld:
+                            fails.append(
+                                f"최소 셀 누출 {key}: 억제 {withheld}행인데 채움 "
+                                f"막대가 {fills}개다 ({rows_expected - withheld} "
+                                f"이어야 한다) — 폭이 지운 숫자를 그대로 싣는다")
+                        checked += 1
 
             # 치환 값. 산출물 텍스트를 본다 (위 STYLE_CASES 주석의 이유).
             for name, pattern, repl, old, new in STYLE_CASES:
@@ -377,10 +580,13 @@ def main():
                     fails.append(f"style:{name}: 정본을 {new!r} 로 고쳤는데 산출물에 "
                                  f"없다. 빌더가 이 자리를 정본에서 안 읽는다")
                 checked += 1
-                if old in built:
-                    fails.append(f"style:{name}: 정본을 고쳤는데 산출물에 옛 값 "
-                                 f"{old!r} 가 남아 있다 — 템플릿이 손으로 적은 "
-                                 f"값을 품고 있다")
+                # 개수 비교. 같은 색이 정본에 둘씩 있어서 (coral 과 bars.Priority)
+                # 부재를 요구하면 거짓 실패가 된다. 줄어들지 않는 것이 진짜 고장이다.
+                was, now = base_html.count(old), built.count(old)
+                if now >= was:
+                    fails.append(f"style:{name}: 정본을 고쳤는데 산출물의 옛 값 "
+                                 f"{old!r} 개수가 {was}→{now} 다. 줄지 않았으므로 "
+                                 f"템플릿이 그 값을 손으로 품고 있다")
                 checked += 1
         finally:
             httpd.shutdown()
@@ -396,8 +602,12 @@ def main():
         return 1
     print(f"PASS — 검사 {checked}건. fetch 값 {len(CASES)}개(계약 키 "
           f"{len(covered)}개 전부)와 치환 값 {len(STYLE_CASES)}개(템플릿 자리 전부)를 "
-          f"변조했을 때 산출물과 렌더된 DOM 이 함께 따라 움직이고 옛 값이 남지 않는다. "
-          f"렌더된 화면에 금지어·금지 용어·범위 없는 절대 표현이 없고 합성 고지가 있다")
+          f"변조했을 때 산출물과 렌더된 DOM 이 함께 따라 움직이고 옛 값이 남지 않는다")
+    print(f"       탭 {len(tabs)}개가 각각 자기 패널만 드러내고 모르는 ?tab= 은 첫 "
+          f"탭으로 떨어진다. 자격자를 100명으로 낮추면 문턱 아래 셀이 인원·비율·"
+          f"막대를 함께 감춘다")
+    print(f"       렌더된 화면에 금지어·금지 용어·범위 없는 절대 표현이 없고 "
+          f"합성 고지가 있다")
     return 0
 
 
