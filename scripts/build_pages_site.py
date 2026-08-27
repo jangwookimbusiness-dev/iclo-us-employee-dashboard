@@ -12,12 +12,16 @@ larger than the one thing it exists to do. The repository is restarting from a
 clean base, and a scrapped demo has no reason to be on the internet in the
 meantime.
 
-The redirect is its own file rather than a rewritten `index.html` because
-`index.html` is load-bearing locally: `test_single_source` and `test_suppression`
-parse its constants, `check-package-consistency` asserts contract values against
-it, `shots.py` renders proposal screenshots from it, and `.docstamps.json`
-records its hash. It stays in the repository as a proposal illustration; it just
-stops being served.
+**2026-08-27 (#49): the old screens are gone from the repository.** `index.html`
+and `app.html` were retired with the five checks that existed only to guard them.
+The reason this file kept the redirect in `pages-root-redirect.html` rather than
+rewriting `index.html` was that `index.html` was load-bearing locally, and it no
+longer is — but the separate file stays anyway, for a better reason: the published
+name and the source name should not be the same, so that "what goes out" is a
+mapping someone can read rather than a file someone might edit by accident.
+
+Nothing about the deployment changes. The root still publishes the redirect under
+the name `index.html`, which is the name the printed booth QR resolves to.
 
 Run it locally with `bash scripts/serve.sh`.
 """
@@ -35,11 +39,21 @@ PUBLIC_FILES = (
 )
 
 # Files that must NOT reach Pages. Listing them is the point: an allowlist says
-# what goes out, and this says what someone would plausibly put back. Both
+# what goes out, and this says what someone would plausibly put back. Both old
 # screens and the app's data feed were published until 2026-08-26.
+#
+# 2026-08-27 (#49): `index.html` and `app.html` no longer exist as sources, and
+# `employer.html` / `member.html` are now what a build produces. Naming all four
+# keeps the list about intent rather than about which files happen to exist —
+# a name here says "not this, ever", and the two rebuilt screens are the ones
+# someone would now plausibly stage. member.json is a person's data and has even
+# less business on a public host than the screens do.
 FORBIDDEN_ON_PAGES = (
     Path("index.html"),
     Path("app.html"),
+    Path("employer.html"),
+    Path("member.html"),
+    Path("member.json"),
     Path("data/member-demo.json"),
 )
 

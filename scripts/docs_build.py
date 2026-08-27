@@ -4,12 +4,16 @@
     python3 scripts/docs_build.py            # rebuild what is stale, restamp
     python3 scripts/docs_build.py --force    # rebuild everything
 
-One command replaces the by-hand sequence this repo ran for two days: re-shoot
-the screenshots when a screen changed, rebuild each PDF when its markdown
-changed, keep the ordering right (screenshots feed the proposal PDF), and never
-forget one. The forgetting is the point — the tech doc's PDF went stale against
-its markdown exactly once, and the only reason it was caught was that someone
-happened to ask.
+One command replaces the by-hand sequence this repo ran for two days: rebuild
+each PDF when its markdown changed, and never forget one. The forgetting is the
+point — the tech doc's PDF went stale against its markdown exactly once, and the
+only reason it was caught was that someone happened to ask.
+
+2026-08-27 (#49): the screenshot stage is gone with the screens it shot. The
+twelve PNGs stay in the repository as frozen sales artifacts — charter §4.1
+preserves the sent proposal and its images rather than reproducing them — and the
+proposal PDF still lists `assets/*` among its sources, so changing a PNG by hand
+still breaks that PDF's stamp.
 
 Stamps, not timestamps. PDFs and PNGs are not byte-reproducible (Chrome embeds
 creation dates), so freshness cannot be "artifact unchanged". Instead
@@ -206,38 +210,11 @@ def build_pdf(entry, stamps, force):
     return True
 
 
-def build_shots(m, stamps, force):
-    srcs = resolve(m["inputs"])
-    digest = source_digest(srcs)
-    arts = [ROOT / a for a in m["artifacts"]]
-    st = stamps.get("screenshots")
-    fresh = (st and st.get("sources") == digest
-             and all(a.exists() for a in arts)
-             and {str(a.relative_to(ROOT)): sha(a) for a in arts} == st.get("artifacts"))
-    if not force and fresh:
-        print("  screenshots        최신 — 건너뜀")
-        return False
-
-    r = subprocess.run([sys.executable, str(ROOT / "scripts/shots.py"), m["outdir"]],
-                       capture_output=True, text=True, cwd=ROOT)
-    if r.returncode != 0:
-        sys.exit(f"docs_build: shots.py 실패\n{r.stderr[-400:]}\n{r.stdout[-400:]}")
-    missing = [a for a in arts if not a.exists()]
-    if missing:
-        sys.exit(f"docs_build: shots.py 가 끝났는데 산출물이 없음 — {missing[0]}")
-    stamps["screenshots"] = {
-        "sources": digest,
-        "artifacts": {str(a.relative_to(ROOT)): sha(a) for a in arts},
-    }
-    print(f"  screenshots        재촬영 — {len(arts)}장")
-    return True
-
-
 def main():
     force = "--force" in sys.argv
     m = json.loads(MANIFEST.read_text(encoding="utf-8"))
     stamps = load_stamps()
-    changed = build_shots(m["screenshots"], stamps, force)
+    changed = False
     for entry in m["pdfs"]:
         changed |= build_pdf(entry, stamps, force)
     STAMPS.write_text(json.dumps(stamps, ensure_ascii=False, indent=1, sort_keys=True),

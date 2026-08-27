@@ -170,6 +170,51 @@ def check_status_headers():
         print(f"현황 문서 {seen}건 — 헤더의 커밋과 날짜가 실재")
 
 
+def check_member_copy(c):
+    """임직원에게 보일 정본 문구 전부에 레드라인을 건다.
+
+    **렌더를 보는 검사로는 여기까지 닿지 않는다.** `prose_guards` 가 임직원 화면의
+    DOM 을 보지만, 화면은 한 번에 밴드 하나와 방향 문장 하나만 그린다 — 조언 셋 중
+    둘과 방향 문구 셋 중 둘은 어떤 렌더에도 안 나온다. 2026-08-27 에 `Low` 밴드 조언에
+    질환어를 심고 렌더 검사가 통과하는 것을 확인했다. 기준 데이터의 사람이 Moderate
+    라서 그 문장이 화면에 온 적이 없었다.
+
+    파일 스캔으로도 안 닿는다. 이 문구들은 런타임에 정본에서 오므로 템플릿 파일에
+    없고, 정본 전체를 스캔하는 것은 안 된다 — 금지어 목록 자체가 정본에 있어서
+    검사가 자기를 신고한다 (`docs/PRD.md` 를 스캔에서 빼는 것과 같은 이유다).
+
+    그래서 **보일 문구만 골라서** 같은 규칙을 건다. 이 화면의 문장은 한 사람에게
+    자기 입에 대해 하는 말이므로 셋 중 하나만 검사되는 상태로 두지 않는다.
+    """
+    doc = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
+    app = doc["member_app"]
+
+    # 사람에게 보이는 문자열. 정의·주석(`why`)은 뺀다 — 화면에 안 간다.
+    shown = {"disclaimer": app["disclaimer"], "demo_scope": app["demo_scope"]}
+    for b in app["bands"]:
+        shown[f"bands[{b['band']}].band"] = b["band"]
+        shown[f"bands[{b['band']}].advice"] = b["advice"]
+    for k in ("better", "worse", "same"):
+        shown[f"direction.{k}"] = app["direction"][k]
+
+    def squash(s):
+        return re.sub(r"[\s·\-–—/|,]+", "", s)
+
+    for where, text in sorted(shown.items()):
+        for w in c["disease"]:
+            if re.search(rf"\b{w}\w*", text, re.I):
+                fail("member_copy",
+                     f"member_app.{where} 에 금지어 {w!r} — 이 문장은 임직원 화면에 "
+                     f"뜬다. 렌더 검사는 밴드 하나만 보므로 여기서 잡아야 한다")
+        flat = squash(text)
+        for wrong, right in c["forbidden"]:
+            if squash(wrong) in flat:
+                fail("member_copy",
+                     f"member_app.{where} 에 금지 용어 {wrong!r} → {right!r}")
+    print(f"임직원 문구 {len(shown)}개 — 금지어·금지 용어 없음 "
+          f"(렌더는 밴드 하나만 보이므로 정본에서 전부 본다)")
+
+
 def check_bar_contrast():
     """신호 바가 트랙 대비 3:1 을 넘는지 계산한다. WCAG 1.4.11.
 
@@ -625,33 +670,25 @@ def load_contract():
     없어졌고, 근거 없는 제약을 docstring 이 계속 주장하면 그게 R1 이다.
 
     남긴 정규식과 옮긴 것의 기준은 하나다. **구조에 걸리는 것은 파서로 읽는다.**
-    아래 넷이 그랬다: `kpis` 는 `- label:` 로 라벨을 잡고 있었고, 그러면 항목의 첫
-    키가 `label` 이어야 한다. 한 항목에서 `key:` 를 앞으로 옮기면 그 항목만 목록에서
-    빠지고 — 실측: 여덟 중 일곱만 잡힌다 — 검사는 통과한다. 놓친 라벨이 화면에
-    있는지 아무도 안 보는데 아무 소리도 안 난다. `headings` 도 파일 전체에서
-    `heading:` 를 긁고 있었으므로 다른 블록이 그 키를 쓰면 섞인다.
+    `headings` 가 그랬다 — 파일 전체에서 `heading:` 를 긁고 있었으므로 다른 블록이
+    그 키를 쓰면 섞인다. 문서 산문·주석처럼 YAML 구조가 아닌 것을 보는 자리는
+    정규식으로 남는다.
 
-    문서 산문·주석처럼 YAML 구조가 아닌 것을 보는 자리는 정규식으로 남는다.
+    **2026-08-27 (#49): 열한 키를 지웠다.** `min_cell`·`dep_ratio`·`lag_days`·
+    `completeness`·`coral`·`coral_dark`·`kpis`·`signals`·`scenarios`·`fracs`·`scoped`
+    는 `check_dashboard` 만 읽었고 그 함수가 헌 화면과 함께 없어졌다. 읽는 사람 없는
+    값을 로더에 남겨두면 #43 이 계약에서 지운 것과 같은 것이 여기 생긴다: 정본이
+    바뀌어도 아무 일도 안 일어나고, 뭔가 검사되고 있다는 인상만 남는다.
+
+    그 열한 개가 지금 어디서 검사되는가 — 값은 전부 `test_build_reads_canon.py` 의
+    빌드 경계에서 (정본 변조 → 빌더 → Chrome DOM), 색 대비는 `check_bar_contrast`,
+    산문 규칙은 같은 파일의 `prose_guards` 가 렌더된 두 화면에 대해 본다.
     """
     t = CONTRACT.read_text(encoding="utf-8")
     doc = yaml.safe_load(t)
     dash = doc["dashboard"]
     c = {}
-    c["min_cell"] = int(re.search(r"min_cell:\s*(\d+)", t).group(1))
-    c["dep_ratio"] = float(re.search(r"dep_ratio:\s*([\d.]+)", t).group(1))
-    c["lag_days"] = int(re.search(r"lag_days:\s*(\d+)", t).group(1))
-    c["completeness"] = float(re.search(r"completeness_pct:\s*([\d.]+)", t).group(1))
-    c["coral"] = dash["colors"]["coral"]
-    c["coral_dark"] = dash["colors"]["coral_dark_mode"]
     c["headings"] = [tab["heading"] for tab in dash["tabs"]]
-    c["kpis"] = [k["label"] for k in dash["kpis"]]
-    c["signals"] = [(k, int(v)) for k, v in re.findall(r"\{key:\s*(\w+),\s*share:\s*(\d+)\}", t)]
-    c["scenarios"] = [(int(e), float(p)) for e, p in
-                      re.findall(r"employees:\s*(\d+),\s*pmpm:\s*([\d.]+)", t)]
-    c["fracs"] = dict(zip(
-        [m.strip() for m in re.findall(r"const:\s*FRAC\.(\w+)", t)],
-        [float(m) for m in re.findall(r"const:\s*FRAC\.\w+\n\s*value:\s*([\d.]+)", t)]))
-    c["scoped"] = re.findall(r'- wrong:\s*"([^"]+)"\n\s*right:\s*"([^"]+)"', t)
     c["forbidden"] = re.findall(r'\{wrong:\s*"([^"]+)",\s*right:\s*"([^"]+)"', t)
     # 이것도 파서로 읽는다. 헌 정규식은 `.*?` 와 re.S 로 그 키 **뒤 어디든** 첫
     # `[...]` 를 잡았고, 목록이 같은 줄로 올라오면(YAML 에서 흔한 편집) 아예 안 맞았다.
@@ -679,103 +716,6 @@ def load_contract():
 
 
 # ─────────────────────────── 대시보드 ───────────────────────────
-def check_dashboard(c):
-    """헌 화면(`index.html`·`app.html`)을 지킨다.
-
-    **재구축 화면은 여기서 안 본다.** 같은 규칙이 `test_build_reads_canon.py` 에
-    빌드 경계로 서 있다 — 정본을 변조하고 빌더를 돌려 렌더된 DOM 을 본다. 옮긴
-    이유는 라벨이 이제 정본에서 오기 때문이다: 화면에 뜨는 문자열이 템플릿 파일에
-    없으므로, 파일을 정규식으로 읽는 이 함수로는 잡을 수가 없다.
-
-    이 함수를 남기는 이유는 헌 화면이 저장소에 남아 있다는 것뿐이다. 두 화면이 다
-    정본에서 서면 이 함수가 없어진다. 그때까지는 여기가 헌 화면의 유일한 문지기다.
-    """
-    p = ROOT / "index.html"
-    if not p.exists():
-        return fail("dashboard", "index.html 없음")
-    h = p.read_text(encoding="utf-8")
-
-    def const(name, cast=float):
-        m = re.search(rf"{name}\s*[:=]\s*([\d.]+)", h)
-        return cast(m.group(1)) if m else None
-
-    if const("MIN_CELL", int) != c["min_cell"]:
-        fail("min_cell", f"index.html={const('MIN_CELL', int)} 계약={c['min_cell']}")
-    if const("DEP_RATIO") != c["dep_ratio"]:
-        fail("dep_ratio", f"index.html={const('DEP_RATIO')} 계약={c['dep_ratio']}")
-    if const("lagDays", int) != c["lag_days"]:
-        fail("lag_days", f"index.html={const('lagDays', int)} 계약={c['lag_days']}")
-    if const("completenessPct") != c["completeness"]:
-        fail("completeness", f"index.html={const('completenessPct')} 계약={c['completeness']}")
-
-    # 화면 제목 · KPI 라벨
-    for hd in c["headings"]:
-        if hd not in h:
-            fail("heading", f'"{hd}" 가 index.html 에 없음')
-    for k in c["kpis"]:
-        if k not in h:
-            fail("kpi", f'"{k}" 가 index.html 에 없음')
-
-    # 신호 밴드
-    for key, share in c["signals"]:
-        if not re.search(rf'key:\s*"{key}",\s*share:\s*{share}\b', h):
-            fail("signal", f"{key} {share}% 가 index.html 과 다름")
-
-
-    # 시나리오
-    for emp, pmpm in c["scenarios"]:
-        if not re.search(rf"employees:\s*{emp}\s*,\s*pmpm:\s*{pmpm}\b", h):
-            fail("scenario", f"{emp}명/PMPM {pmpm} 조합이 index.html 에 없음")
-
-    # FRAC
-    for name, v in c["fracs"].items():
-        if not re.search(rf"{name}\s*:\s*{v}\b", h):
-            fail("frac", f"FRAC.{name}={v} 가 index.html 과 다름")
-
-    # coral: 라이트 계열 정의가 전부 같은 값이어야 한다
-    lights = [m for m in re.findall(r"--coral\s*:\s*(#[0-9A-Fa-f]{6})", h)
-              if m.upper() != c["coral_dark"].upper()]
-    if set(x.upper() for x in lights) != {c["coral"].upper()}:
-        fail("coral", f"라이트 coral 이 {sorted(set(lights))} — 계약은 {c['coral']} 하나여야 함. "
-                      f"테마 토글로 다른 색이 나온다.")
-
-    # 범위 없는 절대 표현
-    for wrong, right in c["scoped"]:
-        for m in re.finditer(re.escape(wrong), h):
-            line = h[:m.start()].count("\n") + 1
-            ctx = h[m.start():m.start() + len(right) + 20]
-            if not ctx.startswith(right):
-                fail("scoped_claim", f'index.html:{line} "{wrong}" → "{right}" 로 범위를 좁혀야 함')
-
-    # 금지어
-    for w in c["disease"]:
-        if re.search(rf"\b{w}\w*", h, re.I):
-            fail("disease_word", f'index.html 에 금지어 "{w}"')
-
-    # 금지 용어 — 문서뿐 아니라 화면에도 건다. 여기에는 2026-08-16 까지
-    # "원천 칩은 원천 시스템과 파일 형식을 나란히 적은 것이라 예외" 라는 면제가
-    # 적혀 있었다. 검사가 못 본 게 아니라 보고도 넘기라고 쓰여 있었던 것이고,
-    # 그 덕에 화면과 제안서 캡처가 금지어를 달고 나갔다. 면제를 지운다.
-    # 구두점을 접어서 보는 이유도 같다 — 가운뎃점 하나로 피해갈 수 있으면
-    # 그건 검사가 아니라 권고다.
-    def squash(s):
-        return re.sub(r"[\s·\-–—/|,]+", "", s)
-
-    for path in ("index.html", "app.html"):
-        f = ROOT / path
-        if not f.exists():
-            fail("screen_missing", f"{path} 없음")
-            continue
-        flat = squash(f.read_text(encoding="utf-8"))
-        for wrong, right in c["forbidden"]:
-            if squash(wrong) in flat:
-                fail("terminology", f'{path}: 금지어 "{wrong}" → "{right}"')
-
-    # 합성 데이터 표시
-    if "Synthetic data" not in h:
-        fail("synthetic_label", "index.html 에 'Synthetic data' 표시 없음")
-
-
 # ─────────────────────────── 문서 ───────────────────────────
 def doc_text(p: Path, use_pdf: bool):
     if p.suffix == ".md":
@@ -914,8 +854,8 @@ def main():
     check_surfaces()
     check_awaiting_decision()
     c = load_contract()
-    check_dashboard(c)
     check_red_line_words(c)
+    check_member_copy(c)
     check_bar_contrast()
     check_docs(c, use_pdf)
 

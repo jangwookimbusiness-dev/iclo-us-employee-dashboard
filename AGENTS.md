@@ -1,7 +1,8 @@
 # ICLO Employer Dashboard — repository agent guide
 
-This file governs the entire repository, including the shipped `index.html` and
-`app.html` files at the root.
+This file governs the entire repository. The shipped screens are built from
+`screens/*.html.in` into `build/` by `scripts/build_screens.py`; the old root
+`index.html` and `app.html` were retired 2026-08-27 (#49).
 
 ## Read this first
 
@@ -64,7 +65,7 @@ screen rules are requirements, not visual preferences.
 ## Supported commands
 
 - `make setup` — create `.venv` from the pinned Python version and dependencies
-- `make check` — run the same thirteen CI commands as CI (the charter counts
+- `make check` — run the same eleven CI commands as CI (the charter counts
   verification units differently and says so; see REBUILD-CHARTER.md §4.3)
 - `make check-fast` — run the non-browser pre-commit subset
 - `make serve` — serve the demo at `http://localhost:8000`
