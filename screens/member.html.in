@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}} &middot; My check-in</title>
+<!--
+  Built by scripts/build_screens.py. Do not edit build/member.html.
+
+  This is the employee surface. The canon's surfaces.employee_app says what it
+  is: the person's own band and which way it moved, their own data only, and no
+  numeric score until FDA clearance. The score is computed -- bands and direction
+  need it -- and never rendered.
+
+  A scale position with the numerals removed is the same number in disguise, so
+  there is no track, no gauge and no dot on a line anywhere on this page. The
+  canon rules that out by the same line that rules out the number.
+
+  What this rebuild does NOT carry, on purpose: the coverage table, the clinic
+  directory, the remaining-balance figure and booking. contracts
+  status.does_not_exist lists all four as faked, and they were surface for the
+  booth dropped 2026-08-13. Rebuilding them would recreate four screens with no
+  system behind them.
+
+  Two fetches, not one. member-canon.json is the contract -- band edges, advice,
+  direction wording. member.json is a person's data. They are separate files
+  because at A3 the first stays a build artifact and the second becomes that
+  person's export, and because test_consent has to swap the data without
+  disturbing the contract.
+-->
+<style>
+  :root{
+    --ink:{{navy}}; --ink2:#5B6B85; --line:#E3E8F0; --panel:{{background}};
+    --ground:{{background}}; --data:{{teal}}; --coral:{{coral}};
+    --field:{{bar_track}};
+    --bandLow:{{bar_low}}; --bandModerate:{{bar_moderate}}; --bandPriority:{{bar_priority}};
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--ink:#E7ECF5; --ink2:#95A2BE; --line:#28324C; --panel:#152038;
+          --ground:#0E1526; --data:#3FB6C0; --coral:{{coral_dark}};
+          --field:{{bar_track_dark}};
+          --bandLow:{{bar_low_dark}}; --bandModerate:{{bar_moderate_dark}};
+          --bandPriority:{{bar_priority_dark}}}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+       font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:560px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--line);background:var(--panel)}
+  .hrow{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;padding-block:14px}
+  .logo{font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .pill{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--coral);
+        border:1px solid var(--coral);border-radius:3px;padding:3px 8px}
+  main{padding:20px 0 32px}
+  h2{margin:0 0 12px;font-size:16px}
+
+  /* The band IS the result. No number, no track, no gauge. */
+  .band{display:inline-block;font-size:30px;font-weight:800;letter-spacing:-.01em;
+        color:#fff;border-radius:8px;padding:6px 16px;line-height:1.2}
+  .band.Low{background:var(--bandLow)}
+  .band.Moderate{background:var(--bandModerate)}
+  .band.Priority{background:var(--bandPriority)}
+  .dir{font-size:15px;margin:12px 0 2px}
+  .advice{color:var(--ink2);margin:0 0 14px}
+  .disclaim{color:var(--ink2);font-size:13px;margin:0;
+            border-left:3px solid var(--line);padding-left:12px}
+  .when{font-family:var(--mono);font-size:12px;color:var(--ink2);margin-top:10px}
+
+  .who{border:1px solid var(--line);border-radius:6px;background:var(--panel);
+       overflow:hidden;margin-bottom:16px}
+  /* PRD §5.4 — no control under 44px, and nothing reachable only by hover. */
+  .subject{display:block;width:100%;min-height:44px;padding:12px 14px;border:0;
+           border-top:1px solid var(--line);background:none;color:var(--ink);
+           font:inherit;text-align:left;cursor:pointer}
+  .subject:first-child{border-top:0}
+  .subject[aria-current="true"]{background:var(--field);font-weight:600}
+  .subject:focus-visible{outline:2px solid var(--data);outline-offset:-2px}
+  .subject[disabled]{cursor:not-allowed;color:var(--ink2)}
+  .nm{display:block}
+  .why{display:block;font-size:12px;color:var(--ink2);margin-top:2px}
+  .blocked{color:var(--coral)}
+  .note{margin-top:20px;padding:12px 14px;border:1px solid var(--line);
+        border-radius:6px;color:var(--ink2);font-size:13px}
+  .demo{font-family:var(--mono);font-size:12px}
+  footer{border-top:1px solid var(--line);color:var(--ink2);font-size:12px;
+         padding:14px 0;margin-top:24px}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="hrow">
+  <span class="logo">{{title}}</span>
+  <span class="pill">Synthetic data &mdash; illustrative only</span>
+</div></div></header>
+
+<main class="wrap">
+  <h2>Who is this check-in for?</h2>
+  <div class="who" id="who"></div>
+
+  <section id="result" hidden>
+    <div class="band" id="band">&mdash;</div>
+    <p class="dir" id="direction">&mdash;</p>
+    <p class="advice" id="advice">&mdash;</p>
+    <p class="disclaim" id="disclaimer">&mdash;</p>
+    <p class="when" id="when"></p>
+  </section>
+
+  <p class="note">
+    <span class="demo" id="demoscope">&mdash;</span><br>
+    Your result is yours. It does not roll up into anything your employer sees &mdash;
+    the employer view carries band shares for the whole population and nothing per
+    person.
+  </p>
+</main>
+
+<footer class="wrap">Wellness signals only &middot; not medical advice</footer>
+
+<script>
+  // Two files: the contract and the person's data. Neither is inlined.
+  Promise.all([
+    fetch("./member-canon.json", {cache: "no-store"}),
+    fetch("./member.json", {cache: "no-store"}),
+  ]).then(rs => {
+    const bad = rs.find(r => !r.ok);
+    if (bad) throw new Error(bad.url.split("/").pop() + " " + bad.status);
+    return Promise.all(rs.map(r => r.json()));
+  }).then(([canon, data]) => paint(canon, data))
+    .catch(e => {
+      // Never fall back to a plausible band. A blank screen with a reason is
+      // recoverable; an invented band that looks real is not, and this screen
+      // tells a person something about their own mouth.
+      document.getElementById("who").innerHTML =
+        '<div class="subject" role="status">No member data' +
+        '<span class="why">' + e.message + '</span></div>';
+    });
+
+// ── consent ────────────────────────────────────────────────────────────────
+// Evaluated at the point of use, not read off a flag decided at signup.
+//
+// Consent is a LIST of records with a policy version, and the state is derived
+// from the latest record per purpose. A boolean cannot express "agreed, but to
+// text we have since replaced", and that is the state that silently keeps
+// processing if the model is wrong.
+//
+// Withdrawal does not erase the grant. Both records stay, or there is no way to
+// answer "what were we allowed to do on the day we processed this?"
+function consentRecord(person, purpose){
+  const rs = (person.consent || []).filter(r => r.purpose === purpose);
+  return rs.length ? rs[rs.length - 1] : null;
+}
+
+function consentState(person, purpose, policy){
+  const r = consentRecord(person, purpose);
+  if (!r) return "NEVER";
+  if (!r.granted) return "WITHDRAWN";
+  return r.policy_version === policy ? "ACTIVE" : "STALE";
+}
+
+const CONSENT_COPY = {
+  ACTIVE:    "in force",
+  WITHDRAWN: "withdrawn",
+  STALE:     "needs re-consent",
+  NEVER:     "not given",
+};
+
+// A capture needs BOTH: the processing basis and the photo permission. Photo
+// consent resting on a withdrawn processing basis is not consent -- that case
+// passes any check that looks at one purpose only.
+function captureBlock(person, policy){
+  for (const purpose of ["processing", "photo"]) {
+    const st = consentState(person, purpose, policy);
+    if (st !== "ACTIVE") {
+      const what = purpose === "processing"
+        ? "Data processing consent" : "Photo capture and analysis";
+      return `${what} is ${CONSENT_COPY[st]}`;
+    }
+  }
+  return null;
+}
+
+function paint(CANON, DATA){
+  const esc = s => String(s).replace(/[&<>"]/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+  document.getElementById("disclaimer").textContent = CANON.disclaimer;
+  document.getElementById("demoscope").textContent = CANON.demo_scope;
+
+  // Score to band. Top down, first `min` that the score clears. The last band
+  // has no `min` and takes everything below -- the builder refuses any other
+  // shape, so no default is needed here.
+  const bandFor = score => {
+    for (const b of CANON.bands) {
+      if (b.min === null || score >= b.min) return b;
+    }
+  };
+
+  // Direction, never magnitude. Differences under the canon's step are called
+  // steady: a photo-derived figure moves with light and angle, and reporting
+  // that as improvement invents a change.
+  const directionFor = (prev, now) => {
+    const d = CANON.direction;
+    if (now - prev >= d.step) return d.better;
+    if (prev - now >= d.step) return d.worse;
+    return d.same;
+  };
+
+  // Only profiles this credential holds access for. An adult family member
+  // holds their own consent and does not appear here -- the canon calls the
+  // "employee agrees for the family" shortcut the most dangerous one available.
+  const people = (DATA.parties || []).filter(p => p.access);
+  const policy = DATA.policy_version;
+
+  document.getElementById("who").innerHTML = people.map(p => {
+    const blocked = captureBlock(p, policy);
+    // The reason is on the button, in text. Not a tooltip: PRD §5.4 forbids
+    // information reachable only by hover.
+    return `<button class="subject" type="button" data-id="${esc(p.id)}"` +
+      (blocked ? " disabled" : "") + ` aria-current="false">` +
+      `<span class="nm">${esc(p.name)}</span>` +
+      `<span class="why${blocked ? " blocked" : ""}">` +
+      (blocked ? esc(blocked) : `${esc(p.rel)} · consent in force`) +
+      `</span></button>`;
+  }).join("") || '<div class="subject" role="status">No profiles on this ' +
+      'credential<span class="why">Nothing to show</span></div>';
+
+  function show(id){
+    const p = people.find(x => x.id === id);
+    const result = document.getElementById("result");
+    if (!p || captureBlock(p, policy) || !(p.history || []).length) {
+      // No consent, or no check-in yet: no band. Showing a band for a blocked
+      // profile would render a result we were not allowed to produce.
+      result.hidden = true;
+    } else {
+      const h = p.history;
+      const now = h[h.length - 1];
+      const b = bandFor(now.score);
+      const bandEl = document.getElementById("band");
+      bandEl.className = "band " + b.band;
+      bandEl.textContent = b.band;
+      document.getElementById("direction").textContent = h.length > 1
+        ? directionFor(h[h.length - 2].score, now.score)
+        : "First check-in — nothing to compare yet";
+      document.getElementById("advice").textContent = b.advice;
+      document.getElementById("when").textContent = "Check-in on " + now.on;
+      result.hidden = false;
+    }
+    for (const btn of document.querySelectorAll(".subject[data-id]")) {
+      btn.setAttribute("aria-current", String(btn.dataset.id === id));
+    }
+    const url = new URL(location.href);
+    url.searchParams.set("who", id);
+    history.replaceState(null, "", url);
+  }
+
+  document.getElementById("who").addEventListener("click", e => {
+    const btn = e.target.closest(".subject[data-id]");
+    if (btn && !btn.disabled) show(btn.dataset.id);
+  });
+
+  // ?who= makes each profile linkable, the same reason the employer screen has
+  // ?tab=: a screenshot script reaches every state without clicking, and
+  // test_consent reaches them without patching the page's internals.
+  const asked = new URLSearchParams(location.search).get("who");
+  const first = people.find(p => !captureBlock(p, policy));
+  if (asked && people.some(p => p.id === asked)) show(asked);
+  else if (first) show(first.id);
+}
+</script>
+</body>
+</html>

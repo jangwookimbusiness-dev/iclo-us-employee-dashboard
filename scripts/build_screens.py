@@ -35,6 +35,8 @@ ROOT = Path(__file__).resolve().parent.parent
 CANON = ROOT / "contracts/proposal-package-v11.yml"
 OUT = ROOT / "build"
 TEMPLATE = ROOT / "screens/employer.html.in"
+MEMBER_TEMPLATE = ROOT / "screens/member.html.in"
+MEMBER_DATA = ROOT / "data/member-demo.json"
 
 
 # 개요 화면이 그리는 카드와 그 순서. 정본의 `dashboard.kpis` 는 지표 **목록**이고
@@ -187,7 +189,46 @@ def load_style(path):
     return style
 
 
-def render(style):
+def load_member_canon(path):
+    """임직원 화면이 쓰는 정본 값. 기업 화면 계약과 별 파일로 나간다.
+
+    **왜 따로인가.** 두 화면의 보는 사람이 다르고 A3 에서 갈 곳이 다르다. 기업
+    계약은 테넌트 export 로, 임직원 계약은 본인별 export 로 간다. 한 파일에 합치면
+    기업 화면이 임직원 밴드 경계를 받고 임직원 화면이 기업 KPI 를 받는다 — 둘 다
+    안 쓰는 값이고, #43 이 지운 것이 정확히 그런 값이었다.
+
+    밴드 이름은 기업 화면의 `dashboard.signals` 와 같아야 한다.
+    `check_band_keys` 가 그 동일성을 본다 — 여기서 다시 검사하지 않는다.
+    """
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    app = doc["member_app"]
+
+    bands = [{"band": b["band"], "min": b.get("min"), "advice": b["advice"]}
+             for b in app["bands"]]
+    # 마지막 밴드만 `min` 이 없어야 한다. 중간에 없으면 그 위 밴드가 전부를 먹고,
+    # 마지막에 있으면 그 아래 점수에 밴드가 없다 — 화면이 사람에게 할 말이 없어진다.
+    missing = [i for i, b in enumerate(bands) if b["min"] is None]
+    if missing != [len(bands) - 1]:
+        sys.exit(f"build_screens: member_app.bands 의 min 없는 항목이 "
+                 f"{missing} 다 — 마지막 하나여야 한다. 마지막이 그 아래 전부를 받고, "
+                 f"중간이 비면 위 밴드가 전부를 먹는다")
+    # 경계가 내려가는 순서여야 한다. 올라가면 첫 항목이 전부를 먹는다.
+    edges = [b["min"] for b in bands[:-1]]
+    if edges != sorted(edges, reverse=True):
+        sys.exit(f"build_screens: member_app.bands 의 경계가 {edges} 로 "
+                 f"내림차순이 아니다 — 위에서 아래로 첫 min 이상을 쓰므로 "
+                 f"순서가 뒤집히면 첫 밴드가 전부를 받는다")
+
+    return {
+        "bands": bands,
+        "direction": {k: app["direction"][k]
+                      for k in ("step", "better", "worse", "same")},
+        "disclaimer": " ".join(app["disclaimer"].split()),
+        "demo_scope": app["demo_scope"],
+    }
+
+
+def render(template, style):
     """템플릿에 `{{...}}` 자리만 채운다. 측정값은 여기 안 들어간다.
 
     첫 판은 정본 JSON 을 `<script type="application/json">` 블록으로 HTML 안에
@@ -206,13 +247,13 @@ def render(style):
     그 색을 잃고 검사는 "새 값 없음" 으로 걸린다. 걸리기 전에 여기서 죽는다 —
     템플릿에 자리를 늘렸는데 `load_style` 에 안 넣은 경우가 그것이다.
     """
-    html = TEMPLATE.read_text(encoding="utf-8")
+    html = template.read_text(encoding="utf-8")
     for name, value in style.items():
         html = html.replace("{{" + name + "}}", str(value))
     left = sorted(set(re.findall(r"\{\{(\w+)\}\}", html)))
     if left:
-        sys.exit(f"build_screens: 템플릿의 치환 자리가 남았다 {left} — "
-                 f"load_style 이 그 이름을 안 준다")
+        sys.exit(f"build_screens: {template.name} 의 치환 자리가 남았다 "
+                 f"{left} — load_style 이 그 이름을 안 준다")
     return html
 
 
@@ -220,35 +261,54 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--canon", type=Path, default=CANON)
     ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument("--member-data", type=Path, default=MEMBER_DATA)
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args()
 
     if not args.canon.is_file():
         sys.exit(f"build_screens: 정본 없음 {args.canon}")
-    if not TEMPLATE.is_file():
-        sys.exit(f"build_screens: 템플릿 없음 {TEMPLATE}")
+    for path in (TEMPLATE, MEMBER_TEMPLATE):
+        if not path.is_file():
+            sys.exit(f"build_screens: 템플릿 없음 {path}")
+    if not args.member_data.is_file():
+        sys.exit(f"build_screens: 임직원 데이터 없음 {args.member_data}")
 
     canon = load_canon(args.canon)
+    member = load_member_canon(args.canon)
     # 렌더를 먼저 한다. 치환 자리가 남으면 여기서 죽고, 그때 출력 디렉터리에 반쪽
     # 빌드(canon.json 만 있고 화면은 없는)가 남지 않는다.
     style = load_style(args.canon)
-    html = render(style)
+    html = render(TEMPLATE, style)
+    member_html = render(MEMBER_TEMPLATE, style)
     args.out.mkdir(parents=True, exist_ok=True)
 
     # 정적 화면 계약을 별 파일로. A3 에서 이 자리가 export JSON 으로 바뀐다.
     (args.out / "canon.json").write_text(
         json.dumps(canon, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8")
+    (args.out / "member-canon.json").write_text(
+        json.dumps(member, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8")
+    # 임직원 **데이터**는 정본이 아니다 — 사람의 것이고, A3 에서 본인별 export 가 된다.
+    # 그래서 정본 계약(`member-canon.json`)과 다른 파일로 나간다. 둘을 한 파일에
+    # 합치면 `test_consent` 가 데이터를 바꿀 때 계약도 같이 흔들린다.
+    (args.out / "member.json").write_text(
+        args.member_data.read_text(encoding="utf-8"), encoding="utf-8")
+
     target = args.out / "employer.html"
     target.write_text(html, encoding="utf-8")
+    (args.out / "member.html").write_text(member_html, encoding="utf-8")
 
     if not args.quiet:
         # `relative_to` 는 out 이 저장소 밖이면 던진다. 그 시점에는 파일을 이미 다 썼고,
         # 성공한 빌드가 진행 보고를 하다 죽는다. 저장소 밖 경로는 그대로 적는다.
-        shown = target.relative_to(ROOT) if target.is_relative_to(ROOT) else target
-        print(f"build_screens: {shown} + canon.json — "
-              f"fetch 값 {len(canon)}개 (min_cell={canon['min_cell']}, "
-              f"카드 {len(canon['cards'])}개, scenarios={len(canon['scenarios'])}), "
+        shown = (args.out.relative_to(ROOT) if args.out.is_relative_to(ROOT)
+                 else args.out)
+        print(f"build_screens: {shown}/ — employer.html + canon.json "
+              f"(fetch 값 {len(canon)}개, min_cell={canon['min_cell']}, "
+              f"카드 {len(canon['cards'])}개, scenarios={len(canon['scenarios'])}) · "
+              f"member.html + member-canon.json (fetch 값 {len(member)}개, "
+              f"밴드 {len(member['bands'])}개) + member.json · "
               f"치환 값 {len(style)}개")
     return 0
 

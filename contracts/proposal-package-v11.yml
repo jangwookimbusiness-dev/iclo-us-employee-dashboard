@@ -380,6 +380,54 @@ export_contract:
     keep: index.html:213 의 원천별 매핑(HRIS·앱·TPA·신호)은 그대로 둔다
 
 # ─────────────────────────────────────────────────────────────
+# 임직원 화면의 값 — 2026-08-27 에 정본으로 올렸다 (#48)
+#
+# 아래 `surfaces.employee_app` 이 **규칙**을 갖는다 (밴드와 방향만, 숫자 금지).
+# 이 블록은 그 규칙을 실행하는 **값**을 갖는다. 규칙과 값이 다른 것이므로 두 곳에
+# 사는 같은 값이 아니다.
+#
+# 왜 올렸나. 밴드 경계가 `app.html:243` 한 줄에만 있었다:
+#   const BAND = s => s >= 80 ? "Low" : s >= 68 ? "Moderate" : "Priority";
+# 80 과 68 이 **사람에게 어느 밴드라고 말할지를 정한다.** 정본에 없었고 검사하는
+# 것도 없었고, 같은 밴드 이름 셋이 기업 화면의 분포를 싣고 있었다. 방향 문턱(3)과
+# 조언 문장 셋도 같은 자리에 있었다.
+# ─────────────────────────────────────────────────────────────
+member_app:
+  # 점수 → 밴드. 위에서 아래로 첫 `min` 이상인 것을 쓴다. **마지막 밴드는 `min` 이
+  # 없다** — 적으면 그 아래에 어느 밴드에도 안 들어가는 구간이 생기고, 화면은 그
+  # 사람에게 아무 말도 못 한다. 밴드 이름 셋은 dashboard.signals 와 같아야 한다.
+  bands:
+    - band: Low
+      min: 80
+      advice: Keep the current routine.
+    - band: Moderate
+      min: 68
+      advice: A guided check-in is worth booking when convenient.
+    - band: Priority
+      advice: Booking a general dental consult is suggested.
+
+  direction:
+    step: 3
+    better: Better than your last check-in
+    worse: Some ground lost since your last check-in
+    same: About the same as your last check-in
+    why: |
+      step 미만의 차이는 움직임이라고 하지 않는다. 사진에서 유도한 값은 조명과
+      각도로 흔들리므로, 흔들림을 개선이나 악화로 읽어주면 화면이 없는 변화를
+      보고한다. 문턱이 없으면 방향 문장이 매번 무언가를 말하고 그중 절반은 잡음이다.
+
+  # 밴드 옆에 반드시 함께 가는 문장. surfaces.core_ai_operation.still_forbidden 이
+  # 요구한다. "함께" 가 중요하다 — 페이지 아래 각주로 내려가면 밴드만 캡처된다.
+  disclaimer: |
+    A wellness signal from a guided photo. Not a clinical finding and not medical
+    advice. Only a dentist can say what is happening in a mouth.
+
+  # 데모 한정 문구. surfaces.core_ai_operation.demo_only.local_photo — 데모는 사진을
+  # 페이지 안에 두고 업로드하지 않는다. **제품 성질이 아니라 데모 성질이므로**
+  # 한정을 빼면 배포된 제품이 첫 촬영에서 깨뜨리는 약속이 된다.
+  demo_scope: In this demo the photo stays on this page and is not uploaded.
+
+# ─────────────────────────────────────────────────────────────
 # 두 화면 — 무엇을 누구에게 보이는가 (2026-08-14 확정)
 # "밴드만, 점수 금지" 는 기업 뷰의 레드라인이지 앱의 레드라인이 아니었다.
 # CEO 리뷰가 이것을 미결로 표시했고 여기서 닫는다.
