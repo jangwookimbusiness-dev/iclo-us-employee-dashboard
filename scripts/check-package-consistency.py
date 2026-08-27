@@ -170,6 +170,72 @@ def check_status_headers():
         print(f"현황 문서 {seen}건 — 헤더의 커밋과 날짜가 실재")
 
 
+def check_bar_contrast():
+    """신호 바가 트랙 대비 3:1 을 넘는지 계산한다. WCAG 1.4.11.
+
+    **PRD §5.4 가 이 검사의 집행자를 이 파일이라고 적어놨고 이 검사가 없었다**
+    (2026-08-27 확인). 정본 주석은 여섯 비율을 숫자로 적고 있었는데, 그것도 계산이
+    아니라 주장이었다 — 누가 밴드 색을 바꿔도 주석은 안 따라 바뀐다.
+
+    트랙을 정본으로 올려야 했던 이유가 여기다. 비율은 두 색 사이의 값이고, 트랙이
+    템플릿 CSS 리터럴이면 이 함수가 반쪽만 안다. 같은 Low(#7E90AE)가
+    `--field` #F7F8FA 위에서 3.05 로 통과하고 `--band` #EDF1F7 위에서 2.86 으로
+    떨어진다 — 통과 여부를 정하는 것이 밴드 색이 아니라 트랙이었다.
+
+    여유가 얼마나 남았는지도 찍는다. 3.05 는 통과지만 0.05 밖에 안 남았고, 그것을
+    모르면 다음 사람이 트랙을 한 단계 밝게 하면서 레드라인을 깬다.
+    """
+    doc = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
+    dash = doc["dashboard"]
+    col = dash["colors"]
+
+    # **밴드 집합이 색 집합과 같아야 한다.** 3:1 을 계산하기 전에 계산할 대상이 다
+    # 있는지 본다. 정본 `signals` 에 밴드를 하나 더하고 `colors.bars` 에 안 더하면
+    # 화면은 그 밴드의 막대를 색 없이 그린다 — 규칙을 어기는 것이 아니라 규칙이
+    # 적용될 값이 없는 상태이고, 비율 계산만 하는 검사는 그것을 통과시킨다.
+    # 2026-08-27 에 그 고장을 심어보고 통과하는 것을 확인한 뒤 이 단언을 넣었다.
+    bands = {s["key"] for s in dash["signals"]}
+    for mode in ("light", "dark"):
+        have = {k for k, v in col["bars"][mode].items()
+                if isinstance(v, str) and v.startswith("#")}
+        if bands != have:
+            fail("bar_contrast",
+                 f"{mode} 밴드 색이 정본 signals 와 다르다. 색 없는 밴드: "
+                 f"{sorted(bands - have)}, 밴드 없는 색: {sorted(have - bands)}. "
+                 f"색 없는 밴드는 막대가 안 보이고 3:1 을 잴 대상도 없다")
+
+    def luminance(h):
+        srgb = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+        lin = [v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+               for v in srgb]
+        return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+
+    def ratio(a, b):
+        la, lb = luminance(a), luminance(b)
+        return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+
+    checked, tightest = 0, None
+    for mode in ("light", "dark"):
+        track = col["bar_track"][mode]
+        for band, value in col["bars"][mode].items():
+            if not (isinstance(value, str) and value.startswith("#")):
+                continue   # bars.was 같은 산문 항목
+            r = ratio(value, track)
+            checked += 1
+            if tightest is None or r < tightest[0]:
+                tightest = (r, mode, band, value, track)
+            if r < 3.0:
+                fail("bar_contrast",
+                     f"{mode} {band} {value} 가 트랙 {track} 대비 {r:.2f}:1 — "
+                     f"PRD §5.4 레드라인은 3:1 이다. 의미를 싣는 바가 안 보인다")
+    if not checked:
+        fail("bar_contrast", "정본에서 밴드 색을 하나도 못 읽었다 — 검사가 낡았다")
+        return
+    r, mode, band, value, track = tightest
+    print(f"신호 바 {checked}쌍 — 트랙 대비 3:1 통과. 가장 좁은 것이 "
+          f"{mode} {band} {value}/{track} = {r:.2f}:1 (여유 {r - 3:.2f})")
+
+
 def check_red_line_words(c):
     """레드라인 단어 목록이 정본과 bash 스크립트에서 같은지 본다.
 
@@ -838,6 +904,7 @@ def main():
     c = load_contract()
     check_dashboard(c)
     check_red_line_words(c)
+    check_bar_contrast()
     check_docs(c, use_pdf)
 
     for label, items, mark in (("불일치", fails, "✗"), ("경고", warns, "!")):

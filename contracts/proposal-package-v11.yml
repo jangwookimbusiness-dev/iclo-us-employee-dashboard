@@ -216,6 +216,11 @@ dashboard:
         청구 지연이 중앙값 45일·롱테일 180일이다 (기술문서 §6.3). 최근에 연 조치는
         완료할 시간 자체가 없었으므로 그대로 세면 완료율이 낮게 나오고 나중에 저절로
         오른다. PMPM run-out 과 같은 함정이며, 좋아지는 방향이라 오류가 성과로 보인다.
+      # 화면이 읽는 상태. 아래 open_questions 가 "청구지연 P90 확정 전까지 잠정으로
+      # 표시한다" 고 산문으로 적고 있었고 **화면은 산문을 렌더할 수 없다.** 그래서
+      # 필드로 올린다. P90 이 실측되면 이 둘을 지우고 화면 표시가 같이 사라진다.
+      provisional: true
+      provisional_label: 잠정 — 청구지연 P90 실측 전
 
     funnel_nesting: |
       Activated → Valid capture → Open action → Completed 는 같은 보고월과 같은 자격자
@@ -264,6 +269,15 @@ dashboard:
       light: {Low: "#7E90AE", Moderate: "#4E8F98", Priority: "#C2333A"}   # 3.05 / 3.46 / 5.16
       dark:  {Low: "#5B7099", Moderate: "#4FA0A9", Priority: "#FF8E8D"}   # 3.51 / 5.77 / 7.91
       was: 원래 #D9E1EE / #8FB8BE 는 1.24 / 2.02 로, 데이터의 53% 를 싣는 Low 가 안 보였다.
+    bar_track:              # 위 여섯 비율을 재는 상대색. 2026-08-27 에 정본으로 올렸다.
+      light: "#F7F8FA"
+      dark: "#0F1930"
+      # 왜 정본이어야 하는가. PRD §5.4 는 "signal bars clear 3:1 against their track" 을
+      # 레드라인으로 걸고 집행을 `check-package-consistency.py` 에 맡긴다고 적었지만
+      # **그 검사가 없었다** (2026-08-27 확인). 검사를 쓰려면 두 색이 다 필요하고,
+      # 트랙은 템플릿 CSS 리터럴이었다. 여섯 비율이 이 값에 걸린다: 같은 Low 를
+      # `--band` #EDF1F7 위에 놓으면 2.86 으로 선 아래로 내려간다. 트랙을 못 읽는
+      # 검사는 "3:1 을 지킨다" 를 확인할 수 없고, 그러면 위 주석의 숫자는 주장일 뿐이다.
     navy: "#1B2A4A"
     teal: "#007A87"
     background: "#FFFFFF"
@@ -651,11 +665,18 @@ decided:
       다 범위를 스스로 강제한다: 스테이징한 키나 템플릿의 치환 자리에 변조 케이스가 없으면
       검사가 실패한다. check_dashboard 의 새 화면 몫(상수·라벨·색상·산문 규칙)은
       test_build_reads_canon 으로 옮겼다.
+      2026-08-27 #46: 탭 셋이 다 섰다. Signals·Funnel 이 붙어 valid·gap·closed·signals 가
+      계약으로 돌아왔고 (#43 에서 읽는 사람이 없어 뺐던 넷), 계약 키 19개 · 치환 값 14개 ·
+      단언 129건이다. 빌더가 퍼널 포개짐과 밴드 점유율 합 100% 를 거부로 강제하고, 최소 셀이
+      화면에서 인원·비율·막대를 함께 감춘다 — 인원만 감추면 공표된 분모와 비율로 복원된다.
+      completed_actions.provisional 은 그때 올린 필드다: 정본이 산문으로만 갖고 있어서
+      화면이 읽을 수 없었다. colors.bar_track 도 같은 이유다 (PRD §5.4 의 3:1 을 재려면
+      트랙이 필요하고, 그 검사가 없었다).
       남은 것: 헌 화면(index.html·app.html)이 있는 동안 test_single_source 와 check_dashboard
-      가 그 문지기로 남고, 소멸 조건은 검사 설계가 아니라 헌 화면을 지우는 결정이다.
-      Signals·Funnel 탭이 없어 valid·gap·closed·signals 는 읽는 사람이 없다. 치환 값은
-      스타일시트가 선언한 값까지 보고 계산된 색은 안 본다. A3/A2 측정값의 export 변조→렌더
-      경계는 #8~#10 에서 PROJECT_PHASE 전환과 함께 필수화한다.
+      가 그 문지기로 남고, 소멸 조건은 검사 설계가 아니라 헌 화면을 지우는 결정이다. 치환
+      값은 스타일시트가 선언한 값까지 보고 계산된 색·높이는 안 본다. ?scen=·?dept=·?lens=
+      는 아직 없다 (시나리오는 export 배선 대기, 부서는 데모 정본에 부서 데이터가 없다).
+      A3/A2 측정값의 export 변조→렌더 경계는 #8~#10 에서 PROJECT_PHASE 전환과 함께 필수화한다.
     rejected: |
       Vite·React 재도입과 새 템플릿 의존성은 두 판단 기준에 필요한 기능을 더하지
       않는다. 런타임 원시 YAML 읽기는 빌드 시점 정본 읽기가 아니다.

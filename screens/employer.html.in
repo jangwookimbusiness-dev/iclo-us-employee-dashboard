@@ -39,7 +39,12 @@
 <style>
   :root{
     --ink:{{navy}}; --ink2:#5B6B85; --line:#E3E8F0; --panel:{{background}}; --ground:{{background}};
-    --data:{{teal}}; --coral:{{coral}}; --field:#F7F8FA;
+    --data:{{teal}}; --coral:{{coral}};
+    /* --field 는 바 트랙이기도 하다. PRD §5.4 의 3:1 레드라인이 밴드 색과 이 색
+       사이에서 재어지므로 둘 다 정본이 갖는다. `check_bar_contrast` 가 여섯 쌍을
+       계산한다 — 같은 Low 를 #EDF1F7 위에 놓으면 2.86 으로 선 아래다. */
+    --field:{{bar_track}};
+    --barLow:{{bar_low}}; --barModerate:{{bar_moderate}}; --barPriority:{{bar_priority}};
     --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",Helvetica,Arial,sans-serif;
   }
@@ -48,7 +53,10 @@
        정본에 다크 값이 있고(colors.coral_dark_mode), 그것이 검사가 잡던 자리다 —
        라이트 정의 두 벌이 서로 다른 coral 을 쓰는 버그가 여기서 나왔다. */
     :root{--ink:#E7ECF5; --ink2:#95A2BE; --line:#28324C; --panel:#152038;
-          --ground:#0E1526; --data:#3FB6C0; --coral:{{coral_dark}}; --field:#0F1930}
+          --ground:#0E1526; --data:#3FB6C0; --coral:{{coral_dark}};
+          --field:{{bar_track_dark}};
+          --barLow:{{bar_low_dark}}; --barModerate:{{bar_moderate_dark}};
+          --barPriority:{{bar_priority_dark}}}
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
@@ -84,6 +92,44 @@
   .note{margin-top:20px;padding:12px 14px;border:1px solid var(--line);
         border-radius:4px;color:var(--ink2);font-size:13px}
   code{font-family:var(--mono);font-size:12px}
+
+  /* 탭. PRD §5.4 — 컨트롤은 44px 미만이 안 되고, hover 로만 닿는 정보가 없다.
+     그래서 min-height 를 걸고 상태를 aria-selected 로 싣는다 (색만으로 고른 탭을
+     알리면 색을 못 보는 사람에게 정보가 사라진다). */
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--line);background:var(--panel)}
+  .tab{min-height:44px;padding:0 18px;border:0;border-bottom:2px solid transparent;
+       background:none;color:var(--ink2);font:inherit;font-size:14px;cursor:pointer}
+  .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--coral);font-weight:600}
+  .tab:focus-visible{outline:2px solid var(--data);outline-offset:-2px}
+  [hidden]{display:none}
+
+  /* 밴드 바. 트랙 위 채움이고 눈금이 없다 — 눈금 없는 막대에 위치를 표시하는 것은
+     정본이 "숫자를 숨긴 숫자" 로 부르며 금지한다. 그래서 점유율을 글자로 같이 적는다. */
+  .bar{margin-bottom:14px}
+  .brow{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .bname{font-size:14px;color:var(--ink)}
+  .bval{font-family:var(--mono);font-size:13px;color:var(--ink)}
+  .track{height:12px;border-radius:3px;background:var(--field);margin-top:5px;
+         overflow:hidden;border:1px solid var(--line)}
+  .fill{height:100%}
+  .fill.Low{background:var(--barLow)}
+  .fill.Moderate{background:var(--barModerate)}
+  .fill.Priority{background:var(--barPriority)}
+  .bsub{font-size:12px;color:var(--ink2);margin-top:4px}
+
+  /* 퍼널. 단계마다 자격자 대비 비율과 인원. 뒤 단계가 앞 단계보다 클 수 없다 —
+     빌더가 그것을 거부하므로 화면은 순서를 그대로 그린다. */
+  .stage{display:grid;grid-template-columns:1fr auto;gap:2px 12px;
+         padding:10px 0;border-top:1px solid var(--line)}
+  .stage:first-child{border-top:0}
+  .sname{font-size:14px}
+  .snum{font-family:var(--mono);font-size:14px;text-align:right;white-space:nowrap}
+  .sbar{grid-column:1/-1;height:8px;border-radius:2px;background:var(--field);
+        overflow:hidden;border:1px solid var(--line)}
+  .sfill{height:100%;background:var(--data)}
+  .flag{display:inline-block;margin-left:6px;font-family:var(--mono);font-size:11px;
+        color:var(--coral);border:1px solid var(--coral);border-radius:3px;padding:1px 6px}
+  .withheld{color:var(--ink2);font-style:italic}
 </style>
 </head>
 <body>
@@ -96,12 +142,25 @@
   <span class="freshness" id="freshness">&mdash;</span>
 </div></div></div>
 
+<nav class="tabs wrap" id="tabs" role="tablist" aria-label="Views"></nav>
+
 <main class="wrap">
   <h2 id="heading">&mdash;</h2>
-  <p class="lead">Rebuild skeleton. Every value and label below is read from the
-  canon at build time; nothing on this page is a hand-copied constant.</p>
+  <p class="lead" id="lead">&mdash;</p>
 
-  <div class="grid" id="kpis"></div>
+  <section id="panel-overview" role="tabpanel" hidden>
+    <div class="grid" id="kpis"></div>
+  </section>
+
+  <section id="panel-signals" role="tabpanel" hidden>
+    <div id="bands"></div>
+    <p class="bsub" id="signalunit">&mdash;</p>
+  </section>
+
+  <section id="panel-funnel" role="tabpanel" hidden>
+    <div id="stages"></div>
+    <p class="bsub" id="nesting">&mdash;</p>
+  </section>
 
   <p class="note">Aggregate only. Cells covering fewer than
   <code id="mincell">—</code> distinct people are withheld, and the threshold in
@@ -126,7 +185,12 @@
     });
 
 function paint(CANON){
-  const pct = f => Math.round(f * 100) + "%";
+  // One decimal, trailing zero dropped. Math.round(f * 100) was wrong the moment
+  // a count appeared beside the percentage: the funnel printed "10% · 950" for
+  // 0.095 and "4% · 420" for 0.042, and ten percent of ten thousand is not 950.
+  // Two figures from the same number disagreeing on one line is worse than
+  // either being imprecise, because the reader cannot tell which one to trust.
+  const pct = f => (Math.round(f * 1000) / 10).toFixed(1).replace(/\.0$/, "") + "%";
   const fmt = n => n.toLocaleString("en-US");
   const esc = s => String(s).replace(/[&<>"]/g, c =>
     ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -155,8 +219,6 @@ function paint(CANON){
     pmpm_allowed:         ["$" + scen.pmpm.toFixed(2), "per covered member-month"],
   };
 
-  document.getElementById("heading").textContent = CANON.heading;
-
   document.getElementById("kpis").innerHTML = CANON.cards.map(card => {
     // A canon card with no value wired here says so on the screen. Silently
     // dropping it would let the contract grow a card nobody notices is blank.
@@ -166,6 +228,59 @@ function paint(CANON){
       `<div class="val">${esc(val)}</div>` +
       `<div class="denom">${esc(denom)}</div></div>`;
   }).join("");
+
+  // Cells below the minimum show no value. PRD §5.4 red line, n < 20, and the
+  // note at the bottom of the page has claimed it since the first draft while
+  // the screen had no cells at all. It has cells now, so the claim has to hold.
+  //
+  // **The share goes with the count.** The first version of this function
+  // withheld the head count and printed the percentage beside it, which withheld
+  // nothing: the funnel publishes the eligible denominator one row above, and
+  // share times a published denominator is the count. It rendered
+  // "15% · withheld" over a denominator of 100 and the answer was 15.
+  //
+  // The bar goes too, for the reason the canon already gives about scoreless
+  // bars: a mark on an unscaled track is a number with its label removed. A
+  // 15%-wide fill is as readable as the figure it replaced.
+  //
+  // Returns [figure, barWidth]. barWidth null means draw no fill at all.
+  const cell = (n, frac) => n < CANON.min_cell
+    ? [`<span class="withheld">withheld (n &lt; ${CANON.min_cell})</span>`, null]
+    : [`${pct(frac)} · ${fmt(n)}`, frac * 100];
+
+  // Signals. Bands and shares, never a score -- PRD §5.4 forbids a numeric score
+  // in employer views. The share is a share of a population, not a person's
+  // figure, which is why it is allowed and a score is not.
+  document.getElementById("bands").innerHTML = CANON.signals.map(s => {
+    const people = Math.round(scen.employees * s.share / 100);
+    const [figure, width] = cell(people, s.share / 100);
+    return `<div class="bar"><div class="brow">` +
+      `<span class="bname">${esc(s.key)}</span>` +
+      `<span class="bval">${figure}</span></div>` +
+      `<div class="track">` +
+      (width === null ? "" :
+        `<div class="fill ${esc(s.key)}" style="width:${width}%"></div>`) +
+      `</div></div>`;
+  }).join("");
+  document.getElementById("signalunit").textContent =
+    `${CANON.signal_unit} · ${CANON.signal_window}`;
+
+  // Funnel. The builder refuses to emit stages that do not nest, so the order
+  // here is the order the canon declares and no sorting happens on screen.
+  document.getElementById("stages").innerHTML = CANON.funnel.map(st => {
+    const people = Math.round(scen.employees * st.frac);
+    const [figure, width] = cell(people, st.frac);
+    const flag = (st.key === "closed_actions" && CANON.completed_provisional)
+      ? `<span class="flag">${esc(CANON.completed_provisional_label)}</span>` : "";
+    return `<div class="stage">` +
+      `<div class="sname">${esc(st.label)}${flag}</div>` +
+      `<div class="snum">${figure}</div>` +
+      `<div class="sbar">` +
+      (width === null ? "" :
+        `<div class="sfill" style="width:${width.toFixed(1)}%"></div>`) +
+      `</div></div>`;
+  }).join("");
+  document.getElementById("nesting").textContent = CANON.funnel_nesting;
 
   // The regulatory sentence carries the threshold, and it comes from the same
   // place. A number stated in prose is still a number that must not be typed twice.
@@ -179,6 +294,58 @@ function paint(CANON){
     `claims through ${CANON.claims_thru} · ` +
     `lag ${CANON.lag_days}d · ` +
     `completeness ${CANON.completeness_pct}%`;
+
+  // Tabs last: it reveals one panel, and revealing a panel before its content
+  // is painted shows an empty view for a frame.
+  paintTabs(CANON);
+}
+
+// Tabs. Labels and headings come from the canon; the key is the URL value, so
+// ?tab=signals is a link to a view and a screenshot script can reach all three
+// without clicking. PRD §2.2 puts that in scope: every view is linkable.
+//
+// ?scen=, ?dept= and ?lens= are still not here. Scenario switching waits for the
+// export wiring, and a department filter needs department data the demo canon
+// does not carry -- the filter's purpose is to drive suppression INTO view, so
+// faking it with a slice of one synthetic employer would demonstrate nothing.
+function paintTabs(CANON){
+  const bar = document.getElementById("tabs");
+  const esc = s => String(s).replace(/[&<>"]/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+  bar.innerHTML = CANON.tabs.map(t =>
+    `<button class="tab" type="button" role="tab" data-key="${esc(t.key)}" ` +
+    `aria-controls="panel-${esc(t.key)}" aria-selected="false">` +
+    `${esc(t.label)}</button>`).join("");
+
+  const keys = CANON.tabs.map(t => t.key);
+
+  function show(key){
+    // An unknown ?tab= falls back to the first tab rather than rendering an
+    // empty page. A blank screen with no reason is the failure mode this
+    // template exists to avoid.
+    const tab = CANON.tabs.find(t => t.key === key) || CANON.tabs[0];
+    document.getElementById("heading").textContent = tab.heading;
+    document.getElementById("lead").textContent =
+      `${tab.label} · every value and label on this page is read from the canon ` +
+      `at build time; nothing here is a hand-copied constant.`;
+    for (const k of keys) {
+      const panel = document.getElementById("panel-" + k);
+      if (panel) panel.hidden = k !== tab.key;
+      const btn = bar.querySelector(`[data-key="${k}"]`);
+      if (btn) btn.setAttribute("aria-selected", String(k === tab.key));
+    }
+    const url = new URL(location.href);
+    url.searchParams.set("tab", tab.key);
+    history.replaceState(null, "", url);
+  }
+
+  bar.addEventListener("click", e => {
+    const btn = e.target.closest(".tab");
+    if (btn) show(btn.dataset.key);
+  });
+
+  show(new URLSearchParams(location.search).get("tab") || keys[0]);
 }
 </script>
 </body>

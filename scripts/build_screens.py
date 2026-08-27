@@ -43,6 +43,20 @@ TEMPLATE = ROOT / "screens/employer.html.in"
 OVERVIEW_CARDS = ("eligible_employees", "covered_members", "activated",
                   "repeat_participation", "pmpm_allowed")
 
+# 퍼널 단계와 그 순서. 정본 `metric_time_contracts.funnel_nesting` 이 이 다섯이 같은
+# 보고월·같은 자격자 분모를 써서 **겹쳐야** 한다고 정한다. 순서는 그 포개짐의 방향이다.
+#
+# 첫 단계의 분수는 1.0 이다 — 자격자가 분모 자신이다. 정본에 `FRAC.eligible: 1.0` 을
+# 넣지 않는 이유는 그것이 측정값이 아니라 정의라는 것이다. 정본에 두면 누가 0.9 로
+# 고칠 수 있고, 그러면 분모가 자기보다 작아진다.
+FUNNEL_STAGES = (
+    ("eligible_employees", None),
+    ("activated", "FRAC.activated"),
+    ("valid_capture", "FRAC.valid"),
+    ("open_actions", "FRAC.gap"),
+    ("closed_actions", "FRAC.closed"),
+)
+
 
 def load_canon(path):
     """정본에서 화면이 쓰는 값만 꺼낸다.
@@ -60,15 +74,50 @@ def load_canon(path):
         # 편집이고, 그때 나오는 KeyError 는 무엇을 되돌려야 하는지 안 알려준다.
         sys.exit(f"build_screens: 정본 dashboard.kpis 에 key 가 없다 {missing} — "
                  f"개요 카드가 라벨을 가져올 자리다")
-    # 화면이 **읽는 것만** 넣는다. 첫 판은 14개를 스테이징했고 화면은 7개만 그렸다 —
-    # 나머지 일곱(valid·gap·closed·signals)은 Signals·Funnel 탭 것이고 그 탭이 없다.
-    # 안 쓰는 값을 계약에 두면 썩는다: 정본이 바뀌어도 아무도 모르고, 검사도 그 값이
-    # 화면에 도달했는지 확인할 방법이 없다. 탭이 서면 그때 같이 넣는다.
+    mtc = dash["metric_time_contracts"]
+    completed = mtc["completed_actions"]
+
+    funnel = [{"key": k, "label": labels[k],
+               "frac": 1.0 if const is None else kpi[const]}
+              for k, const in FUNNEL_STAGES]
+
+    # **포개짐을 빌드가 거부한다.** 정본 `funnel_nesting` 이 다섯 단계가 같은 보고월과
+    # 같은 자격자 분모를 써서 겹쳐야 한다고 정한다. 그 말의 검사 가능한 내용은 뒤
+    # 단계가 앞 단계보다 클 수 없다는 것이다. 화면에 캡션으로 그 규칙을 적어두고
+    # 값은 안 보는 것이 R1 이다 — 규칙을 산문으로 쓰고 코드가 안 하는 것.
+    for prev, cur in zip(funnel, funnel[1:]):
+        if cur["frac"] > prev["frac"]:
+            sys.exit(
+                f"build_screens: 퍼널이 포개지지 않는다 — "
+                f"{cur['key']}({cur['frac']}) > {prev['key']}({prev['frac']}). "
+                f"정본 funnel_nesting 이 금지하는 상태이고, 뒤 단계가 앞 단계보다 "
+                f"크면 두 단계가 다른 창이나 다른 분모를 쓰고 있다는 뜻이다")
+
+    # 밴드 분포는 100% 를 채워야 한다. 안 채우면 화면의 바 셋이 트랙을 못 채우고,
+    # 그 상태는 "나머지 사람은 어디 갔나" 라는 질문에 화면이 답을 못 하는 것이다.
+    share_sum = sum(s["share"] for s in dash["signals"])
+    if share_sum != 100:
+        sys.exit(f"build_screens: 밴드 점유율 합이 {share_sum}% 다 — "
+                 f"분포는 100% 여야 한다. 사람 단위 분포에서 합이 안 맞으면 "
+                 f"밴드가 겹치거나 어느 밴드에도 안 들어간 사람이 있다")
+
+    def plain(s):
+        """정본의 마크다운 강조를 걷는다. 화면에 별표가 그대로 나가지 않게."""
+        return re.sub(r"\*\*(.+?)\*\*", r"\1", " ".join(s.split()))
+
+    # 화면이 **읽는 것만** 넣는다. #43 에서 14개 중 일곱을 뺐다 —
+    # valid·gap·closed·signals 가 Signals·Funnel 탭 것이었고 그 탭이 없었다. 안 쓰는
+    # 값을 계약에 두면 썩는다: 정본이 바뀌어도 아무도 모르고, 검사도 그 값이 화면에
+    # 도달했는지 확인할 방법이 없다. **"탭이 서면 그때 같이 넣는다" 고 적었고 지금
+    # 탭이 섰다 (#46).** 그래서 넷이 돌아온다.
     #
     # 신선도 넷은 남긴다. 결정 기록이 `PROJECT_PHASE=demo` 동안 신선도를 정본 소유로
-    # 명시했고, 아래 컨텍스트 바가 그 넷을 그린다.
+    # 명시했고, 컨텍스트 바가 그 넷을 그린다.
     return {
-        "heading": tabs["overview"]["heading"],
+        # 탭 셋 전부. 첫 판은 `heading` 하나만 스테이징했다 — 개요 제목이고, 화면에
+        # 탭이 하나였다. 이제 라벨과 제목이 탭마다 있고 URL 상태(`?tab=`)가 key 를 쓴다.
+        "tabs": [{"key": t["key"], "label": t["label"], "heading": t["heading"]}
+                 for t in dash["tabs"]],
         # 라벨은 정본 것이다. 첫 판은 다섯 개를 템플릿 JS 배열에 손으로 적었고, 그중
         # 셋은 정본에 아예 없는 문자열이었다 — 헌 화면에서 옮겨 적은 것이다.
         "cards": [{"key": k, "label": labels[k]} for k in OVERVIEW_CARDS],
@@ -86,6 +135,19 @@ def load_canon(path):
              "employees": s["employees"], "pmpm": s["pmpm"]}
             for s in dash["scenarios"]
         ],
+        # Signals 탭. 밴드와 점유율뿐이다 — PRD §5.4 가 기업 뷰에 숫자 점수를 금지한다.
+        "signals": [{"key": s["key"], "share": s["share"]} for s in dash["signals"]],
+        # 단위 진술도 정본 것이다. "촬영이 아니라 사람" 은 이 화면에서 가장 오해하기
+        # 쉬운 사실이고 (한 사람이 50번 찍어 분포를 흔드는 것이 정본이 적은 게임 벡터다),
+        # 손으로 적으면 정의가 바뀔 때 화면만 남는다.
+        "signal_unit": plain(mtc["signal_distribution"]["unit"]),
+        "signal_window": mtc["signal_distribution"]["window"],
+        # Funnel 탭. 라벨은 kpis, 분수는 FRAC. 첫 단계는 분모 자신이라 1.0 이다.
+        "funnel": funnel,
+        "funnel_nesting": plain(mtc["funnel_nesting"]),
+        # 완료 조치의 잠정 표시. 정본이 산문으로만 갖고 있어서 화면이 읽을 수 없었다.
+        "completed_provisional": bool(completed.get("provisional")),
+        "completed_provisional_label": completed.get("provisional_label", ""),
     }
 
 
@@ -104,15 +166,25 @@ def load_style(path):
     색과 제목은 테넌트 데이터가 아니다. 그것들이 export 스키마에 들어가면 기업마다
     화면 색을 보낼 수 있게 되는데 그건 아무도 원하지 않는다.
     """
-    col = yaml.safe_load(path.read_text(encoding="utf-8"))["dashboard"]
-    return {
-        "title": col["title"],
-        "coral": col["colors"]["coral"],
-        "coral_dark": col["colors"]["coral_dark_mode"],
-        "navy": col["colors"]["navy"],
-        "teal": col["colors"]["teal"],
-        "background": col["colors"]["background"],
+    dash = yaml.safe_load(path.read_text(encoding="utf-8"))["dashboard"]
+    col = dash["colors"]
+    style = {
+        "title": dash["title"],
+        "coral": col["coral"],
+        "coral_dark": col["coral_dark_mode"],
+        "navy": col["navy"],
+        "teal": col["teal"],
+        "background": col["background"],
+        # 바 트랙. PRD §5.4 의 3:1 레드라인을 재는 상대색이고, 그래서 정본이 갖는다.
+        "bar_track": col["bar_track"]["light"],
+        "bar_track_dark": col["bar_track"]["dark"],
     }
+    # 밴드 색 여섯. 이름은 `bar_low`·`bar_low_dark` 처럼 만든다 — 밴드 키를 손으로
+    # 나열하면 정본에 밴드를 넣어도 자리가 안 생기고, 그걸 아무도 모른다.
+    for mode, suffix in (("light", ""), ("dark", "_dark")):
+        for band, hexv in col["bars"][mode].items():
+            style[f"bar_{band.lower()}{suffix}"] = hexv
+    return style
 
 
 def render(style):
