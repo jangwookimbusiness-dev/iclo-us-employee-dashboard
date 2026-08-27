@@ -34,10 +34,10 @@
   }
  },
  "status_2026_08_27": {
-  "artifact": "1603839bc9de162b97f73c11d342253730370a1bb188706186b9d8968fde522c",
-  "pages": 11,
+  "artifact": "dbdefadfae67c6a262247532c718438b45a44950c5a868a3b9bce1d405d1798c",
+  "pages": 13,
   "sources": {
-   "output/status/STATUS-2026-08-27.md": "78ebaa80e23ea018cf24df06c81d7baf32818950b1d2ae70260f401d2fa4f2fd"
+   "output/status/STATUS-2026-08-27.md": "fcf480a27c7dca6237c81063120666b96f98e969b02be038a3e38785c94e7148"
   }
  },
  "tech": {
