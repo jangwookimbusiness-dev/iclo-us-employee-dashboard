@@ -66,6 +66,17 @@
         "--cover",
         "--toc"
       ]
+    },
+    {
+      "name": "status_2026_08_27",
+      "sources": [
+        "output/status/STATUS-2026-08-27.md"
+      ],
+      "out": "output/status/STATUS-2026-08-27.pdf",
+      "flags": [
+        "--cover",
+        "--toc"
+      ]
     }
   ]
 }
