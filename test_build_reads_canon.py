@@ -52,15 +52,47 @@ def _find_chrome():
 
 CHROME = _find_chrome()
 
-# (이름, 정본 정규식, 치환, canon.json 의 새 값, DOM 의 옛 문자열, DOM 의 새 문자열)
+# (canon.json 키, 라벨, 정본 정규식, 치환, canon.json 기대값 또는 None, DOM 옛, DOM 새)
 #
 # 정본 행은 끝에 주석을 달고 있어 `$` 앵커가 안 맞는다. 키와 값만 잡는다.
-# 화면이 실제로 그리는 값만 고른다 — 안 그리는 값을 변조하면 "DOM 에 없다" 가
-# 당연해서 아무것도 확인하지 않는다.
+# 그리고 여러 값이 같은 키 이름을 쓴다 — `eligibility_thru` 는 값(따옴표 문자열)과
+# 문서 라벨(한글 산문) 두 곳에 있고, `value:` 는 activated 와 repeat 양쪽에 있다.
+# 그래서 값의 **형태**까지 정규식에 넣는다.
+#
+# 아래가 canon.json 의 키 전부를 덮어야 한다. 덮지 않으면 main() 이 실패한다 —
+# 계약에 있으면서 아무도 화면 도달을 확인하지 않는 값이 생기는 것을 막는다.
 CASES = [
-    ("min_cell",  r"^(\s*min_cell:\s+)20\b",    r"\g<1>37",   "37",   "20",     "37"),
-    ("dep_ratio", r"^(\s*dep_ratio:\s+)2\.2\b", r"\g<1>4.9",  "4.9",  "22,000", "49,000"),
-    ("activated", r"^(\s*value:\s+)0\.38\b",    r"\g<1>0.77", "0.77", "38%",    "77%"),
+    ("min_cell", "min_cell",
+     r"^(\s*min_cell:\s+)20\b", r"\g<1>37", "37", "20", "37"),
+    ("dep_ratio", "dep_ratio",
+     r"^(\s*dep_ratio:\s+)2\.2\b", r"\g<1>4.9", "4.9", "22,000", "49,000"),
+    ("activated", "activated",
+     r"^(\s*value:\s+)0\.38\b", r"\g<1>0.77", "0.77", "38%", "77%"),
+    ("repeat", "repeat",
+     r"^(\s*value:\s+)0\.61\b", r"\g<1>0.29", "0.29", "61%", "29%"),
+    ("repeat_denominator", "repeat_denominator",
+     r"^(\s*denominator:\s+)같은 12개월에 유효 촬영이 1회 이상인 사람",
+     r"\g<1>변조된 분모 문구", "변조된 분모 문구",
+     "같은 12개월에 유효 촬영이 1회 이상인 사람", "변조된 분모 문구"),
+    ("eligibility_thru", "eligibility_thru",
+     r'^(\s*eligibility_thru:\s+)"2026-07"', r'\g<1>"2019-03"', "2019-03",
+     "2026-07", "2019-03"),
+    ("claims_thru", "claims_thru",
+     r'^(\s*claims_thru:\s+)"2026-05"', r'\g<1>"2018-11"', "2018-11",
+     "2026-05", "2018-11"),
+    ("lag_days", "lag_days",
+     r"^(\s*lag_days:\s+)60\b", r"\g<1>97", "97", "lag 60d", "lag 97d"),
+    ("completeness_pct", "completeness_pct",
+     r"^(\s*completeness_pct:\s+)98\.4\b", r"\g<1>71.6", "71.6",
+     "98.4%", "71.6%"),
+    # scenarios 는 리스트라 canon.json 최상위 값 비교를 건너뛰고(None) DOM 으로만 본다.
+    # 화면이 첫 시나리오만 쓰므로 A 의 두 값을 각각 덮는다.
+    ("scenarios", "scenarios[A].employees",
+     r"^(\s*- \{key: A, employees: )10000", r"\g<1>44444", None,
+     "10,000", "44,444"),
+    ("scenarios", "scenarios[A].pmpm",
+     r"^(\s*- \{key: A, employees: \d+, pmpm: )31\.4\b", r"\g<1>77.7", None,
+     "$31.40", "$77.70"),
 ]
 
 
@@ -76,6 +108,18 @@ def serve(directory):
     httpd = socketserver.TCPServer(("127.0.0.1", 0), Handler)
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
     return httpd, httpd.server_address[1]
+
+
+def visible(dom):
+    """`<script>`·`<style>` 본문을 걷어낸다.
+
+    `--dump-dom` 은 스크립트 **소스**까지 준다. 그래서 `class="card"` 가 화면에
+    카드가 하나도 없어도 JS 문자열 리터럴로 만족됐다 — 실측하면 원본 DOM 에 7개,
+    스크립트를 걷어내면 5개다. 어제 "카드를 그리지 않음" 시험에서 카드 단언이 안
+    터지고 값 검사만 걸린 것이 그 증거이고, docstring 은 "카드를 먼저 단언한다" 고
+    쓰고 있었다. 공허한 단언이었다.
+    """
+    return re.sub(r"(?is)<(script|style)\b[^>]*>.*?</\1\s*>", "", dom)
 
 
 def dump_dom(url):
@@ -113,45 +157,67 @@ def main():
             print("FAIL — 변조 없이도 빌드가 실패한다")
             return 1
 
+        # 계약에 있으면서 아무 케이스도 덮지 않는 키가 있으면, 그 값은 정본이 바뀌어도
+        # 화면 도달을 확인하는 사람이 없다. 그게 이 검사의 가장 큰 공백이 될 수 있으므로
+        # 먼저 본다 — 빌더가 스테이징을 늘리면 여기서 걸린다.
+        staged = set(json.loads(
+            (tmp / "base/canon.json").read_text(encoding="utf-8")))
+        covered = {c[0] for c in CASES}
+        if staged - covered:
+            print(f"FAIL — canon.json 이 스테이징하는데 변조 케이스가 없는 키: "
+                  f"{sorted(staged - covered)}. 정본이 바뀌어도 화면 도달을 "
+                  f"확인하는 사람이 없다 — CASES 에 넣거나 스테이징에서 빼라")
+            return 1
+        if covered - staged:
+            print(f"FAIL — CASES 가 덮는데 canon.json 에 없는 키: "
+                  f"{sorted(covered - staged)}. 검사가 낡았다")
+            return 1
+        checked += 1
+
         httpd, port = serve(tmp)
         try:
             dom, err = dump_dom(f"http://127.0.0.1:{port}/base/employer.html")
             if err:
                 print(f"FAIL — 기준선 렌더 실패: {err}")
                 return 1
-            if 'class="card"' not in dom:
+            if 'class="card"' not in visible(dom):
                 print("FAIL — 기준선 DOM 에 카드가 없다. fetch 가 실패했거나 화면이 "
                       "아무것도 그리지 않았다 — '위반 없음' 이 아니다")
                 return 1
             checked += 1
 
-            for name, pattern, repl, new, dom_old, dom_new in CASES:
+            for key, name, pattern, repl, new, dom_old, dom_new in CASES:
                 mutated, n = re.subn(pattern, repl, original, count=1, flags=re.M)
                 if n != 1:
                     fails.append(f"{name}: 정본에서 변조 지점을 못 찾았다 — "
                                  f"정본 구조가 바뀌었고 이 검사가 낡았다")
                     continue
 
-                mcanon = tmp / f"canon-{name}.yml"
+                slug = re.sub(r"[^A-Za-z0-9]+", "-", name).strip("-")
+                mcanon = tmp / f"canon-{slug}.yml"
                 mcanon.write_text(mutated, encoding="utf-8")
-                r = build(mcanon, tmp / name)
+                r = build(mcanon, tmp / slug)
                 if r.returncode != 0:
                     fails.append(f"{name}: 변조한 정본으로 빌드가 실패했다: "
                                  f"{(r.stdout + r.stderr).strip()[:150]}")
                     continue
 
-                # 1. 빌더가 정본을 읽는가 — canon.json 이 새 값을 받았는지
-                blob = json.loads((tmp / name / "canon.json").read_text(encoding="utf-8"))
-                got = blob.get(name)
-                if str(got) != new:
-                    fails.append(f"{name}: 정본을 {new} 로 고쳤는데 canon.json 이 "
-                                 f"{got!r} 이다. 빌드가 정본을 안 읽는다")
-                checked += 1
+                # 1. 빌더가 정본을 읽는가 — canon.json 이 새 값을 받았는지.
+                #    리스트·중첩 값은 최상위 비교를 건너뛴다 (new=None).
+                if new is not None:
+                    blob = json.loads(
+                        (tmp / slug / "canon.json").read_text(encoding="utf-8"))
+                    got = blob.get(key)
+                    if str(got) != new:
+                        fails.append(f"{name}: 정본을 {new} 로 고쳤는데 canon.json 이 "
+                                     f"{got!r} 이다. 빌드가 정본을 안 읽는다")
+                    checked += 1
 
-                dom, err = dump_dom(f"http://127.0.0.1:{port}/{name}/employer.html")
+                raw, err = dump_dom(f"http://127.0.0.1:{port}/{slug}/employer.html")
                 if err:
                     fails.append(f"{name}: 렌더 실패 — {err}")
                     continue
+                dom = visible(raw)
 
                 # 2. 화면이 그렸는가. 빈 DOM 은 아래 "옛 값 없음" 을 공짜로 만족시킨다.
                 if 'class="card"' not in dom:
@@ -185,8 +251,8 @@ def main():
         for f in fails:
             print(f"  ✗ {f}")
         return 1
-    print(f"PASS — 검사 {checked}건. 정본 값 {len(CASES)}개를 변조했을 때 canon.json 과 "
-          f"렌더된 DOM 이 함께 따라 움직이고 옛 값이 남지 않는다")
+    print(f"PASS — 검사 {checked}건. 정본 값 {len(CASES)}개(계약 키 {len(covered)}개 전부)를 "
+          f"변조했을 때 canon.json 과 렌더된 DOM 이 함께 따라 움직이고 옛 값이 남지 않는다")
     return 0
 
 

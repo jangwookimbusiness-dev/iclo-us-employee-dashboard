@@ -43,6 +43,13 @@ def load_canon(path):
     doc = yaml.safe_load(path.read_text(encoding="utf-8"))
     dash = doc["dashboard"]
     kpi = {k["const"]: k["value"] for k in dash["kpis"] if k.get("const")}
+    # 화면이 **읽는 것만** 넣는다. 첫 판은 14개를 스테이징했고 화면은 7개만 그렸다 —
+    # 나머지 일곱(valid·gap·closed·signals)은 Signals·Funnel 탭 것이고 그 탭이 없다.
+    # 안 쓰는 값을 계약에 두면 썩는다: 정본이 바뀌어도 아무도 모르고, 검사도 그 값이
+    # 화면에 도달했는지 확인할 방법이 없다. 탭이 서면 그때 같이 넣는다.
+    #
+    # 신선도 넷은 남긴다. 결정 기록이 `PROJECT_PHASE=demo` 동안 신선도를 정본 소유로
+    # 명시했고, 아래 컨텍스트 바가 그 넷을 그린다.
     return {
         "min_cell": dash["constants"]["min_cell"],
         "dep_ratio": dash["constants"]["dep_ratio"],
@@ -51,9 +58,6 @@ def load_canon(path):
         "lag_days": dash["constants"]["lag_days"],
         "completeness_pct": dash["constants"]["completeness_pct"],
         "activated": kpi["FRAC.activated"],
-        "valid": kpi["FRAC.valid"],
-        "gap": kpi["FRAC.gap"],
-        "closed": kpi["FRAC.closed"],
         "repeat": dash["repeat_participation"]["value"],
         "repeat_denominator": dash["metric_time_contracts"]["repeat_participation"]["denominator"],
         "scenarios": [
@@ -61,7 +65,6 @@ def load_canon(path):
              "employees": s["employees"], "pmpm": s["pmpm"]}
             for s in dash["scenarios"]
         ],
-        "signals": [{"key": s["key"], "share": s["share"]} for s in dash["signals"]],
     }
 
 
