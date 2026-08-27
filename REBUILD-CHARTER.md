@@ -246,12 +246,25 @@ Chrome DOM 에 새 값이 있고 옛 값이 없는지 본다. 이 빌더는 `mak
 2026-08-26 이슈 #36 의 재실행 가능한 스파이크에서 빌더가 변조된 정본을 무시하도록 만들자
 새 값 부재와 옛 값 잔존을 함께 검출했고, 정본을 읽도록 되돌리자 같은 경계가 통과했다.
 
-**구현 상태 (2026-08-26, #38·#39).** `scripts/build_screens.py` 가 정본에서 `canon.json` 과
-화면을 만들고, `test_build_reads_canon.py` 가 `min_cell`·`dep_ratio`·`activated` 세 값을
-변조해 JSON 과 Chrome DOM 이 함께 바뀌는지 본다. 헌 화면을 지키는
-`test_single_source.py` 는 아직 별도 명령으로 남아 있으므로 새 검사는 독립된 필수 CI
-명령이다. `check_dashboard` 의 빌드 산출물 경계 이동, 나머지 demo 정본 값의 변조 범위,
-A3/A2 export 변조→렌더 경계는 아직 열려 있다.
+**구현 상태 (2026-08-27, #38·#39·#43·#44).** `scripts/build_screens.py` 가 정본에서
+`canon.json` 과 화면을 만들고, `test_build_reads_canon.py` 가 그 경계를 지킨다. 검사 65건.
+
+정본에서 오는 것이 두 갈래다. **fetch 값**(계약 키 12개)은 `canon.json` 으로 나가고 브라우저가
+읽는다. **치환 값**(6개)은 빌드 시점에 템플릿으로 들어간다 — 색은 `:root` 의 CSS 커스텀
+프로퍼티이고 제목은 `<head>` 안이라 fetch 가 닿지 못하는 자리다. 두 갈래 다 자기 범위를
+스스로 강제한다: 스테이징한 키에 변조 케이스가 없으면 실패하고, 템플릿의 치환 자리에
+케이스가 없어도 실패한다. 그래서 계약이 커질 때 검사가 조용히 뒤처지지 않는다.
+
+`check_dashboard` 가 헌 화면에만 걸고 있던 산문 규칙(금지어·금지 용어·범위 없는 절대
+표현·합성 고지)도 렌더된 DOM 으로 옮겼다. 라벨이 정본에서 오게 된 뒤로는 그래야 한다 —
+화면에 뜨는 문자열이 템플릿 파일에 없으므로 파일을 읽는 검사로는 잡히지 않는다.
+
+**남은 것.** 헌 화면(`index.html`·`app.html`)이 저장소에 있는 동안 `test_single_source.py`
+와 `check_dashboard` 는 그 문지기로 남는다. 둘의 소멸 조건은 검사 설계가 아니라 헌 화면을
+지우는 결정이다. Signals·Funnel 탭이 없으므로 `valid`·`gap`·`closed`·`signals` 정본 값은
+아직 읽는 사람이 없고 계약에 넣지 않았다. 치환 값은 스타일시트가 **선언한** 값까지
+확인하고 계산된 색은 안 본다 (`--dump-dom` 이 주지 않는다. 헌 검사도 못 했다).
+A3/A2 export 변조→렌더 경계는 열려 있다.
 
 Vite·React 재도입이나 새 템플릿 의존성도 두 기준을 만족시킬 수는 있지만, 이 경계에 더
 보태는 것이 없다. 런타임에 원시 YAML 을 직접 읽는 안은 빌드 시점 읽기가 아니므로 탈락이다.
@@ -267,7 +280,7 @@ codex 가 "유지" 9개 중 8개를 반박했다. 검증하고 반영했다. **�
 | `test_suppression` | 다시 쓰기(행 부재로 반전) | **다시 쓰기 — 방향이 반대** | 서버 억제는 행을 **안 없앤다.** 작은 그룹을 NULL 키 remainder 로 접는다 (기술문서 1400·1532·1665, 정본 326). 단언은 "NULL remainder 행이 있고 측정값이 억제되며 화면이 그 NULL 을 억제로 표시하고, remainder-NULL 과 UNMATCHED-NULL 이 구분된다" |
 | `test_single_source` | 없애기 | **다시 쓰기 (§4.2)** | 헌 화면의 변조→렌더는 빌드 시점 읽기가 대체하지 않는다. 새 화면 역할은 아래 `test_build_reads_canon` 으로 옮겼다 |
 | `test_build_reads_canon` | 없음 | **신설 (§4.2 구현)** | #38·#39가 정본→실제 빌더→`canon.json`→Chrome DOM 경계를 필수 CI 명령으로 붙였다 |
-| `check_dashboard` (`check-package-consistency`) | 미분류 | **다시 쓰기 (§4.2)** | 지금은 `index.html` 의 상수·라벨·색상을 정규식으로 읽는다. 빌드 뒤에는 `canon.json` 과 실제 빌드 산출물에서 같은 정적 계약을 대조해야 한다 |
+| `check_dashboard` (`check-package-consistency`) | 미분류 | **다시 쓰기 (§4.2) — 새 화면 몫은 옮겼다** | 2026-08-27: 상수·라벨·색상·산문 규칙의 새 화면 몫이 `test_build_reads_canon` 으로 갔다. 이 함수는 헌 화면(`index.html`·`app.html`)의 문지기로만 남고, 헌 화면을 지우는 결정과 함께 없어진다 |
 | `test_consent` | 유지 | **다시 쓰기** | `app.html` 의 상태 초기화·CSS 클래스·DOM 문구·`member-demo.json` 에 결합돼 있다. 구현 독립 경계가 아니다 |
 | `test_fixtures` | 유지 | **다시 쓰기** | 파이프라인을 안 돌린다. fixture 파일 안의 산술만 재계산한다. **재구축이 fixture 를 전부 무시해도 초록불이다.** fixture 는 자산으로 유지하되 게이트는 fixture→파이프라인→기대값 대조로 바꾼다 |
 | `generate_synthetic --check` | 유지 | **A3 까지 보류** | 자기 모델과 1개월 결정성만 본다. 어떤 경로도 그 출력을 소비하지 않는다 |

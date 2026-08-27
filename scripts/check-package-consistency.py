@@ -12,6 +12,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parent.parent
 CONTRACT = ROOT / "contracts/proposal-package-v11.yml"
 MAX_TRACKED_FILE_BYTES = 15 * 1024 * 1024
@@ -510,18 +512,33 @@ def check_surfaces():
 
 
 def load_contract():
-    """PyYAML 없이 도는 최소 파서 — 이 파일이 쓰는 값만 정규식으로 뽑는다.
-    ponytail: 의존성 추가 대신 정규식. 계약 구조가 복잡해지면 PyYAML 로 간다."""
+    """정본에서 이 파일이 쓰는 값을 뽑는다.
+
+    첫 판은 PyYAML 없이 돌리려고 전부 정규식이었다. **PyYAML 은 이제 필수 의존성이다**
+    — `scripts/build_screens.py` 가 쓰고 `requirements-dev.txt` 가 핀한다. 그 근거는
+    없어졌고, 근거 없는 제약을 docstring 이 계속 주장하면 그게 R1 이다.
+
+    남긴 정규식과 옮긴 것의 기준은 하나다. **구조에 걸리는 것은 파서로 읽는다.**
+    아래 넷이 그랬다: `kpis` 는 `- label:` 로 라벨을 잡고 있었고, 그러면 항목의 첫
+    키가 `label` 이어야 한다. 한 항목에서 `key:` 를 앞으로 옮기면 그 항목만 목록에서
+    빠지고 — 실측: 여덟 중 일곱만 잡힌다 — 검사는 통과한다. 놓친 라벨이 화면에
+    있는지 아무도 안 보는데 아무 소리도 안 난다. `headings` 도 파일 전체에서
+    `heading:` 를 긁고 있었으므로 다른 블록이 그 키를 쓰면 섞인다.
+
+    문서 산문·주석처럼 YAML 구조가 아닌 것을 보는 자리는 정규식으로 남는다.
+    """
     t = CONTRACT.read_text(encoding="utf-8")
+    doc = yaml.safe_load(t)
+    dash = doc["dashboard"]
     c = {}
     c["min_cell"] = int(re.search(r"min_cell:\s*(\d+)", t).group(1))
     c["dep_ratio"] = float(re.search(r"dep_ratio:\s*([\d.]+)", t).group(1))
     c["lag_days"] = int(re.search(r"lag_days:\s*(\d+)", t).group(1))
     c["completeness"] = float(re.search(r"completeness_pct:\s*([\d.]+)", t).group(1))
-    c["coral"] = re.search(r'coral:\s*"(#[0-9A-Fa-f]{6})"', t).group(1)
-    c["coral_dark"] = re.search(r'coral_dark_mode:\s*"(#[0-9A-Fa-f]{6})"', t).group(1)
-    c["headings"] = re.findall(r"heading:\s*(.+)", t)
-    c["kpis"] = [m.strip() for m in re.findall(r"- label:\s*(.+)", t)]
+    c["coral"] = dash["colors"]["coral"]
+    c["coral_dark"] = dash["colors"]["coral_dark_mode"]
+    c["headings"] = [tab["heading"] for tab in dash["tabs"]]
+    c["kpis"] = [k["label"] for k in dash["kpis"]]
     c["signals"] = [(k, int(v)) for k, v in re.findall(r"\{key:\s*(\w+),\s*share:\s*(\d+)\}", t)]
     c["scenarios"] = [(int(e), float(p)) for e, p in
                       re.findall(r"employees:\s*(\d+),\s*pmpm:\s*([\d.]+)", t)]
@@ -556,6 +573,16 @@ def load_contract():
 
 # ─────────────────────────── 대시보드 ───────────────────────────
 def check_dashboard(c):
+    """헌 화면(`index.html`·`app.html`)을 지킨다.
+
+    **재구축 화면은 여기서 안 본다.** 같은 규칙이 `test_build_reads_canon.py` 에
+    빌드 경계로 서 있다 — 정본을 변조하고 빌더를 돌려 렌더된 DOM 을 본다. 옮긴
+    이유는 라벨이 이제 정본에서 오기 때문이다: 화면에 뜨는 문자열이 템플릿 파일에
+    없으므로, 파일을 정규식으로 읽는 이 함수로는 잡을 수가 없다.
+
+    이 함수를 남기는 이유는 헌 화면이 저장소에 남아 있다는 것뿐이다. 두 화면이 다
+    정본에서 서면 이 함수가 없어진다. 그때까지는 여기가 헌 화면의 유일한 문지기다.
+    """
     p = ROOT / "index.html"
     if not p.exists():
         return fail("dashboard", "index.html 없음")

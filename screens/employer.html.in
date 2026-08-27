@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ICLO · Employer Analytics</title>
+<title>{{title}}</title>
 <!--
   Built by scripts/build_screens.py. Do not edit build/employer.html.
 
@@ -24,17 +24,31 @@
   old one did not. Build-time reading removes the manual copy step only; a
   template or a label can still hold a stale value, which is exactly what codex
   pointed out about deleting that check outright.
+
+  Two shapes of canon value appear below and the difference is not stylistic.
+  A doubled-brace placeholder is filled by the builder; CANON.something is
+  fetched by the browser. The split is only about reach: CSS custom properties
+  and the <title> in <head> cannot fetch, so those get substitution. Everything
+  a person reads as a measurement is fetched, because at A3 that file becomes a
+  tenant export and this template must not change.
+
+  Do not write a literal doubled-brace example in this comment. The builder
+  refuses to emit an unsubstituted placeholder, and it does not know a comment
+  from markup -- this paragraph cost one build to learn that.
 -->
 <style>
   :root{
-    --ink:#1B2A4A; --ink2:#5B6B85; --line:#E3E8F0; --panel:#FFFFFF; --ground:#FFFFFF;
-    --data:#007A87; --coral:#C2333A; --field:#F7F8FA;
+    --ink:{{navy}}; --ink2:#5B6B85; --line:#E3E8F0; --panel:{{background}}; --ground:{{background}};
+    --data:{{teal}}; --coral:{{coral}}; --field:#F7F8FA;
     --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",Helvetica,Arial,sans-serif;
   }
   @media (prefers-color-scheme:dark){
+    /* 다크 계열의 나머지는 정본이 정의하지 않으므로 템플릿 값으로 남는다. coral 만
+       정본에 다크 값이 있고(colors.coral_dark_mode), 그것이 검사가 잡던 자리다 —
+       라이트 정의 두 벌이 서로 다른 coral 을 쓰는 버그가 여기서 나왔다. */
     :root{--ink:#E7ECF5; --ink2:#95A2BE; --line:#28324C; --panel:#152038;
-          --ground:#0E1526; --data:#3FB6C0; --coral:#FF8E8D; --field:#0F1930}
+          --ground:#0E1526; --data:#3FB6C0; --coral:{{coral_dark}}; --field:#0F1930}
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
@@ -74,8 +88,7 @@
 </head>
 <body>
 <header><div class="wrap"><div class="hrow">
-  <span class="logo">ICLO</span>
-  <span class="sub">Employer analytics</span>
+  <span class="logo">{{title}}</span>
   <span class="pill">Synthetic data — illustrative only</span>
 </div></div></header>
 
@@ -84,9 +97,9 @@
 </div></div></div>
 
 <main class="wrap">
-  <h2>Program overview</h2>
-  <p class="lead">Rebuild skeleton. Every value below is read from the canon at
-  build time; nothing on this page is a hand-copied constant.</p>
+  <h2 id="heading">&mdash;</h2>
+  <p class="lead">Rebuild skeleton. Every value and label below is read from the
+  canon at build time; nothing on this page is a hand-copied constant.</p>
 
   <div class="grid" id="kpis"></div>
 
@@ -123,20 +136,36 @@ function paint(CANON){
   const scen = CANON.scenarios[0];
   const members = Math.round(scen.employees * CANON.dep_ratio);
 
-  const cards = [
-    ["Eligible employees", fmt(scen.employees), "funnel denominator"],
-    ["Covered members", fmt(members), "cost denominator (member-months)"],
-    ["Activated", pct(CANON.activated), "of eligible employees"],
-    ["Repeat participation", pct(CANON.repeat), CANON.repeat_denominator],
-    ["Dental PMPM (allowed)", "$" + scen.pmpm.toFixed(2), "per covered member-month"],
-  ];
+  // Value and denominator per card key. The LABEL is not here -- it comes from
+  // CANON.cards, because the first draft typed all five labels into this array
+  // and three of them existed nowhere in the canon. They had been copied off the
+  // old screen, so the canon and two screens disagreed and no check compared
+  // them: check_dashboard only ever asked whether canon labels reached the
+  // screen, never whether screen labels came from the canon.
+  //
+  // The denominator strings stay template prose. They carry no number, so they
+  // cannot go stale the way a label carrying a value can. repeat's denominator
+  // is the exception and it is already canon-owned -- it is a definition that
+  // changed once and left the screen behind.
+  const wired = {
+    eligible_employees:   [fmt(scen.employees), "funnel denominator"],
+    covered_members:      [fmt(members), "cost denominator (member-months)"],
+    activated:            [pct(CANON.activated), "of eligible employees"],
+    repeat_participation: [pct(CANON.repeat), CANON.repeat_denominator],
+    pmpm_allowed:         ["$" + scen.pmpm.toFixed(2), "per covered member-month"],
+  };
 
-  document.getElementById("kpis").innerHTML = cards.map(
-    ([lab, val, denom]) =>
-      `<div class="card"><div class="lab">${esc(lab)}</div>` +
+  document.getElementById("heading").textContent = CANON.heading;
+
+  document.getElementById("kpis").innerHTML = CANON.cards.map(card => {
+    // A canon card with no value wired here says so on the screen. Silently
+    // dropping it would let the contract grow a card nobody notices is blank.
+    const [val, denom] = wired[card.key] ||
+      ["—", "no value wired for " + card.key];
+    return `<div class="card"><div class="lab">${esc(card.label)}</div>` +
       `<div class="val">${esc(val)}</div>` +
-      `<div class="denom">${esc(denom)}</div></div>`
-  ).join("");
+      `<div class="denom">${esc(denom)}</div></div>`;
+  }).join("");
 
   // The regulatory sentence carries the threshold, and it comes from the same
   // place. A number stated in prose is still a number that must not be typed twice.
