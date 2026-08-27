@@ -25,8 +25,11 @@
 """
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
+
+import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 CANON = ROOT / "contracts/proposal-package-v11.yml"
@@ -34,15 +37,29 @@ OUT = ROOT / "build"
 TEMPLATE = ROOT / "screens/employer.html.in"
 
 
+# 개요 화면이 그리는 카드와 그 순서. 정본의 `dashboard.kpis` 는 지표 **목록**이고
+# 순서는 배치다 — 배치를 정본에 넣으면 정본이 CSS 를 알아야 한다. 라벨은 정본,
+# 순서는 여기. 키가 정본에 없으면 빌드가 죽는다 (아래 `labels[k]`).
+OVERVIEW_CARDS = ("eligible_employees", "covered_members", "activated",
+                  "repeat_participation", "pmpm_allowed")
+
+
 def load_canon(path):
     """정본에서 화면이 쓰는 값만 꺼낸다.
 
     없으면 조용히 기본값을 쓰지 않고 죽는다. 기본값은 정본이 거짓이 되는 경로다.
     """
-    import yaml
     doc = yaml.safe_load(path.read_text(encoding="utf-8"))
     dash = doc["dashboard"]
     kpi = {k["const"]: k["value"] for k in dash["kpis"] if k.get("const")}
+    labels = {k["key"]: k["label"] for k in dash["kpis"] if k.get("key")}
+    tabs = {t["key"]: t for t in dash["tabs"]}
+    missing = [k for k in OVERVIEW_CARDS if k not in labels]
+    if missing:
+        # 트레이스백 대신 이유를 적는다. 정본에서 `key:` 를 지우는 것은 있을 수 있는
+        # 편집이고, 그때 나오는 KeyError 는 무엇을 되돌려야 하는지 안 알려준다.
+        sys.exit(f"build_screens: 정본 dashboard.kpis 에 key 가 없다 {missing} — "
+                 f"개요 카드가 라벨을 가져올 자리다")
     # 화면이 **읽는 것만** 넣는다. 첫 판은 14개를 스테이징했고 화면은 7개만 그렸다 —
     # 나머지 일곱(valid·gap·closed·signals)은 Signals·Funnel 탭 것이고 그 탭이 없다.
     # 안 쓰는 값을 계약에 두면 썩는다: 정본이 바뀌어도 아무도 모르고, 검사도 그 값이
@@ -51,6 +68,10 @@ def load_canon(path):
     # 신선도 넷은 남긴다. 결정 기록이 `PROJECT_PHASE=demo` 동안 신선도를 정본 소유로
     # 명시했고, 아래 컨텍스트 바가 그 넷을 그린다.
     return {
+        "heading": tabs["overview"]["heading"],
+        # 라벨은 정본 것이다. 첫 판은 다섯 개를 템플릿 JS 배열에 손으로 적었고, 그중
+        # 셋은 정본에 아예 없는 문자열이었다 — 헌 화면에서 옮겨 적은 것이다.
+        "cards": [{"key": k, "label": labels[k]} for k in OVERVIEW_CARDS],
         "min_cell": dash["constants"]["min_cell"],
         "dep_ratio": dash["constants"]["dep_ratio"],
         "eligibility_thru": dash["constants"]["eligibility_thru"],
@@ -68,8 +89,34 @@ def load_canon(path):
     }
 
 
-def render():
-    """템플릿을 그대로 낸다. 값은 여기 안 들어간다.
+def load_style(path):
+    """빌드 시점에 템플릿 안으로 치환되는 값. `canon.json` 에 안 들어간다.
+
+    **측정값과 갈라놓는 이유는 fetch 가 닿지 못하는 자리가 있다는 것뿐이다.** 색은
+    CSS 커스텀 프로퍼티로 `:root` 에 있고 CSS 는 fetch 를 못 한다. 제목은 `<head>`
+    안에 있어서 fetch 가 돌아오기 전에 이미 탭에 뜬다.
+
+    JS 로 `setProperty` 를 부르는 길도 있었다. 안 간 이유는 다크 모드다 —
+    미디어 쿼리 두 벌을 JS 로 다시 만들고 OS 테마 전환 리스너까지 달아야 하는데,
+    빌드 시점 치환은 CSS 를 그대로 두고 값만 넣는다.
+
+    A3 도 이 경계를 지지한다. 전환하면 `canon.json` 자리가 기업별 export 로 바뀌지만
+    색과 제목은 테넌트 데이터가 아니다. 그것들이 export 스키마에 들어가면 기업마다
+    화면 색을 보낼 수 있게 되는데 그건 아무도 원하지 않는다.
+    """
+    col = yaml.safe_load(path.read_text(encoding="utf-8"))["dashboard"]
+    return {
+        "title": col["title"],
+        "coral": col["colors"]["coral"],
+        "coral_dark": col["colors"]["coral_dark_mode"],
+        "navy": col["colors"]["navy"],
+        "teal": col["colors"]["teal"],
+        "background": col["colors"]["background"],
+    }
+
+
+def render(style):
+    """템플릿에 `{{...}}` 자리만 채운다. 측정값은 여기 안 들어간다.
 
     첫 판은 정본 JSON 을 `<script type="application/json">` 블록으로 HTML 안에
     박았다. **결정 기록(#37, 정본 `decided.REBUILD-FRAMEWORK`)이 다른 모양을
@@ -82,8 +129,19 @@ def render():
 
     대가는 하나. 화면이 `fetch` 를 쓰므로 `file://` 로 못 열고 HTTP 가 필요하다.
     `app.html` 이 이미 그랬고 `scripts/serve.sh` 가 있다.
+
+    치환은 남는 자리를 허용하지 않는다. `{{navy}}` 가 그대로 산출물에 남으면 화면은
+    그 색을 잃고 검사는 "새 값 없음" 으로 걸린다. 걸리기 전에 여기서 죽는다 —
+    템플릿에 자리를 늘렸는데 `load_style` 에 안 넣은 경우가 그것이다.
     """
-    return TEMPLATE.read_text(encoding="utf-8")
+    html = TEMPLATE.read_text(encoding="utf-8")
+    for name, value in style.items():
+        html = html.replace("{{" + name + "}}", str(value))
+    left = sorted(set(re.findall(r"\{\{(\w+)\}\}", html)))
+    if left:
+        sys.exit(f"build_screens: 템플릿의 치환 자리가 남았다 {left} — "
+                 f"load_style 이 그 이름을 안 준다")
+    return html
 
 
 def main():
@@ -99,6 +157,10 @@ def main():
         sys.exit(f"build_screens: 템플릿 없음 {TEMPLATE}")
 
     canon = load_canon(args.canon)
+    # 렌더를 먼저 한다. 치환 자리가 남으면 여기서 죽고, 그때 출력 디렉터리에 반쪽
+    # 빌드(canon.json 만 있고 화면은 없는)가 남지 않는다.
+    style = load_style(args.canon)
+    html = render(style)
     args.out.mkdir(parents=True, exist_ok=True)
 
     # 정적 화면 계약을 별 파일로. A3 에서 이 자리가 export JSON 으로 바뀐다.
@@ -106,12 +168,16 @@ def main():
         json.dumps(canon, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8")
     target = args.out / "employer.html"
-    target.write_text(render(), encoding="utf-8")
+    target.write_text(html, encoding="utf-8")
 
     if not args.quiet:
-        print(f"build_screens: {target.relative_to(ROOT)} + canon.json — "
-              f"정본 값 {len(canon)}개 (min_cell={canon['min_cell']}, "
-              f"scenarios={len(canon['scenarios'])})")
+        # `relative_to` 는 out 이 저장소 밖이면 던진다. 그 시점에는 파일을 이미 다 썼고,
+        # 성공한 빌드가 진행 보고를 하다 죽는다. 저장소 밖 경로는 그대로 적는다.
+        shown = target.relative_to(ROOT) if target.is_relative_to(ROOT) else target
+        print(f"build_screens: {shown} + canon.json — "
+              f"fetch 값 {len(canon)}개 (min_cell={canon['min_cell']}, "
+              f"카드 {len(canon['cards'])}개, scenarios={len(canon['scenarios'])}), "
+              f"치환 값 {len(style)}개")
     return 0
 
 

@@ -30,9 +30,12 @@ import tempfile
 import threading
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parent
 BUILDER = ROOT / "scripts/build_screens.py"
 CANON = ROOT / "contracts/proposal-package-v11.yml"
+TEMPLATE = ROOT / "screens/employer.html.in"
 
 
 def _find_chrome():
@@ -85,14 +88,48 @@ CASES = [
     ("completeness_pct", "completeness_pct",
      r"^(\s*completeness_pct:\s+)98\.4\b", r"\g<1>71.6", "71.6",
      "98.4%", "71.6%"),
-    # scenarios 는 리스트라 canon.json 최상위 값 비교를 건너뛰고(None) DOM 으로만 본다.
-    # 화면이 첫 시나리오만 쓰므로 A 의 두 값을 각각 덮는다.
+    ("heading", "heading",
+     r"^(\s*heading: )Program overview$", r"\g<1>변조된 개요 제목",
+     "변조된 개요 제목", "Program overview", "변조된 개요 제목"),
+    # scenarios 와 cards 는 리스트라 canon.json 최상위 값 비교를 건너뛰고(None)
+    # DOM 으로만 본다. 화면이 첫 시나리오만 쓰므로 A 의 두 값을 각각 덮는다.
     ("scenarios", "scenarios[A].employees",
      r"^(\s*- \{key: A, employees: )10000", r"\g<1>44444", None,
      "10,000", "44,444"),
     ("scenarios", "scenarios[A].pmpm",
      r"^(\s*- \{key: A, employees: \d+, pmpm: )31\.4\b", r"\g<1>77.7", None,
      "$31.40", "$77.70"),
+    ("cards", "cards[].label",
+     r"^(\s*- label: )Dental PMPM \(allowed\)$", r"\g<1>변조된 카드 라벨", None,
+     "Dental PMPM (allowed)", "변조된 카드 라벨"),
+]
+
+# 빌드 시점에 템플릿으로 치환되는 값. `canon.json` 에 없으므로 위 CASES 와 단언이
+# 다르다 — **렌더된 DOM 이 아니라 빌드된 산출물 텍스트를 본다.**
+#
+# 왜 DOM 이 아닌가. 색은 `<style>` 안에 있고 `visible()` 이 `<style>` 을 걷어낸다.
+# 걷어내는 이유가 있었다: `--dump-dom` 이 스크립트 소스를 주므로 JS 문자열이 존재
+# 단언을 공짜로 만족시킨다. `<style>` 을 남기면 같은 함정이 CSS 로 돌아온다.
+#
+# 그러면 계산된 스타일을 봐야 하지만 `--dump-dom` 은 그것을 주지 않고, 받으려면
+# CDP 를 붙여야 한다. **여기서 멈추는 이유는 이것이 약한 검사가 아니라 옮긴 검사라는
+# 것이다** — `check_dashboard` 가 `index.html` 에 걸고 있던 coral 규칙도 정확히 같은
+# 것을 봤다: 스타일시트가 선언한 값. 계산된 색까지 보는 것은 그 검사도 못 했다.
+#
+# title 은 예외로 DOM 에도 나온다 (헤더의 `.logo`). 아래 루프가 산출물에서 보는 것으로
+# 충분하고, 별도로 DOM 을 다시 열지 않는다 — 같은 문자열이다.
+#
+# (이름, 정본 정규식, 치환, 산출물 옛, 산출물 새)
+STYLE_CASES = [
+    ("title", r"^(\s*title: )ICLO HomeDen Employer Analytics$",
+     r"\g<1>변조된 제품 제목", "ICLO HomeDen Employer Analytics", "변조된 제품 제목"),
+    ("coral", r'^(\s*coral: )"#C2333A"', r'\g<1>"#0B0B0B"', "#C2333A", "#0B0B0B"),
+    ("coral_dark", r'^(\s*coral_dark_mode: )"#FF8E8D"', r'\g<1>"#0C0C0C"',
+     "#FF8E8D", "#0C0C0C"),
+    ("navy", r'^(\s*navy: )"#1B2A4A"', r'\g<1>"#0D0D0D"', "#1B2A4A", "#0D0D0D"),
+    ("teal", r'^(\s*teal: )"#007A87"', r'\g<1>"#0E0E0E"', "#007A87", "#0E0E0E"),
+    ("background", r'^(\s*background: )"#FFFFFF"', r'\g<1>"#0F0F0F"',
+     "#FFFFFF", "#0F0F0F"),
 ]
 
 
@@ -111,15 +148,67 @@ def serve(directory):
 
 
 def visible(dom):
-    """`<script>`·`<style>` 본문을 걷어낸다.
+    """`<script>`·`<style>`·HTML 주석을 걷어낸다.
 
     `--dump-dom` 은 스크립트 **소스**까지 준다. 그래서 `class="card"` 가 화면에
     카드가 하나도 없어도 JS 문자열 리터럴로 만족됐다 — 실측하면 원본 DOM 에 7개,
     스크립트를 걷어내면 5개다. 어제 "카드를 그리지 않음" 시험에서 카드 단언이 안
     터지고 값 검사만 걸린 것이 그 증거이고, docstring 은 "카드를 먼저 단언한다" 고
     쓰고 있었다. 공허한 단언이었다.
+
+    주석도 같은 이유로 걷어낸다. 템플릿 상단에 왜 이렇게 만들었는지를 적은 긴 주석이
+    있고 그것이 산출물에 그대로 실린다. 존재 단언 쪽에서는 그 주석이 화면 대신 조건을
+    만족시킬 수 있고 — 합성 고지가 화면에서 사라져도 주석에 그 문구가 있으면 통과한다 —
+    부재 단언 쪽에서는 설계 이유를 설명하는 문장이 금지어로 걸린다. **화면에 없는
+    글자를 화면에 있다고 읽는 것이 이 검사가 세 번째로 밟는 함정이다.**
     """
-    return re.sub(r"(?is)<(script|style)\b[^>]*>.*?</\1\s*>", "", dom)
+    return re.sub(r"(?s)<!--.*?-->", "",
+                  re.sub(r"(?is)<(script|style)\b[^>]*>.*?</\1\s*>", "", dom))
+
+
+def squash(s):
+    """구두점을 접는다. 가운뎃점 하나로 피해갈 수 있으면 검사가 아니라 권고다.
+
+    `check_dashboard` 가 `index.html`·`app.html` 에 쓰는 것과 같은 규칙이다.
+    """
+    return re.sub(r"[\s·\-–—/|,]+", "", s)
+
+
+def prose_guards(dom):
+    """렌더된 화면에 금지어·금지 용어·범위 없는 절대 표현이 없는지 본다.
+
+    **`check_dashboard` 가 헌 화면에만 걸고 있던 것을 빌드 경계로 옮긴 것이다.**
+    옛 검사는 `index.html` 과 `app.html` 을 열었고 재구축 화면은 아무도 안 봤다.
+    라벨이 정본에서 오게 된 지금은 더 그렇다 — 화면에 뜨는 문자열이 템플릿에
+    없으므로 파일을 읽는 검사로는 잡을 수가 없고, 렌더를 봐야 잡힌다.
+
+    규칙은 정본에서 읽는다. 여기 옮겨 적으면 금지어 목록이 두 곳에 사는 값이 된다.
+    """
+    doc = yaml.safe_load(CANON.read_text(encoding="utf-8"))
+    bad = []
+
+    for w in doc["terminology"]["disease_words_banned"]:
+        if re.search(rf"\b{w}\w*", dom, re.I):
+            bad.append(f"렌더된 화면에 금지어 {w!r}")
+
+    flat = squash(dom)
+    for item in doc["terminology"]["forbidden"]:
+        if squash(item["wrong"]) in flat:
+            bad.append(f"렌더된 화면에 금지 용어 {item['wrong']!r} "
+                       f"→ {item['right']!r}")
+
+    for item in doc["scoped_claims"]:
+        wrong, right = item["wrong"], item["right"]
+        for m in re.finditer(re.escape(wrong), dom):
+            if not dom[m.start():m.start() + len(right)] == right:
+                bad.append(f"렌더된 화면의 {wrong!r} 는 {right!r} 로 범위를 좁혀야 함")
+
+    # 합성 데이터 고지. 이 화면의 숫자는 전부 합성이고, 고지가 빠진 캡처가
+    # 제안서로 나간 적이 있다.
+    if "Synthetic data" not in dom:
+        bad.append("렌더된 화면에 'Synthetic data' 고지가 없다")
+
+    return bad
 
 
 def dump_dom(url):
@@ -142,7 +231,8 @@ def build(canon_path, out_dir):
 
 
 def main():
-    for path, label in ((BUILDER, "빌더"), (CANON, "정본")):
+    for path, label in ((BUILDER, "빌더"), (CANON, "정본"),
+                        (TEMPLATE, "템플릿")):
         if not path.is_file():
             print(f"FAIL — {label} 없음: {path}")
             return 1
@@ -153,8 +243,13 @@ def main():
     with tempfile.TemporaryDirectory(prefix="build-canon-") as tmp:
         tmp = Path(tmp)
 
-        if build(CANON, tmp / "base").returncode != 0:
-            print("FAIL — 변조 없이도 빌드가 실패한다")
+        base = build(CANON, tmp / "base")
+        if base.returncode != 0:
+            # 빌더가 말한 이유를 그대로 넘긴다. 안 넘겼을 때 "변조 없이도 빌드가
+            # 실패한다" 만 남아서, 치환 자리를 하나 늘렸을 뿐인 사람이 정본을
+            # 의심하게 됐다.
+            print(f"FAIL — 변조 없이도 빌드가 실패한다: "
+                  f"{(base.stdout + base.stderr).strip()[:300]}")
             return 1
 
         # 계약에 있으면서 아무 케이스도 덮지 않는 키가 있으면, 그 값은 정본이 바뀌어도
@@ -174,16 +269,36 @@ def main():
             return 1
         checked += 1
 
+        # 치환 자리도 같은 규칙을 받는다. 권위는 템플릿이다 — 빌더는 남은 자리를
+        # 거부하므로 템플릿의 `{{...}}` 집합이 곧 치환되는 값의 전부다. 케이스가
+        # 없는 자리가 있으면 정본에서 색을 바꿔도 산출물 도달을 아무도 안 본다.
+        holes = set(re.findall(r"\{\{(\w+)\}\}",
+                              TEMPLATE.read_text(encoding="utf-8")))
+        styled = {s[0] for s in STYLE_CASES}
+        if holes != styled:
+            print(f"FAIL — 템플릿 치환 자리와 STYLE_CASES 가 어긋난다. "
+                  f"케이스 없는 자리: {sorted(holes - styled)}, "
+                  f"자리 없는 케이스: {sorted(styled - holes)}")
+            return 1
+        checked += 1
+
         httpd, port = serve(tmp)
         try:
             dom, err = dump_dom(f"http://127.0.0.1:{port}/base/employer.html")
             if err:
                 print(f"FAIL — 기준선 렌더 실패: {err}")
                 return 1
-            if 'class="card"' not in visible(dom):
+            base_dom = visible(dom)
+            if 'class="card"' not in base_dom:
                 print("FAIL — 기준선 DOM 에 카드가 없다. fetch 가 실패했거나 화면이 "
                       "아무것도 그리지 않았다 — '위반 없음' 이 아니다")
                 return 1
+            checked += 1
+
+            # 산문 규칙은 기준선 렌더에만 건다. 변조본은 정본을 일부러 망가뜨린
+            # 것이므로 거기서 나오는 문구는 판정 대상이 아니다.
+            for msg in prose_guards(base_dom):
+                fails.append(msg)
             checked += 1
 
             for key, name, pattern, repl, new, dom_old, dom_new in CASES:
@@ -239,6 +354,34 @@ def main():
                     fails.append(f"{name}: 정본을 고쳤는데 화면에 옛 값 {dom_old!r} 가 "
                                  f"남아 있다 — 템플릿이나 라벨이 손으로 적힌 값을 품고 있다")
                 checked += 1
+
+            # 치환 값. 산출물 텍스트를 본다 (위 STYLE_CASES 주석의 이유).
+            for name, pattern, repl, old, new in STYLE_CASES:
+                mutated, n = re.subn(pattern, repl, original, count=1, flags=re.M)
+                if n != 1:
+                    fails.append(f"style:{name}: 정본에서 변조 지점을 못 찾았다 — "
+                                 f"정본 구조가 바뀌었고 이 검사가 낡았다")
+                    continue
+
+                slug = f"style-{name}"
+                mcanon = tmp / f"canon-{slug}.yml"
+                mcanon.write_text(mutated, encoding="utf-8")
+                r = build(mcanon, tmp / slug)
+                if r.returncode != 0:
+                    fails.append(f"style:{name}: 변조한 정본으로 빌드가 실패했다: "
+                                 f"{(r.stdout + r.stderr).strip()[:150]}")
+                    continue
+
+                built = (tmp / slug / "employer.html").read_text(encoding="utf-8")
+                if new not in built:
+                    fails.append(f"style:{name}: 정본을 {new!r} 로 고쳤는데 산출물에 "
+                                 f"없다. 빌더가 이 자리를 정본에서 안 읽는다")
+                checked += 1
+                if old in built:
+                    fails.append(f"style:{name}: 정본을 고쳤는데 산출물에 옛 값 "
+                                 f"{old!r} 가 남아 있다 — 템플릿이 손으로 적은 "
+                                 f"값을 품고 있다")
+                checked += 1
         finally:
             httpd.shutdown()
             httpd.server_close()
@@ -251,8 +394,10 @@ def main():
         for f in fails:
             print(f"  ✗ {f}")
         return 1
-    print(f"PASS — 검사 {checked}건. 정본 값 {len(CASES)}개(계약 키 {len(covered)}개 전부)를 "
-          f"변조했을 때 canon.json 과 렌더된 DOM 이 함께 따라 움직이고 옛 값이 남지 않는다")
+    print(f"PASS — 검사 {checked}건. fetch 값 {len(CASES)}개(계약 키 "
+          f"{len(covered)}개 전부)와 치환 값 {len(STYLE_CASES)}개(템플릿 자리 전부)를 "
+          f"변조했을 때 산출물과 렌더된 DOM 이 함께 따라 움직이고 옛 값이 남지 않는다. "
+          f"렌더된 화면에 금지어·금지 용어·범위 없는 절대 표현이 없고 합성 고지가 있다")
     return 0
 
 
