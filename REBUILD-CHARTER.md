@@ -203,8 +203,14 @@ worktree 에서 동시에 작업한다.** 2026-08-26 에 두 번 부딪혔다.
 
 1. `doc-manifest.json` 의 스크린샷 입력이 헌 화면을 가리키지 않는다 — 안 고치면
    `test_doc_freshness` 가 깨진다 (codex 가 §4.3 미분류로 지적)
-2. `check-forbidden-terms.sh` 가 새 화면 경로를 스캔한다 — 지금 `[ -f "$f" ] || continue`
-   로 가드하므로 **경로가 사라지면 규제 스캔이 조용히 건너뛴다**
+2. ~~`check-forbidden-terms.sh` 가 새 화면 경로를 스캔한다~~ — **2026-08-27 완료.**
+   선언한 경로가 없으면 건너뛰지 않고 실패하고, 빈 글롭도 실패한다 (전에는
+   `[ -f "$f" ] || continue` 였다. 헌 화면을 지우면 규제 스캔이 조용히 통과하는
+   상태였고, 제안서 디렉터리 이름만 바뀌어도 같은 일이 났다). `screens/employer.html.in`
+   을 목록에 넣었고, 렌더된 화면 쪽은 `test_build_reads_canon.py` 의 `prose_guards` 가
+   정본 목록으로 본다. 돌 수 없던 `src/`·`dist/` 블록은 지웠다 — 폐기된 Vite 계획의
+   산물이고 `[ -d src ]` 가 언제나 거짓이었다. 단어 목록이 정본과 스크립트 두 곳에
+   사는 것은 `check_red_line_words` 가 대조한다
 3. 정본 `surfaces` 가 새 경로를 가리킨다 — `check_surfaces` 가 없는 파일에서 실패한다
 4. `test_consent` 가 새 임직원 화면에 대해 다시 서 있다
 

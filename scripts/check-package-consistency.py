@@ -170,6 +170,34 @@ def check_status_headers():
         print(f"현황 문서 {seen}건 — 헤더의 커밋과 날짜가 실재")
 
 
+def check_red_line_words(c):
+    """레드라인 단어 목록이 정본과 bash 스크립트에서 같은지 본다.
+
+    `check-forbidden-terms.sh` 는 첫 게이트이고 파이썬·PyYAML 을 요구하지 않는다.
+    그래서 목록을 리터럴로 갖는다 — **정본과 두 곳에 사는 값**이다. 값이 두 곳에
+    있으면 한 곳만 고치는 날이 오고, 이 경우 조용한 쪽은 스크립트다: 정본에서 단어를
+    늘려도 배포 코드 스캔은 늘어나지 않는다.
+
+    그 값을 여기서 대조한다. 집합으로 본다 — 순서를 맞추라고 요구할 이유가 없다.
+    """
+    p = ROOT / "employer-dashboard-poc/scripts/check-forbidden-terms.sh"
+    if not p.exists():
+        fail("red_line_words", f"{p.name} 이 없음")
+        return
+    m = re.search(r"^PAT='([^']+)'", p.read_text(encoding="utf-8"), re.M)
+    if not m:
+        fail("red_line_words", f"{p.name} 에서 PAT= 줄을 못 찾았다 — "
+                               f"스크립트 구조가 바뀌었고 이 검사가 낡았다")
+        return
+    in_script = set(m.group(1).split("|"))
+    in_canon = set(c["disease"])
+    if in_script != in_canon:
+        fail("red_line_words",
+             f"레드라인 단어가 정본과 스크립트에서 다르다. "
+             f"스크립트에만: {sorted(in_script - in_canon)}, "
+             f"정본에만: {sorted(in_canon - in_script)}")
+
+
 def check_local_matches_ci():
     """`make check` 과 gates.yml 이 같은 검사를 돌리는지 본다.
 
@@ -547,8 +575,9 @@ def load_contract():
         [float(m) for m in re.findall(r"const:\s*FRAC\.\w+\n\s*value:\s*([\d.]+)", t)]))
     c["scoped"] = re.findall(r'- wrong:\s*"([^"]+)"\n\s*right:\s*"([^"]+)"', t)
     c["forbidden"] = re.findall(r'\{wrong:\s*"([^"]+)",\s*right:\s*"([^"]+)"', t)
-    c["disease"] = re.search(r"disease_words_banned:.*?\n\s*\[([^\]]+)\]", t, re.S).group(1)
-    c["disease"] = [w.strip() for w in c["disease"].split(",")]
+    # 이것도 파서로 읽는다. 헌 정규식은 `.*?` 와 re.S 로 그 키 **뒤 어디든** 첫
+    # `[...]` 를 잡았고, 목록이 같은 줄로 올라오면(YAML 에서 흔한 편집) 아예 안 맞았다.
+    c["disease"] = doc["terminology"]["disease_words_banned"]
     sup = re.search(r"^superseded:$(.*?)(?:^\w|\Z)", t, re.S | re.M)
     c["superseded"] = set(re.findall(r"artifacts:\s*\[([^\]]+)\]", sup.group(1))[0].split(", ")) \
         if sup and re.findall(r"artifacts:\s*\[([^\]]+)\]", sup.group(1)) else set()
@@ -808,6 +837,7 @@ def main():
     check_awaiting_decision()
     c = load_contract()
     check_dashboard(c)
+    check_red_line_words(c)
     check_docs(c, use_pdf)
 
     for label, items, mark in (("불일치", fails, "✗"), ("경고", warns, "!")):
