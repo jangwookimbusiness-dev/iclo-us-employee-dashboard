@@ -663,10 +663,21 @@ def check_start_gates():
     # 기술문서만 고쳤더니 정본의 주석·산문 세 곳이 "넷" 으로 남았고, 이 검사가
     # 기술문서만 스캔해서 못 봤다 (codex 헌장 검토, 2026-08-26). **한 문서만 보는
     # 검사는 두 문서가 어긋나는 것을 정의상 못 잡는다.**
+    # **한국어 수사에는 관형사형이 따로 있다.** 넷 앞에 명사가 오면 "네 항목" 이 되고,
+    # 셋은 "세", 둘은 "두", 하나는 "한" 이 된다. 다섯 이상은 같은 꼴이다. 첫 판의
+    # 대안 목록에 수사형만 있어서 **정본 590행대의 `start_gates 네 항목` 을 못 봤다** —
+    # `baa_and_region` 을 넣어 넷에서 다섯이 된 2026-08-25 에 그 줄이 안 고쳐졌고,
+    # 이 검사가 그 뒤로 계속 초록불이었다 (2026-08-28 확인).
+    #
+    # 오답을 열거하는 것이 아니다. 같은 수의 두 어형을 다 걷어와 기대값 집합과
+    # 대조하며, 기대값도 두 어형을 다 갖는다.
+    NUMERALS = ("하나", "한", "둘", "두", "셋", "세", "넷", "네",
+                "다섯", "여섯", "일곱")
+    alt = "|".join(NUMERALS)
     canon_text = CONTRACT.read_text(encoding="utf-8")
     canon_wrong = re.findall(
-        r"start_gates\s*(하나|둘|셋|넷|다섯|여섯|일곱)|"
-        r"게이트 — [^\n]*?하는 (하나|둘|셋|넷|다섯|여섯|일곱)", canon_text)
+        rf"start_gates\s*({alt})|"
+        rf"게이트 — [^\n]*?하는 ({alt})", canon_text)
     canon_words = {w for pair in canon_wrong for w in pair if w}
 
     # 기술문서가 정본 게이트 수를 말하는 모든 자리를 찾아 **전부** 같은지 본다.
@@ -678,14 +689,16 @@ def check_start_gates():
     #
     # 그래서 대안(alternation)을 쓰지 않는다. 숫자를 말하는 자리를 전부 걷어와
     # 기대값 하나와 대조하고, 자리가 0개면 그것도 실패다.
-    want_word = {1: "하나", 2: "둘", 3: "셋", 4: "넷", 5: "다섯",
-                 6: "여섯", 7: "일곱"}.get(len(gates))
-    stated = re.findall(r"드는\s+(하나|둘|셋|넷|다섯|여섯|일곱|\d+개)", text)
+    # 기대값도 두 어형을 다 갖는다.
+    want_words = {1: ("하나", "한"), 2: ("둘", "두"), 3: ("셋", "세"),
+                  4: ("넷", "네"), 5: ("다섯",), 6: ("여섯",),
+                  7: ("일곱",)}.get(len(gates), ())
+    stated = re.findall(rf"드는\s+({alt}|\d+개)", text)
     if not stated:
         fail("start_gates",
              f"기술문서가 정본 게이트 수({len(gates)})를 어디서도 말하지 않는다")
     else:
-        expected = {want_word, f"{len(gates)}개"} - {None}
+        expected = set(want_words) | {f"{len(gates)}개"}
         canon_bad = sorted(canon_words - expected)
         if canon_bad:
             fail("start_gates",
@@ -752,9 +765,15 @@ def load_contract():
     # 이것도 파서로 읽는다. 헌 정규식은 `.*?` 와 re.S 로 그 키 **뒤 어디든** 첫
     # `[...]` 를 잡았고, 목록이 같은 줄로 올라오면(YAML 에서 흔한 편집) 아예 안 맞았다.
     c["disease"] = doc["terminology"]["disease_words_banned"]
-    sup = re.search(r"^superseded:$(.*?)(?:^\w|\Z)", t, re.S | re.M)
-    c["superseded"] = set(re.findall(r"artifacts:\s*\[([^\]]+)\]", sup.group(1))[0].split(", ")) \
-        if sup and re.findall(r"artifacts:\s*\[([^\]]+)\]", sup.group(1)) else set()
+    # superseded 는 목록이 여러 개일 수 있다 — v10 패키지와 v11 초안이 각각 한 항목.
+    # 첫 판은 `[0]` 으로 **첫 목록만** 읽었고, 그래서 두 번째 항목을 넣어도 그 문서들이
+    # 계속 검사 대상이었다 (2026-08-28).
+    c["superseded"] = {a.strip() for s in (doc.get("superseded") or [])
+                       for a in (s.get("artifacts") or [])}
+    # frozen — 대체된 것이 아니라 현행이면서 수정 불가. 그 날짜 이후에 추가된
+    # 게이트는 그 문서에서 요구하지 않는다.
+    c["frozen"] = {f["artifact"]: str(f["frozen_on"])
+                   for f in (doc.get("frozen") or [])}
     g = re.search(r"^start_gates:$(.*?)^\w", t, re.S | re.M).group(1)
     # `disclose: 대내` 게이트는 대외 노출 검사에서 뺀다. 지금 해당하는 것은
     # baa_and_region 하나이고, 이유는 그 항목의 고유 내용이 **우리 Snowflake 계정의
@@ -764,13 +783,19 @@ def load_contract():
     # 전부 경고를 뿜고, 그 경고를 끄려고 대외 문서에 우리 계정 사정을 적게 된다.
     blocks = re.split(r"^  - id:", g, flags=re.M)[1:]
     c["gates_ko"], c["gates_en"] = [], []
+    # 게이트별 추가일. 없으면 어느 문서보다도 앞선 것으로 본다.
+    c["gate_added"] = {}
     for b in blocks:
         if re.search(r"^\s+disclose:\s*대내", b, re.M):
             continue
+        added = re.search(r"^\s+added:\s*(\S+)", b, re.M)
         for key, dest in (("ko", c["gates_ko"]), ("en", c["gates_en"])):
             m = re.search(rf"^\s+{key}:\s*(.+)$", b, re.M)
             if m:
-                dest.append(m.group(1).strip())
+                label = m.group(1).strip()
+                dest.append(label)
+                if added:
+                    c["gate_added"][label] = added.group(1)
     return c
 
 
@@ -868,6 +893,13 @@ def check_docs(c, use_pdf):
 
         # 착수 게이트 노출 (대외 문서에서 빠지면 다 만들어진 제품처럼 읽힌다)
         gates = c["gates_ko"] if name.endswith("_ko") or name == "tech" else c["gates_en"]
+        # 동결된 문서는 동결 이후에 추가된 게이트를 담을 수 없다. 요구하면 선택지가
+        # 둘뿐이 된다 — 발송된 문서를 소급 수정하거나, 대체됐다고 거짓으로 적거나.
+        # 누락은 정본 frozen[].next_edition_must 가 다음 판의 요건으로 들고 있다.
+        frozen_on = c["frozen"].get(name)
+        if frozen_on:
+            gates = [g for g in gates
+                     if c["gate_added"].get(g, "0000-00-00") <= frozen_on]
         missing = [g for g in gates if re.sub(r"\s+", "", g) not in flat]
         if missing and name not in ("tech", "prd"):   # 둘 다 대내 문서다
             sev = fail if name.startswith("report") else warn
