@@ -34,17 +34,17 @@
   }
  },
  "status_2026_08_27": {
-  "artifact": "dbdefadfae67c6a262247532c718438b45a44950c5a868a3b9bce1d405d1798c",
+  "artifact": "81b9b70025b31818cfd18a0f0833d78792c080fb2458ea752d3ce02505caf7e6",
   "pages": 13,
   "sources": {
-   "output/status/STATUS-2026-08-27.md": "fcf480a27c7dca6237c81063120666b96f98e969b02be038a3e38785c94e7148"
+   "output/status/STATUS-2026-08-27.md": "ae58fc566e288b25bb76eed6b3e2d1f9a14ff10412c4cafe0ca5ecb50bac5b60"
   }
  },
  "tech": {
-  "artifact": "70b7014610e29edcb8d526abd9f759edeacb66897c87580c6909e046d94d2027",
+  "artifact": "fa9108911e126e2be7211388efb18d659c2f68f75bb802abc0e476d16e5b944a",
   "pages": 114,
   "sources": {
-   "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md": "e3b3cec541409780f8c2f4069f0d37939786c83b6b96f78083fe285057c420ff",
+   "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md": "534680aa97820e72c0eb51825442e82ae732867c990f75a869b5400766b8d11d",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-A-원천과정본.svg": "95f8e16d87f08d0f93d975e98d7f372b15348e206c07e5b2a9a1431acf7fd06a",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-B-통제와노출.svg": "24bc2b2a634066ddb763e68d979e195ccf4ab57081b7dad5947b9c9a47e3df80",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-C-경계와미결.svg": "757723c8d5431d320813614b2cfe4ae213ab5f143f1e3d47a05af348b2e7bdc1"

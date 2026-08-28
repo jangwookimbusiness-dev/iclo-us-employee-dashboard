@@ -332,7 +332,9 @@ ALTER TABLE canonical.party_xref ADD COLUMN
 CREATE TABLE canonical.credential (
   credential_sk  NUMBER IDENTITY PRIMARY KEY,
   contact_ref    VARCHAR NOT NULL,       -- 외부 vault 포인터. 발송은 vault가 한다.
-  contact_hash   VARCHAR NOT NULL,       -- 조회·중복 판정용 해시.
+  contact_hash   VARCHAR NOT NULL,       -- 조회·중복 **관찰**용. UNIQUE 를 걸지 않는다.
+                                         -- 4.8절 — 같은 연락처에 credential 이 여럿일 수
+                                         -- 있고 그것이 정상이다. 차단이 아니라 관찰이다.
   created_at     TIMESTAMP_NTZ NOT NULL,
   disabled_at    TIMESTAMP_NTZ
   -- employer_id를 두지 않습니다. 4.1절과 같은 이유입니다.
@@ -409,6 +411,21 @@ CREATE TABLE canonical.profile_access (
 
 법무는 파라미터로 둡니다. 4.7절 플랜 밖 보호자의 연락처 보관 근거와 16-23 의 CMIA §56.11
 authorization 형식 요건이 그것이며, 진행을 그것에 걸지 않고 열린 항목으로 관리합니다.
+
+**IdP 선정 기준 — 한 줄이 걸립니다.** 신원 유일성 규칙을 IdP 가 갖게 되므로, **같은
+이메일·전화로 사용자 둘을 만들 수 있어야** 합니다. 많은 IdP 가 이메일 유일을 기본값으로
+강제합니다. 막혀 있으면 부부가 같은 회사에 다니고 연락처를 공유할 때 **한 명이 가입 자체를
+못 합니다.** 위 4.3절 스키마 쪽은 이미 만족돼 있습니다 — `credential_sk` 가 PK 고
+`contact_hash` 에 UNIQUE 가 없습니다. 4.8절이 "허용해야 한다" 고 쓴 것은 요구 추가가 아니라
+**하지 말아야 할 실수의 경고**이며, 그 실수를 할 수 있는 자리가 이제 우리 스키마가 아니라
+IdP 설정입니다.
+
+| IdP 선정 시 확인 | 왜 |
+|---|---|
+| 같은 이메일·전화로 사용자 복수 생성 가능 | 4.8절 연락처 재사용. 기본값이 막으면 끌 수 있는지 |
+| BAA 체결 가능 티어인가 | 16-1 HIPAA 역할 판정과 무관하게 연락처·인증 로그가 그쪽에 산다 |
+| refresh token 회전 + 세션 레지스트리 + global sign-out | 4.11절. 직접 구현할 대상이 아니라 고를 대상이다 |
+| 사용자 삭제 시 원문이 실제로 사라지는가 | 2.4절 파기 원칙. canonical 의 hash·ref 는 고아 포인터로 남고 그것이 의도된 상태다 |
 
 ---
 
