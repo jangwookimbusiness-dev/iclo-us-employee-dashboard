@@ -170,6 +170,65 @@ def check_status_headers():
         print(f"현황 문서 {seen}건 — 헤더의 커밋과 날짜가 실재")
 
 
+def check_source_attribution():
+    """기술문서의 원천 표가 834 의 출처를 정본이 정한 대로 적는지 본다.
+
+    **왜 필요했나.** 정본 `terminology.forbidden` 이 `HRIS 834` 를 금지하고 이유까지
+    적어놨는데(834 를 인사 시스템이 직접 뱉는 것이 아니다), 기술문서가 §3 원천 표와 가정
+    A3 에서 그것을 쓰고 있었다. 2026-08-28 확인. 어느 검사도 안 잡았고 이유가 둘이다 —
+    레드라인 스캔의 대상 목록에 `output/proposal-v10/` 이 없고, 있었더라도 금지 패턴을
+    구두점 접기로 `HRIS834` 로 만들면 실제 텍스트(`HRIS가 834`, 표 셀 두 개에 나뉜
+    `기업 HRIS | … | X12 834`)와 안 맞는다. 조사와 셀 경계가 사이에 있다.
+
+    **왜 "한 줄에 HRIS 와 834 가 함께 있으면 실패" 로 안 했나. 그 규칙을 실측했더니
+    다섯 중 넷이 오탐이었다.** 문서는 그 둘을 올바르게 구분하는 자리가 더 많다 —
+    퇴사 처리가 인사 시스템에 늦게 들어가 834 가 소급 종료를 보내는 경로(§6),
+    `deceased_source` 가 둘을 **다른 원천으로** 열거하는 자리(§5), 부서 마스터를 834 와
+    별도 파일로 받는다는 문장(§11). 오탐이 나는 검사는 곧 꺼지므로 그 규칙은 안 쓴다.
+
+    대신 **정본이 정한 문구를 표가 쓰는지**만 본다. 두 문서를 대조하는 검사이고, 없던
+    것이 정확히 이 종류였다. 산문의 출처 서술은 이 검사가 보지 않는다 — 일반형이 싸게
+    검사되지 않으며, 검사되는 척하지 않는다.
+    """
+    doc = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
+    tech = ROOT / doc["artifacts"]["tech"]["path"]
+    if not tech.exists():
+        fail("source_attribution", f"기술문서가 없음: {tech}")
+        return
+
+    # 정본이 정한 올바른 출처 문구에서 핵심 토큰을 뽑는다. 손으로 적으면 정본을
+    # 고칠 때 이 검사가 옛 문구를 요구한다.
+    right = next((f["right"] for f in doc["terminology"]["forbidden"]
+                  if "834" in f["wrong"]), None)
+    if not right:
+        fail("source_attribution",
+             "정본 terminology.forbidden 에 834 항목이 없다 — 이 검사가 낡았다")
+        return
+    required = "benefits administrator"
+    if required not in right:
+        fail("source_attribution",
+             f"정본이 정한 올바른 문구에 {required!r} 가 없다: {right!r}. "
+             f"정본이 바뀌었고 이 검사도 같이 바꿔야 한다")
+        return
+
+    text = tech.read_text(encoding="utf-8")
+    # X12 834 를 형식으로 적은 표 행. 그 행의 첫 셀이 원천이다.
+    rows = [r for r in re.findall(r"^\|.*$", text, re.M)
+            if re.search(r"X12\s*\*{0,2}834", r)]
+    if not rows:
+        fail("source_attribution",
+             "기술문서에서 X12 834 를 형식으로 적은 표 행을 못 찾았다 — "
+             "§3 원천 표 구조가 바뀌었고 이 검사가 낡았다")
+        return
+    for row in rows:
+        source = row.split("|")[1].strip() if row.count("|") >= 2 else row
+        if required not in source:
+            fail("source_attribution",
+                 f"기술문서 원천 표가 834 의 출처를 {source!r} 로 적는다. 정본은 "
+                 f"{right!r} 라고 정한다 — 인사 시스템이 그 파일을 직접 뱉는 것이 아니다")
+    print(f"원천 표 {len(rows)}행 — 834 의 출처가 정본 문구와 일치")
+
+
 def check_member_copy(c):
     """임직원에게 보일 정본 문구 전부에 레드라인을 건다.
 
@@ -856,6 +915,7 @@ def main():
     c = load_contract()
     check_red_line_words(c)
     check_member_copy(c)
+    check_source_attribution()
     check_bar_contrast()
     check_docs(c, use_pdf)
 
