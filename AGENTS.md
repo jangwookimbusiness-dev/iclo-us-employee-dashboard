@@ -69,8 +69,8 @@ screen rules are requirements, not visual preferences.
   verification units differently and says so; see REBUILD-CHARTER.md §4.3)
 - `make check-fast` — run the non-browser pre-commit subset
 - `make serve` — serve the demo at `http://localhost:8000`
-- `make docs` — rebuild managed screenshots and PDFs
-- `make shots` — regenerate deterministic screenshots
+- `make docs` — rebuild the managed PDFs (the screenshot stage went with the
+  screens it shot, #49; the twelve proposal PNGs are frozen assets now)
 - `make install-hooks` — install the local pre-commit guard
 
 There is no npm application and no supported `npm ci`, `npm build`, or Vite
