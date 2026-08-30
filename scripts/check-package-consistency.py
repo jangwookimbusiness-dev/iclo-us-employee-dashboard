@@ -274,6 +274,45 @@ def check_member_copy(c):
           f"(렌더는 밴드 하나만 보이므로 정본에서 전부 본다)")
 
 
+def check_design_records():
+    """정본이 든 설계 규칙이 기술문서에도 있는지 본다.
+
+    **왜 이 검사가 있나.** 아직 구현이 없는 설계 결정이 늘고 있다 — 표시용 이름(#63),
+    CMIA 동의 필드(#62), 인증 접근(§4.4-1). 구현이 없으면 그것을 확인하는 검사도 없고,
+    그러면 정본과 기술문서가 조용히 갈라진다. 실제로 그 일이 있었다: `HRIS 834` 를 정본이
+    금지하는데 기술문서가 네 곳에서 쓰고 있었고 아무 검사도 안 잡았다 (2026-08-28, #54).
+
+    두 문서가 같은 규칙을 말하는지만 본다. 규칙의 **내용**이 옳은지는 기계가 판정하지
+    않는다 — 그 판정을 하는 척하는 검사를 두는 것이 이 저장소가 반복한 실수다.
+    """
+    doc = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
+    tech = ROOT / doc["artifacts"]["tech"]["path"]
+    if not tech.exists():
+        fail("design_records", f"기술문서 없음: {tech}")
+        return
+    text = tech.read_text(encoding="utf-8")
+
+    # (정본 경로, 기술문서에 있어야 하는 문구) — 정본에서 문구를 꺼내므로 한 곳만 고치면
+    # 이 검사가 다른 쪽을 요구한다.
+    built = doc["status"]["built"]
+    pairs = [
+        ("display_name.rule", built["display_name"]["rule"]),
+        ("consent_model.states.EXPIRED",
+         "EXPIRED" if "EXPIRED" in built["consent_model"]["states"] else None),
+    ]
+    checked = 0
+    for where, phrase in pairs:
+        if not phrase:
+            fail("design_records", f"정본 {where} 가 비었다 — 이 검사가 낡았다")
+            continue
+        if re.sub(r"\s+", "", str(phrase)) not in re.sub(r"\s+", "", text):
+            fail("design_records",
+                 f"정본 {where} 가 {phrase!r} 라고 정하는데 기술문서에 그 문구가 없다. "
+                 f"구현이 없는 설계는 검사가 없으므로 두 문서가 조용히 갈라진다")
+        checked += 1
+    print(f"설계 기록 {checked}건 — 정본과 기술문서가 같은 규칙을 말한다")
+
+
 def check_bar_contrast():
     """신호 바가 트랙 대비 3:1 을 넘는지 계산한다. WCAG 1.4.11.
 
@@ -949,6 +988,7 @@ def main():
     check_member_copy(c)
     check_source_attribution()
     check_bar_contrast()
+    check_design_records()
     check_docs(c, use_pdf)
 
     for label, items, mark in (("불일치", fails, "✗"), ("경고", warns, "!")):
