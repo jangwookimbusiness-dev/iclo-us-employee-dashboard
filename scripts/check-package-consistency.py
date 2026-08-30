@@ -924,6 +924,30 @@ def check_start_gates():
                  f"실제 {len(gates)}건이므로 {sorted(expected)} 여야 한다. "
                  f"한 절만 고치고 다른 절을 두면 이 검사가 그것을 잡는다")
 
+    # **살아 있는 문서 전부에서 게이트 수를 본다.** 이 검사는 기술문서와 정본만 봤고,
+    # 그래서 `output/analysis/` 의 고객 분석이 2026-08-16 의 "게이트 넷" 을 15일간
+    # 들고 있었다 (2026-08-31 발견). 게이트가 두 번 늘었고 그 문서는 안 따라왔다.
+    #
+    # 동결·대체된 문서는 뺀다 — 발송된 사본을 소급 수정할 수 없으므로 그 부채는
+    # 정본 `frozen[].next_edition_must` 가 든다.
+    frozen_paths = {f["path"] for f in (doc.get("frozen") or [])}
+    living = [ROOT / "output/analysis/고객-비용-이익-분석-KO.md"]
+    for path in living:
+        if not path.exists() or str(path.relative_to(ROOT)) in frozen_paths:
+            continue
+        body = path.read_text(encoding="utf-8")
+        # 정정 노트 안의 옛 숫자는 기록이다. 표지 앞만 본다 (#72 와 같은 규칙).
+        body = re.sub(r"\*\*20\d\d-\d\d-\d\d 갱신.*?(?=\n\n)", "", body, flags=re.S)
+        said = set(re.findall(rf"게이트\s+({alt}|\d+건|\d+개)", body))
+        bad = sorted(said - expected - {f"{len(gates)}건", f"{len(gates)}개"})
+        if bad:
+            fail("start_gates",
+                 f"{path.name} 이 착수 게이트를 {bad} 로 말한다 — 실제 {len(gates)}건. "
+                 f"살아 있는 문서는 정본을 따라와야 한다")
+        if not said:
+            warn("start_gates",
+                 f"{path.name} 이 게이트 수를 말하지 않는다 — 검사할 것이 없다")
+
     print(f"착수 게이트 {len(gates)}건 · 법무 레지스터 {total}개 "
           f"(본문 {body_items} + §16.1 {enumerated}) · "
           f"수를 말하는 자리 기술문서 {len(stated)}곳 + 정본 {len(canon_words)}곳 "
