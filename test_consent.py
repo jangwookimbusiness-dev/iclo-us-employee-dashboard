@@ -171,7 +171,7 @@ def main():
     subject = next(p for p in base["parties"] if p.get("access"))
     names = [p["name"] for p in base["parties"]]
 
-    checked, fails = 0, []
+    ran, fails = set(), []
 
     with tempfile.TemporaryDirectory(prefix="consent-") as tmp:
         tmp = Path(tmp)
@@ -195,11 +195,22 @@ def main():
                 if "No member data" not in visible(dom):
                     fails.append("데이터 파일이 없는데 화면이 그려졌다 — "
                                  "예비 사본이 다시 들어왔다")
-                checked += 1
+                ran.add("no_data_message")
+                # **문구만 보면 부족하다.** 첫 판은 이 문구와 이름 부재만 봤고, 그러면
+                # `"No member data"` 를 유지한 채 결과 패널을 드러내고 임의의 밴드를
+                # 넣어도 통과한다 (codex 2026-08-30). 밴드가 없다는 것을 직접 본다.
+                m = re.search(r'<section id="result"([^>]*)>', dom)
+                if m and "hidden" not in m.group(1):
+                    fails.append("데이터 파일이 없는데 결과 영역이 드러나 있다")
+                ran.add("no_data_names")
+                if re.search(r'id="band">\s*[A-Za-z]', visible(dom)):
+                    fails.append("데이터 파일이 없는데 밴드가 그려졌다 — "
+                                 "그럴듯한 값으로 대체하는 경로가 생겼다")
+                ran.add("no_data_result_hidden")
                 leaked = [n for n in names if n in visible(dom)]
                 if leaked:
                     fails.append(f"데이터 파일이 없는데 이름이 화면에 있다: {leaked}")
-                checked += 1
+                ran.add("no_data_no_band")
 
             # ── 2. 화면이 데이터를 따라온다 ──────────────────────────────
             renamed = copy.deepcopy(base)
@@ -214,7 +225,7 @@ def main():
                 if base["parties"][0]["name"] in shown:
                     fails.append(f"이름을 바꿨는데 {base['parties'][0]['name']!r} 가 "
                                  f"남아 있다 — 화면이 박아둔 사본을 읽는다")
-                checked += 1
+                ran.add("rename_follows")
 
             # ── 3. 동의는 평가된다 ──────────────────────────────────────
             # fixture 의 현행 정책 문안에서 만든다. 정책 버전을 손으로 적으면
@@ -253,14 +264,27 @@ def main():
                 if subject["name"] in offered(dom):
                     fails.append(f"동의 {label} 인데 {subject['name']} 에게 "
                                  f"촬영이 열려 있다")
-                checked += 1
+                ran.add("case_blocked")
                 # **상태가 구별되어 표시돼야 한다.** 넷을 하나로 묶으면 재동의 요청
                 # 문구를 옳게 쓸 수 없다 — 철회는 그 사람이 그만둔 것, STALE 은 우리가
                 # 문안을 바꾼 것, 만료는 시간이 지난 것이다.
-                if COPY[label] not in visible(dom):
-                    fails.append(f"동의 {label} 인데 화면에 {COPY[label]!r} 가 "
-                                 f"없다 — 상태가 구별되어 표시되지 않는다")
-                checked += 1
+                # **그 사람의 버튼 안에서 찾는다.** 문서 전체를 보면 기본 fixture 의
+                # P4(항상 photo 철회)가 `withdrawn` 을 들고 있어서 다른 사람의 상태가
+                # 오답을 가린다 (codex 2026-08-30). 대상자 버튼만 잘라 본다.
+                btn = next((attrs + name + why for attrs, name, why in
+                            re.findall(r'<button[^>]*class="subject"([^>]*)>\s*'
+                                       r'<span class="nm">([^<]*)</span>\s*'
+                                       r'<span class="why[^"]*">([^<]*)</span>',
+                                       visible(dom))
+                            if name == subject["name"]), None)
+                if btn is None:
+                    fails.append(f"동의 {label}: 대상자 {subject['name']} 버튼을 "
+                                 f"DOM 에서 못 찾았다 — 이 검사가 낡았다")
+                elif COPY[label] not in btn:
+                    fails.append(f"동의 {label} 인데 {subject['name']} 버튼에 "
+                                 f"{COPY[label]!r} 가 없다 — 상태가 구별되어 "
+                                 f"표시되지 않는다")
+                ran.add("case_result_hidden")
                 # 차단된 사람에게 밴드를 보이면, 하지 말라고 한 처리를 이미 한
                 # 결과를 보이는 것이다. 결과 영역이 감춰져야 한다.
                 m = re.search(r'<section id="result"([^>]*)>', dom)
@@ -269,14 +293,14 @@ def main():
                 elif "hidden" not in m.group(1):
                     fails.append(f"동의 {label} 인데 결과 영역이 드러나 있다 — "
                                  f"허락받지 않은 처리의 결과가 화면에 있다")
-                checked += 1
+                ran.add("case_no_booking")
                 # **예약 넘김도 못 만든다.** 밴드를 못 보는 사람에게 예약을 권하는 것은
                 # 하지 말라고 한 처리의 결과를 쓰는 것이다 (#60).
                 events = re.findall(r'data-event="(\w+)"', visible(dom))
                 if events:
                     fails.append(f"동의 {label} 인데 예약 이벤트 버튼이 {events} 있다 — "
                                  f"차단된 프로필은 예약도 못 만든다")
-                checked += 1
+                ran.add("case_state_wording")
 
             # ── 4. 전부 동의한 사람은 통과한다 ───────────────────────────
             d = copy.deepcopy(base)
@@ -292,11 +316,11 @@ def main():
                 if subject["name"] not in offered(dom):
                     fails.append(f"전부 동의한 {subject['name']} 이 제시되지 않는다 "
                                  f"— 문이 닫힌 채로 굳었다")
-                checked += 1
+                ran.add("future_expiry_ok")
                 m = re.search(r'<section id="result"([^>]*)>', dom)
                 if m and "hidden" in m.group(1):
                     fails.append("전부 동의인데 결과 영역이 감춰져 있다")
-                checked += 1
+                ran.add("consented_offered")
                 # 두 이벤트가 **구분되어** 나와야 한다. 하나로 합치면 "예약률" 이
                 # 버튼을 누른 비율이 된다 (기술문서 §1.1·§5).
                 events = set(re.findall(r'data-event="(\w+)"', visible(dom)))
@@ -305,7 +329,7 @@ def main():
                     fails.append(f"전부 동의한 사람의 예약 이벤트가 {sorted(events)} 다 "
                                  f"— {sorted(want)} 여야 한다. 둘을 합치면 예약률이 "
                                  f"버튼을 누른 비율이 된다")
-                checked += 1
+                ran.add("consented_result_shown")
                 # 그리고 확인되지 않은 것을 확인된 것처럼 적지 않는다.
                 #
                 # **`visible()` 만으로는 부족하다.** 예약 문구가 `result` 안에 있고
@@ -319,12 +343,12 @@ def main():
                 if "APPOINTMENT_BOOKED" in vis:
                     fails.append("화면에 APPOINTMENT_BOOKED 가 있다 — 예약 계층이 "
                                  "없으므로 그 단계는 존재하지 않는다")
-                checked += 1
+                ran.add("consented_booking_pair")
                 # 예약 단서가 보여야 한다. 자가 보고를 확인된 예약으로 읽히게 두지 않는다.
                 if "기록되는 것은 당신이 말한 것입니다" not in vis:
                     fails.append("전부 동의한 사람 화면에 예약 단서가 없다 — 자가 "
                                  "보고가 확인된 예약으로 읽힌다")
-                checked += 1
+                ran.add("consented_no_appointment_booked")
 
             # ── 4b. 만료 필드가 없는 기록은 계속 유효하다 ────────────────
             # **부재를 만료로 읽으면 안 된다.** 그러면 이 필드가 생기기 전에 받은
@@ -343,7 +367,7 @@ def main():
             elif subject["name"] not in offered(dom):
                 fails.append(f"만료일이 미래인데 {subject['name']} 이 막혔다 — "
                              f"만료 판정이 부등호를 뒤집었다")
-            checked += 1
+            ran.add("consented_booking_caveat")
 
             # ── 5. 숫자 점수가 화면에 없다 ──────────────────────────────
             # 데이터의 점수를 눈에 띄는 값으로 바꾼다. 원래 값(78 등)으로 찾으면
@@ -359,23 +383,28 @@ def main():
                 fails.append(f"점수 비노출: {err}")
             else:
                 dom = visible(dom)
-                if str(marker) in dom:
-                    fails.append(f"점수 {marker} 가 화면에 있다 — PRD §5.4 는 "
-                                 f"임직원에게 숫자를 주지 않는다. 밴드와 방향만이다")
-                checked += 1
+                # **심은 점수를 전부 찾는다.** 첫 판은 `marker` 하나만 봤고 데이터에는
+                # `marker - 9` 도 있었다 — 화면이 이전 점수만 보여도 통과했다.
+                # 천 단위 구분 형태도 같이 본다: `7,391` 은 `7391` 이 아니다.
+                for score in (marker, marker - 9):
+                    for form in (str(score), f"{score:,}"):
+                        if form in dom:
+                            fails.append(f"점수 {form} 가 화면에 있다 — PRD §5.4 는 "
+                                         f"임직원에게 숫자를 주지 않는다")
+                    ran.add("no_score_hidden")
                 # 그리고 밴드는 나와야 한다. 안 나오면 위 단언이 빈 화면으로
                 # 만족된다 — 이 검사가 세 번 밟은 함정이다.
                 if not re.search(r'<div class="band [A-Za-z]+" id="band">'
                                  r'\s*\w', dom):
                     fails.append("점수는 없는데 밴드도 없다 — 빈 화면은 "
                                  "'숫자 없음' 의 증거가 아니다")
-                checked += 1
+                ran.add("no_score_band_present")
                 # 눈금 없는 막대에 위치를 표시하는 것은 숫자를 숨긴 숫자다
                 # (정본 core_ai_operation.change_without_a_number).
                 if re.search(r'style="[^"]*width:\s*\d', dom):
                     fails.append("임직원 화면에 폭이 값을 싣는 요소가 있다 — "
                                  "눈금 없는 막대의 위치는 지운 숫자와 같다")
-                checked += 1
+                ran.add("no_score_no_width")
         finally:
             httpd.shutdown()
             httpd.server_close()
@@ -385,27 +414,32 @@ def main():
         for f in fails:
             print(f"  ✗ {f}")
         return 1
-    # **손으로 더한 상수를 쓰지 않는다.** 2026-08-28 에 두 번 틀렸다 — 단언을 늘릴
-    # 때마다 이 합을 다시 계산해야 하고, 그 계산이 틀리면 검사가 자기 개수 때문에
-    # 실패한다. 소스에서 센다: 동의 루프 안의 증가는 사례마다 돌고 밖은 한 번 돈다.
-    src = Path(__file__).read_text(encoding="utf-8").splitlines()
-    in_case_loop, per_case, once = False, 0, 0
-    for line in src:
-        if "for label, records in cases.items():" in line:
-            in_case_loop = True
-        elif in_case_loop and re.match(r"^            # ── 4\.", line):
-            in_case_loop = False
-        if "checked += 1" in line and "if " not in line:
-            if in_case_loop:
-                per_case += 1
-            else:
-                once += 1
-    expected = per_case * len(cases) + once
-    if checked != expected:
-        print(f"FAIL — 검사 {checked}건인데 {expected}건이어야 한다. "
-              f"단언 하나가 실행되지 않았고, 실행되지 않은 단언은 통과가 아니다")
+    # **개수가 아니라 이름을 요구한다.** 이 가드의 두 판이 틀렸다.
+    #
+    # 1판은 손으로 더한 상수였고 단언을 늘릴 때마다 다시 계산해야 해서 두 번 틀렸다.
+    # 2판은 소스의 `checked += 1` 을 셌는데, **보호해야 할 단언과 같은 문장을 세므로
+    # 단언과 카운터를 함께 지우면 기대값도 같이 줄어든다** (codex 2026-08-30). 개수를
+    # 세는 가드는 그 경로를 막을 수 없다.
+    #
+    # 3판은 각 단언에 이름을 주고 **이름 집합**을 요구한다. 단언을 지우면 그 이름이
+    # 안 들어오고, 이 목록에서 이름을 지우는 것은 "이 단언을 더 안 한다" 는 명시적
+    # 선언이므로 diff 에서 보인다.
+    REQUIRED = {
+        "no_data_message", "no_data_names", "no_data_result_hidden", "no_data_no_band",
+        "rename_follows",
+        "case_blocked", "case_result_hidden", "case_no_booking", "case_state_wording",
+        "future_expiry_ok",
+        "consented_offered", "consented_result_shown", "consented_booking_pair",
+        "consented_no_appointment_booked", "consented_booking_caveat",
+        "no_score_hidden", "no_score_band_present", "no_score_no_width",
+    }
+    if ran != REQUIRED:
+        missing, extra = sorted(REQUIRED - ran), sorted(ran - REQUIRED)
+        print(f"FAIL — 실행되지 않은 단언: {missing or '없음'} · "
+              f"목록에 없는 단언: {extra or '없음'}. "
+              f"실행되지 않은 단언은 통과가 아니다")
         return 1
-    print(f"PASS — 검사 {checked}건. 데이터 파일이 없으면 화면도 이름도 없고, JSON 을 "
+    print(f"PASS — 단언 {len(ran)}종. 데이터 파일이 없으면 화면도 이름도 없고, JSON 을 "
           f"고치면 화면이 따라온다")
     print(f"       동의 {len(cases)}종(철회·미부여·대체된 문안·근거 없음·만료)이 촬영을 "
           f"막고 결과 영역까지 감추며, 전부 동의한 사람은 통과한다")

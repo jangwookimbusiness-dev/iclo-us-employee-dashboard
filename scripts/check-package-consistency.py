@@ -274,6 +274,76 @@ def check_member_copy(c):
           f"(렌더는 밴드 하나만 보이므로 정본에서 전부 본다)")
 
 
+def check_canon_obeys_itself(c):
+    """정본이 자기 규칙을 어기는지, 그리고 자기 경로가 실재하는지 본다.
+
+    **둘 다 2026-08-30 에 실제로 있었다.**
+
+    `kpis[].source` 가 `HRIS · 834 eligibility` 라 적고 있었고, 같은 정본의
+    `terminology.forbidden` 이 그 결합을 금지한다. 금지 규칙을 든 파일이 그 규칙을
+    어기고 있었고, 문서를 스캔하는 검사는 **정본을 스캔 대상에 넣지 않았다** — 정본은
+    검사의 기준이므로 검사 대상이 아니라고 암묵적으로 다뤄왔다.
+
+    그리고 `artifacts.dashboard.path` 가 #49 에서 지운 `index.html` 을 가리켰다.
+    `check_surfaces` 는 `surfaces` 만 읽으므로 못 봤다 — 같은 정본 안에 화면 경로를
+    적는 자리가 둘인데 하나만 검사됐다.
+
+    ponytail: 정본 전체를 금지어로 스캔하지 않는다. 금지 규칙 자체가 정본에 있으므로
+    자기를 신고한다. 값이 실려 나가는 필드만 본다.
+    """
+    doc = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
+
+    def squash(s):
+        return re.sub(r"[\s·\-–—/|,]+", "", str(s))
+
+    # ① 밖으로 나가는 값 필드가 금지 용어를 쓰는가.
+    fields, checked = [], 0
+    for k in doc["dashboard"]["kpis"]:
+        for key in ("label", "source", "definition_ko"):
+            if k.get(key):
+                fields.append((f"dashboard.kpis[{k.get('key')}].{key}", k[key]))
+    for s in doc["dashboard"]["scenarios"]:
+        fields.append((f"dashboard.scenarios[{s['key']}].label", s.get("label", "")))
+    app = doc.get("member_app", {})
+    for b in app.get("bands", []):
+        fields.append((f"member_app.bands[{b['band']}].advice", b["advice"]))
+    for key in ("disclaimer", "demo_scope"):
+        if app.get(key):
+            fields.append((f"member_app.{key}", app[key]))
+    for where, value in fields:
+        flat = squash(value)
+        for wrong, right in c["forbidden"]:
+            if squash(wrong) in flat:
+                fail("canon_self", f"정본 {where} 가 금지 용어 {wrong!r} 를 쓴다 "
+                                   f"→ {right!r}. 규칙을 든 파일이 그 규칙을 어긴다")
+        for w in c["disease"]:
+            if re.search(rf"\b{w}\w*", str(value), re.I):
+                fail("canon_self", f"정본 {where} 에 레드라인 단어 {w!r}")
+        checked += 1
+
+    # ② 정본이 적는 경로가 실재하는가. surfaces 밖도 본다.
+    paths = []
+    def walk(o, path=""):
+        if isinstance(o, dict):
+            for k, v in o.items():
+                if k in ("path", "file", "built_to", "member_path",
+                         "member_built_to") and isinstance(v, str):
+                    paths.append((f"{path}.{k}", v))
+                walk(v, f"{path}.{k}" if path else k)
+        elif isinstance(o, list):
+            for i, v in enumerate(o):
+                walk(v, f"{path}[{i}]")
+    walk(doc)
+    for where, rel in paths:
+        # build/ 는 생성물이라 빌드 전에 없다. 커밋된 것만 요구한다.
+        if rel.startswith("build/"):
+            continue
+        if not (ROOT / rel).exists():
+            fail("canon_self", f"정본 {where} 가 없는 경로를 가리킨다: {rel}")
+        checked += 1
+    print(f"정본 자기 규칙 {checked}건 — 금지 용어 없고 경로 전부 실재")
+
+
 def check_no_dangling_enforcers():
     """문서가 집행자로 드는 파일이 실재하는지 본다.
 
@@ -369,11 +439,22 @@ def check_design_records():
     # (정본 경로, 기술문서에 있어야 하는 문구) — 정본에서 문구를 꺼내므로 한 곳만 고치면
     # 이 검사가 다른 쪽을 요구한다.
     built = doc["status"]["built"]
+    # `EXPIRED` 를 전역 부분문자열로 찾던 것을 뺀다. 기술문서의 `EXPIRED` 는 전부
+    # `care_action.close_reason` 이라 **동의 설계를 다 지워도 통과했다** (codex
+    # 2026-08-30). 이 검사를 오늘 만들면서 "두 문서를 대조한다" 고 적었고 대조하는
+    # 대상이 동의와 무관한 토큰이었다.
+    #
+    # 대신 동의 모델이 요구하는 **필드 이름**을 본다. `expires_at` 은 스키마에 있어야
+    # 하고 문맥이 동의 하나뿐이라 동명 충돌이 없다.
+    cm = built["consent_model"]
     pairs = [
         ("display_name.rule", built["display_name"]["rule"]),
-        ("consent_model.states.EXPIRED",
-         "EXPIRED" if "EXPIRED" in built["consent_model"]["states"] else None),
+        ("consent_model.cmia_elements.expires_at", "expires_at"),
+        ("consent_model.cmia_elements.recipient", "recipient"),
     ]
+    if "EXPIRED" not in cm["states"]:
+        fail("design_records", "정본 consent_model.states 에 EXPIRED 가 없다 — "
+                               "이 검사가 낡았다")
     checked = 0
     for where, phrase in pairs:
         if not phrase:
@@ -874,10 +955,22 @@ def load_contract():
     dash = doc["dashboard"]
     c = {}
     c["headings"] = [tab["heading"] for tab in dash["tabs"]]
-    c["forbidden"] = re.findall(r'\{wrong:\s*"([^"]+)",\s*right:\s*"([^"]+)"', t)
+    # **파서로 읽고 빈 목록을 거부한다.** 첫 판은 flow-style 정규식이라 같은 뜻의
+    # block mapping 으로 재서식하면 목록이 비었고, 빈 목록 가드가 없어서 금지 용어
+    # 루프가 **0회 돌면서 통과**했다 (codex 2026-08-30). 레드라인 검사가 조용히
+    # 사라지는 경로였다.
+    c["forbidden"] = [(f["wrong"], f["right"])
+                      for f in doc["terminology"]["forbidden"]]
+    if not c["forbidden"]:
+        fail("contract", "정본 terminology.forbidden 이 비었다 — 금지 용어 검사가 "
+                         "0회 돌게 된다")
+
     # 이것도 파서로 읽는다. 헌 정규식은 `.*?` 와 re.S 로 그 키 **뒤 어디든** 첫
     # `[...]` 를 잡았고, 목록이 같은 줄로 올라오면(YAML 에서 흔한 편집) 아예 안 맞았다.
     c["disease"] = doc["terminology"]["disease_words_banned"]
+    if not c["disease"]:
+        fail("contract", "정본 disease_words_banned 가 비었다 — 레드라인 단어 검사가 "
+                         "0회 돌게 된다")
     # superseded 는 목록이 여러 개일 수 있다 — v10 패키지와 v11 초안이 각각 한 항목.
     # 첫 판은 `[0]` 으로 **첫 목록만** 읽었고, 그래서 두 번째 항목을 넣어도 그 문서들이
     # 계속 검사 대상이었다 (2026-08-28).
@@ -992,8 +1085,15 @@ def check_docs(c, use_pdf):
                 if before in ('"', "`", "'") and after in ('"', "`", "'"):
                     continue        # 인용
                 used = True
-            if used or (re.sub(r"\s+", "", wrong) in flat
-                        and not re.search(r'["`\']' + re.escape(wrong) + r'["`\']', raw)):
+            # **접힌 검사를 인용 하나로 끄지 않는다.** 첫 판은 문서 어딘가에 인용된
+            # 정확 문자열이 있으면 접힌 검사를 문서 **전체에서** 비활성화했다 — 인용을
+            # 한 번 두고 다른 문장에서 줄바꿈을 끼워 실제로 쓰면 통과했다 (codex
+            # 2026-08-30). 인용 면제는 **그 등장 위치**에만 적용해야 한다.
+            #
+            # 그래서 접힌 문자열은 인용된 등장을 지운 사본에서 찾는다. 인용은 그
+            # 자리에서만 면제되고 나머지 문서는 그대로 검사된다.
+            unquoted = re.sub(r'["`\']' + re.escape(wrong) + r'["`\']', " ", raw)
+            if used or re.sub(r"\s+", "", wrong) in re.sub(r"\s+", "", unquoted):
                 fail("terminology", f'{name}: 금지어 "{wrong}" → "{right}"')
 
         # 발송된 판은 저작 요건 검사에서 뺀다. 이미 상대 손에 있는 문서를 지금
@@ -1064,6 +1164,7 @@ def main():
     check_bar_contrast()
     check_design_records()
     check_no_dangling_enforcers()
+    check_canon_obeys_itself(c)
     check_docs(c, use_pdf)
 
     for label, items, mark in (("불일치", fails, "✗"), ("경고", warns, "!")):
