@@ -238,6 +238,30 @@ dashboard:
     - {key: Moderate, share: 33}
     - {key: Priority, share: 15}
 
+  departments:              # 화면 부서 차원. 2026-08-28 에 생성기 SPEC 에서 올렸다.
+    # 왜 여기로 왔나. 생성기 docstring 이 "정본에 없는 것만 SPEC 에 있다" 고 규정한다.
+    # 화면이 이 값을 읽게 되었으므로 정본이 자리다. 값은 그대로이고 출처만 옮겼다.
+    weights:
+      Operations: 0.42
+      Sales: 0.26
+      Engineering: 0.19
+      Finance: 0.08
+    # 가중치 합이 0.95 다 — 미할당 5% 를 그냥 두면 부서 합이 전사 인원과 안 맞는다.
+    # 최대잉여법으로 배분하며 그 알고리즘의 유일한 자리는
+    # scripts/generate_synthetic.py 의 split_departments 이고 빌더가 그것을 가져다 쓴다.
+    # 두 번 쓰면 두 화면이 다른 인원을 보이게 된다.
+    tiny:
+      name: Facilities (pilot site)
+      n: {A: 14, B: 8, C: 16}
+      why: |
+        절대값이고 **의도적으로 최소 셀 미만**이다. 이 부서의 존재 이유가 그것 하나다 —
+        생성기가 모르면 억제가 조용히 안 걸리고 데모 당일에 안다 (결정 13).
+        억제는 값을 가리는 것이지 부서의 존재를 숨기는 것이 아니므로 카탈로그에는 실린다.
+    # 부서를 고르면 **분모만** 바뀐다. 비율은 전사 비율이고 부서별 실측이 아니다.
+    # 화면이 그 사실을 적어야 한다 — 안 적으면 만들어낸 부서별 분포를 측정값으로
+    # 제시하는 것이 된다. A3 에서 export 가 부서별 값을 실으면 이 문구가 사라진다.
+    caveat: 부서를 고르면 분모가 바뀝니다. 비율은 전사 기준이고 부서별 실측이 아닙니다.
+
   scenarios:                # PRD §2, index.html SCEN, 기술문서 §14.4 세 곳 일치
     - {key: A, employees: 10000, pmpm: 31.4, label: baseline}
     - {key: B, employees: 2500,  pmpm: 32.8, label: small}

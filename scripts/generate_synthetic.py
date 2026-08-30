@@ -60,15 +60,8 @@ SPEC = {
     "first_month": "2023-08",           # 36개월이 정본 eligibility_thru 2026-07 에서 끝나도록
     "annual_turnover": {"A": 0.18, "B": 0.28, "C": 0.12},   # §14.2 연 12~28%, 기업별로 다름
     "dependents_weights": [0.34, 0.30, 0.22, 0.10, 0.04],   # 0~4명, 평균 1.20 → DEP_RATIO 2.2
-    "department_weights": {             # §14 에 없다. index.html DEPTS 에서 옮겼다
-        "Operations": 0.42,
-        "Sales": 0.26,
-        "Engineering": 0.19,
-        "Finance": 0.08,
-    },
-    # 절대값이고 의도적으로 최소 셀 미만이다. 이 부서의 존재 이유가 그것 하나다 —
-    # 생성기가 모르면 억제가 조용히 안 걸리고 데모 당일에 안다 (결정 5).
-    "tiny_department": {"name": "Facilities (pilot site)", "n": {"A": 14, "B": 8, "C": 16}},
+    # 부서는 2026-08-28 에 정본 dashboard.departments 로 올라갔다. 화면이 읽게 되었고,
+    # 이 파일의 규칙이 "정본에 없는 것만 SPEC 에" 다. load_contract() 가 채운다.
     # ONE_SHOT : SPORADIC : REGULAR. §14.3 이 산문으로 준 15 : 13 : 10 이고, 그것이
     # **유일한 출처**다. 정본은 이 셋의 비율을 강제하지 않는다 (§14.3, 2026-08-25 철회분).
     "participation_split": (15, 13, 10),
@@ -117,6 +110,9 @@ def load_contract():
         "closed": kpi["FRAC.closed"],
         "repeat": dash["repeat_participation"]["value"],
         "signals": {s["key"]: s["share"] for s in dash["signals"]},
+        # 2026-08-28: 부서가 SPEC 에서 정본으로 올라왔다. 화면도 이 값을 읽는다.
+        "dept_weights": dash["departments"]["weights"],
+        "dept_tiny": dash["departments"]["tiny"],
     }
 
 
@@ -149,8 +145,12 @@ def participation_mix(activated):
 
 # ── 부서 100% 분할 ──────────────────────────────────────────────────────────
 
-def department_split(headcount, tiny_n):
+def department_split(headcount, tiny_n, weights, tiny_name):
     """부서 인원을 headcount 에 **정확히** 맞춰 나눈다.
+
+    `weights` 와 `tiny_name` 은 2026-08-28 부터 인자다. 정본
+    `dashboard.departments` 가 그 값을 갖고, **빌더가 이 함수를 가져다 쓴다** —
+    최대잉여법을 두 번 쓰면 두 화면이 다른 인원을 보인다.
 
     왜 이 함수가 필요한가. `index.html` 의 가중치 합이 0.42+0.26+0.19+0.08 = 0.95 라
     5% 가 미할당이었고 (codex 7), Facilities 는 비율이 아니라 절대값이라 그냥 더하면
@@ -160,7 +160,6 @@ def department_split(headcount, tiny_n):
     Facilities 는 최소 셀 미만으로 남는다. 억제는 값을 가리는 것이지 부서의 존재를
     숨기는 것이 아니므로, 이 부서는 카탈로그에 그대로 실린다.
     """
-    weights = SPEC["department_weights"]
     total_w = sum(weights.values())
     rest = headcount - tiny_n
     if rest <= 0:
@@ -173,7 +172,7 @@ def department_split(headcount, tiny_n):
     for name in sorted(exact, key=lambda n: (-(exact[n] - alloc[n]), n))[:short]:
         alloc[name] += 1
 
-    alloc[SPEC["tiny_department"]["name"]] = tiny_n
+    alloc[tiny_name] = tiny_n
     assert sum(alloc.values()) == headcount, (alloc, headcount)
     return alloc
 
@@ -463,8 +462,10 @@ def generate_employer(key, contract, months, rng, writers, roster):
     """
     scen = contract["scenarios"][key]
     target = scen["employees"]
-    tiny_n = SPEC["tiny_department"]["n"][key]
-    depts = department_split(target, tiny_n)
+    tiny = contract["dept_tiny"]
+    tiny_n = tiny["n"][key]
+    depts = department_split(target, tiny_n,
+                            contract["dept_weights"], tiny["name"])
     mix = participation_mix(contract["activated"])
     monthly_leave = SPEC["annual_turnover"][key] / 12.0
 
@@ -727,15 +728,15 @@ def self_check():
 
     for key, scen in c["scenarios"].items():
         emp = scen["employees"]
-        tiny = SPEC["tiny_department"]["n"][key]
-        d = department_split(emp, tiny)
+        tiny = c["dept_tiny"]["n"][key]
+        d = department_split(emp, tiny, c["dept_weights"], c["dept_tiny"]["name"])
         assert sum(d.values()) == emp, (key, d)
-        assert d[SPEC["tiny_department"]["name"]] == tiny
+        assert d[c["dept_tiny"]["name"]] == tiny
         assert tiny < c["min_cell"], f"{key} tiny {tiny} 가 최소셀 미만이 아니다"
         assert all(n > 0 for n in d.values()), d
     # 반올림이 합을 깨는 홀수 규모에서도 성립하는지
     for odd in (1001, 4999, 7, 21):
-        d = department_split(odd, 3)
+        d = department_split(odd, 3, c["dept_weights"], c["dept_tiny"]["name"])
         assert sum(d.values()) == odd, (odd, d)
 
     ms = month_seq("2023-08", 36)

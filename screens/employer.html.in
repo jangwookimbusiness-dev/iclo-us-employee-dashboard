@@ -130,6 +130,15 @@
   .flag{display:inline-block;margin-left:6px;font-family:var(--mono);font-size:11px;
         color:var(--coral);border:1px solid var(--coral);border-radius:3px;padding:1px 6px}
   .withheld{color:var(--ink2);font-style:italic}
+
+  /* 부서 선택. PRD §5.4 — 44px 미만 컨트롤 금지, hover 로만 닿는 정보 금지. */
+  .depts{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+  .dept{min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:4px;
+        background:var(--panel);color:var(--ink2);font:inherit;font-size:12px;cursor:pointer}
+  .dept[aria-pressed="true"]{color:var(--ink);border-color:var(--coral);font-weight:600}
+  .dept:focus-visible{outline:2px solid var(--data);outline-offset:-2px}
+  .caveat{color:var(--ink2);font-size:12px;margin:10px 0 0;
+          border-left:3px solid var(--coral);padding-left:10px}
 </style>
 </head>
 <body>
@@ -140,7 +149,9 @@
 
 <div class="ctx"><div class="wrap"><div class="ctxrow">
   <span class="freshness" id="freshness">&mdash;</span>
+  <span class="depts" id="depts" role="group" aria-label="Department"></span>
 </div></div></div>
+<p class="caveat wrap" id="deptcaveat" hidden>&mdash;</p>
 
 <nav class="tabs wrap" id="tabs" role="tablist" aria-label="Views"></nav>
 
@@ -198,7 +209,35 @@ function paint(CANON){
   // Baseline scenario for the skeleton. Scenario switching returns with the
   // export wiring; hardcoding a picker now would be a second place to maintain.
   const scen = CANON.scenarios[0];
-  const members = Math.round(scen.employees * CANON.dep_ratio);
+
+  // Department changes the DENOMINATOR and nothing else. The fractions stay
+  // population fractions -- the canon's caveat says so on screen, because
+  // presenting a population share as a per-department measurement would be
+  // inventing a number. At A3 the export carries per-department values and the
+  // caveat goes away with it.
+  const split = (CANON.departments.find(d => d.key === scen.key) || {}).split || {};
+  const asked = new URLSearchParams(location.search).get("dept");
+  const dept = Object.prototype.hasOwnProperty.call(split, asked) ? asked : null;
+  const eligible = dept ? split[dept] : scen.employees;
+  const members = Math.round(eligible * CANON.dep_ratio);
+
+  document.getElementById("deptcaveat").textContent = CANON.dept_caveat;
+  document.getElementById("deptcaveat").hidden = !dept;
+
+  document.getElementById("depts").innerHTML =
+    [["", "All departments"]].concat(Object.keys(split).sort().map(k => [k, k]))
+      .map(([key, label]) =>
+        `<button class="dept" type="button" data-dept="${esc(key)}" ` +
+        `aria-pressed="${String(key === (dept || ""))}">${esc(label)}</button>`)
+      .join("");
+  document.getElementById("depts").addEventListener("click", e => {
+    const btn = e.target.closest(".dept[data-dept]");
+    if (!btn) return;
+    const url = new URL(location.href);
+    if (btn.dataset.dept) url.searchParams.set("dept", btn.dataset.dept);
+    else url.searchParams.delete("dept");
+    location.href = url.toString();
+  });
 
   // Value and denominator per card key. The LABEL is not here -- it comes from
   // CANON.cards, because the first draft typed all five labels into this array
@@ -212,7 +251,7 @@ function paint(CANON){
   // is the exception and it is already canon-owned -- it is a definition that
   // changed once and left the screen behind.
   const wired = {
-    eligible_employees:   [fmt(scen.employees), "funnel denominator"],
+    eligible_employees:   [fmt(eligible), "funnel denominator"],
     covered_members:      [fmt(members), "cost denominator (member-months)"],
     activated:            [pct(CANON.activated), "of eligible employees"],
     repeat_participation: [pct(CANON.repeat), CANON.repeat_denominator],
@@ -252,7 +291,7 @@ function paint(CANON){
   // in employer views. The share is a share of a population, not a person's
   // figure, which is why it is allowed and a score is not.
   document.getElementById("bands").innerHTML = CANON.signals.map(s => {
-    const people = Math.round(scen.employees * s.share / 100);
+    const people = Math.round(eligible * s.share / 100);
     const [figure, width] = cell(people, s.share / 100);
     return `<div class="bar"><div class="brow">` +
       `<span class="bname">${esc(s.key)}</span>` +
@@ -268,8 +307,12 @@ function paint(CANON){
   // Funnel. The builder refuses to emit stages that do not nest, so the order
   // here is the order the canon declares and no sorting happens on screen.
   document.getElementById("stages").innerHTML = CANON.funnel.map(st => {
-    const people = Math.round(scen.employees * st.frac);
-    const [figure, width] = cell(people, st.frac);
+    const people = Math.round(eligible * st.frac);
+    // 자격자는 분모 자신이고 기업이 이미 아는 자기 부서 인원이다. 억제가 지키는 것은
+    // 그 안의 셀이다 — 헌 `test_suppression` 도 같은 이유로 분모 라벨을 면제했다.
+    const [figure, width] = st.key === "eligible_employees"
+      ? [`${pct(st.frac)} · ${fmt(people)}`, st.frac * 100]
+      : cell(people, st.frac);
     const flag = (st.key === "closed_actions" && CANON.completed_provisional)
       ? `<span class="flag">${esc(CANON.completed_provisional_label)}</span>` : "";
     return `<div class="stage">` +

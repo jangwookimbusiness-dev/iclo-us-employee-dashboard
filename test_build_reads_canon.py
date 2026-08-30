@@ -29,6 +29,7 @@ import sys
 import tempfile
 import threading
 from pathlib import Path
+from urllib.parse import quote
 
 import yaml
 
@@ -141,6 +142,15 @@ CASES = [
     ("scenarios", "scenarios[A].pmpm",
      r"^(\s*- \{key: A, employees: \d+, pmpm: )31\.4\b", r"\g<1>77.7", None,
      "$31.40", "$77.70"),
+    # departments 는 리스트라 최상위 비교를 건너뛴다. 부서 하나의 이름을 바꾸면
+    # 버튼과 (그 부서를 고른 화면의) 분모가 함께 따라와야 한다.
+    ("departments", "departments[].tiny.name",
+     r"^(\s*name: )Facilities \(pilot site\)$", r"\g<1>변조된 부서명", None,
+     "Facilities (pilot site)", "변조된 부서명"),
+    ("dept_caveat", "dept_caveat",
+     r"^(\s*caveat: )부서를 고르면 분모가 바뀝니다\.",
+     r"\g<1>변조된 부서 단서.", None,
+     "부서를 고르면 분모가 바뀝니다.", "변조된 부서 단서"),
     ("cards", "cards[].label",
      r"^(\s*- label: )Dental PMPM \(allowed\)$", r"\g<1>변조된 카드 라벨", None,
      "Dental PMPM (allowed)", "변조된 카드 라벨"),
@@ -646,7 +656,7 @@ def main():
             min_cell = int(json.loads(
                 (tmp / "base/canon.json").read_text(encoding="utf-8"))["min_cell"])
             scenarios = yaml.safe_load(original)["dashboard"]["scenarios"]
-            parsed, walked = 0, 0
+            parsed, walked, withheld_total, caveat_checked = 0, 0, 0, 0
             for scen in scenarios:
                 mutated, n = re.subn(
                     r"^(\s*- \{key: A, employees: )10000",
@@ -659,24 +669,60 @@ def main():
                 if build(tmp / f"canon-{slug}.yml", tmp / slug).returncode != 0:
                     fails.append(f"억제 하한 {scen['key']}: 빌드 실패")
                     continue
-                for tab in ("signals", "funnel"):
+                # **부서 차원.** #49 가 잃었다고 기록한 것이고 #59 가 되돌린다.
+                # 전사(None) + 부서 전부를 걷는다. 시나리오 × 부서 × 셀 탭.
+                # **화면이 렌더하는 것은 `scenarios[0]` 이다.** 이 블록은 A 의 자격자
+                # 수를 각 시나리오 값으로 바꿔 빌드하므로, 읽어야 하는 분할도 A 의
+                # 것이다. 첫 판은 `scen["key"]` 로 읽었고 그래서 B·C 에서 화면(A 분할,
+                # tiny 14)과 기대(B 분할, tiny 8)가 어긋나 거짓 실패가 났다.
+                split = json.loads(
+                    (tmp / slug / "canon.json").read_text(encoding="utf-8")
+                )["departments"][0]["split"]
+                depts = [None] + sorted(split)
+                # 부서별 분모. 자격자 면제 판정에 쓴다.
+                eligible_of = {**split, None: scen["employees"]}
+                for dept in depts:
+                  for tab in ("signals", "funnel"):
+                    q = f"?tab={tab}" + (f"&dept={quote(dept)}" if dept else "")
                     raw, err = dump_dom(f"http://127.0.0.1:{port}/{slug}/"
-                                        f"employer.html?tab={tab}")
+                                        f"employer.html{q}")
+                    where = f"{scen['key']}/{dept or '전사'}/{tab}"
                     if err:
-                        fails.append(f"억제 하한 {scen['key']}/{tab}: 렌더 실패 — {err}")
+                        fails.append(f"억제 하한 {where}: 렌더 실패 — {err}")
                         continue
                     walked += 1
                     panel = re.search(
                         rf'<section id="panel-{tab}"[^>]*>(.*?)</section>',
                         visible(raw), re.S)
                     if not panel:
-                        fails.append(f"억제 하한 {scen['key']}/{tab}: 패널이 없다")
+                        fails.append(f"억제 하한 {where}: 패널이 없다")
                         continue
+                    body = panel.group(1)
+                    withheld_here = body.count("withheld (n &lt; 20)")
+                    withheld_total += withheld_here
+
+                    # **부서를 고른 화면에는 단서가 보여야 하고 전사 화면에는 안 보여야
+                    # 한다.** 비율이 전사 기준이라는 사실을 안 적으면, 만들어낸 부서별
+                    # 분포를 측정값으로 제시하는 것이 된다. 2026-08-28 에 단서를 영구
+                    # 감추는 고장을 심었더니 통과했다 — 그때 없던 단언이 이것이다.
+                    m = re.search(r'<p class="caveat[^"]*" id="deptcaveat"([^>]*)>',
+                                  visible(raw))
+                    if not m:
+                        fails.append(f"부서 단서 {where}: deptcaveat 요소가 DOM 에 없다")
+                    else:
+                        hidden = "hidden" in m.group(1)
+                        if bool(dept) == hidden:
+                            fails.append(
+                                f"부서 단서 {where}: 부서를 "
+                                f"{'골랐는데 단서가 감춰져' if dept else '안 골랐는데 단서가 드러나'} "
+                                f"있다 — 비율이 전사 기준이라는 사실을 안 적으면 "
+                                f"만들어낸 부서별 분포를 측정값으로 제시하는 것이 된다")
+                        caveat_checked += 1
                     # 화면에 실제로 뜬 인원. `1,234` 꼴만 센다 — 비율(`38%`)과
                     # 금액(`$31.40`)은 사람 수가 아니므로 문턱의 대상이 아니다.
                     for figure in re.findall(
                             r'<div class="(?:bval|snum)"[^>]*>(.*?)</div>',
-                            panel.group(1), re.S):
+                            body, re.S):
                         if "withheld" in figure:
                             continue
                         m = re.search(r"·\s*([\d,]+)\s*$", figure.strip())
@@ -684,22 +730,32 @@ def main():
                             continue
                         parsed += 1
                         value = int(m.group(1).replace(",", ""))
-                        # 자격자는 분모 자신이고 기업이 이미 아는 자기 인원수다.
+                        # 자격자는 분모 자신이고 기업이 이미 아는 자기 부서 인원이다.
                         # 헌 검사도 같은 이유로 분모 라벨을 면제했다.
-                        if tab == "funnel" and value == scen["employees"]:
+                        if tab == "funnel" and value == eligible_of[dept]:
                             continue
                         if value < min_cell:
                             fails.append(
-                                f"억제 하한 {scen['key']}/{tab}: 화면에 {value} 가 "
-                                f"떴다 (문턱 {min_cell}) — 억제되지 않았다")
+                                f"억제 하한 {where}: 화면에 {value} 가 떴다 "
+                                f"(문턱 {min_cell}) — 억제되지 않았다")
             # `seen` 이 증가만 하고 아무 데도 안 쓰이던 것이 헌 검사의 결함이었다.
             # 0이면 렌더가 비었거나 DOM 구조가 바뀐 것이고, 그것은 '위반 없음' 이 아니다.
+            # **억제가 실제로 일어난 자리가 있어야 한다.** 시나리오 B 의 Finance(210명)
+            # 는 완료 조치가 9명이라 문턱 아래다. 하나도 안 걸리면 이 검사가 억제를
+            # 확인한 것이 아니라 억제할 것이 없는 상태만 걸은 것이다.
+            if walked and withheld_total == 0:
+                fails.append(
+                    f"억제 하한: {walked}상태를 걸었는데 억제된 셀이 하나도 없다 — "
+                    f"작은 부서에서 문턱 아래 값이 나와야 하고, 안 나오면 부서 분모가 "
+                    f"안 적용되고 있다")
             if walked and parsed < walked:
                 fails.append(f"억제 하한: {walked}상태를 걸었는데 파싱한 값이 "
                              f"{parsed}개다 (상태당 1개 미만). 일부 상태가 "
                              f"렌더되지 않았고, 안 읽은 화면은 통과가 아니다")
             checked += 1
             floor_walked, floor_parsed = walked, parsed
+            floor_withheld = withheld_total
+            floor_caveat = caveat_checked
 
             # 임직원 화면. 같은 빌더, 다른 계약 파일과 다른 화면.
             member_staged = set(json.loads(
@@ -810,9 +866,10 @@ def main():
     print(f"       탭 {len(tabs)}개가 각각 자기 패널만 드러내고 모르는 ?tab= 은 첫 "
           f"탭으로 떨어진다. 자격자를 100명으로 낮추면 문턱 아래 셀이 인원·비율·"
           f"막대를 함께 감춘다")
-    print(f"       시나리오 {len(scenarios)}개 × 셀 탭 2개 = {floor_walked}상태에서 "
-          f"화면에 뜬 인원 {floor_parsed}개가 전부 문턱 위다 (test_suppression 에서 "
-          f"옮겨온 단언. 부서 차원은 ?dept= 와 함께 돌아온다)")
+    print(f"       시나리오 {len(scenarios)} × (전사+부서) × 셀 탭 2 = {floor_walked}상태. "
+          f"화면에 뜬 인원 {floor_parsed}개가 전부 문턱 위이고 문턱 아래 {floor_withheld}개가 "
+          f"억제됐다 (#49 가 잃었다고 적은 부서 차원을 #59 가 되돌렸다). "
+          f"부서 단서 노출을 {floor_caveat}회 확인했다")
     print(f"       임직원 화면은 계약 키 {len(MEMBER_CASES)}건을 별 파일로 받는다 — "
           f"밴드 경계를 흔들면 같은 점수가 다른 밴드로 옮겨가고, 방향 문턱을 올리면 "
           f"같은 차이가 '비슷하다' 가 된다")
