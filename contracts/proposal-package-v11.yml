@@ -20,10 +20,16 @@ meta:
 # ─────────────────────────────────────────────────────────────
 artifacts:
   dashboard:
-    path: index.html
-    kind: 배포된 데모
+    # 2026-08-30 정정. `path: index.html` 이라 적고 있었고 그 파일은 #49 에서 지웠다.
+    # surfaces 블록은 #49 에서 고쳤는데 **이 블록을 안 고쳤다** — 같은 정본 안에서
+    # 지운 화면과 현행 템플릿을 동시에 배포 화면으로 선언하고 있었다.
+    path: screens/employer.html.in
+    built_to: build/employer.html
+    member_path: screens/member.html.in
+    member_built_to: build/member.html
+    kind: 정본에서 빌드하는 화면. 생성물은 추적하지 않는다
     spec: employer-dashboard-poc/docs/PRD.md
-    note: 코드는 루트, 스펙은 옆 폴더. index.html 에서 PRD 를 가리키는 것이 없으므로 반드시 함께 연다.
+    note: 템플릿은 screens/, 스펙은 옆 폴더, 값은 정본. 셋을 함께 연다.
   tech:
     path: output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md
     kind: 기술 주장의 정본
@@ -94,7 +100,10 @@ dashboard:
       key: eligible_employees
       const: null
       definition_ko: 기준 시점에 플랜 자격이 있는 임직원 수
-      source: HRIS · 834 eligibility
+      # 2026-08-30 정정. `HRIS · 834 eligibility` 라 적고 있었고, 같은 정본의
+      # terminology.forbidden 이 그 결합을 금지한다 — 834 를 인사 시스템이 직접
+      # 뱉는 것이 아니다. 정본이 자기 규칙을 어기고 있었다.
+      source: 기업 또는 benefits administrator · X12 834 자격 파일
     - label: Activated (registered + first questionnaire)
       key: activated
       const: FRAC.activated
@@ -857,10 +866,10 @@ decided:
       으로 옮겼고 부서 차원은 잃었다 — 새 화면에 부서 필터가 없고, ?dept= 가 돌아올 때
       함께 돌아온다.
       남은 것: 치환 값은 스타일시트가 선언한 값까지 보고 계산된 색·높이는 안 본다.
-      ?scen=·?dept=·?lens= 는 아직 없다 (시나리오는 export 배선 대기, 부서는 정본 계약과
-      화면 필터가 없다 — 2026-08-28 정정: 데이터는 생성기 SPEC 에 있다. 부서 넷과
-      tiny_department n=14/8/16 이며 그 작은 부서의 존재 이유가 억제를 화면으로 끌어내는
-      것이다). 제안서 PNG 12장은 얼어붙은 자산이고 재생성 대상이 아니다 —
+      ?dept= 는 2026-08-30 (#59) 에 섰다 — 정본 dashboard.departments 와 화면 필터가 있고
+      test_build_reads_canon 이 시나리오 3 × (전사+부서) × 셀 탭 2 = 36상태를 걷는다.
+      ?scen=·?lens= 는 아직 없다 (시나리오는 export 배선 대기). 제안서 PNG 12장은 얼어붙은
+      자산이고 재생성 대상이 아니다 —
       proposal_v12 의 sources 글롭이 손 수정을 막는다.
       A3/A2 측정값의 export 변조→렌더 경계는 #8~#10 에서 PROJECT_PHASE 전환과 함께 필수화한다.
     rejected: |

@@ -705,6 +705,13 @@ CREATE TABLE canonical.consent (
   party_sk         NUMBER      NOT NULL,   -- 동의의 대상이 되는 사람
   consent_type     VARCHAR     NOT NULL,   -- DATA_PROCESSING | PHOTO | CLAIMS_LINKAGE
   consent_version  VARCHAR     NOT NULL,
+  -- CMIA §56.11 형식 요건 (2026-08-28, #62). 착수 게이트 state_health_privacy(16-23)가
+  -- 요구하고, 5.4절이 이미 "목적별 활성 버전·유효기간" 을 필요한 것으로 적고 있었다.
+  -- 2026-08-30 정정: 정본이 이 셋을 선언하는데 이 스키마에 없었다 — 백엔드 설계자가
+  -- 형식 필드를 저장할 수 없는 스키마를 현행으로 구현하게 되는 상태였다.
+  use_description  VARCHAR,                -- §56.11(d) 구체적 용도. consent_type 은 분류다
+  recipient        VARCHAR,                -- §56.11(e) 수령자. **기업을 적지 않는다**
+  expires_at       TIMESTAMP_NTZ,          -- §56.11(f) 만료. NULL = 만료 없음
   granted_at       TIMESTAMP_NTZ NOT NULL,
   revoked_at       TIMESTAMP_NTZ,
   -- 4절. 누가 어떤 자격으로 동의했는지가 대상과 다를 수 있다.
@@ -820,7 +827,7 @@ CREATE TABLE canonical.oral_signal (
 - **소급 무효를 표현할 수 없습니다.** 보호자라고 주장한 사람의 권한이 나중에 없었던 것으로 확인되면 `revoked_at`으로는 "처음부터 무효"를 나타낼 수 없고, 이미 만들어진 신호·집계를 어떻게 할지도 정의되지 않았습니다.
 - **철회 효력의 범위가 모호합니다.** 5.3절과 13.5절 모두 "이후 집계에서 제외"라고 하는데, **이미 배포된 보고서**와 **이미 생성된 추론 결과**를 재작성하는지 그대로 두는지는 어디에도 없습니다. 감사에서 같은 질문에 두 번 다른 답을 하게 됩니다.
 
-필요한 것: 목적별 활성 버전·유효기간, 요청 시점 동의 검증, `VOID_AB_INITIO` 상태와 파생 데이터 격리 워크플로, 그리고 철회 효력을 한 문장으로 확정.
+필요한 것: ~~목적별 활성 버전·유효기간~~ (2026-08-28 스키마에 `use_description`·`recipient`·`expires_at` 추가, 화면 평가에 `EXPIRED`·`MALFORMED` 상태 추가 — 다만 **법적 충분성은 16-23 이 열어둔 채**이고 이 필드들이 하는 일은 모델이 준수를 불가능하게 만들지 않는 것이다), 요청 시점 동의 검증, `VOID_AB_INITIO` 상태와 파생 데이터 격리 워크플로, 그리고 철회 효력을 한 문장으로 확정.
 
 ### 5.5 오프라인 촬영과 철회의 시점 경쟁
 

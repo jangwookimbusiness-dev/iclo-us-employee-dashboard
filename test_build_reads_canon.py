@@ -273,6 +273,20 @@ def serve(directory):
     return httpd, httpd.server_address[1]
 
 
+def shown(dom):
+    """`visible()` 에 더해 `hidden` 절까지 걷는다. **화면에 실제로 보이는 것.**
+
+    `visible()` 은 script·style·주석만 걷으므로 `hidden` 패널의 내용이 남는다. 그래서
+    "카드가 있다" 단언이 **전 패널이 감춰진 빈 화면을 통과시킬 수 있었다** (codex
+    2026-08-30). 존재를 단언하는 자리는 이것을 쓴다.
+
+    부재를 단언하는 자리는 `visible()` 을 쓴다 — 감춰진 자리에 금지어가 있는 것도
+    위반이고, 감추기만 하면 통과하게 두면 안 된다.
+    """
+    return re.sub(r"(?is)<section[^>]*\bhidden\b[^>]*>.*?</section\s*>", "",
+                  visible(dom))
+
+
 def visible(dom):
     """`<script>`·`<style>`·HTML 주석을 걷어낸다.
 
@@ -399,8 +413,13 @@ def main():
         # 치환 자리도 같은 규칙을 받는다. 권위는 템플릿이다 — 빌더는 남은 자리를
         # 거부하므로 템플릿의 `{{...}}` 집합이 곧 치환되는 값의 전부다. 케이스가
         # 없는 자리가 있으면 정본에서 색을 바꿔도 산출물 도달을 아무도 안 본다.
-        holes = set(re.findall(r"\{\{(\w+)\}\}",
-                              TEMPLATE.read_text(encoding="utf-8")))
+        # **두 템플릿을 합쳐 본다.** 첫 판은 employer 만 읽어서, member 템플릿의
+        # `{{bar_low}}` 를 리터럴로 바꿔도 employer 쪽 변조가 따라 움직여 통과했다
+        # (codex 2026-08-30). 같은 치환 값을 두 화면이 쓴다.
+        holes = set()
+        for tpl in (TEMPLATE, ROOT / "screens/member.html.in"):
+            holes |= set(re.findall(r"\{\{(\w+)\}\}",
+                                    tpl.read_text(encoding="utf-8")))
         styled = {s[0] for s in STYLE_CASES}
         if holes != styled:
             print(f"FAIL — 템플릿 치환 자리와 STYLE_CASES 가 어긋난다. "
@@ -418,7 +437,7 @@ def main():
                 print(f"FAIL — 기준선 렌더 실패: {err}")
                 return 1
             base_dom = visible(dom)
-            if 'class="card"' not in base_dom:
+            if 'class="card"' not in shown(dom):
                 print("FAIL — 기준선 DOM 에 카드가 없다. fetch 가 실패했거나 화면이 "
                       "아무것도 그리지 않았다 — '위반 없음' 이 아니다")
                 return 1
@@ -552,17 +571,26 @@ def main():
                 f"http://127.0.0.1:{port}/base/employer.html?tab=nope")
             if err:
                 fails.append(f"tab:fallback: 렌더 실패 — {err}")
-            elif 'class="card"' not in visible(raw):
+            elif 'class="card"' not in shown(raw):
                 fails.append("tab:fallback: 모르는 ?tab= 에 빈 화면이 나왔다 — "
-                             "첫 탭으로 떨어져야 한다")
+                             "첫 탭으로 떨어져야 한다. hidden 패널의 카드는 안 센다")
             checked += 1
 
             # 컨트롤 크기. PRD §5.4 는 44px 미만 컨트롤을 금지한다. 계산된 높이는
             # `--dump-dom` 이 안 주므로 **선언**을 본다. 색 검사와 같은 한계이고
             # 같은 이유로 여기서 멈춘다 — 없는 검사보다 낫고, 약한 척하지 않는다.
-            if not re.search(r"\.tab\{[^}]*min-height:\s*44px", base_html):
-                fails.append("컨트롤 크기: `.tab` 에 min-height:44px 선언이 없다 "
-                             "(PRD §5.4 — 44px 미만 컨트롤 금지)")
+            # 선택자 뒤 공백과 rem 을 허용하고 **값의 하한**을 본다. 첫 판은
+            # `.tab{` 철자만 맞아서 의미가 같은 `.tab {` 이 실패했다 — 오탐이 나는
+            # 검사는 곧 꺼진다 (codex 2026-08-30).
+            SIZE = r"\.(?:tab|act|dept|subject)\s*\{[^}]*min-height:\s*(\d+)(px|rem)"
+            sizes = [(int(n), u) for n, u in re.findall(SIZE, base_html)]
+            px = [n if u == "px" else n * 16 for n, u in sizes]
+            if not px:
+                fails.append("컨트롤 크기: min-height 선언을 못 찾았다 "
+                             "(PRD §5.4). 이 검사가 낡았다")
+            elif min(px) < 44:
+                fails.append(f"컨트롤 크기: min-height {min(px)}px 인 컨트롤이 있다 "
+                             f"(PRD §5.4 — 44px 미만 금지)")
             checked += 1
 
             # **최소 셀.** 자격자를 100명으로 낮추면 Priority 밴드가 15명,
@@ -772,6 +800,32 @@ def main():
             member_staged = set(json.loads(
                 (tmp / "base/member-canon.json").read_text(encoding="utf-8")))
             member_covered = {c[0] for c in MEMBER_CASES}
+            # **중첩 필드까지 센다.** 첫 판은 최상위 키만 비교했고, `booking` 이
+            # 두 항목 × 세 필드인데 케이스는 handoff 의 둘뿐이었다 — `self_reported`
+            # 를 리터럴로 바꿔도 통과했다 (codex 2026-08-30).
+            member_blob = json.loads(
+                (tmp / "base/member-canon.json").read_text(encoding="utf-8"))
+            leaves = set()
+            def walk(o, path=""):
+                if isinstance(o, dict):
+                    for k, v in o.items():
+                        walk(v, f"{path}.{k}" if path else k)
+                elif isinstance(o, list):
+                    for i, v in enumerate(o):
+                        walk(v, f"{path}[{i}]")
+                elif isinstance(o, str) and len(o) > 3:
+                    leaves.add(path)
+            walk(member_blob)
+            # 케이스가 라벨에 적은 경로로 덮인 것을 뺀다. 라벨은 사람이 읽는 이름이고
+            # 정확한 JSON 경로가 아니므로, **최상위 키 + 그 아래 남은 문자열 잎의 수**로
+            # 근사한다. 근사임을 적는다 — 정확한 경로 대조는 케이스 라벨을 JSON 경로로
+            # 바꿔야 하고 그건 이 검사를 다시 쓰는 일이다.
+            covered_leaves = {l for l in leaves
+                              if l.split(".")[0].split("[")[0] in member_covered}
+            uncovered = sorted(leaves - covered_leaves)
+            if uncovered:
+                fails.append(f"member-canon.json 의 문자열 값 중 어느 케이스도 덮지 "
+                             f"않는 최상위 키: {uncovered}")
             if member_staged != member_covered:
                 fails.append(
                     f"member-canon.json 과 MEMBER_CASES 가 어긋난다. 케이스 없는 "
@@ -846,18 +900,39 @@ def main():
                                  f"{(r.stdout + r.stderr).strip()[:150]}")
                     continue
 
-                built = (tmp / slug / "employer.html").read_text(encoding="utf-8")
+                # **두 화면을 합쳐 본다.** 그리고 첫 판은 "새 값이 어디엔가 있다" 만
+                # 봐서 Low·Moderate 색 매핑을 맞바꾸면 두 변조가 모두 통과했다
+                # (codex 2026-08-30) — 이제 옛 값 **개수**가 정확히 줄었는지도 본다.
+                built = "\n".join(
+                    (tmp / slug / f).read_text(encoding="utf-8")
+                    for f in ("employer.html", "member.html"))
                 if new not in built:
                     fails.append(f"style:{name}: 정본을 {new!r} 로 고쳤는데 산출물에 "
                                  f"없다. 빌더가 이 자리를 정본에서 안 읽는다")
                 checked += 1
                 # 개수 비교. 같은 색이 정본에 둘씩 있어서 (coral 과 bars.Priority)
                 # 부재를 요구하면 거짓 실패가 된다. 줄어들지 않는 것이 진짜 고장이다.
-                was, now = base_html.count(old), built.count(old)
-                if now >= was:
-                    fails.append(f"style:{name}: 정본을 고쳤는데 산출물의 옛 값 "
-                                 f"{old!r} 개수가 {was}→{now} 다. 줄지 않았으므로 "
-                                 f"템플릿이 그 값을 손으로 품고 있다")
+                # **정본에 남은 만큼만 산출물에 있어야 한다.** 감소만 요구하면
+                # **부분 전파**를 놓친다 — member 템플릿이 색을 리터럴로 품고 있어도
+                # employer 쪽이 따라 움직여 개수가 줄고 통과했다 (2026-08-30 실측).
+                #
+                # 옛 값이 변조된 정본에 몇 번 남았는지 세고, 산출물이 그보다 많으면
+                # 그 초과분이 템플릿의 하드코딩이다. 교체(swap)도 같은 식으로 걸린다.
+                # 정본 값 하나가 템플릿 자리 여럿을 채운다 — `#C2333A` 는 `coral` 과
+                # `bars.Priority` 둘이고, `{{bar_priority}}` 는 두 템플릿에 각각 있다.
+                # 그래서 **여전히 옛 값인 치환 키들의 자리 수 합**이 기대값이다.
+                # 첫 판은 정본 잔존 수를 상한으로 써서 기준선이 실패했다.
+                import build_screens as _bs
+                still = {k for k, v in _bs.load_style(mcanon).items() if str(v) == old}
+                expected_n = sum(
+                    tpl.read_text(encoding="utf-8").count("{{" + k + "}}")
+                    for k in still
+                    for tpl in (TEMPLATE, ROOT / "screens/member.html.in"))
+                now = built.count(old)
+                if now > expected_n:
+                    fails.append(f"style:{name}: 옛 값 {old!r} 을 채워야 하는 치환 자리가 "
+                                 f"{expected_n}개인데 산출물에는 {now}번 있다. 초과분은 "
+                                 f"템플릿이 손으로 품은 값이다 (부분 전파·교체)")
                 checked += 1
         finally:
             httpd.shutdown()
