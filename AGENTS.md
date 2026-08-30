@@ -28,6 +28,17 @@ metric twice with different denominators; a withdrawal edited the prose and left
 the code; a consistency check scanned one of the two documents it was meant to
 reconcile. A check that reads one document cannot see two documents disagree.
 
+**Deleting a file is not done until the documents naming it are fixed.** Count the
+deleted name with `grep -rn` and, where a document names it as enforcement, write
+where that rule is actually enforced now. The PRD's red-line table named two
+deleted checks as the enforcement for minimum-cell suppression and single-source
+propagation, so a regulatory reader would have concluded those rules were protected
+by files that no longer existed. The protection had moved; the document had not.
+This is not covered by counting where a value is written — the stale thing was a
+filename, and the moment to count was the deletion, not an assertion.
+`check_no_dangling_enforcers` now enforces the backticked cases; prose is still on
+you.
+
 **Before starting work, look at open pull requests and the issue that owns it.**
 Run `gh pr list` and read the issue's scope line. This repository is worked by
 more than one agent at a time, in separate worktrees, and two of them collided
