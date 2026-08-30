@@ -292,8 +292,23 @@ def render(template, style):
     템플릿에 자리를 늘렸는데 `load_style` 에 안 넣은 경우가 그것이다.
     """
     html = template.read_text(encoding="utf-8")
+    # **치환 값을 검증한다.** 첫 판은 `str(value)` 를 그대로 넣었고, 정본 제목에
+    # `</title><img src=x onerror=...>` 를 두면 실행 가능한 태그가 산출물에 생겼다.
+    # 정본은 우리가 쓰지만 A3 에서 이 자리가 테넌트 export 로 바뀌므로, 그때
+    # 검증을 넣는 것은 늦다 — 지금 경계를 세운다.
+    #
+    # 색은 형태를 강제하고(hex 만), 텍스트는 HTML 특수문자를 거부한다. 이스케이프가
+    # 아니라 **거부**인 이유는 이 값들이 사람이 정본에 적는 것이고, `&lt;` 로 조용히
+    # 바뀌어 화면에 나가는 것보다 빌드가 죽는 것이 낫다는 것이다.
     for name, value in style.items():
-        html = html.replace("{{" + name + "}}", str(value))
+        s = str(value)
+        if name.startswith(("coral", "navy", "teal", "background", "bar_")):
+            if not re.fullmatch(r"#[0-9A-Fa-f]{6}", s):
+                sys.exit(f"build_screens: 치환 값 {name} 이 hex 색이 아니다: {s!r}")
+        elif re.search(r"[<>\"'&]", s):
+            sys.exit(f"build_screens: 치환 값 {name} 에 HTML 특수문자가 있다: {s!r} — "
+                     f"이 값은 마크업 안으로 그대로 들어간다")
+        html = html.replace("{{" + name + "}}", s)
     left = sorted(set(re.findall(r"\{\{(\w+)\}\}", html)))
     if left:
         sys.exit(f"build_screens: {template.name} 의 치환 자리가 남았다 "
