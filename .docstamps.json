@@ -1,9 +1,9 @@
 {
  "customer_analysis": {
-  "artifact": "4a2e66587f64fafdeec2ef34da6c3381731b98b8953a9b0a7616f16ad89c65b1",
-  "pages": 11,
+  "artifact": "07c5e41b0b51d7319fb4bb5fe7cd1e4303bb6ccefe365dab58471e9bd055acea",
+  "pages": 12,
   "sources": {
-   "output/analysis/고객-비용-이익-분석-KO.md": "aeba4afde33795d0d5d400665fba73b2637fdbf1fd377f7b9a9d73396ec64727"
+   "output/analysis/고객-비용-이익-분석-KO.md": "84cd97e263947c2cc5ffe17dc9f432c8b2e429d06a8d58092ce73a17d3f5a6d0"
   }
  },
  "proposal_v12": {
@@ -40,11 +40,11 @@
    "output/status/STATUS-2026-08-16.md": "cb4c7f0f51620078ad385e8033078bf1796e7097c8205dfb7c28dd79f4ad5113"
   }
  },
- "status_2026_08_27": {
-  "artifact": "81b9b70025b31818cfd18a0f0833d78792c080fb2458ea752d3ce02505caf7e6",
-  "pages": 13,
+ "status_2026_08_31": {
+  "artifact": "6db9277f8cf275fdcca147418d74df9d26c89c07ca3ce13f4dbdb490f89332f7",
+  "pages": 14,
   "sources": {
-   "output/status/STATUS-2026-08-27.md": "ae58fc566e288b25bb76eed6b3e2d1f9a14ff10412c4cafe0ca5ecb50bac5b60"
+   "output/status/STATUS-2026-08-31.md": "796dc1bd1c22d652de24debb782a58af5661d3dcec70c85c6da7723e0fe405c9"
   }
  },
  "tech": {

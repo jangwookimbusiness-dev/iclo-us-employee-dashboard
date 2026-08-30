@@ -68,11 +68,11 @@
       ]
     },
     {
-      "name": "status_2026_08_27",
+      "name": "status_2026_08_31",
       "sources": [
-        "output/status/STATUS-2026-08-27.md"
+        "output/status/STATUS-2026-08-31.md"
       ],
-      "out": "output/status/STATUS-2026-08-27.pdf",
+      "out": "output/status/STATUS-2026-08-31.pdf",
       "flags": [
         "--cover",
         "--toc"
