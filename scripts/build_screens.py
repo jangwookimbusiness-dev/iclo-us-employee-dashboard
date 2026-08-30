@@ -248,8 +248,23 @@ def load_member_canon(path):
                  f"내림차순이 아니다 — 위에서 아래로 첫 min 이상을 쓰므로 "
                  f"순서가 뒤집히면 첫 밴드가 전부를 받는다")
 
+    bk = app["booking"]
+    if bk["confirmed_available"]:
+        # 셋째 단계가 생기면 화면 문구와 이벤트가 함께 바뀌어야 한다. 값만 바꾸고
+        # 화면을 안 고치면 자가 보고가 확인된 예약으로 읽히기 시작한다.
+        sys.exit("build_screens: booking.confirmed_available 가 true 다 — "
+                 "APPOINTMENT_BOOKED 를 쓰려면 화면 문구와 이벤트 발행을 함께 "
+                 "고쳐야 한다 (기술문서 §5)")
+
     return {
         "bands": bands,
+        # 예약 넘김 둘. 라벨·이벤트명·무엇을 아는지가 전부 정본 것이다.
+        "booking": [
+            {"key": k, "label": bk[k]["label"], "event": bk[k]["event"],
+             "knows": " ".join(bk[k]["knows"].split())}
+            for k in ("handoff", "self_reported")
+        ],
+        "booking_caveat": " ".join(bk["caveat"].split()),
         "direction": {k: app["direction"][k]
                       for k in ("step", "better", "worse", "same")},
         "disclaimer": " ".join(app["disclaimer"].split()),

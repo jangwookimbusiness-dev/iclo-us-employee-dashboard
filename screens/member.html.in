@@ -84,6 +84,16 @@
   .note{margin-top:20px;padding:12px 14px;border:1px solid var(--line);
         border-radius:6px;color:var(--ink2);font-size:13px}
   .demo{font-family:var(--mono);font-size:12px}
+  .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  /* PRD §5.4 — 44px 미만 컨트롤 금지. */
+  .act{min-height:44px;flex:1 1 46%;padding:0 14px;border:1px solid var(--line);
+       border-radius:6px;background:var(--panel);color:var(--ink);font:inherit;
+       font-size:14px;cursor:pointer}
+  .act:focus-visible{outline:2px solid var(--data);outline-offset:-2px}
+  .act[aria-pressed="true"]{border-color:var(--data);font-weight:600}
+  .knows{display:block;font-size:11px;color:var(--ink2);margin-top:3px;font-weight:400}
+  .bookcav{color:var(--ink2);font-size:12px;margin:10px 0 0;
+           border-left:3px solid var(--line);padding-left:10px}
   footer{border-top:1px solid var(--line);color:var(--ink2);font-size:12px;
          padding:14px 0;margin-top:24px}
 </style>
@@ -104,6 +114,15 @@
     <p class="advice" id="advice">&mdash;</p>
     <p class="disclaim" id="disclaimer">&mdash;</p>
     <p class="when" id="when"></p>
+
+    <!--
+      Booking. Two actions, never one "booking rate" — §1.1 warns that collapsing
+      them reports repeated clicks as employer outcome, and §5 splits the event
+      type for exactly that reason. The third stage, APPOINTMENT_BOOKED, needs a
+      booking layer; the word "booked" belongs to it and is not used here.
+    -->
+    <div class="acts" id="booking"></div>
+    <p class="bookcav" id="bookcaveat">&mdash;</p>
   </section>
 
   <p class="note">
@@ -243,6 +262,7 @@ function paint(CANON, DATA){
         : "First check-in — nothing to compare yet";
       document.getElementById("advice").textContent = b.advice;
       document.getElementById("when").textContent = "Check-in on " + now.on;
+      paintBooking(CANON, p);
       result.hidden = false;
     }
     for (const btn of document.querySelectorAll(".subject[data-id]")) {
@@ -252,6 +272,38 @@ function paint(CANON, DATA){
     url.searchParams.set("who", id);
     history.replaceState(null, "", url);
   }
+
+  // 이벤트는 사람별로 다시 그린다 — 어느 프로필의 넘김인지가 이벤트에 실려야 한다.
+  function paintBooking(CANON, person){
+    document.getElementById("bookcaveat").textContent = CANON.booking_caveat;
+    document.getElementById("booking").innerHTML = CANON.booking.map(b =>
+      `<button class="act" type="button" data-event="${esc(b.event)}" ` +
+      `aria-pressed="false">${esc(b.label)}` +
+      `<span class="knows">${esc(b.knows)}</span></button>`).join("");
+  }
+
+  // 이벤트 발행. 백엔드가 없으므로 지금은 콘솔과 화면 상태까지다 — 화면이 두 행동을
+  // 구분해 내보낸다는 것을 여기서 고정하고, A3 에서 이 자리가 API 호출이 된다.
+  //
+  // **동의가 촬영을 막은 프로필은 예약 이벤트도 못 만든다.** 밴드를 못 보는 사람에게
+  // 예약을 권하는 것은 하지 말라고 한 처리의 결과를 쓰는 것이다.
+  document.getElementById("booking").addEventListener("click", e => {
+    const btn = e.target.closest(".act[data-event]");
+    if (!btn) return;
+    const id = new URLSearchParams(location.search).get("who");
+    const person = people.find(x => x.id === id) || first;
+    if (!person || captureBlock(person, policy)) return;
+    btn.setAttribute("aria-pressed", "true");
+    console.log("[app_event]", JSON.stringify({
+      event_type: btn.dataset.event,
+      party_id: person.id,
+      // §4.3 미해결 항목 — 어느 기업 맥락에서 행동했는지가 계정에 없으므로
+      // 그 시점의 자격 구간을 함께 기록해야 한다. 데모에는 값이 없어 null 이다.
+      eligibility_span_sk: null,
+      // §4.5 — 행위 계정과 대상을 따로 남긴다. 데모는 계정이 하나다.
+      acted_by: "demo-credential",
+    }));
+  });
 
   document.getElementById("who").addEventListener("click", e => {
     const btn = e.target.closest(".subject[data-id]");
