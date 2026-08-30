@@ -169,26 +169,41 @@ function consentRecord(person, purpose){
   return rs.length ? rs[rs.length - 1] : null;
 }
 
-function consentState(person, purpose, policy){
+// Five states, and the order of the checks is the order of severity. Withdrawn
+// first: the person said stop, and that outranks every other reason.
+//
+// EXPIRED is separate from WITHDRAWN and STALE on purpose. They mean different
+// things to the person and to a lawyer — withdrawn is them stopping, stale is us
+// changing the text, expired is nobody doing anything and time passing. Collapsing
+// them makes it impossible to write the right re-consent prompt.
+//
+// CMIA §56.11(f) is why expiry exists at all; the canon records which subsection
+// each field answers.
+function consentState(person, purpose, policy, now){
   const r = consentRecord(person, purpose);
   if (!r) return "NEVER";
   if (!r.granted) return "WITHDRAWN";
-  return r.policy_version === policy ? "ACTIVE" : "STALE";
+  if (r.policy_version !== policy) return "STALE";
+  // No expires_at means no expiry on that record. Absence is not expiry — reading
+  // it as expired would block every consent given before the field existed.
+  if (r.expires_at && new Date(r.expires_at) <= now) return "EXPIRED";
+  return "ACTIVE";
 }
 
 const CONSENT_COPY = {
   ACTIVE:    "in force",
   WITHDRAWN: "withdrawn",
   STALE:     "needs re-consent",
+  EXPIRED:   "expired",
   NEVER:     "not given",
 };
 
 // A capture needs BOTH: the processing basis and the photo permission. Photo
 // consent resting on a withdrawn processing basis is not consent -- that case
 // passes any check that looks at one purpose only.
-function captureBlock(person, policy){
+function captureBlock(person, policy, now){
   for (const purpose of ["processing", "photo"]) {
-    const st = consentState(person, purpose, policy);
+    const st = consentState(person, purpose, policy, now);
     if (st !== "ACTIVE") {
       const what = purpose === "processing"
         ? "Data processing consent" : "Photo capture and analysis";
@@ -229,9 +244,12 @@ function paint(CANON, DATA){
   // "employee agrees for the family" shortcut the most dangerous one available.
   const people = (DATA.parties || []).filter(p => p.access);
   const policy = DATA.policy_version;
+  // One instant for the whole render. Taking Date.now() per call would let a
+  // record expire between two checks on the same screen.
+  const now = new Date();
 
   document.getElementById("who").innerHTML = people.map(p => {
-    const blocked = captureBlock(p, policy);
+    const blocked = captureBlock(p, policy, now);
     // The reason is on the button, in text. Not a tooltip: PRD §5.4 forbids
     // information reachable only by hover.
     return `<button class="subject" type="button" data-id="${esc(p.id)}"` +
@@ -246,7 +264,7 @@ function paint(CANON, DATA){
   function show(id){
     const p = people.find(x => x.id === id);
     const result = document.getElementById("result");
-    if (!p || captureBlock(p, policy) || !(p.history || []).length) {
+    if (!p || captureBlock(p, policy, now) || !(p.history || []).length) {
       // No consent, or no check-in yet: no band. Showing a band for a blocked
       // profile would render a result we were not allowed to produce.
       result.hidden = true;
@@ -292,7 +310,7 @@ function paint(CANON, DATA){
     if (!btn) return;
     const id = new URLSearchParams(location.search).get("who");
     const person = people.find(x => x.id === id) || first;
-    if (!person || captureBlock(person, policy)) return;
+    if (!person || captureBlock(person, policy, now)) return;
     btn.setAttribute("aria-pressed", "true");
     console.log("[app_event]", JSON.stringify({
       event_type: btn.dataset.event,
@@ -314,7 +332,7 @@ function paint(CANON, DATA){
   // ?tab=: a screenshot script reaches every state without clicking, and
   // test_consent reaches them without patching the page's internals.
   const asked = new URLSearchParams(location.search).get("who");
-  const first = people.find(p => !captureBlock(p, policy));
+  const first = people.find(p => !captureBlock(p, policy, now));
   if (asked && people.some(p => p.id === asked)) show(asked);
   else if (first) show(first.id);
 }

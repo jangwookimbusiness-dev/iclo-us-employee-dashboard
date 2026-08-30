@@ -702,14 +702,41 @@ status:
         두면 "못 읽었다" 가 "정상" 으로 렌더되고, 이 저장소는 그 실패를 세 번 겪었다.
       enforced_by: test_consent.py
     consent_model:
-      shape: '목적별 기록의 append-only 목록: {purpose, granted, policy_version, at}'
-      states: [ACTIVE, WITHDRAWN, STALE, NEVER]
+      # 2026-08-28 (#62): CMIA §56.11 형식 요건 셋을 필드로 올렸다. 착수 게이트
+      # state_health_privacy(§16-23)가 그것을 요구하고, 기술문서 §5.4 가 이미
+      # "목적별 활성 버전·**유효기간**" 을 필요한 것으로 적고 있었다. 같은 요구가
+      # 두 곳에서 왔고 여기서 만난다.
+      shape: |
+        목적별 기록의 append-only 목록:
+        {purpose, granted, policy_version, at, use, recipient, expires_at}
+      cmia_elements:
+        use: |
+          §56.11(d) — 구체적 용도. `purpose` 는 거친 분류(processing·photo·claims)이고
+          그 자체로는 "구체적" 이 아니다. 이 필드가 그 기록에 대해 실제로 무엇을 하는지
+          적는다.
+        recipient: |
+          §56.11(e) — 정보를 받는 주체를 명시한다. 이 제품에서 기업은 개인 단위 정보를
+          받지 않으므로(surfaces.core_ai_operation.never) 수령자에 기업을 적으면 안 된다.
+          잘못 적는 것이 안 적는 것보다 나쁘다.
+        expires_at: |
+          §56.11(f) — 만료일. **동의에 수명이 생긴다**는 뜻이고, 그러면 갱신 흐름과
+          "전에는 되던 사람이 조용히 안 되는" 상태가 함께 생긴다. 기술문서 §4.8 의
+          만 18세 전환과 같은 모양이며 그쪽도 배치 감지를 요구한다.
+      states: [ACTIVE, WITHDRAWN, STALE, EXPIRED, NEVER]
       stale: |
         policy_version 이 현재 문안과 다르면 동의는 효력이 없다. 불리언은 이 상태를
         표현하지 못하고 "켜짐" 으로 읽어 바뀐 문안 아래에서 계속 처리한다.
+      expired: |
+        expires_at 이 지났으면 효력이 없다. **WITHDRAWN·STALE 과 구별해서 표시한다** —
+        셋이 사람에게도 법무에게도 다른 뜻이다. 철회는 그 사람이 그만두겠다고 한 것이고,
+        STALE 은 우리가 문안을 바꾼 것이고, EXPIRED 는 아무도 뭘 한 것이 아니라 시간이
+        지난 것이다. 하나로 묶으면 재동의 요청 문구를 옳게 쓸 수 없다.
       evaluated: 사용 직전. 가입 시점 플래그를 읽지 않는다
       basis_chain: processing 을 철회하면 photo 가 켜져 있어도 촬영이 막힌다
       enforced_by: test_consent.py
+      still_open: |
+        법적 충분성은 §16-23 이 열어둔 채로 있다. 이 필드들이 하는 일은 규정 준수를
+        선언하는 것이 아니라 **데이터 모델이 준수를 불가능하게 만들지 않는 것**이다.
   not_decided:
     - 예측 모델이 무엇을 예측할지 (모델 자체가 does_not_exist 에도 있다)
     - 실험군 배정
