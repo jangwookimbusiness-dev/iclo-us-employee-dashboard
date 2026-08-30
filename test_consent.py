@@ -247,6 +247,13 @@ def main():
                     fails.append(f"동의 {label} 인데 결과 영역이 드러나 있다 — "
                                  f"허락받지 않은 처리의 결과가 화면에 있다")
                 checked += 1
+                # **예약 넘김도 못 만든다.** 밴드를 못 보는 사람에게 예약을 권하는 것은
+                # 하지 말라고 한 처리의 결과를 쓰는 것이다 (#60).
+                events = re.findall(r'data-event="(\w+)"', visible(dom))
+                if events:
+                    fails.append(f"동의 {label} 인데 예약 이벤트 버튼이 {events} 있다 — "
+                                 f"차단된 프로필은 예약도 못 만든다")
+                checked += 1
 
             # ── 4. 전부 동의한 사람은 통과한다 ───────────────────────────
             d = copy.deepcopy(base)
@@ -266,6 +273,34 @@ def main():
                 m = re.search(r'<section id="result"([^>]*)>', dom)
                 if m and "hidden" in m.group(1):
                     fails.append("전부 동의인데 결과 영역이 감춰져 있다")
+                checked += 1
+                # 두 이벤트가 **구분되어** 나와야 한다. 하나로 합치면 "예약률" 이
+                # 버튼을 누른 비율이 된다 (기술문서 §1.1·§5).
+                events = set(re.findall(r'data-event="(\w+)"', visible(dom)))
+                want = {"BOOKING_HANDOFF", "BOOKING_SELF_REPORTED"}
+                if events != want:
+                    fails.append(f"전부 동의한 사람의 예약 이벤트가 {sorted(events)} 다 "
+                                 f"— {sorted(want)} 여야 한다. 둘을 합치면 예약률이 "
+                                 f"버튼을 누른 비율이 된다")
+                checked += 1
+                # 그리고 확인되지 않은 것을 확인된 것처럼 적지 않는다.
+                #
+                # **`visible()` 만으로는 부족하다.** 예약 문구가 `result` 안에 있고
+                # 그 절은 차단된 프로필에서 `hidden` 이므로, 문서 전체를 보면 감춰진
+                # 자리의 글자까지 세게 된다. 반대로 감춰진 자리를 걷어내면 이 프로필
+                # (전부 동의)에서는 드러나 있으니 그대로 잡힌다. 2026-08-28 에
+                # 이 문구를 심어봤을 때 통과한 이유가 그것이었다 — 검사가 본 자리가
+                # 화면에 보이는 자리와 달랐다.
+                vis = re.sub(r"(?is)<section[^>]*\bhidden\b[^>]*>.*?</section>", "",
+                             visible(dom))
+                if "APPOINTMENT_BOOKED" in vis:
+                    fails.append("화면에 APPOINTMENT_BOOKED 가 있다 — 예약 계층이 "
+                                 "없으므로 그 단계는 존재하지 않는다")
+                checked += 1
+                # 예약 단서가 보여야 한다. 자가 보고를 확인된 예약으로 읽히게 두지 않는다.
+                if "기록되는 것은 당신이 말한 것입니다" not in vis:
+                    fails.append("전부 동의한 사람 화면에 예약 단서가 없다 — 자가 "
+                                 "보고가 확인된 예약으로 읽힌다")
                 checked += 1
 
             # ── 5. 숫자 점수가 화면에 없다 ──────────────────────────────
@@ -308,7 +343,7 @@ def main():
         for f in fails:
             print(f"  ✗ {f}")
         return 1
-    expected = 2 + 1 + 2 * len(cases) + 2 + 3
+    expected = 2 + 1 + 3 * len(cases) + 5 + 3
     if checked != expected:
         print(f"FAIL — 검사 {checked}건인데 {expected}건이어야 한다. "
               f"단언 하나가 실행되지 않았고, 실행되지 않은 단언은 통과가 아니다")
@@ -318,6 +353,8 @@ def main():
     print(f"       동의 {len(cases)}종(철회·미부여·대체된 문안·근거 없음)이 촬영을 "
           f"막고 결과 영역까지 감추며, 전부 동의한 사람은 통과한다")
     print(f"       숫자 점수는 DOM 에 없고 밴드는 있다. 폭으로 값을 싣는 요소도 없다")
+    print(f"       예약 넘김 둘이 구분되어 나오고, 차단된 프로필은 그것도 못 만들며, "
+          f"화면에 APPOINTMENT_BOOKED 가 없다")
     return 0
 
 

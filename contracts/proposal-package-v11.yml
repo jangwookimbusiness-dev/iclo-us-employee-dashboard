@@ -430,6 +430,32 @@ member_app:
     - band: Priority
       advice: Booking a general dental consult is suggested.
 
+  # 예약 넘김. 기술문서 §5 가 예약을 세 단계로 나누고 앞의 둘만 지금 만들 수 있다고
+  # 정한다 (#60). 셋째 `APPOINTMENT_BOOKED` 는 예약 계층이 붙어야 생긴다.
+  #
+  # **셋을 하나로 세면 "예약률" 이 실제로는 버튼을 누른 비율이 된다.** 기술문서 §1.1 이
+  # 경고한 "반복 클릭이 기업 성과로 보고되는" 형태가 그것이다. 그래서 화면이 두 행동을
+  # 구분하고, 각각이 무엇을 아는지 적는다.
+  booking:
+    handoff:
+      label: Find a dentist
+      event: BOOKING_HANDOFF
+      knows: 앱이 넘겼다는 것까지. 전화 저편은 보이지 않는다
+    self_reported:
+      label: I booked an appointment
+      event: BOOKING_SELF_REPORTED
+      knows: 본인이 잡았다고 말했다는 것. 예약 시스템이 확인한 것이 아니다
+    # 화면에 함께 나가는 문장. 자가 보고를 확인된 예약으로 읽히게 두지 않는다.
+    caveat: |
+      기록되는 것은 당신이 말한 것입니다. 실제 예약은 치과의 일정표에 있고 이 앱은 그것을
+      보지 못합니다.
+    # `APPOINTMENT_BOOKED` 를 쓰지 않는 이유를 값으로 둔다 — 화면이 "예약됨" 이라고
+    # 적으면 안 되는 근거다.
+    confirmed_available: false
+    why_not_confirmed: |
+      예약 계층이 없다. 세 단계 중 셋째만 시스템 확인이고, 그것 없이 "예약됨" 이라고
+      적으면 자가 보고를 확인된 사실로 제시하는 것이 된다 (기술문서 §5).
+
   direction:
     step: 3
     better: Better than your last check-in
