@@ -31,6 +31,11 @@ from pathlib import Path
 
 import yaml
 
+# 최대잉여법 부서 분할을 **가져다 쓴다.** 두 번 쓰면 화면과 합성 데이터가 다른 인원을
+# 보이게 되고, 그 어긋남은 집계 화면에서 절대 안 보인다. 정본 dashboard.departments 가
+# 값을 갖고 이 함수가 알고리즘을 갖는다.
+from generate_synthetic import department_split
+
 ROOT = Path(__file__).resolve().parent.parent
 CANON = ROOT / "contracts/proposal-package-v11.yml"
 OUT = ROOT / "build"
@@ -78,6 +83,7 @@ def load_canon(path):
                  f"개요 카드가 라벨을 가져올 자리다")
     mtc = dash["metric_time_contracts"]
     completed = mtc["completed_actions"]
+    dept = dash["departments"]
 
     funnel = [{"key": k, "label": labels[k],
                "frac": 1.0 if const is None else kpi[const]}
@@ -94,6 +100,20 @@ def load_canon(path):
                 f"{cur['key']}({cur['frac']}) > {prev['key']}({prev['frac']}). "
                 f"정본 funnel_nesting 이 금지하는 상태이고, 뒤 단계가 앞 단계보다 "
                 f"크면 두 단계가 다른 창이나 다른 분모를 쓰고 있다는 뜻이다")
+
+    # **tiny 부서는 최소 셀 미만이어야 한다.** 정본이 그 존재 이유를 "의도적으로 최소
+    # 셀 미만" 이라고 적고, 생성기 주석은 "생성기가 모르면 억제가 조용히 안 걸리고 데모
+    # 당일에 안다" 고 적는다. 그 값을 문턱 위로 올리면 부서 차원에서 억제가 한 번도
+    # 일어나지 않고, **검사는 통과한다** — 억제할 것이 없는 상태와 억제가 고장난 상태를
+    # 구별할 수 없기 때문이다. 2026-08-28 에 그 고장을 심어보고 통과하는 것을 확인했다.
+    # 화면 검사가 못 하는 판정이므로 여기서 한다.
+    tiny_n = dept["tiny"]["n"]
+    over = {k: v for k, v in tiny_n.items() if v >= dash["constants"]["min_cell"]}
+    if over:
+        sys.exit(f"build_screens: tiny 부서가 최소 셀 미만이 아니다 {over} "
+                 f"(문턱 {dash['constants']['min_cell']}). 이 부서의 존재 이유가 "
+                 f"억제를 화면으로 끌어내는 것이고, 문턱 위면 부서 차원에서 억제가 "
+                 f"한 번도 일어나지 않는다")
 
     # 밴드 분포는 100% 를 채워야 한다. 안 채우면 화면의 바 셋이 트랙을 못 채우고,
     # 그 상태는 "나머지 사람은 어디 갔나" 라는 질문에 화면이 답을 못 하는 것이다.
@@ -147,6 +167,15 @@ def load_canon(path):
         # Funnel 탭. 라벨은 kpis, 분수는 FRAC. 첫 단계는 분모 자신이라 1.0 이다.
         "funnel": funnel,
         "funnel_nesting": plain(mtc["funnel_nesting"]),
+        # 부서 차원. 시나리오별로 인원이 다르므로 시나리오마다 분할한다.
+        # `tiny` 는 의도적으로 최소 셀 미만이고 그것이 이 차원의 존재 이유다.
+        "departments": [
+            {"key": s["key"],
+             "split": department_split(s["employees"], dept["tiny"]["n"][s["key"]],
+                                       dept["weights"], dept["tiny"]["name"])}
+            for s in dash["scenarios"]
+        ],
+        "dept_caveat": dept["caveat"],
         # 완료 조치의 잠정 표시. 정본이 산문으로만 갖고 있어서 화면이 읽을 수 없었다.
         "completed_provisional": bool(completed.get("provisional")),
         "completed_provisional_label": completed.get("provisional_label", ""),
