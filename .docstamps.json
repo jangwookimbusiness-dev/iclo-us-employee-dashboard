@@ -26,6 +26,13 @@
    "output/proposal-v12/제안서-v12-KO.md": "eacd56fc158bde21b2683cf137496be23136225b8e19107e02db74c9b17ecffb"
   }
  },
+ "review_2026_08_30": {
+  "artifact": "997a0620ee20be7f0378b5ea2dcb2e253ded732730965cac3413849c0b88eea5",
+  "pages": 7,
+  "sources": {
+   "output/status/REVIEW-2026-08-30.md": "32fc533d54dc1dd3248c85103545935f57f5da8df07f037d3c97e6033fac5dee"
+  }
+ },
  "status_2026_08_16": {
   "artifact": "938c701363e48ec65ed8593159cee0bf7d489576ffee29e7ca61a79a92aa145a",
   "pages": 10,

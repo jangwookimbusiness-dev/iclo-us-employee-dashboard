@@ -77,6 +77,17 @@
         "--cover",
         "--toc"
       ]
+    },
+    {
+      "name": "review_2026_08_30",
+      "sources": [
+        "output/status/REVIEW-2026-08-30.md"
+      ],
+      "out": "output/status/REVIEW-2026-08-30.pdf",
+      "flags": [
+        "--cover",
+        "--toc"
+      ]
     }
   ]
 }

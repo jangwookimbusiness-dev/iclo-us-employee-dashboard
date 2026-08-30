@@ -415,7 +415,26 @@ def check_no_dangling_enforcers():
         fail("dangling_enforcer",
              f"{m} 가 저장소에 없다. 문서가 없는 파일을 집행자로 들면 그 규칙은 "
              f"보호되지 않는데 보호되는 것처럼 읽힌다")
-    print(f"문서가 드는 검사 파일 {checked}건 — 전부 실재")
+    # **`make` 타깃도 같은 유형이다.** 파일명만 보던 첫 판이 AGENTS.md 의
+    # `make shots` 를 놓쳤다 — #49 에서 지운 타깃이고, 문서는 그것을 지원 명령으로
+    # 계속 들고 있었다. 없는 명령을 지원한다고 적는 것은 없는 검사를 집행자로 드는
+    # 것과 같은 결함이다 (2026-08-30).
+    mk = (ROOT / "Makefile").read_text(encoding="utf-8")
+    have = set(re.findall(r"^([a-z][a-z0-9_-]*):", mk, re.M))
+    for label, path in targets.items():
+        if not path.exists():
+            continue
+        for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if any(e in line for e in EXEMPT):
+                continue
+            for target in re.findall(r"`make ([a-z][a-z0-9_-]*)`", line):
+                if target in have:
+                    checked += 1
+                else:
+                    fail("dangling_enforcer",
+                         f"{label}:{i} 가 `make {target}` 를 드는데 Makefile 에 그 "
+                         f"타깃이 없다")
+    print(f"문서가 드는 검사 파일·make 타깃 {checked}건 — 전부 실재")
 
 
 def check_design_records():
