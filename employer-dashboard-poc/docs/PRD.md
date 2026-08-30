@@ -58,8 +58,11 @@ US evidence-layer work startable.
 > and the full product with existence markers on every box. This section says what the thing is; that one
 > says how it is wired.
 
-**2.1 Concept.** Two surfaces, one file each, both vanilla HTML at the repo root. `index.html` is the
-employer dashboard. `app.html` is the employee app — added 2026-08-14, synthetic, a click-through of the
+**2.1 Concept.** Two surfaces, built from `screens/employer.html.in` and `screens/member.html.in` into
+`build/` by `scripts/build_screens.py`. **The root `index.html` and `app.html` were retired 2026-08-27
+(#49)** and the paragraph below describes them as they were; it is kept because the concept did not change,
+only where the values come from. The employer dashboard is the first; the employee screen is the second —
+originally added 2026-08-14, synthetic, a click-through of the
 five things a member does: check in, read **their own band and which way it moved**, see what the plan
 covers, see **why the remaining maximum is deliberately blank**, and find an in-network dentist. Neither
 has a backend. Opened from the Pages URL or locally. Three views over three synthetic employers.
@@ -117,10 +120,11 @@ Cross-check rule: **the authoring agent never approves its own work.**
 
 v0.6 changed this. The earlier version assigned implementation to Codex and review to Claude Code, which
 optimised the wrong risk. In practice Claude Code implemented and the code held: the booth removal passed
-`test_single_source`, `test_suppression`, the red-line check and the consistency check on the first run. The
+`test_build_reads_canon`, `test_consent`, the red-line check and the consistency check on the first run
+(this listed `test_single_source` and `test_suppression`, both deleted in #49). The
 failures were in **planning and documents**, and every one was a claim the repo already contradicted:
 
-- a proposal to build suppression-reason display that `index.html:262` already ships
+- a proposal to build suppression-reason display that the employer screen already ships
 - a proposal to constrain an export that does not exist
 - a clean-room proposal that `output/ICLO-Snowflake-Briefing-Meeting-Pack-v1.md:167` rules out for a single
   employer/TPA pilot
@@ -159,7 +163,7 @@ schema. Local gstack plans preserve rationale but are not the live backlog.
 
 | Layer | Choice | Note |
 |---|---|---|
-| Display | **Single vanilla HTML file** (`index.html` at repo root), inline CSS + JS | No `package.json`, `src/` or `dist/`. Vite/React/TS was the original plan and was not adopted |
+| Display | Vanilla HTML built from `screens/*.html.in` by `scripts/build_screens.py`, inline CSS + JS | No `package.json`, `src/` or `dist/`. Vite/React/TS was the original plan and was not adopted. **2026-08-27**: the single root file became a template plus a builder so the canon is read at build time rather than copied by hand |
 | Store | None today | A3 repoints this onto Snowflake objects |
 | Style | Inline CSS custom properties (Coral `#C2333A` · Navy `#1B2A4A` · Teal `#007A87`, white bg) | Coral changed from `#FF7A79` on 2026-08-08: 2.53:1 on white failed WCAG AA. `#C2333A` is 5.49:1 |
 | Signal bars | Low `#7E90AE` · Moderate `#4E8F98` · Priority `#C2333A` | Was `#D9E1EE` / `#8FB8BE`, measuring 1.24:1 and 2.02:1 against their track. Now 3.05 / 3.46 / 5.16 |
@@ -167,14 +171,20 @@ schema. Local gstack plans preserve rationale but are not the live backlog.
 | Charts | Hand-drawn CSS/SVG bars | No chart library |
 | State | Plain JS module-scope variables + `?scen=` · `?tab=` · `?dept=` · `?lens=` URL state | |
 
-**3.4 Data.** Every figure derives from one constants block in `index.html`. `test_single_source.py` fails if
-any constant stops propagating to the screen.
+**3.4 Data.** Every figure derives from the canon, read at build time. `test_build_reads_canon.py` perturbs
+`contracts/proposal-package-v11.yml`, runs the real builder, and asserts the new value reached the rendered
+DOM and the old one did not.
+
+> **Corrected 2026-08-30.** This said "one constants block in `index.html`" enforced by
+> `test_single_source.py`. Both are gone (#49) — and the premise this section's own A3 note anticipated was
+> retired earlier than A3, by the rebuild. The check was rewritten rather than deleted, exactly as that note
+> required; what went stale was this sentence naming the old file.
 
 Scenarios A/B/C: 10,000 / 2,500 / 25,000 eligible · 38% activated · 61% repeat · $31.40 / $32.80 / $30.90
 PMPM · 52·33·15 signal mix · funnel 3,800 → 2,800 → 950 → 420 on A.
 
 > **A3 will invalidate this section's premise.** When the screen reads Snowflake objects instead of a
-> constants block, `test_single_source.py` must be **rewritten**, not deleted — "every figure derives from one
+> constants block, that check must be **rewritten**, not deleted — "every figure derives from one
 > object set" is the same property with a different source. That test was silently switched off once already
 > (it matched the state initialiser as a literal string and stopped matching when URL state was added); do not
 > let a rewrite switch it off a second time.
@@ -205,7 +215,7 @@ booked, privacy incidents) all measured an event this code no longer appears at.
       department control shows the department that is actually selected
 - "Synthetic data — illustrative only" on every view
 - Provenance chip present and tappable on every figure
-- `make check` passes all ten repository gates
+- `make check` passes all eleven repository gates (the count is asserted by `check_local_matches_ci`, which compares the Makefile against CI as sets — do not hand-edit this number)
 - kill-ai-slop Mode B scan passes before a UI release
 
 ### 4b. Human check
@@ -248,18 +258,24 @@ quietly enjoyed: the fastest way to have a privacy incident at a booth was to ha
 | Forbidden terms: `diagnos*, cavit*, caries, decay, gingivit*, periodont*, abscess, lesion`; signal label "Review" banned (use "Priority") | `scripts/check-forbidden-terms.sh` |
 | No individual-level screens **in employer views**; no mock person profiles there | PR review. Scoped 2026-08-15: `app.html` is a member's own surface and shows their own result and their profiles by design (`contracts` `surfaces`) |
 | **Band, never a number — on both surfaces, until FDA clearance** | PR review. Reversed 2026-08-16: the app briefly showed a 0-100 score. An image-derived figure presented to a person as their oral status reads outside the general-wellness boundary. The score is still computed; it is not rendered |
-| Cells with `n < 20` never show values | `test_suppression.py` |
+| Cells with `n < 20` never show values | `test_build_reads_canon.py` — the min-cell block and the floor walk. **Corrected 2026-08-30**: this said `test_suppression.py`, deleted with the old screens in #49, so this red line named a file that does not exist |
 | ~~Band, never a numeric score — in employer views~~ | Superseded 2026-08-16 by the row above. The 08-14 settlement had the app showing a 0-100 score; that is reversed |
-| Every figure derives from one source of truth | `test_single_source.py`, rewritten when A3 changes the source |
+| Every figure derives from one source of truth | `test_build_reads_canon.py` — perturb the canon, run the builder, read the rendered DOM. **Corrected 2026-08-30**: this said `test_single_source.py`, deleted in #49. The check was not lost, it moved to the build boundary; the red line pointed at the old name for three days |
 | Every view labeled "Synthetic data — illustrative only" | screenshot test |
 | No AI-slop visual patterns | kill-ai-slop Mode B gate before `/ship` |
 | Brand Coral is `#C2333A`; signal bars clear 3:1 against their track | `scripts/check-package-consistency.py` |
 | No control under 44px, and no information reachable only by hover | PR review |
 | Absolute privacy claims must be scoped (`no individual PHI` → `no individual PHI in employer views`) | `scripts/check-package-consistency.py` |
 
-**5.5 What the US work still owes.** Four gates must close in writing before any real data is loaded: HIPAA
-role determination, data rights in the employer–TPA contract, the basis for baseline loading before consent,
-and a common identity key. They live in `contracts/proposal-package-v11.yml` under `start_gates`.
+**5.5 What the US work still owes.** **Six** gates must close in writing before any real data is loaded.
+They live in `contracts/proposal-package-v11.yml` under `start_gates`, which is the only list that counts:
+HIPAA role determination, data rights in the employer–TPA contract, the basis for baseline loading before
+consent, a common identity key, BAA and region, and **California CMIA** (§16-23, added 2026-08-28 — it
+attaches regardless of the HIPAA role determination, so the first gate resolving either way leaves it open).
+
+> **Corrected 2026-08-30.** This said four. It became five on 2026-08-25 and six on 2026-08-28, and this
+> line was not updated either time. Do not restate the count here — read `start_gates`. A number copied into
+> a second document is a number that goes stale, and this one did so twice.
 
 ---
 

@@ -186,7 +186,16 @@ function consentState(person, purpose, policy, now){
   if (r.policy_version !== policy) return "STALE";
   // No expires_at means no expiry on that record. Absence is not expiry — reading
   // it as expired would block every consent given before the field existed.
-  if (r.expires_at && new Date(r.expires_at) <= now) return "EXPIRED";
+  //
+  // An UNPARSEABLE expires_at is not the same as absence. `new Date("not-a-date")`
+  // is Invalid Date, every comparison with it is false, so the first version of
+  // this returned ACTIVE for garbage — a malformed record read as consent in
+  // force. Bad data blocks; only a missing field passes.
+  if (r.expires_at) {
+    const exp = new Date(r.expires_at);
+    if (Number.isNaN(exp.getTime())) return "MALFORMED";
+    if (exp <= now) return "EXPIRED";
+  }
   return "ACTIVE";
 }
 
@@ -195,6 +204,7 @@ const CONSENT_COPY = {
   WITHDRAWN: "withdrawn",
   STALE:     "needs re-consent",
   EXPIRED:   "expired",
+  MALFORMED: "unreadable — treated as not given",
   NEVER:     "not given",
 };
 
@@ -223,10 +233,17 @@ function paint(CANON, DATA){
   // Score to band. Top down, first `min` that the score clears. The last band
   // has no `min` and takes everything below -- the builder refuses any other
   // shape, so no default is needed here.
+  // The last band has no `min` and takes everything below it. That made it a
+  // catch-all for null, undefined and non-numbers too — a missing score rendered
+  // as `Priority` with advice attached, which is the canon's forbidden case:
+  // never fall back to a plausible value. A non-number returns null and the
+  // caller shows nothing.
   const bandFor = score => {
+    if (typeof score !== "number" || !Number.isFinite(score)) return null;
     for (const b of CANON.bands) {
       if (b.min === null || score >= b.min) return b;
     }
+    return null;
   };
 
   // Direction, never magnitude. Differences under the canon's step are called
@@ -242,7 +259,11 @@ function paint(CANON, DATA){
   // Only profiles this credential holds access for. An adult family member
   // holds their own consent and does not appear here -- the canon calls the
   // "employee agrees for the family" shortcut the most dangerous one available.
-  const people = (DATA.parties || []).filter(p => p.access);
+  // **Allow-list, not truthiness.** `filter(p => p.access)` admitted any truthy
+  // string, so `"DENIED"` and `"false"` both passed. An access model where the
+  // deny value grants access is worse than having no model.
+  const ACCESS = ["SELF", "GUARDIAN"];
+  const people = (DATA.parties || []).filter(p => ACCESS.includes(p.access));
   const policy = DATA.policy_version;
   // One instant for the whole render. Taking Date.now() per call would let a
   // record expire between two checks on the same screen.
@@ -272,6 +293,15 @@ function paint(CANON, DATA){
       const h = p.history;
       const now = h[h.length - 1];
       const b = bandFor(now.score);
+      if (!b) {
+        // No band for this score. Show nothing rather than something plausible —
+        // the person is told the check-in could not be read, not given a band.
+        result.hidden = true;
+        document.getElementById("who").insertAdjacentHTML("afterend",
+          '<p class="bookcav" role="status">This check-in could not be read. ' +
+          'Nothing is shown rather than a guess.</p>');
+        return;
+      }
       const bandEl = document.getElementById("band");
       bandEl.className = "band " + b.band;
       bandEl.textContent = b.band;

@@ -274,6 +274,80 @@ def check_member_copy(c):
           f"(렌더는 밴드 하나만 보이므로 정본에서 전부 본다)")
 
 
+def check_no_dangling_enforcers():
+    """문서가 집행자로 드는 파일이 실재하는지 본다.
+
+    **2026-08-30 에 실제로 일어난 것.** PRD §5.4 가 레드라인 둘의 집행자로
+    `test_suppression.py` 와 `test_single_source.py` 를 들고 있었고 **두 파일 다 #49 에서
+    지웠습니다.** 기술문서 두 곳도 같았습니다. 규제 검토자가 "최소 셀 억제가 검사로
+    보호된다" 고 읽으면 그 검사가 없는 상태로 사흘 있었습니다.
+
+    보호가 사라진 것은 아닙니다 — `test_build_reads_canon.py` 로 옮겼습니다. 사라진 것은
+    **문서와 파일의 연결**이고, 파일을 지우는 것과 그 파일을 가리키는 문서를 고치는 것이
+    다른 작업이라 한쪽만 했습니다.
+
+    이 검사는 그 연결을 본다. **백틱으로 감싼** `이름.py` 만 본다 — 산문에서 이름을 말하는
+    것과 코드 참조로 드는 것은 다르고, 전자까지 세면 오탐이 나서 검사가 곧 꺼진다.
+    **정정 노트 안의 언급은 면제한다** — "이것은 `X.py` 라 적고 있었고 지웠습니다" 를
+    위반으로 세면 정정을 기록할 방법이 없어지고, 그러면 기록을 안 하게 된다.
+    """
+    doc = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
+    targets = {
+        "PRD": ROOT / "employer-dashboard-poc/docs/PRD.md",
+        "기술문서": ROOT / doc["artifacts"]["tech"]["path"],
+        "헌장": ROOT / "REBUILD-CHARTER.md",
+        "AGENTS.md": ROOT / "AGENTS.md",
+    }
+    # 정정을 기록하는 문구. 이 중 하나가 같은 줄에 있으면 그 줄의 파일명은 면제한다.
+    EXEMPT = ("정정", "지웠", "삭제", "없어졌", "deleted", "retired", "Corrected",
+              "라 적고", "이라 적고", "was ", "said ", "Both are gone", "#49")
+    checked, missing = 0, []
+    for label, path in targets.items():
+        if not path.exists():
+            fail("dangling_enforcer", f"{label} 이 없다: {path}")
+            continue
+        # **정정 표지 앞부분만 본다.** 면제를 단락이나 줄 단위로 하면 정정 노트가 그
+        # 자리를 통째로 면제하고, 그러면 주장을 되돌리고 노트만 남겨도 통과한다 —
+        # 2026-08-30 에 그 고장을 심어보고 통과하는 것을 확인했다. codex 가 같은 날
+        # 지적한 "인용된 문자열 하나가 문서 전체 검사를 끈다" 와 같은 결함이다.
+        #
+        # 구분은 이것이다. 정정 표지 **앞**은 지금 하는 주장이고, **뒤**는 그 주장이
+        # 전에 무엇이었는지의 기록이다. 앞만 검사한다.
+        lines = path.read_text(encoding="utf-8").splitlines()
+        # 단락 단위 면제는 헌장 §4.1 처럼 문단 전체가 과거 기록인 자리를 위해 남긴다.
+        para_exempt, start = {}, 0
+        for idx in range(len(lines) + 1):
+            if idx == len(lines) or not lines[idx].strip():
+                chunk = "\n".join(lines[start:idx])
+                # 문단이 **표 행이 아니고** 면제어를 가지면 그 문단은 기록이다.
+                if any(e in chunk for e in EXEMPT) and not chunk.lstrip().startswith("|"):
+                    for j in range(start, idx):
+                        para_exempt[j] = True
+                start = idx + 1
+        for i, raw_line in enumerate(lines, 1):
+            if para_exempt.get(i - 1):
+                continue
+            # 정정 표지가 있으면 그 앞까지만 남긴다.
+            line = raw_line
+            for marker in ("**Corrected", "**정정", "Corrected 20", "정정 20"):
+                k = line.find(marker)
+                if k >= 0:
+                    line = line[:k]
+            # 하이픈을 넣는다. 첫 판은 `[a-z0-9_]*` 라 `check-package-consistency.py` 를
+            # 마지막 하이픈 뒤 `consistency.py` 로 잘라 읽고 "없는 파일" 이라 신고했다.
+            for name in re.findall(r"`([a-z_][a-z0-9_-]*\.(?:py|sh))`", line):
+                # 이름만 있는 것은 저장소 어디에 있어도 된다 — 경로를 요구하지 않는다.
+                if list(ROOT.rglob(name)):
+                    checked += 1
+                else:
+                    missing.append(f"{label}:{i} → {name}")
+    for m in missing:
+        fail("dangling_enforcer",
+             f"{m} 가 저장소에 없다. 문서가 없는 파일을 집행자로 들면 그 규칙은 "
+             f"보호되지 않는데 보호되는 것처럼 읽힌다")
+    print(f"문서가 드는 검사 파일 {checked}건 — 전부 실재")
+
+
 def check_design_records():
     """정본이 든 설계 규칙이 기술문서에도 있는지 본다.
 
@@ -989,6 +1063,7 @@ def main():
     check_source_attribution()
     check_bar_contrast()
     check_design_records()
+    check_no_dangling_enforcers()
     check_docs(c, use_pdf)
 
     for label, items, mark in (("불일치", fails, "✗"), ("경고", warns, "!")):
