@@ -132,6 +132,17 @@ def build(out_dir, data=None, data_missing=False):
 
 # 선택 가능한 사람 = disabled 가 붙지 않은 버튼. 이름은 DOM 문구가 아니라 데이터에서
 # 온 값이므로, 이 정규식이 보는 것은 구조(버튼과 그 상태)뿐이다.
+# 상태별 화면 문구. 정본 consent_model.states 와 1:1 이고, 화면의 CONSENT_COPY 가
+# 그 문구를 갖는다. 여기 손으로 적는 이유는 **검사가 화면과 독립이어야** 하기 때문이다 —
+# 화면에서 읽어오면 화면이 다 "in force" 라고 적어도 통과한다.
+COPY = {
+    "철회": "withdrawn",
+    "미부여": "not given",
+    "대체된 문안": "needs re-consent",
+    "근거 없음": "withdrawn",       # 처리 근거가 철회된 것이므로
+    "만료": "expired",
+}
+
 BUTTON = re.compile(
     r'<button[^>]*class="subject"([^>]*)>\s*<span class="nm">([^<]*)</span>')
 
@@ -223,6 +234,11 @@ def main():
                 # 사진 동의는 현행이지만 그것이 딛고 선 처리 근거가 없다.
                 "근거 없음": [g("processing", False, policy, "2026-07-01T10:00:00Z"),
                            g("photo", True, policy, "2026-06-04T10:00:00Z")],
+                # CMIA §56.11(f) 만료. 부여됐고 철회도 안 됐고 문안도 현행인데
+                # 유효기간이 지났다. 넷째 상태와 다른 다섯째다 (#62).
+                "만료": [g("processing", True, policy, "2026-06-04T10:00:00Z"),
+                       dict(g("photo", True, policy, "2026-06-04T10:00:00Z"),
+                            expires_at="2026-07-01T00:00:00Z")],
             }
             for label, records in cases.items():
                 d = copy.deepcopy(base)
@@ -237,6 +253,13 @@ def main():
                 if subject["name"] in offered(dom):
                     fails.append(f"동의 {label} 인데 {subject['name']} 에게 "
                                  f"촬영이 열려 있다")
+                checked += 1
+                # **상태가 구별되어 표시돼야 한다.** 넷을 하나로 묶으면 재동의 요청
+                # 문구를 옳게 쓸 수 없다 — 철회는 그 사람이 그만둔 것, STALE 은 우리가
+                # 문안을 바꾼 것, 만료는 시간이 지난 것이다.
+                if COPY[label] not in visible(dom):
+                    fails.append(f"동의 {label} 인데 화면에 {COPY[label]!r} 가 "
+                                 f"없다 — 상태가 구별되어 표시되지 않는다")
                 checked += 1
                 # 차단된 사람에게 밴드를 보이면, 하지 말라고 한 처리를 이미 한
                 # 결과를 보이는 것이다. 결과 영역이 감춰져야 한다.
@@ -303,6 +326,25 @@ def main():
                                  "보고가 확인된 예약으로 읽힌다")
                 checked += 1
 
+            # ── 4b. 만료 필드가 없는 기록은 계속 유효하다 ────────────────
+            # **부재를 만료로 읽으면 안 된다.** 그러면 이 필드가 생기기 전에 받은
+            # 동의 전부가 막힌다. fixture 의 기본 동의에는 expires_at 이 없으므로
+            # 위 "전부 동의" 통과가 이미 그것을 보이지만, 미래 만료도 통과해야 한다.
+            d = copy.deepcopy(base)
+            for p_ in d["parties"]:
+                if p_["id"] == subject["id"]:
+                    p_["consent"] = [
+                        g("processing", True, policy, "2026-06-04T10:00:00Z"),
+                        dict(g("photo", True, policy, "2026-06-04T10:00:00Z"),
+                             expires_at="2099-01-01T00:00:00Z")]
+            dom, err = render("notyet", d, who=subject["id"])
+            if err:
+                fails.append(f"미래 만료: {err}")
+            elif subject["name"] not in offered(dom):
+                fails.append(f"만료일이 미래인데 {subject['name']} 이 막혔다 — "
+                             f"만료 판정이 부등호를 뒤집었다")
+            checked += 1
+
             # ── 5. 숫자 점수가 화면에 없다 ──────────────────────────────
             # 데이터의 점수를 눈에 띄는 값으로 바꾼다. 원래 값(78 등)으로 찾으면
             # 날짜나 CSS 숫자와 겹쳐 오탐이 나고, 오탐이 나는 검사는 곧 꺼진다.
@@ -343,14 +385,29 @@ def main():
         for f in fails:
             print(f"  ✗ {f}")
         return 1
-    expected = 2 + 1 + 3 * len(cases) + 5 + 3
+    # **손으로 더한 상수를 쓰지 않는다.** 2026-08-28 에 두 번 틀렸다 — 단언을 늘릴
+    # 때마다 이 합을 다시 계산해야 하고, 그 계산이 틀리면 검사가 자기 개수 때문에
+    # 실패한다. 소스에서 센다: 동의 루프 안의 증가는 사례마다 돌고 밖은 한 번 돈다.
+    src = Path(__file__).read_text(encoding="utf-8").splitlines()
+    in_case_loop, per_case, once = False, 0, 0
+    for line in src:
+        if "for label, records in cases.items():" in line:
+            in_case_loop = True
+        elif in_case_loop and re.match(r"^            # ── 4\.", line):
+            in_case_loop = False
+        if "checked += 1" in line and "if " not in line:
+            if in_case_loop:
+                per_case += 1
+            else:
+                once += 1
+    expected = per_case * len(cases) + once
     if checked != expected:
         print(f"FAIL — 검사 {checked}건인데 {expected}건이어야 한다. "
               f"단언 하나가 실행되지 않았고, 실행되지 않은 단언은 통과가 아니다")
         return 1
     print(f"PASS — 검사 {checked}건. 데이터 파일이 없으면 화면도 이름도 없고, JSON 을 "
           f"고치면 화면이 따라온다")
-    print(f"       동의 {len(cases)}종(철회·미부여·대체된 문안·근거 없음)이 촬영을 "
+    print(f"       동의 {len(cases)}종(철회·미부여·대체된 문안·근거 없음·만료)이 촬영을 "
           f"막고 결과 영역까지 감추며, 전부 동의한 사람은 통과한다")
     print(f"       숫자 점수는 DOM 에 없고 밴드는 있다. 폭으로 값을 싣는 요소도 없다")
     print(f"       예약 넘김 둘이 구분되어 나오고, 차단된 프로필은 그것도 못 만들며, "
