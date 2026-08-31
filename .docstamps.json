@@ -26,6 +26,13 @@
    "output/proposal-v12/제안서-v12-KO.md": "eacd56fc158bde21b2683cf137496be23136225b8e19107e02db74c9b17ecffb"
   }
  },
+ "proposal_v13": {
+  "artifact": "150f7cd05a6eb468001aeb398f37916a6e7f18880aa0bda24d4a4938485f91bd",
+  "pages": 25,
+  "sources": {
+   "output/proposal-v13/제안서-v13-KO.md": "ae917a1a51d970ca97fbc62fd155cf9e8cc316c074b8c72538c10e743aee6752"
+  }
+ },
  "review_2026_08_30": {
   "artifact": "997a0620ee20be7f0378b5ea2dcb2e253ded732730965cac3413849c0b88eea5",
   "pages": 7,
@@ -41,10 +48,10 @@
   }
  },
  "status_2026_08_31": {
-  "artifact": "6db9277f8cf275fdcca147418d74df9d26c89c07ca3ce13f4dbdb490f89332f7",
-  "pages": 14,
+  "artifact": "87ba2bc9e4e96b4e30ced90bff56aa5b310efccd3d325c5033c8f98cd9cd54ed",
+  "pages": 15,
   "sources": {
-   "output/status/STATUS-2026-08-31.md": "796dc1bd1c22d652de24debb782a58af5661d3dcec70c85c6da7723e0fe405c9"
+   "output/status/STATUS-2026-08-31.md": "12a67b59e6c86cf347f286c187629f93bf48fd95474b256bccb63f0ff1813d5b"
   }
  },
  "tech": {

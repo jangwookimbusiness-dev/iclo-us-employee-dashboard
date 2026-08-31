@@ -32,6 +32,17 @@
       ]
     },
     {
+      "name": "proposal_v13",
+      "sources": [
+        "output/proposal-v13/제안서-v13-KO.md"
+      ],
+      "out": "output/proposal-v13/ICLO-Snowflake-제안서-v13-KO.pdf",
+      "flags": [
+        "--cover",
+        "--toc"
+      ]
+    },
+    {
       "name": "tech",
       "sources": [
         "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md",

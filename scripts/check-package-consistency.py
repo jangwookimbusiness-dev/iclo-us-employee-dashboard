@@ -28,6 +28,18 @@ def warn(check, detail):
     warns.append((check, detail))
 
 
+def squash(s):
+    """한 낱말을 쪼개는 것들만 접는다 — 줄바꿈·가운뎃점·하이픈·슬래시.
+
+    **`|` 와 `,` 는 접지 않는다.** 목록 구분자이고, 양쪽은 한 구절이 아니라 서로
+    다른 항목이다. 접었더니 기술문서의
+    `deceased_source -- HRIS | 834 | 가족 신고` 가 `HRIS834` 로 보여 오탐이 났다 —
+    그 줄은 원천을 셋으로 **나눠** 적은 것이므로 금지 규칙이 막는 혼동의 반대다.
+    이런 오탐이 남으면 검사가 꺼지고, 그게 이 저장소가 이미 배운 것이다.
+    """
+    return re.sub(r"[\s·\-–—/]+", "", str(s))
+
+
 def check_repository_artifacts():
     """Keep a single generated file from silently becoming repository history.
 
@@ -256,9 +268,6 @@ def check_member_copy(c):
     for k in ("better", "worse", "same"):
         shown[f"direction.{k}"] = app["direction"][k]
 
-    def squash(s):
-        return re.sub(r"[\s·\-–—/|,]+", "", s)
-
     for where, text in sorted(shown.items()):
         for w in c["disease"]:
             if re.search(rf"\b{w}\w*", text, re.I):
@@ -292,9 +301,6 @@ def check_canon_obeys_itself(c):
     자기를 신고한다. 값이 실려 나가는 필드만 본다.
     """
     doc = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
-
-    def squash(s):
-        return re.sub(r"[\s·\-–—/|,]+", "", str(s))
 
     # ① 밖으로 나가는 값 필드가 금지 용어를 쓰는가.
     fields, checked = [], 0
@@ -931,7 +937,10 @@ def check_start_gates():
     # 동결·대체된 문서는 뺀다 — 발송된 사본을 소급 수정할 수 없으므로 그 부채는
     # 정본 `frozen[].next_edition_must` 가 든다.
     frozen_paths = {f["path"] for f in (doc.get("frozen") or [])}
-    living = [ROOT / "output/analysis/고객-비용-이익-분석-KO.md"]
+    living = [
+        ROOT / "output/analysis/고객-비용-이익-분석-KO.md",
+        ROOT / "output/proposal-v13/제안서-v13-KO.md",
+    ]
     for path in living:
         if not path.exists() or str(path.relative_to(ROOT)) in frozen_paths:
             continue
@@ -1092,6 +1101,12 @@ def check_docs(c, use_pdf):
     if v12.exists():
         targets["proposal_v12_ko"] = v12
 
+    # v13. 살아 있는 판이므로 동결된 v12 보다 먼저 여기 있어야 한다 — v12 를 등록한
+    # 이유가 "밖으로 나갈 문서를 안 봤다" 였고, 지금 밖으로 나갈 문서는 v13 이다.
+    v13 = ROOT / "output/proposal-v13/제안서-v13-KO.md"
+    if v13.exists():
+        targets["proposal_v13_ko"] = v13
+
     # PRD. 2026-08-16 까지 이 검사는 PRD 를 한 번도 열지 않았고, 그 사이 PRD §2.1 은
     # 임직원이 "자기 점수" 와 "남은 한도" 를 읽는다고 계속 쓰고 있었다. 둘 다 그날
     # 앱에서 빠졌고 빠진 이유가 규제와 사용자 피해다. 스펙이 없어진 제품을 설명하면
@@ -1109,8 +1124,15 @@ def check_docs(c, use_pdf):
         if t is None:
             continue
         checked += 1
-        # PDF 는 줄바꿈으로 단어가 쪼개지므로 공백을 접어서 검사
-        flat = re.sub(r"\s+", "", t)
+        # PDF 는 줄바꿈으로 단어가 쪼개지므로 접어서 검사한다. 구분 기호까지 접는
+        # 것은 `check_member_copy`·`check_canon_obeys_itself` 와 같은 정규화를 쓰기
+        # 위한 것이다 — 세 검사가 각자 접는 방식을 정의하고 있었고, 그중 하나만
+        # 약하면 그 검사가 보는 문서에서만 조용히 통과한다.
+        #
+        # **바늘도 같은 `squash` 를 써야 한다.** 건초와 바늘의 접는 방식이 다르면
+        # 검사가 아무것도 안 본다 — 이 줄을 `squash` 로 바꾼 순간 아래 세 자리가
+        # 실제로 그 상태가 됐고, 게이트 노출 검사가 즉시 오탐을 냈다.
+        flat = squash(t)
 
         # 금지 용어. 다만 **따옴표 안에 든 것은 인용이지 사용이 아니다.**
         # 규칙을 적는 문서는 금지어를 이름으로 불러야 한다 — PRD 의 레드라인 표가
@@ -1135,8 +1157,14 @@ def check_docs(c, use_pdf):
             #
             # 그래서 접힌 문자열은 인용된 등장을 지운 사본에서 찾는다. 인용은 그
             # 자리에서만 면제되고 나머지 문서는 그대로 검사된다.
+            #
+            # **구분 기호도 접는다.** 2026-08-31 까지 이 자리는 공백만 접었고,
+            # 그래서 `HRIS · 834` 를 통과시켰다 — **금지 용어 `HRIS 834` 가 생긴
+            # 이유가 바로 그 문자열**(정본 `kpis[].source`)이다. 검사가 자기 존재
+            # 이유였던 형태를 못 봤고, 정본 쪽 `check_canon_obeys_itself` 가
+            # `squash` 로 접어서 잡아준 덕에 안 드러났다.
             unquoted = re.sub(r'["`\']' + re.escape(wrong) + r'["`\']', " ", raw)
-            if used or re.sub(r"\s+", "", wrong) in re.sub(r"\s+", "", unquoted):
+            if used or squash(wrong) in squash(unquoted):
                 fail("terminology", f'{name}: 금지어 "{wrong}" → "{right}"')
 
         # 발송된 판은 저작 요건 검사에서 뺀다. 이미 상대 손에 있는 문서를 지금
@@ -1156,20 +1184,20 @@ def check_docs(c, use_pdf):
         if frozen_on:
             gates = [g for g in gates
                      if c["gate_added"].get(g, "0000-00-00") <= frozen_on]
-        missing = [g for g in gates if re.sub(r"\s+", "", g) not in flat]
+        missing = [g for g in gates if squash(g) not in flat]
         if missing and name not in ("tech", "prd"):   # 둘 다 대내 문서다
             sev = fail if name.startswith("report") else warn
             sev("start_gates", f"{name}: 착수 게이트 미노출 — {', '.join(missing)}")
 
         # 상태 고지 (무엇이 아직 없는가)
         if name.startswith("report"):
-            marker = "아직없는것" if name.endswith("_ko") else "Doesnotexist"
+            marker = squash("아직 없는 것" if name.endswith("_ko") else "Does not exist")
             if marker not in flat:
                 fail("status", f"{name}: '현재 상태' 표가 없음")
 
         # 대시보드 화면 이름 대응
         if name.startswith(("report", "proposal")):
-            if not any(re.sub(r"\s+", "", hd) in flat for hd in c["headings"]):
+            if not any(squash(hd) in flat for hd in c["headings"]):
                 warn("screen_names", f"{name}: 대시보드 화면 이름이 하나도 안 나옴 (SYNC-06)")
 
     # 한 건도 못 읽었으면 "위반 없음" 이 아니라 검사가 안 돈 것이다. 이 저장소가
