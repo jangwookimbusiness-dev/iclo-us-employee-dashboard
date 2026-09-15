@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Red-line enforcement — PRD §5.6. Any hit = exit 1 = CI failure = auto-reject.
+# Red-line enforcement — PRD §5.4. Any hit = exit 1 = CI failure = auto-reject.
 set -u
 cd "$(dirname "$0")/.."   # always run from the project folder
 
@@ -30,6 +30,7 @@ FILES=(
 )
 GLOBS=(
   '../output/proposal-v12/*.md'
+  '../output/proposal-v14/*.md'
   '../output/status/*.md'
   '../output/analysis/*.md'
 )

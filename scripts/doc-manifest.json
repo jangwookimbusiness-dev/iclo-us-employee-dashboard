@@ -20,6 +20,30 @@
   ],
   "pdfs": [
     {
+      "name": "proposal_v14_ko",
+      "sources": ["output/proposal-v14/proposal-KO.md"],
+      "out": "output/pdf/ICLO-Snowflake-v14-Proposal-KO.pdf",
+      "flags": ["--cover", "--toc", "--author", "ICLO", "--date", "2026-09-07", "--page-size", "a4", "--no-confidential"]
+    },
+    {
+      "name": "proposal_v14_en",
+      "sources": ["output/proposal-v14/proposal-EN.md"],
+      "out": "output/pdf/ICLO-Snowflake-v14-Proposal-EN.pdf",
+      "flags": ["--cover", "--toc", "--author", "ICLO", "--date", "2026-09-07", "--page-size", "a4", "--no-confidential"]
+    },
+    {
+      "name": "architecture_v14_ko",
+      "sources": ["output/proposal-v14/architecture-KO.md"],
+      "out": "output/pdf/ICLO-Snowflake-v14-Architecture-KO.pdf",
+      "flags": ["--cover", "--toc", "--author", "ICLO", "--date", "2026-09-07", "--page-size", "a4", "--no-confidential"]
+    },
+    {
+      "name": "architecture_v14_en",
+      "sources": ["output/proposal-v14/architecture-EN.md"],
+      "out": "output/pdf/ICLO-Snowflake-v14-Architecture-EN.pdf",
+      "flags": ["--cover", "--toc", "--author", "ICLO", "--date", "2026-09-07", "--page-size", "a4", "--no-confidential"]
+    },
+    {
       "name": "proposal_v12",
       "sources": [
         "output/proposal-v12/제안서-v12-KO.md",

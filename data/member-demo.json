@@ -7,7 +7,7 @@
     "account, plan, coverage, clinics and every consent flag were inline",
     "constants in app.html, which made that sentence false: swapping them meant",
     "editing the screen. The shape below IS the contract the backend has to",
-    "return. app.html reads it and nothing else.",
+    "return. The builder stages it as build/member.json for the member screen.",
     "",
     "What is still faked, and cannot be fixed by a data swap: the Core AI call",
     "behind a score, the payer gateway behind a balance, the network directory,",

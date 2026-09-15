@@ -1549,34 +1549,53 @@ ALTER TABLE canonical.app_event     SET AGGREGATION POLICY gov.min_cell_20 ENTIT
 -- 있도록 party_sk 를 남긴다. 여기서 윈도우 함수를 다 쓰고 기업 롤에는 SUM·COUNT
 -- 만 남긴다 — 그것이 이 테이블이 존재하는 이유다.
 CREATE OR REPLACE TABLE mart.person_month_fact AS
-SELECT
-    e.party_sk,                    -- ENTITY KEY. 이 컬럼이 없으면 사람이 아니라 행을 센다
-    e.employer_id,
-    m.month_start,
-    COALESCE(d.department, 'UNMATCHED')                     AS department,
-    SUM(m.covered_days / DAY(LAST_DAY(m.month_start)))      AS member_months,
-    SUM(IFF(m.is_subscriber, 1, 0))                         AS subscriber_rows,
-    SUM(COALESCE(c.allowed, 0))                             AS allowed
-FROM canonical.member_month m
-JOIN (   -- 논리 span 별 최신 버전 하나. 윈도우 함수는 여기서만 쓴다.
+WITH membership AS (
+  -- 자격도 청구와 같은 사람·기업·월로 먼저 접는다. 플랜 변경으로 span 이 둘이어도
+  -- 한 사람의 청구액과 가입자 수는 한 번만 붙는다. §11.1 의 내부 집계와 같은 경계다.
+  SELECT m.party_sk, m.employer_id, m.month_start,
+         SUM(m.covered_days / DAY(LAST_DAY(m.month_start))) AS member_months,
+         MAX(IFF(m.is_subscriber, 1, 0)) AS subscriber_rows
+  FROM canonical.member_month m
+  JOIN (
     SELECT * FROM (
       SELECT s.*, ROW_NUMBER() OVER (
-               PARTITION BY s.eligibility_episode_id ORDER BY s.snapshot_seq DESC) AS rn
+               PARTITION BY s.employer_id, s.eligibility_episode_id
+               ORDER BY s.snapshot_seq DESC) AS rn
       FROM canonical.eligibility_span s
       WHERE s.snapshot_seq <= :as_of_seq
     ) WHERE rn = 1
-) e ON e.eligibility_span_sk = m.eligibility_span_sk
-LEFT JOIN mart.party_department d
-       ON d.party_sk = m.party_sk AND d.employer_id = m.employer_id
-      AND m.month_start >= d.effective_date
-      AND m.month_start <  COALESCE(d.end_date, '9999-12-31'::DATE)
+  ) e ON e.eligibility_span_sk = m.eligibility_span_sk
+  GROUP BY 1, 2, 3
+), membership_department AS (
+  -- 겹친 부서 유효기간이 들어와도 사람·기업·월 한 행을 보존한다. 가장 최근에
+  -- 시작한 배정을 택하고, 12절 품질 검사는 겹침 자체를 별도로 적재 중단한다.
+  SELECT m.party_sk, m.employer_id, m.month_start, m.member_months,
+         m.subscriber_rows, COALESCE(d.department, 'UNMATCHED') AS department,
+         ROW_NUMBER() OVER (
+           PARTITION BY m.party_sk, m.employer_id, m.month_start
+           ORDER BY d.effective_date DESC NULLS LAST, d.department) AS department_rn
+  FROM membership m
+  LEFT JOIN mart.party_department d
+         ON d.party_sk = m.party_sk AND d.employer_id = m.employer_id
+        AND m.month_start >= d.effective_date
+        AND m.month_start < COALESCE(d.end_date, '9999-12-31'::DATE)
+)
+SELECT
+    m.party_sk,                    -- ENTITY KEY. 사람·기업·월당 한 행
+    m.employer_id,
+    m.month_start,
+    m.department,
+    m.member_months,
+    m.subscriber_rows,
+    COALESCE(c.allowed, 0)                                 AS allowed
+FROM membership_department m
 LEFT JOIN (  -- 청구를 사람·기업·월로 먼저 접는다. 1274·1278 절 참조.
     SELECT party_sk, employer_id, DATE_TRUNC('MONTH', service_date) AS month_start,
            SUM(allowed_amount) AS allowed
     FROM TABLE(mart.claims_as_of(:as_of_seq)) GROUP BY 1, 2, 3
 ) c ON c.party_sk = m.party_sk AND c.employer_id = m.employer_id
    AND c.month_start = m.month_start
-GROUP BY 1, 2, 3, 4;
+WHERE m.department_rn = 1;
 
 -- R_ENGINEER 가 버전 선택과 grain 접기를 끝내고 party_sk 를 남긴 테이블.
 ALTER TABLE mart.person_month_fact  SET AGGREGATION POLICY gov.min_cell_20 ENTITY KEY (party_sk);
@@ -1647,7 +1666,8 @@ claims_pm AS (
 elig AS (
   SELECT * FROM (
     SELECT s.*, ROW_NUMBER() OVER (
-             PARTITION BY s.eligibility_episode_id ORDER BY s.snapshot_seq DESC) AS rn
+             PARTITION BY s.employer_id, s.eligibility_episode_id
+             ORDER BY s.snapshot_seq DESC) AS rn
     FROM canonical.eligibility_span s
     WHERE s.snapshot_seq <= :as_of_seq
   ) WHERE rn = 1
@@ -1777,7 +1797,7 @@ FROM mart.person_month_fact f;
 -- 정책은 기반 테이블에 붙어 있고 뷰를 통해서도 적용된다. 뷰에 다시 걸지 않는다 —
 -- 두 곳에 걸면 어느 쪽이 유효한지가 사고 시점에 헷갈린다.
 
--- 신호는 사람·보고월 grain 이다. 정본 metric_time_contracts.signal_distribution 이
+-- 신호는 사람·기업·보고월 grain 이다. 정본 metric_time_contracts.signal_distribution 이
 -- "사람당 그 창의 최신 유효 촬영 1건, 롤링 12개월" 으로 규정하므로, 그 선택을
 -- 여기서 끝낸다. 기업 롤은 윈도우 함수를 못 쓰므로 기업 롤에게 시킬 수 없다.
 --
@@ -1798,11 +1818,11 @@ FROM (
   SELECT s.party_sk, s.employer_id, m.month_date AS report_month,
          COALESCE(d.department, 'UNMATCHED') AS department,
          s.signal_band, s.model_version,
-         ROW_NUMBER() OVER (PARTITION BY s.party_sk, m.month_date
+         ROW_NUMBER() OVER (PARTITION BY s.party_sk, s.employer_id, m.month_date
                             ORDER BY s.captured_at DESC) AS rn
   FROM util.month_spine m
   JOIN canonical.oral_signal s
-    ON s.captured_at >= DATEADD('month', -12, m.month_date)
+    ON s.captured_at >= DATEADD('month', -11, m.month_date)
    AND s.captured_at <  DATEADD('month',   1, m.month_date)
   LEFT JOIN mart.party_department d
          ON d.party_sk = s.party_sk AND d.employer_id = s.employer_id
@@ -1928,28 +1948,38 @@ WITH cells AS (
   SELECT employer_id, department, month_start, n FROM mart.department_size
 ),
 neighbours AS (
-  SELECT a.employer_id, a.department, a.month_start, ABS(a.n - b.n) AS gap
+  SELECT a.employer_id, a.department, a.month_start,
+         b.department AS other_department, b.month_start AS other_month,
+         ABS(a.n - b.n) AS gap
   FROM cells a
   JOIN cells b
     ON  b.employer_id = a.employer_id
     AND b.department  = a.department
     AND b.month_start = DATEADD('month', 1, a.month_start)
   UNION ALL
-  SELECT a.employer_id, a.department, a.month_start, ABS(a.n - t.n) AS gap
+  SELECT a.employer_id, a.department, a.month_start,
+         t.department AS other_department, t.month_start AS other_month,
+         ABS(a.n - t.n) AS gap
   FROM cells a
   JOIN cells t
     ON  t.employer_id = a.employer_id
     AND t.month_start = a.month_start
     AND t.department  = 'All departments'
   WHERE a.department <> 'All departments'
+), unsafe_cells AS (
+  SELECT employer_id, department, month_start FROM neighbours WHERE gap < 20
+  UNION
+  SELECT employer_id, other_department, other_month FROM neighbours WHERE gap < 20
 )
-SELECT employer_id, department, month_start,
-       MIN(gap) < 20 AS suppressed_by_neighbour
-FROM neighbours
-GROUP BY 1, 2, 3;
+SELECT c.employer_id, c.department, c.month_start,
+       u.employer_id IS NOT NULL AS suppressed_by_neighbour
+FROM cells c
+LEFT JOIN unsafe_cells u
+  ON u.employer_id = c.employer_id AND u.department = c.department
+ AND u.month_start = c.month_start;
 ```
 
-**대가를 적어둡니다.** 이 규칙은 **억제를 전염시킵니다.** 한 셀이 가려지면 그 이웃도 가려지고, 작은 기업에서는 화면 대부분이 비게 됩니다. 250명 하한(제안서 §7.3)이 여기서도 다시 나옵니다.
+**대가를 적어둡니다.** 위험한 쌍의 양 끝을 가립니다. 인원 차이 0도 문턱 미만이므로 인원이 안정된 큰 기업에서도 연속 월이 모두 가려질 수 있습니다. 250명이라는 규모만으로 보고 가능성을 보장하지 않습니다. 이 규칙은 실제 구성원의 차집합을 재는 것이 아니며, 완전한 차분 방어라고 볼 수 없습니다. A3에서는 기간·부서별 억제 후 보고 가능 범위와 실제 정책 실행을 검증해야 합니다.
 
 #### 11.3.3 쿼리 이력 — 포함 관계면 뒤엣것을 거부
 
@@ -2022,6 +2052,7 @@ CREATE TABLE gov.export_request (
 | 자격 span 중첩 | 같은 `(사람, 기업, 플랜)` 안에서 중첩 없음 | 적재 중단 |
 | 자격 span 역전 | `term_date ≥ effective_date` | 예외 격리 |
 | member-month 중복 | `(eligibility_span_sk, month_start)` 중복 0건 **및** 같은 `(party, employer, plan, month)` 안에 **서로 다른 `eligibility_episode_id`가 아닌** 중복 0건 | 적재 중단 |
+| 부서 배정 중첩 | 같은 `(party_sk, employer_id)`의 유효기간 중첩 0건 | 적재 중단 |
 | 부서 미매칭 | 가입자 중 부서 미상 ≤ 2% | 경고 |
 | 소급 종료 영향 | 직전 스냅샷 대비 과거 월 member-month 변동률 ≤ 1% | 경고 + 변동 사유 보고 (4.7) |
 | 사망자 알림 | `deceased_date IS NOT NULL`인 party 대상 발송 0건 | **발송 중단** (6.4절) |

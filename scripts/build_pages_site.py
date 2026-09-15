@@ -23,7 +23,6 @@ mapping someone can read rather than a file someone might edit by accident.
 Nothing about the deployment changes. The root still publishes the redirect under
 the name `index.html`, which is the name the printed booth QR resolves to.
 
-Run it locally with `bash scripts/serve.sh`.
 """
 from pathlib import Path
 import shutil

@@ -4,8 +4,8 @@
 #     bash scripts/install-hooks.sh
 #
 # The hook runs only the three fast checks — red lines, canon consistency, and
-# document freshness. The render tests drive headless Chrome over 54
-# states and belong in CI, not in the path between you and a commit.
+# document freshness. The render tests drive headless Chrome and belong in CI,
+# not in the path between you and a commit.
 #
 # This exists because a failed CI run costs the same minutes as a passing one.
 # Catching an obvious break locally keeps the budget for real failures.
@@ -66,4 +66,4 @@ HOOK_BODY
 chmod +x "$HOOK"
 echo "installed → $HOOK"
 echo "  runs: check-forbidden-terms.sh, check-package-consistency.py, test_doc_freshness.py"
-echo "  the three Chrome render tests stay in CI (.github/workflows/gates.yml)"
+echo "  the Chrome render tests stay in CI (.github/workflows/gates.yml)"

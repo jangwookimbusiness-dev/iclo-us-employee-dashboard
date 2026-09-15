@@ -120,9 +120,73 @@ def add_suppressed_value_leak(doc):
     row["activated"] = 1
 
 
+def suppress_first_row(doc):
+    row = doc["months"][0]
+    row["department"] = None
+    for field in SPEC["months"]:
+        if field not in {"month_start", "department", "employer_id"}:
+            row[field] = None
+
+
+def make_midmonth(doc):
+    replacement = dict(doc["months"][0])
+    suppress_first_row({"months": [replacement]})
+    doc["months"][0]["month_start"] = "2024-01-15"
+    doc["months"].append(replacement)
+
+
+def add_departments(export_dir):
+    """Different department counts must still describe the same 36 months."""
+    for employer, names in (("a", ("Sales",)), ("c", ("Sales", "Finance"))):
+        for name in names:
+            change_json(export_dir, f"employer-{employer}.json", lambda doc: doc["months"].extend(
+                dict(row, department=name) for row in month_rows(employer.upper())))
+            change_json(export_dir, "departments.json", lambda doc: doc["departments"].append(
+                {"employer_id": employer.upper(), "department": name}))
+
+
 def main():
     cases = [
         ("valid release", None, 0, "PASS", True),
+        ("multiple departments", add_departments, 0, "PASS", True),
+        ("suppressed remainder covers catalog", lambda path: change_json(
+            path, "employer-a.json", suppress_first_row), 0, "PASS", True),
+        ("duplicate month grain", lambda path: change_json(
+            path, "employer-a.json", lambda doc: doc["months"].append(dict(doc["months"][0]))),
+         1, "중복 월·부서", True),
+        ("invalid month date", lambda path: change_json(
+            path, "employer-a.json", lambda doc: doc["months"][0].update(month_start="2024-13-01")),
+         1, "month_start", True),
+        ("month must start on first", lambda path: change_json(
+            path, "employer-a.json", make_midmonth), 1, "월 첫날", True),
+        ("non-contiguous months", lambda path: change_json(
+            path, "employer-a.json", lambda doc: doc["months"][0].update(month_start="2028-01-01")),
+         1, "연속 월", True),
+        ("missing catalog department", lambda path: change_json(
+            path, "employer-a.json", lambda doc: doc["months"][0].update(department="Unknown")),
+         1, "카탈로그에 없는 부서", True),
+        ("catalog department absent from months", lambda path: change_json(
+            path, "departments.json", lambda doc: doc["departments"].append(
+                {"employer_id": "A", "department": "Absent"})),
+         1, "월에 부서 또는 억제 행이 없음", True),
+        ("negative measure", lambda path: change_json(
+            path, "employer-a.json", lambda doc: doc["months"][0].update(activated=-1)),
+         1, "activated 값/타입", True),
+        ("invalid freshness date", lambda path: change_json(
+            path, "employer-a.json", lambda doc: doc["freshness"].update(claims_thru="2026-02-30")),
+         1, "freshness.claims_thru", True),
+        ("timestamp without offset", lambda path: change_json(
+            path, "employer-a.json", lambda doc: doc.update(exported_at="2026-08-25T12:00:00")),
+         1, "exported_at 값/타입", True),
+        ("invalid measure", lambda path: change_json(
+            path, "employer-a.json", lambda doc: doc["months"][0].update(activated="100")),
+         1, "activated 값/타입", True),
+        ("nonfinite measure", lambda path: change_json(
+            path, "employer-a.json", lambda doc: doc["months"][0].update(dental_pmpm=float("inf"))),
+         1, "dental_pmpm 값/타입", True),
+        ("non-array months", lambda path: change_json(
+            path, "employer-a.json", lambda doc: doc.update(months=None)),
+         1, "months 가 비었거나 배열이 아님", True),
         ("A3 export missing", None, 1, "내보내기가 없다", False),
         ("catalog missing", lambda path: (path / "departments.json").unlink(), 1,
          "departments.json 이 없음", True),
@@ -132,6 +196,13 @@ def main():
         ("catalog rows empty", lambda path: change_json(
             path, "departments.json", lambda doc: doc.update(departments=[])),
          1, "departments 가 비었거나 배열이 아님", True),
+        ("catalog rows wrong type", lambda path: change_json(
+            path, "departments.json", lambda doc: doc.update(departments={})),
+         1, "departments 가 비었거나 배열이 아님", True),
+        ("employer catalog empty", lambda path: change_json(
+            path, "departments.json", lambda doc: doc.update(
+                departments=[row for row in doc["departments"] if row["employer_id"] != "A"])),
+         1, "기업 A 의 부서가 없음", True),
         ("synthetic wrong type", lambda path: change_json(
             path, "employer-a.json", lambda doc: doc.update(synthetic="true")),
          1, "synthetic 값/타입이 잘못됨", True),
@@ -172,8 +243,15 @@ def main():
             lambda doc: doc["departments"][0].update(employer_id="_TEST_A")),
          1, "내부 테스트 employer_id", True),
     ]
+    errors = []
     for case in cases:
-        run_case(*case)
+        try:
+            run_case(*case)
+        except AssertionError as exc:
+            errors.append(str(exc))
+    if errors:
+        print("FAIL — " + "\n".join(errors))
+        return 1
     print(f"PASS — export contract regression cases {len(cases)}개")
     return 0
 

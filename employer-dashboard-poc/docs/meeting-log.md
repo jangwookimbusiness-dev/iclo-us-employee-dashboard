@@ -8,11 +8,14 @@ instrument for PRD §2.4 and the evidence that would close the §5.2 blocking ga
 > | Question | Who answers it | Status |
 > |---|---|---|
 > | Will an employer pay for this? | US benefits managers, brokers, consultants | **0 conversations recorded.** §5.2 blocking |
-> | Does Snowflake find this concrete enough to act on? | Snowflake (H3, the only live hypothesis) | 1 conversation, below |
+> | Does Snowflake find this concrete enough to act on? | Snowflake (H3 partnership hypothesis) | 1 conversation, below |
 >
 > A partner saying the product is good does not move the first question. Record them separately.
 >
 > H1 and H2 are void — both depended on the booth demo or the deferred Trend view (PRD §2.3).
+
+PRD v1.0 adds L1–L3/P1 for employer problem, landing comprehension, qualified action and decision usefulness.
+Those are unvalidated hypotheses, not new interview evidence. The historical entry and rollup below remain unchanged in substance.
 
 ---
 
@@ -48,7 +51,7 @@ Notes:
 **What is known.** Snowflake responded positively and a collaboration proposal is under discussion
 (J. Kim, reported 2026-08-15, conversation was the previous day).
 
-**What this moves.** H3 is the only live hypothesis in the PRD and its bar is *at least one written
+**What this moves.** H3 is the partnership hypothesis; its bar is *at least one written
 follow-up toward US HLS GTM routing*. A discussion in progress is movement toward that bar, not the
 bar itself. It also bears on an open question in the CEO plan — design-partner acquisition was listed
 as *broker / direct / Snowflake introduction, undecided*. This makes the third path more plausible.

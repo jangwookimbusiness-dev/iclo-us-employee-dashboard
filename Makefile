@@ -9,8 +9,8 @@ help:
 	@echo "make setup         Create the Python 3.14 virtual environment"
 	@echo "make check         Run the same eleven CI commands as CI"
 	@echo "make check-fast    Run non-browser pre-commit gates"
-	@echo "make serve         Serve the demo at http://localhost:8000"
-	@echo "make docs          Rebuild managed screenshots and PDFs"
+	@echo "make serve         Build and serve http://localhost:8000/employer.html"
+	@echo "make docs          Rebuild managed PDFs"
 	@echo "make install-hooks Install the repository pre-commit hook"
 
 setup:

@@ -40,11 +40,12 @@ TEMPLATE = ROOT / "screens/employer.html.in"
 
 # 화면이 그리는 행 수. 손으로 3·5 라 적으면 정본에 밴드를 더하거나 빌더에 단계를
 # 더할 때 이 검사가 조용히 틀린 기대를 갖는다. 밴드는 정본이 정하고 **단계 수는
-# 빌더의 FUNNEL_STAGES 가 정한다** — 정본 `kpis` 는 지표 목록이고 그중 다섯만 퍼널이다.
+# 빌더의 FUNNEL_STAGES 가 정한다** — 정본 `kpis` 는 지표 목록일 뿐 단계 집합이 아니다.
 CANON_SIGNALS = yaml.safe_load(
     CANON.read_text(encoding="utf-8"))["dashboard"]["signals"]
 sys.path.insert(0, str(ROOT / "scripts"))
 CANON_FUNNEL = __import__("build_screens").FUNNEL_STAGES
+CANON_ACTIONS = __import__("build_screens").ACTION_MEASURES
 
 
 def _find_chrome():
@@ -121,6 +122,11 @@ CASES = [
      r"\g<1>변조된 창", "변조된 창", "롤링 12개월", "변조된 창"),
     ("funnel", "funnel[valid].frac",
      r"^(\s*value:\s+)0\.28\b", r"\g<1>0.31", None, "28%", "31%"),
+    ("actions", "actions[open].frac",
+     r"^(\s*value:\s+)0\.095\b", r"\g<1>0.2", None, "950", "2,000"),
+    ("action_summary", "action_summary",
+     r"^(\s*action_summary: \|\n\s*)Open은", r"\g<1>변조된 조치 정의 Open은",
+     None, None, "변조된 조치 정의"),
     ("funnel_nesting", "funnel_nesting",
      r"^(\s*funnel_nesting: \|\n\s*)Activated → Valid capture",
      r"\g<1>변조된 포개짐 규칙 Activated → Valid capture",
@@ -370,6 +376,19 @@ def build(canon_path, out_dir):
         capture_output=True, text=True, cwd=ROOT)
 
 
+def check_closed_backlog(tmp, original):
+    """Completion can remain positive when the current backlog is empty."""
+    doc = yaml.safe_load(original)
+    next(k for k in doc["dashboard"]["kpis"] if k["key"] == "open_actions")["value"] = 0
+    path = tmp / "empty-backlog.yml"
+    path.write_text(yaml.safe_dump(doc, allow_unicode=True), encoding="utf-8")
+    result = build(path, tmp / "empty-backlog")
+    assert result.returncode == 0, result.stderr
+    actions = {row["key"]: row["frac"] for row in json.loads(
+        (tmp / "empty-backlog/canon.json").read_text(encoding="utf-8"))["actions"]}
+    assert actions["open_actions"] == 0 and actions["closed_actions"] > 0, actions
+
+
 def main():
     for path, label in ((BUILDER, "빌더"), (CANON, "정본"),
                         (TEMPLATE, "템플릿")):
@@ -383,6 +402,7 @@ def main():
 
     with tempfile.TemporaryDirectory(prefix="build-canon-") as tmp:
         tmp = Path(tmp)
+        check_closed_backlog(tmp, original)
 
         base = build(CANON, tmp / "base")
         if base.returncode != 0:
@@ -593,12 +613,12 @@ def main():
                              f"(PRD §5.4 — 44px 미만 금지)")
             checked += 1
 
-            # **최소 셀.** 자격자를 100명으로 낮추면 Priority 밴드가 15명,
-            # 완료 조치가 4명이 되어 둘 다 문턱 아래로 내려간다. 화면 아래 문구가
+            # **최소 셀.** 자격자를 50명으로 낮추면 Priority 밴드가 8명,
+            # 완료 조치가 2명이 되어 둘 다 문턱 아래로 내려간다. 화면 아래 문구가
             # 첫 판부터 "그런 셀은 값을 안 보인다" 고 주장하고 있었고 화면에는 셀이
             # 아예 없었다 — 이제 있으므로 주장이 참이어야 한다 (PRD §5.4, n < 20).
             mutated, n = re.subn(r"^(\s*- \{key: A, employees: )10000",
-                                 r"\g<1>100", original, count=1, flags=re.M)
+                                 r"\g<1>50", original, count=1, flags=re.M)
             if n != 1:
                 fails.append("최소 셀: 시나리오 A 를 못 찾았다 — 검사가 낡았다")
             else:
@@ -616,12 +636,12 @@ def main():
                         dom = visible(raw)
                         if "withheld" not in dom:
                             fails.append(
-                                f"최소 셀 {key}: 자격자 100명이면 문턱 아래 셀이 "
+                                f"최소 셀 {key}: 자격자 50명이면 문턱 아래 셀이 "
                                 f"생기는데 화면에 'withheld' 가 없다. 아래 문구가 "
                                 f"주장하는 것을 화면이 안 한다")
                         checked += 1
                     # **억제한 행에 비율이 남아 있으면 억제가 아니다.** Priority
-                    # 15명은 100 × 15% 이고 자격자 100 은 같은 화면에 공표돼 있다 —
+                    # 8명은 50 × 15% 이고 자격자 50 은 같은 화면에 공표돼 있다 —
                     # 비율과 분모가 있으면 인원은 곱셈 한 번이다. 첫 판이 정확히 그
                     # 상태로 돌았고 (`15% · withheld`), 템플릿 주석은 그러면 안 된다고
                     # 쓰고 있었다. 그래서 억제된 행에서 `%` 를 찾는다.
@@ -647,6 +667,18 @@ def main():
                             fails.append(f"최소 셀 누출 {key}: 패널을 못 찾았다")
                             continue
                         body = panel.group(1)
+                        if key == "funnel":
+                            marker = '<div class="grid" id="actions">'
+                            if marker not in body:
+                                fails.append("최소 셀 누출 funnel: 조치 영역을 못 찾았다")
+                                continue
+                            body, action_body = body.split(marker, 1)
+                            action_withheld = action_body.count("withheld (n &lt; 20)")
+                            if action_withheld != len(CANON_ACTIONS):
+                                fails.append(
+                                    f"최소 셀 누출 funnel: 조치 {len(CANON_ACTIONS)}개 중 "
+                                    f"{action_withheld}개만 억제됐다")
+                            checked += 1
 
                         rows = re.findall(
                             r'<div class="(?:brow|stage)">(.*?)(?=<div class="'
@@ -663,7 +695,7 @@ def main():
                         fills = len(re.findall(r'class="(?:fill|sfill)[ "]', body))
                         if withheld == 0:
                             fails.append(
-                                f"최소 셀 누출 {key}: 자격자 100명인데 억제된 행이 "
+                                f"최소 셀 누출 {key}: 자격자 50명인데 억제된 행이 "
                                 f"없다 — 이 검사가 아무것도 안 보고 있다")
                         elif fills != rows_expected - withheld:
                             fails.append(
@@ -688,7 +720,7 @@ def main():
             # 데이터가 아니라 정본 계약과 화면 필터다. 부서 차원은 `?dept=` 가 돌아올
             # 때 함께 돌아오고, 지금 그것을 걷는 척하는 검사를 쓰면 안 된다.
             #
-            # 그리고 위 최소 셀 블록과 방향이 반대다. 그쪽은 자격자를 100명으로 낮춰
+            # 그리고 위 최소 셀 블록과 방향이 반대다. 그쪽은 자격자를 50명으로 낮춰
             # **억제가 일어나는지** 보고, 이쪽은 실제 시나리오 셋에서 **억제될 것이
             # 없는지** 본다. 둘 다 필요하다: 앞엣것만 있으면 언제나 억제하는 화면이
             # 통과하고, 뒤엣것만 있으면 절대 억제하지 않는 화면이 통과한다.
@@ -764,7 +796,7 @@ def main():
                             body, re.S):
                         if "withheld" in figure:
                             continue
-                        m = re.search(r"·\s*([\d,]+)\s*$", figure.strip())
+                        m = re.search(r"(?:·\s*|^)([\d,]+)\s*$", figure.strip())
                         if not m:
                             continue
                         parsed += 1

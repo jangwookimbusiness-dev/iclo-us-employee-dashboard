@@ -171,12 +171,14 @@
   <section id="panel-funnel" role="tabpanel" hidden>
     <div id="stages"></div>
     <p class="bsub" id="nesting">&mdash;</p>
+    <h3>Care actions</h3>
+    <div class="grid" id="actions"></div>
+    <p class="bsub" id="actionsummary">&mdash;</p>
   </section>
 
   <p class="note">Aggregate only. Cells covering fewer than
-  <code id="mincell">—</code> distinct people are withheld, and the threshold in
-  that sentence comes from the canon too — a regulatory number stated in prose is
-  still a number that must not be typed twice.</p>
+  <code id="mincell">—</code> distinct people are withheld; that threshold applies
+  to counts, percentages and bars.</p>
 </main>
 
 <script>
@@ -285,7 +287,7 @@ function paint(CANON){
   // Returns [figure, barWidth]. barWidth null means draw no fill at all.
   const cell = (n, frac) => n < CANON.min_cell
     ? [`<span class="withheld">withheld (n &lt; ${CANON.min_cell})</span>`, null]
-    : [`${pct(frac)} · ${fmt(n)}`, frac * 100];
+    : frac === undefined ? [fmt(n), null] : [`${pct(frac)} · ${fmt(n)}`, frac * 100];
 
   // Signals. Bands and shares, never a score -- PRD §5.4 forbids a numeric score
   // in employer views. The share is a share of a population, not a person's
@@ -313,10 +315,8 @@ function paint(CANON){
     const [figure, width] = st.key === "eligible_employees"
       ? [`${pct(st.frac)} · ${fmt(people)}`, st.frac * 100]
       : cell(people, st.frac);
-    const flag = (st.key === "closed_actions" && CANON.completed_provisional)
-      ? `<span class="flag">${esc(CANON.completed_provisional_label)}</span>` : "";
     return `<div class="stage">` +
-      `<div class="sname">${esc(st.label)}${flag}</div>` +
+      `<div class="sname">${esc(st.label)}</div>` +
       `<div class="snum">${figure}</div>` +
       `<div class="sbar">` +
       (width === null ? "" :
@@ -324,6 +324,14 @@ function paint(CANON){
       `</div></div>`;
   }).join("");
   document.getElementById("nesting").textContent = CANON.funnel_nesting;
+  document.getElementById("actions").innerHTML = CANON.actions.map(action => {
+    const [figure] = cell(Math.round(eligible * action.frac));
+    const flag = action.key === "closed_actions" && CANON.completed_provisional
+      ? `<span class="flag">${esc(CANON.completed_provisional_label)}</span>` : "";
+    return `<div class="card"><div class="lab">${esc(action.label)}${flag}</div>` +
+      `<div class="snum">${figure}</div></div>`;
+  }).join("");
+  document.getElementById("actionsummary").textContent = CANON.action_summary;
 
   // The regulatory sentence carries the threshold, and it comes from the same
   // place. A number stated in prose is still a number that must not be typed twice.
@@ -347,10 +355,7 @@ function paint(CANON){
 // ?tab=signals is a link to a view and a screenshot script can reach all three
 // without clicking. PRD §2.2 puts that in scope: every view is linkable.
 //
-// ?scen=, ?dept= and ?lens= are still not here. Scenario switching waits for the
-// export wiring, and a department filter needs department data the demo canon
-// does not carry -- the filter's purpose is to drive suppression INTO view, so
-// faking it with a slice of one synthetic employer would demonstrate nothing.
+// ?dept= is supported. Scenario switching and denominator lenses await A3 exports.
 function paintTabs(CANON){
   const bar = document.getElementById("tabs");
   const esc = s => String(s).replace(/[&<>"]/g, c =>
@@ -370,8 +375,7 @@ function paintTabs(CANON){
     const tab = CANON.tabs.find(t => t.key === key) || CANON.tabs[0];
     document.getElementById("heading").textContent = tab.heading;
     document.getElementById("lead").textContent =
-      `${tab.label} · every value and label on this page is read from the canon ` +
-      `at build time; nothing here is a hand-copied constant.`;
+      `${tab.label} · Aggregate employer view`;
     for (const k of keys) {
       const panel = document.getElementById("panel-" + k);
       if (panel) panel.hidden = k !== tab.key;

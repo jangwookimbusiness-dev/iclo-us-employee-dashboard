@@ -1,312 +1,214 @@
-# employer-dashboard-poc: 임직원 구강 집계 대시보드
+# ICLO — 참여 이후를 확인하는 기업 치과 복지 제품
 
-> **Canonical values live in `contracts/proposal-package-v11.yml`.** Screen names, KPI labels, constants,
-> colors, terminology and start gates are defined there and shared with the report, the proposal decks and
-> the engineering design doc. Change that file first, run `scripts/check-package-consistency.py`, then change
-> this one. The shipped code is `index.html` **at the repo root** — not inside this folder.
-
-> **Status**: v0.7 · 2026-08-13 — **the booth demo is dropped.** Two decisions in two days removed the
-> event from this spec entirely. On 8/12 the live capture went (visitor photo, badge scan, Supabase store,
-> `capture.html`). On 8/13 the booth demo itself went: the dashboard will not be shown at Snowflake World
-> Tour Seoul. ICLO still attends with the deck, the backwall and the video; the screen is not part of it.
+> v1.0 · 2026-09-08 · 전면 재검토안 · 승인자: Jangwoo Kim · GitHub #82
 >
-> **What this dashboard is now.** Two things, neither of them an event deliverable:
-> 1. The screenshot source for the proposal package. The v11 deck shows it, including suppression firing
-> 2. The starting artifact for the US evidence layer. It is the thing that gets repointed off its constants
->    block and onto Snowflake objects
+> 현재는 로컬 합성 데모다. 이 문서는 랜딩페이지와 제품 연결의 구현 기준을 제안하며, 구현·공개 배포·실데이터 운영 완료를 뜻하지 않는다. 미승인 `intent.md`를 승인된 전략으로 간주하지 않는다.
 >
-> **Product Type**: SW (web) · **Stage**: PoC — synthetic click demo
-> **Owner**: Jangwoo Kim (CFO) — single decision-maker
-> **Audience**: Internal + AI coding agents
+> 값·지표·공개 범위·착수 조건의 정본은 루트 `contracts/proposal-package-v11.yml`이다. 이 문서는 제품 목적과 요구사항을, [LANDING-PAGE.md](LANDING-PAGE.md)는 공개 카피·배치·연결 명세를, [ARCHITECTURE.md](ARCHITECTURE.md)는 현재 구조와 A3/A2 목표를 맡는다. 충돌은 정본 또는 승인된 결정부터 확인한다.
 
-> **This spec needs validation.** Zero problem-validation interviews with paying customers exist.
-> Never present demo output as performance evidence. Every number on screen is synthetic.
+## 1. Why — 누구의 어떤 판단을 돕는가
 
----
+### 1.1 제품 정의와 ICP
 
-## 1. Why
+ICLO는 미국의 self-funded 치과 플랜을 운영하는 기업이 **프로그램 참여 이후 청구로 확인되는 조치를 살펴보고, 다음 지원과 검증에 집중할 곳을 판단하도록 돕는 제품**을 개발한다. 기업에는 집계 근거를 제공하며 개인 결과는 별도의 권한 있는 임직원 경험에서 다룬다.
 
-**1.1 What this is.** An aggregate, privacy-safe oral-health dashboard shown from a US self-funded employer's
-point of view. It is the screen an employer would see once eligibility, app activity and dental claims sit in
-one governed model. Today it runs on synthetic numbers computed in the browser.
+여기서 self-funded는 고용주가 플랜의 청구 지급 책임을 부담하는 방식이며, 임직원의 본인부담금을 뜻하지 않는다. 한국어에서도 원어를 유지해 두 개념을 구분한다. 정의 참조: [HealthCare.gov — Self-insured plan](https://www.healthcare.gov/glossary/self-insured-plan/).
 
-**1.2 What it is for.**
-
-| Use | What the screen has to do |
-|---|---|
-| Proposal package | Be the real screenshot behind the claims. A drawn mockup would fail hallmark gate 47 and, worse, would not be honest |
-| US evidence layer (A3) | Be the artifact that gets repointed onto Snowflake objects without a rewrite |
-| Conversations with Snowflake and, later, employers | Show that `n ≥ 20` suppression and per-field provenance are implemented, not asserted |
-
-**1.3 What was dropped, and what it cost.**
-
-| Date | Decision | What went with it |
+| 역할 | 해결하려는 일 | 제품에서의 위치 |
 |---|---|---|
-| 2026-08-12 | Booth live capture cancelled | `capture.html`, the booth employer, badge-QR enrolment, the Supabase store, PIPA §23 handling, the security review that was a release condition |
-| 2026-08-13 | Booth demo cancelled | The offline bundle, the iPad acceptance path, the staff operating script, the on-site rehearsal, the freeze as a code deadline |
+| 1차 ICP: 기업 Benefits/Total Rewards 책임자 | 프로그램을 계속할지, 무엇을 더 확인할지, 어디에 지원할지 설명할 근거 확보 | 랜딩페이지의 주 독자·사업 문제 검증 대상 |
+| benefits consultant·broker | 고객 기업의 의사결정에 도움이 되는지 평가 | 소개·검토 경로; 고용주 수요를 대신 입증하지 않음 |
+| TPA/ASO·기업 데이터 담당자 | 자격·청구 연결 가능성, 권리, 작업 범위 확인 | 도입 실현 가능성 협력자 |
+| 임직원 | 본인의 밴드와 다음 행동을 이해 | 별도 사용자; 기업 화면의 개인 드릴다운 대상 아님 |
+| Snowflake | 데이터 기반 및 US HLS 협업 가능성 검토 | 인프라·사업 협력 상대; 랜딩페이지의 구매자와 구분 |
 
-The 8/12 decision removed a differentiator and said so (v0.6 §5.3 rated the booth weak as a result). The 8/13
-decision removes the event from this spec entirely, which is simpler: there is no longer a date this code has
-to survive, and no longer an offline constraint on how it fetches data. That second point is what makes the
-US evidence-layer work startable.
+기업 규모만으로 적합성이나 집계 가능성을 판정하지 않는다. self-funded 치과 플랜 여부, 구체적인 보고·의사결정 문제, 데이터 협의 상대가 있는지를 우선 확인한다. 규모 선별 기준은 정본과 제안서를 따르며 새 숫자를 만들지 않는다.
 
----
+### 1.2 Pain → desired outcome
 
-## 2. What
+아래는 검증할 문제 가설이지 모든 고용주의 보고서가 부족하다는 사실 주장이 아니다.
 
-> **Structure lives in `ARCHITECTURE.md`** (same folder) — three diagrams: what runs today, the A3 target,
-> and the full product with existence markers on every box. This section says what the thing is; that one
-> says how it is wired.
-
-**2.1 Concept.** Two surfaces, built from `screens/employer.html.in` and `screens/member.html.in` into
-`build/` by `scripts/build_screens.py`. **The root `index.html` and `app.html` were retired 2026-08-27
-(#49)** and the paragraph below describes them as they were; it is kept because the concept did not change,
-only where the values come from. The employer dashboard is the first; the employee screen is the second —
-originally added 2026-08-14, synthetic, a click-through of the
-five things a member does: check in, read **their own band and which way it moved**, see what the plan
-covers, see **why the remaining maximum is deliberately blank**, and find an in-network dentist. Neither
-has a backend. Opened from the Pages URL or locally. Three views over three synthetic employers.
-
-This sentence said "read their own score" and "see what is left" until 2026-08-16. Both were removed from
-the app that day — the score until FDA clearance, the balance because computing one from our own claim
-warehouse sends people to a chair expecting coverage they no longer have. The spec kept describing the
-app it used to be, which is how a spec stops being a spec.
-
-> **Opening it locally has a shelf life.** It works now because every number is a constant inside the file.
-> The moment the screen fetches its data, `file://` stops working — a page with an opaque origin cannot
-> fetch, and the browser blocks it. `bash scripts/serve.sh` exists for that, and the tests will need it
-> too. Nothing has changed yet; this is here so the change is not a surprise.
-
-**2.2 In-scope / Out-of-scope.**
-
-| In (build) | Out (do not build — reason) |
-|---|---|
-| 3 views: Program overview · Oral-health signal distribution · Intervention funnel | Login / roles / user accounts — nothing here is per-person |
-| 3 synthetic employers A/B/C at 10,000 / 2,500 / 25,000 | A live booth employer — dropped 2026-08-12 |
-| Department filter that drives suppression into view | Relaxing suppression so a small department "shows something" |
-| Denominator lens: eligible employees vs covered member-months | Mixing the two denominators anywhere |
-| Tap-to-open source chips, one per figure | `title`-only tooltips. Hover is not a reliable input signal |
-| `?scen=`, `?tab=`, `?dept=`, `?lens=` URL state — every view is linkable, so screenshots regenerate from a script | — |
-| — | **An offline bundle.** Dropped 2026-08-13 with the booth. The evidence-layer work needs the screen to fetch, and nothing now requires it to run without a network |
-| — | **Preventive-visit Trend vs Control — still deferred.** Needs a control arm; experiment assignment has no consent basis, allocation rule or protocol owner |
-| — | Any disease-specific wording — FDA 2026 red line |
-| — | A numeric score in employer views. Bands only |
-
-**2.3 Core hypotheses.**
-
-| # | Hypothesis | Verification |
+| Before — 확인할 현재 상황 | After — 얻으려는 판단 자료 | 넘지 않을 주장 |
 |---|---|---|
-| H1 | ~~A visitor who watches suppression fire stops asking about privacy~~ | **Void.** Depended on the booth demo. There is no visitor |
-| H2 | ~~J-curve guardrail~~ | **Untestable.** The Trend view it depends on is deferred |
-| H3 | The screen gives Snowflake something concrete enough to act on | ≥ 1 written follow-up toward US HLS GTM routing |
+| 참여 집계와 이후 진료 근거를 별도로 검토한다 | 같은 기업·사람·기간의 참여와 적격 청구를 연결해 확인한다 | 참여가 진료를 유발했다는 인과 주장 |
+| 미확인 조치가 지연인지 미완료인지 구분하기 어렵다 | 미완료 잔량, 성숙 코호트의 청구 확인, 아직 관찰 중인 상태를 구분한다 | 최근 조치를 곧바로 실패로 분류 |
+| 다음 지원의 근거를 설명하려면 자료를 다시 대조한다 | 분모·보고 기간·원천 최신성을 함께 보고 다음 검증 질문을 정한다 | 미검증 시간 절감·비용 절감·건강 개선 수치 |
+| 개인 결과까지 봐야 평가할 수 있는지 우려한다 | 기업 집계와 임직원 개인 경험을 분리해 평가한다 | 재식별 위험이 없다는 절대적 보장 |
 
-H1 and H2 are both void. H3 is the only live hypothesis and it is about the proposal, not the screen.
-That is worth saying plainly: **this dashboard currently has no hypothesis of its own.** It is an input to
-other work. The next spec that gives it one is the US evidence layer.
+**Job story:** “복지 프로그램을 평가해야 할 때, 참여 숫자 뒤에 어떤 조치가 확인됐고 무엇은 아직 판단할 수 없는지 알고 싶다. 그래야 다음 예산·지원·데이터 검증을 근거와 함께 논의할 수 있다.”
 
----
+### 1.3 유지하지 않는 과거 범위
 
-## 3. How
+2026-08-12 현장 촬영·명찰 수집이 취소됐고, 08-13 부스 데모도 취소됐다. 이벤트 마감, 오프라인 번들, iPad 전용 인수 조건은 복구하지 않는다. 동결 제안서·PNG는 당시 기록이며 현재 동작의 증거가 아니다. 재구축 근거는 루트 `REBUILD-CHARTER.md`, 이전 PRD는 Git 이력에 남는다.
 
-**3.1 Roles.**
+## 2. What — 제품, 증거, 전환
 
-| Role | Actor |
-|---|---|
-| Design interrogation, planning, review, QA, ship gate | Claude Code |
-| Implementation | Either agent. Whoever authors, the other checks |
-| Final approval & merge | Jangwoo Kim (human merges; agents never self-merge) |
+### 2.1 현재와 목표의 경계
 
-Cross-check rule: **the authoring agent never approves its own work.**
-
-v0.6 changed this. The earlier version assigned implementation to Codex and review to Claude Code, which
-optimised the wrong risk. In practice Claude Code implemented and the code held: the booth removal passed
-`test_build_reads_canon`, `test_consent`, the red-line check and the consistency check on the first run
-(this listed `test_single_source` and `test_suppression`, both deleted in #49). The
-failures were in **planning and documents**, and every one was a claim the repo already contradicted:
-
-- a proposal to build suppression-reason display that the employer screen already ships
-- a proposal to constrain an export that does not exist
-- a clean-room proposal that `output/ICLO-Snowflake-Briefing-Meeting-Pack-v1.md:167` rules out for a single
-  employer/TPA pilot
-
-None is a coding mistake. They are the same mistake: **authoring against memory instead of against the
-repository.** So the rule is not about who writes code:
-
-> **Nothing an agent authors ships until a different model has checked it against the repository — not read
-> it, checked it.**
-
-The reviewer must be given the artifact *and* the repo, and told to verify claims by opening files. A
-reviewer that only reads the artifact will agree with it.
-
-**Parallel authoring applies to plans, not code.** Two independent drafts of the v11 proposal, both bound to
-one shared brief and each forbidden from reading the other, found different defects: one caught a missing
-disclosure and an overclaimed link verification, the other caught unquoted screen labels and a stale
-terminology rule. The merge beat both. Prose merges cheaply, paragraph by paragraph.
-
-Code does not. Two implementations of the same behaviour usually end with one chosen and the other's ideas
-ported by hand, so the second draft costs twice and yields once.
-
-| Artifact | Method |
-|---|---|
-| Plans, specs, proposals, architecture decisions | Parallel authorship from one shared brief, then merge |
-| Code | Single author, cross-model review against the repo |
-
-**3.2 What is left on this spec.** Nothing dated. The booth deadlines (8/22 script, 8/25 freeze, 8/26
-rehearsal, 8/27 event) applied to a demo that no longer happens. The remaining event obligations — mini-session
-speaker info, staff list, promo video, backwall — are not this repo's.
-
-The next work on this code is the US evidence layer. Its shared work queue is the
-repository's `A3 Evidence Layer` GitHub Milestone; `BACKLOG.md` defines the issue
-schema. Local gstack plans preserve rationale but are not the live backlog.
-
-**3.3 Stack.**
-
-| Layer | Choice | Note |
+| 표면/계층 | 현재 확인된 구현 | 다음 요구사항; 완료로 표현하지 않을 것 |
 |---|---|---|
-| Display | Vanilla HTML built from `screens/*.html.in` by `scripts/build_screens.py`, inline CSS + JS | No `package.json`, `src/` or `dist/`. Vite/React/TS was the original plan and was not adopted. **2026-08-27**: the single root file became a template plus a builder so the canon is read at build time rather than copied by hand |
-| Store | None today | A3 repoints this onto Snowflake objects |
-| Style | Inline CSS custom properties (Coral `#C2333A` · Navy `#1B2A4A` · Teal `#007A87`, white bg) | Coral changed from `#FF7A79` on 2026-08-08: 2.53:1 on white failed WCAG AA. `#C2333A` is 5.49:1 |
-| Signal bars | Low `#7E90AE` · Moderate `#4E8F98` · Priority `#C2333A` | Was `#D9E1EE` / `#8FB8BE`, measuring 1.24:1 and 2.02:1 against their track. Now 3.05 / 3.46 / 5.16 |
-| Touch targets | 44px on every control, **unconditionally** | Kept after the booth iPad went. `@media(hover:none)` does not fire when a keyboard is attached, so input-capability queries are not a reliable way to size controls on any device |
-| Charts | Hand-drawn CSS/SVG bars | No chart library |
-| State | Plain JS module-scope variables + `?scen=` · `?tab=` · `?dept=` · `?lens=` URL state | |
+| 기업 화면 | 로컬 Overview·Signals·Funnel, 부서 필터, 억제 설명, 원천별 최신성 | A3의 검증된 tenant exports 연결, 실제 부서별 값, 필요한 출처 설명 |
+| 임직원 화면 | 합성 SELF/GUARDIAN 프로필·동의 상태, 밴드·방향, 예약 단계/자기보고 예시 | A2 첫 인증은 임직원 본인만; 가족 대리는 후속 단계. 실제 예약·보장 조회는 없음 |
+| 랜딩페이지 | 이 저장소에 구현되어 있지 않음 | 이 PRD에 따른 반응형 기업용 페이지와 데모 연결 |
+| 데이터 | 정본 기반 합성 값, fixtures, 로컬 계약 검사 | Snowflake에서 실행 증거가 있는 정책·변환·내보내기와 승인된 운영 |
+| 공개 전달 | GitHub Pages의 외부 목적지 리다이렉트 하나 | 공개 랜딩/데모 호스팅은 별도 결정 후; 기존 QR 목적지 변경 금지 |
+| 문의/상업 | 확인된 접수 endpoint·예약 URL·공개 가격 없음 | 승인된 문의 경로·접수 책임자·개인정보 고지·견적 범위 |
 
-**3.4 Data.** Every figure derives from the canon, read at build time. `test_build_reads_canon.py` perturbs
-`contracts/proposal-package-v11.yml`, runs the real builder, and asserts the new value reached the rendered
-DOM and the old one did not.
+### 2.2 필수 사용자 여정과 제외 범위
 
-> **Corrected 2026-08-30.** This said "one constants block in `index.html`" enforced by
-> `test_single_source.py`. Both are gone (#49) — and the premise this section's own A3 note anticipated was
-> retired earlier than A3, by the rebuild. The check was rewritten rather than deleted, exactly as that note
-> required; what went stale was this sentence naming the old file.
+1. **기업 구매자:** 대상·문제·결과·차별점 이해 → 합성 데모에서 참여/조치 구분 확인 → 개인정보 경계·청구 지연·가격 조건 확인 → 자신의 보고 질문으로 적합성 논의 요청. 문의 경로가 없으면 데모 열람까지만 가능하다.
+2. **기업 분석 사용자:** 자격자 → 참여자 → 유효 촬영자의 사람 기준 퍼널을 읽고, 별도로 조치 잔량과 성숙 코호트 완료 수를 해석한다. 작은 부서는 값 대신 억제 설명을 본다. 개인 명단은 얻지 않는다.
+3. **임직원:** 본인의 권한 있는 결과와 다음 행동을 본다. 현재는 합성 권한 상태 예시이지 실제 인증 보안이 구현된 제품이 아니다. 기업 화면에서 개인 결과로 이동하는 기능을 만들지 않는다.
 
-Scenarios A/B/C: 10,000 / 2,500 / 25,000 eligible · 38% activated · 61% repeat · $31.40 / $32.80 / $30.90
-PMPM · 52·33·15 signal mix · funnel 3,800 → 2,800 → 950 → 420 on A.
+현재 deep link는 `?tab=`와 `?dept=`다. 시나리오 A가 기본이며 B/C는 정본·검사 입력이다. 시나리오 전환·분모 렌즈·필드별 출처 칩은 아직 없다.
 
-> **A3 will invalidate this section's premise.** When the screen reads Snowflake objects instead of a
-> constants block, that check must be **rewritten**, not deleted — "every figure derives from one
-> object set" is the same property with a different source. That test was silently switched off once already
-> (it matched the state initialiser as a literal string and stopped matching when URL state was added); do not
-> let a rewrite switch it off a second time.
+이 작업에서 만들지 않는 것: 실명 건강정보 수집, 사진 업로드, 의료적 판단, 보장 잔액 계산, 치과 디렉터리, 실제 예약, 로그인 구현, 실청구 로딩, 비교군 효과 분석, 결제, 요금 계산기, 별도 분석 SaaS. 필요한 항목은 별도 이슈와 승인 범위를 갖는다.
 
-Canonical values live in `contracts/proposal-package-v11.yml`. Change that file first.
+### 2.3 검증 가설
 
-**3.5 Repo.** Subfolder `employer-dashboard-poc/` holds spec and scripts only. Shipped code is at the repo
-root. Work starts from a GitHub Issue, happens on a feature branch, and merges to protected `main` only after
-the required `gates` check. Cross-model review is recorded in the pull request; the human owner merges.
+| ID | 가설 | 확인 방법 | 반증/중단 신호 |
+|---|---|---|---|
+| L1 문제 | 목표 담당자가 참여 이후에 관한 미해결 보고 질문을 갖고 있다 | 제품 설명 전 최근 실제 의사결정과 사용 자료 질문 | 기존 TPA 보고로 충분하며 바꿀 이유가 없음 |
+| L2 이해 | 첫 화면이 대상·문제·결과·차별점을 전달한다 | 짧게 보여 준 뒤 독자가 자기 말로 설명 | 임직원용 검사나 즉시 구매 가능한 완성 제품으로 오해 |
+| L3 행동 | 적합한 기업이 데이터 접근과 검증 범위 논의를 원한다 | 실제 대화에서 보고 질문·데이터 협의 상대 확인 | 클릭만 있고 실제 문제·다음 행동이 없음 |
+| P1 유용성 | 집계와 관찰 상태를 구분한 자료가 다음 판단을 돕는다 | 다음 결정과 여전히 부족한 근거를 기록 | 예쁘지만 어떤 판단도 달라지지 않음 |
+| H3 협력 | Snowflake 협업 논의를 다음 단계로 옮길 수 있다 | US HLS GTM routing을 향한 서면 후속 조치 | 긍정적 구두 반응뿐이며 구체적인 서면 후속 없음 |
 
-**3.6 Deploy.** GitHub Pages. No offline bundle — dropped with the booth. Locally, `bash scripts/serve.sh`
-(see the note in §2.1 for why double-clicking the file will stop being enough).
+과거 H1(부스 방문자)·H2(Trend 비교군)는 중단 상태다. L1–L3/P1은 이번에 제안한 가설이며 검증 완료가 아니다. H3의 성과를 고용주 수요의 증거로 합산하지 않는다.
 
----
+### 2.4 성공 지표와 증거 기록
 
-## 4. Verification
+핵심 사업 신호는 **적합한 기업과 실제로 진행한 문제·데이터 검증 대화**다. 적합성은 1차 ICP 기업, 구체적인 보고/판단 문제, 데이터 협의 의사가 함께 확인된 상태다. 소개자 클릭이나 예약 클릭만으로 인정하지 않는다.
 
-There is no longer a success metric on this spec. The booth outcome metrics (captures, contacts, meetings
-booked, privacy incidents) all measured an event this code no longer appears at. H3 belongs to the proposal.
+| 단계 | 정의/분모 | 한계 |
+|---|---|---|
+| 데모 관심 | 측정에 동의한 랜딩 세션 중 실제 데모 열기를 선택한 세션 | 수요·구매가 아님; 추적 거부 세션을 전체 트래픽으로 외삽하지 않음 |
+| 문의 접수 | 접수 시스템이 수락·기록한 고유 문의 | 버튼 클릭·메일 작성 창 열기는 접수 아님 |
+| 유효 대화 | 접수 문의 중 실제 대화에서 위 적합성을 확인한 건 | 불참 제외; 접수 cohort와 관찰 기간을 명시 |
+| 의사결정 도움 | 담당자가 밝힌 다음 결정과 부족한 근거 | 후기·ROI 수치로 자동 전환하지 않음 |
 
-### 4a. Machine-verifiable acceptance
+기준선은 측정되지 않았다. 목표 전환율·매출·절감률을 만들지 않는다. 첫 관찰 묶음에서 건수·분모·기간·유입·중복 제외 기준을 보고한 뒤 Jangwoo Kim이 목표를 정한다. 자동 추적은 아직 설치하지 않는다. [meeting-log.md](meeting-log.md)가 대화 증거 기록이며 #31이 수요 검증 작업이다.
 
-- All 3 views render for all 3 employers; zero console errors
-- Scenario A/B/C values match §3.4 exactly
-- Any cell with `n < 20` masks values and prints "Suppressed (n<20)" with the reason inline
-- The result is a band, never a numeric score
-- `?scen=` · `?tab=` · `?dept=` · `?lens=` each open the screen onto the named state, and the
-      department control shows the department that is actually selected
-- "Synthetic data — illustrative only" on every view
-- Provenance chip present and tappable on every figure
-- `make check` passes all eleven repository gates (the count is asserted by `check_local_matches_ci`, which compares the Makefile against CI as sets — do not hand-edit this number)
-- kill-ai-slop Mode B scan passes before a UI release
+## 3. How — 구현 가능한 설계와 전달 경계
 
-### 4b. Human check
+### 3.1 역할과 검토
 
-Five steps, on any browser.
+작성 에이전트가 자기 작업을 승인하지 않는다. 계획·스펙·제안서는 같은 brief로 독립 병렬 초안을 만든 후 병합한다. 코드는 단일 작성자가 구현하고 **다른 모델이 실제 저장소를 열어 주장을 검증**한다. 최종 승인과 병합은 Jangwoo Kim이 한다.
 
-1. Open the page. A/B/C all load, no console errors.
-2. Switch employers. Every figure moves; none are stale.
-3. Filter to a small department. Values are replaced by "Suppressed (n<20)" and the reason states the group size.
-4. Tap a source chip. Its ingestion path opens inline.
-5. Switch the denominator lens. The highlight follows and no figure mixes the two.
+제안 전에 기존 구현, 연결할 실행 경로, 반대되는 승인 결정을 확인한다. 체크가 보장한다고 쓰는 동작은 코드와 대조한다. 새 검사는 의도한 고장에서 실패함을 관찰한 뒤 인정한다. 역사적 실패 분석은 재구축 헌장을 참조한다.
 
-### 4c. Anti-goals (achieving these = failure)
+### 3.2 작업 범위와 우선순위
 
-- Any individual-level result appears on screen, in any form
-- Any disease-specific wording appears on screen, in code, or in a screenshot
-- Demo numbers get presented as customer performance evidence
-- A numeric score is shown in place of a band in an employer view
+GitHub Issues/Milestones가 유일한 공유 백로그이며 PRD는 별도 작업 대장이 아니다.
 
----
+- #82: PRD 재검토, 랜딩 카피·디자인·연결·인수 명세. 현재 변경 범위는 문서다.
+- 다음 구현 이슈: 승인된 카피/디자인으로 로컬 반응형 페이지와 합성 데모 연결을 구현·검증한다.
+- 공개 출시: 목적지·문의 접수·고지·운영 책임·공개 파일 allowlist 승인 후 별도 배포 이슈로 진행한다.
+- A3/A2: 정본 착수 조건과 기존 의존성을 따른다. 랜딩 승인이 실데이터 승인을 대신하지 않는다.
+
+### 3.3 기술과 디자인 원칙
+
+기존 Python 3.14/PyYAML 빌더와 vanilla HTML/CSS/JavaScript를 사용한다. frontend framework·npm 애플리케이션·별도 템플릿 엔진을 도입하지 않는다. 현재 빌더는 `scripts/build_screens.py`, 화면 원본은 `screens/*.html.in`이다. 다음 랜딩 템플릿도 같은 경계로 추가하되 이번 문서 작업에서 빌드 산출물을 늘리지 않는다.
+
+디자인은 **읽을 수 있는 근거 중심의 편집형 보고서** 방향을 제안한다. 기존 브랜드와 신호 색 의미를 유지하고, 문제 문장 → before/after 비교 → 실제 제품 근거 순으로 시선을 이동시킨다. 토큰은 루트 [DESIGN.md](../../DESIGN.md), 배치는 LANDING-PAGE.md에 둔다. 새 디자인은 승인 대기이며 기존 앱 전체 리디자인을 승인하지 않는다.
+
+### 3.4 데이터 및 지표 계약
+
+정본 값을 문서나 랜딩 JavaScript에 다시 하드코딩하지 않는다. 제품 미리보기는 기존 빌드 화면을 사용한다. 스크린샷이 필요하면 해당 빌드에서 생성·대조한다.
+
+- 참여 퍼널은 같은 보고월 자격자 중 참여자, 그중 유효 촬영자를 센다.
+- Open은 보고일의 유효한 미완료 조치 수다. Completed는 성숙 코호트 안에서 적격 청구로 확인한 조치 수다. 두 수는 포개진 단계도, 완료율도 아니다.
+- 완료율을 추가할 때는 성숙 코호트 조치 수가 분모이며 미성숙 상태를 따로 설명한다. 정본의 잠정 상태를 숨기지 않는다.
+- rolling 지표는 보고월을 포함하는 `[M-11, M+1)`이다. 최신성은 원천별 기준일과 함께 표시한다.
+- 억제는 distinct-person support가 최소 셀 미만일 때 값·비율·막대를 함께 숨긴다. 조치 행 수로 사람 수를 대체하지 않는다. 인접 집계의 차이로 작은 셀을 복원하는 위험도 export 검증 대상이다.
+- 현재 부서 값은 전사 비율로 만든 합성 예시이지 부서별 실측이 아니다.
+- 합성 여부는 export의 `synthetic` envelope를 따른다. A3 단계명만으로 합성 고지를 제거하지 않는다.
+
+**추상 구조:** 자격·앱 활동·치과 청구 → 권한 있는 연결/검증 → 지표와 억제 → 기업 집계 / 별도 임직원 경험. 랜딩은 설명과 허용된 데모 연결만 담당하며 원천 데이터를 받지 않는다.
+
+**상세 연결:** 현재는 정본 → 빌더 → `build/`의 HTML/JSON → 로컬 브라우저다. A3 목표는 Snowflake 내부 변환·권한 경계 → 검증된 동일 배치 tenant exports → 허용된 전달 경로 → 화면이다. 기존 화면 틀/계약을 재사용하되 export 연결은 별도 구현이다. 브라우저에 Snowflake 자격증명을 주지 않는다. A3 합성 검증의 3 tenant·36개 연속 월 및 4파일 원자적 전달 요구는 ARCHITECTURE.md와 v14 기술 부록에서 확인한다.
+
+### 3.5 소프트웨어 경계와 실패 상태
+
+현재 화면은 인접 JSON을 fetch하므로 `make serve`를 통한 로컬 HTTP가 필요하다. 랜딩의 문장·앵커·데모 링크는 JavaScript 없이도 작동하게 설계한다. 읽기 실패를 빈 성공 화면이나 이전 고객 값으로 대체하지 않는다.
+
+문의 목적지가 없으면 “문의 접수 준비 중”과 데모 CTA를 사용한다. 승인된 외부 예약 서비스가 있으면 네이티브 링크를 우선한다. 폼이 필요해질 때만 endpoint·검증·실제 성공/실패·보존 정책을 함께 구현한다.
+
+### 3.6 배포
+
+현재 `scripts/build_pages_site.py`의 발행물은 `_site/index.html` 리다이렉트 하나다. 로컬 `build/` 전체를 공개 산출물로 복사하지 않는다. 랜딩 구현·공개 합성 데모 허용·실데이터 전달은 서로 다른 승인이다. 임직원 실데이터·exports·계정 정보·원천 자료는 공개 파일 목록에 들어가지 않는다. A2는 인증된 비공개 전달이 필요하다.
+
+## 4. Verification — 무엇을 보면 완료인가
+
+### 4a. 검사와 다음 구현의 인수 조건
+
+기존 `make check`는 CI와 같은 명령 집합을 실행한다. 실제 목록은 Makefile/workflow에서 확인하며 개수를 복제하지 않는다. 기존 검사 통과는 랜딩 전환 성과·법적 승인·Snowflake 운영 증거가 아니다.
+
+- LP-01: pain → outcome → mechanism → proof → objection → pricing → CTA 순서. Hero에서 ICP·문제·결과·차별점 식별 가능.
+- LP-02: before/after는 판단 자료의 변화다. 고객 성과·인과 효과를 꾸며내지 않으며 미구현/합성 상태를 작은 각주에 숨기지 않는다.
+- LP-03: 실제 빌드 데모의 지정 상태로 이동. 모바일에서 읽고 조작할 수 있으며 억제 예시에 값·비율·막대가 노출되지 않는다.
+- LP-04: 가격/문의가 승인 및 실제 연결 상태와 일치. 접수 전 성공 표시 금지. 가격 미정을 무료로 표시하지 않는다.
+- LP-05: 320 CSS px부터 가로 넘침 없이 읽힌다. 키보드·포커스·대비·확대·모션 감소 확인. 상세 기준은 DESIGN.md.
+- LP-06: 개인정보/건강정보가 URL·분석 이벤트·공개 산출물에 없다. Pages 경계는 불변이거나 별도 승인·회귀 검증이 있다.
+- LP-07: 새 동작은 실패 사례도 실행한다. 새 템플릿/카피를 검사 대상에 편입하고 고장 주입으로 확인한다. 미구현 검사를 통과했다고 보고하지 않는다.
+
+### 4b. 사람이 확인할 순서
+
+1. 첫 화면만 보고 누가, 어떤 문제 때문에, 어떤 결과를, 어떤 방식으로 얻는지 독자가 설명한다.
+2. 데모에서 참여 퍼널과 조치 수가 다른 집계임을 확인한다.
+3. 작은 부서의 억제 설명, 합성 고지, 부서 비율 caveat를 확인한다.
+4. 원천 최신성과 청구 지연을 읽고 최근 조치를 실패로 단정하지 않는지 확인한다.
+5. 별도의 임직원 합성 화면에서 개인/대리 예시와 실제 인증 미구현 상태를 구분한다.
+6. 가격/문의에서 현재 가능한 행동만 제공하며 오류 상태가 정직한지 확인한다.
+
+### 4c. 실패로 판정할 결과
+
+기업에 개인 결과를 노출하거나, 임직원 화면을 기업 드릴다운처럼 제시하거나, 양쪽 밴드를 숫자 점수로 바꾸면 실패다. 합성 자료를 고객 성과로 제시하거나, 청구 확인을 효과의 인과 증명으로 해석하거나, 클릭을 접수/계약으로 기록해도 실패다.
 
 ## 5. Risk & Guardrails
 
-**5.1 Pressure test.** Direct evidence that a customer pays for this dashboard: **none**. With the booth gone,
-this screen is not being tested against any audience at all right now. Verdict: **untested, and honestly so.**
+### 5.1 근거의 강도
 
-**5.2 Problem validation.** Interviews with US benefits consultants or employers: **0**, and the conversations
-that did happen were not recorded. Verdict: **blocking** for any production decision.
+현재 근거는 구현된 합성 화면, 정본·계약 검사, 설계 문서다. 유료 고객 성과·비용 절감·건강 개선·실운영 인증을 증명하지 않는다. Snowflake 제안서나 긍정적 반응을 고객 로고·공식 보증·구매 의사로 바꾸지 않는다.
 
-**5.3 Personal data.** This code processes **none**. No images, no badge scan, no contact collection, no
-accounts. PIPA §23 does not apply and the security review that v0.5 made a release condition is not needed.
+### 5.2 수요 검증
 
-That is the largest risk reduction from the two August decisions, and it should be said plainly rather than
-quietly enjoyed: the fastest way to have a privacy incident at a booth was to handle sensitive data at a booth.
+meeting-log에는 고용주 측 문제 검증 대화가 기록되어 있지 않다. 기록되지 않은 대화를 없었다고 단정하지는 않지만 수요 증거로 세지도 않는다. 이 공백은 상용화 판단의 제약이며 랜딩 작성으로 닫히지 않는다. 현재 보고서, 막힌 결정, 대안, 데이터 협의 상대, 합의한 다음 행동을 실제 대화에서 기록한다.
 
-**5.4 Agent red lines (violation = auto-reject).**
+### 5.3 개인정보와 법적 판단
 
-| Red line | Enforcement |
+현재 로컬 데모 입력은 합성 자료다. 향후 문의는 업무 연락처만 받아도 개인정보 처리 검토가 필요하다. 건강·청구·사진·보험 식별자를 문의에 제출하도록 유도하지 않는다. PRD가 법 적용 여부를 확정하지 않으며 실제 데이터·인증·지역·계약 범위별로 권한 있는 검토를 거친다.
+
+### 5.4 Agent red lines — 위반 시 반려
+
+| 규칙 | 현재 집행 경로와 한계 |
 |---|---|
-| Forbidden terms: `diagnos*, cavit*, caries, decay, gingivit*, periodont*, abscess, lesion`; signal label "Review" banned (use "Priority") | `scripts/check-forbidden-terms.sh` |
-| No individual-level screens **in employer views**; no mock person profiles there | PR review. Scoped 2026-08-15: `app.html` is a member's own surface and shows their own result and their profiles by design (`contracts` `surfaces`) |
-| **Band, never a number — on both surfaces, until FDA clearance** | PR review. Reversed 2026-08-16: the app briefly showed a 0-100 score. An image-derived figure presented to a person as their oral status reads outside the general-wellness boundary. The score is still computed; it is not rendered |
-| Cells with `n < 20` never show values | `test_build_reads_canon.py` — the min-cell block and the floor walk. **Corrected 2026-08-30**: this said `test_suppression.py`, deleted with the old screens in #49, so this red line named a file that does not exist |
-| ~~Band, never a numeric score — in employer views~~ | Superseded 2026-08-16 by the row above. The 08-14 settlement had the app showing a 0-100 score; that is reversed |
-| Every figure derives from one source of truth | `test_build_reads_canon.py` — perturb the canon, run the builder, read the rendered DOM. **Corrected 2026-08-30**: this said `test_single_source.py`, deleted in #49. The check was not lost, it moved to the build boundary; the red line pointed at the old name for three days |
-| Every view labeled "Synthetic data — illustrative only" | screenshot test |
-| No AI-slop visual patterns | kill-ai-slop Mode B gate before `/ship` |
-| Brand Coral is `#C2333A`; signal bars clear 3:1 against their track | `scripts/check-package-consistency.py` |
-| No control under 44px, and no information reachable only by hover | PR review |
-| Absolute privacy claims must be scoped (`no individual PHI` → `no individual PHI in employer views`) | `scripts/check-package-consistency.py` |
+| 질병 관련 금지 어근 `diagnos*, cavit*, caries, decay, gingivit*, periodont*, abscess, lesion`; signal label "Review" banned (use "Priority") | `employer-dashboard-poc/scripts/check-forbidden-terms.sh`의 명시 대상/docs 검사. PRD는 금지어를 설명하므로 질병 어근 스캔 제외; 원고 검토 병행 |
+| 기업 열람은 집계만; 개인 PHI나 모의 개인 프로필 금지 | 설계·코드 검토. 로컬 데모는 실운영 인증/DB 정책을 입증하지 않음 |
+| 양쪽 결과 표면 모두 밴드만; 숫자 구강 건강 점수 금지 | `test_consent.py`, `test_build_reads_canon.py`와 화면 검토. 규제 gate 변경 없이 완화 금지 |
+| distinct-person support `n < 20`이면 수치·비율·막대 억제 및 설명 | `test_build_reads_canon.py`의 렌더/floor 검증, `test_export_contract.py`의 계약. 실DB 집행은 별도 실행 검증 |
+| 화면 계약/합성 값의 정본 전달 | `test_build_reads_canon.py`의 정본 교란 → 같은 빌더 → 렌더 DOM 확인 |
+| 합성 자료 표면에 `Synthetic data — illustrative only` | 기존 빌드 화면은 `test_build_reads_canon.py`; 새 랜딩은 구현 시 대상 편입 필요 |
+| 색 의미 유지, 브랜드 Coral/신호 막대 대비 준수 | 정본 `dashboard.colors` 및 `scripts/check-package-consistency.py`의 해당 대비 검사. 랜딩 전체 접근성 보장은 아님 |
+| 모든 조작부 최소 44px, hover 전용 정보 금지 | 기존 화면 일부는 DOM 검사; 새 랜딩은 반응형·키보드·포커스 검증 필요 |
+| 외부 텍스트는 HTML 문맥별 escape; CSS 색/enum은 allowlist | `scripts/build_screens.py`와 빌드/계약 검사. HTML escape만으로 CSS 안전을 주장하지 않음 |
+| 개인정보 보호 주장은 적용 표면 등 범위를 명시 | PRD·랜딩·제안서를 코드/정본과 대조하는 모델 검토. 문서 전체 의미를 자동 검사가 보장한다고 쓰지 않음 |
 
-**5.5 What the US work still owes.** **Six** gates must close in writing before any real data is loaded.
-They live in `contracts/proposal-package-v11.yml` under `start_gates`, which is the only list that counts:
-HIPAA role determination, data rights in the employer–TPA contract, the basis for baseline loading before
-consent, a common identity key, BAA and region, and **California CMIA** (§16-23, added 2026-08-28 — it
-attaches regardless of the HIPAA role determination, so the first gate resolving either way leaves it open).
+### 5.5 실데이터 및 공개 전환 조건
 
-> **Corrected 2026-08-30.** This said four. It became five on 2026-08-25 and six on 2026-08-28, and this
-> line was not updated either time. Do not restate the count here — read `start_gates`. A number copied into
-> a second document is a number that goes stale, and this one did so twice.
+실데이터 착수 조건은 정본 `start_gates`와 연결 이슈를 읽는다. 개수·법적 결론을 재복제하지 않는다. 각 항목의 요구 증거와 책임자를 확인하며 내부 전용 항목을 공개 카피로 옮기지 않는다.
 
----
+공개 랜딩에는 승인된 URL·문의 수신자·견적 방식·고지·허용 파일 목록이 필요하다. 첫 논의를 곧바로 live PoC나 확정 출시 일정으로 약속하지 않는다.
 
-## Handoff Brief (for AI coding agents)
+## Handoff Brief — 다음 구현자가 받을 것
 
-### Background
-ICLO is a smartphone oral-imaging AI company entering the US self-funded-employer market. This repo holds the
-**employer-facing aggregate dashboard**, running on synthetic numbers. It is not an event deliverable. The
-screen rules are **regulatory requirements, not stylistic taste** (FDA 2026 wellness boundary · HIPAA
-aggregate principle) — do not modify them on your own judgment.
+| 산출물 | 역할 | 상태 |
+|---|---|---|
+| 이 PRD | ICP·가설·제품 경계·인수 조건 | 전면 재검토안 |
+| LANDING-PAGE.md | 영어 본 카피, 한국어 검토용 카피, IA·화면·CTA·연결 | 구현 준비용 설계안 |
+| 루트 DESIGN.md | 랜딩 시각 시스템·반응형·접근성 | 승인 대기; 기존 앱 일괄 변경 아님 |
+| ARCHITECTURE.md / v14 기술 부록 | 현재와 목표의 소프트웨어·데이터 구조 | 실제 가동 여부는 실행 증거로 확인 |
 
-### Constraints
-- **Tech**: §3.3. Single vanilla HTML file, no framework, no store
-- **Red lines**: §5.4 — violation = auto-reject
-- **Brand**: Coral `#C2333A` · Navy `#1B2A4A` · Teal `#007A87` · white background
-- **Process**: §3.1. Author with one model, check with the other, against the repo
+**재검토 결과:** 이벤트 중심 목적 → 기업 판단 문제; “가설/성공 지표 없음” → 검증 가설과 단계별 신호; 개인 화면 전면 금지 → 기업/임직원 분리; constants block 교체 계획 → 실제 빌더/export 경계; 포괄적 법 적용 제외 → 처리별 검토; “산출물 없음” → 랜딩 명세와 구현/공개 gate 분리. 중복 합성 수치는 정본 참조로 줄였다.
 
-### Deliverables
-None open on this spec. The v0.5 deliverables (D0–D7: badge QR question, Supabase store, capture app, contact
-capture, Core AI integration, live booth employer) were cancelled 8/12. The v0.6 deliverables (D1 booth staff
-script, D2 iPad rehearsal) were cancelled 8/13 with the booth demo.
-
-Next work is the US evidence layer, planned separately.
-
-### Communication
-- **Decision-maker**: Jangwoo Kim (single)
-- **Channel**: GitHub Issues/PR (ambiguity → `type:decision`; work blocked on it also gets `status:blocked`; guessing prohibited)
-- **Spec canon**: this document; values = `contracts/proposal-package-v11.yml`; changes via PR only
-
----
-
-### Tool references
-- gstack — https://github.com/garrytan/gstack
-- ponytail — https://github.com/DietrichGebert/ponytail
+Jangwoo Kim이 확인할 것: ICP와 핵심 약속, 현재 증거 수준에서의 공개 톤, 다음 구현과 문의 운영 범위. 승인 전 `intent.md` 채택, AGENTS 자동 참조 추가, 가격 확정, 외부 발송·배포를 하지 않는다.

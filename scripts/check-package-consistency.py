@@ -1107,6 +1107,13 @@ def check_docs(c, use_pdf):
     if v13.exists():
         targets["proposal_v13_ko"] = v13
 
+    targets.update({
+        "proposal_v14_ko": ROOT / "output/proposal-v14/proposal-KO.md",
+        "proposal_v14_en": ROOT / "output/proposal-v14/proposal-EN.md",
+        "architecture_v14_ko": ROOT / "output/proposal-v14/architecture-KO.md",
+        "architecture_v14_en": ROOT / "output/proposal-v14/architecture-EN.md",
+    })
+
     # PRD. 2026-08-16 까지 이 검사는 PRD 를 한 번도 열지 않았고, 그 사이 PRD §2.1 은
     # 임직원이 "자기 점수" 와 "남은 한도" 를 읽는다고 계속 쓰고 있었다. 둘 다 그날
     # 앱에서 빠졌고 빠진 이유가 규제와 사용자 피해다. 스펙이 없어진 제품을 설명하면

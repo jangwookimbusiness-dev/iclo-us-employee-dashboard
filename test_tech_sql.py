@@ -24,6 +24,10 @@ implied.
 No dependencies.
 """
 import re
+import calendar
+import datetime as dt
+import math
+import sqlite3
 import sys
 from pathlib import Path
 
@@ -122,6 +126,108 @@ def check_block(block, tables):
     return errors, checked, unresolved | ambiguous
 
 
+def check_relational_behavior(text):
+    """Execute source SELECTs with SQLite date/table-function adapters.
+
+    This checks relational results, not Snowflake DDL or policy enforcement.
+    """
+    def query(table):
+        match = re.search(r"CREATE OR REPLACE TABLE " + re.escape(table)
+                          + r" AS\n(.*?);", text, re.S)
+        assert match, f"missing source query: {table}"
+        return (match.group(1).replace("'9999-12-31'::DATE", "'9999-12-31'")
+                .replace("TABLE(mart.claims_as_of(:as_of_seq))", "claims_as_of_result"))
+
+    def dateadd(unit, count, value):
+        assert unit.lower() == "month"
+        day = dt.date.fromisoformat(value[:10])
+        year, month = divmod(day.year * 12 + day.month - 1 + count, 12)
+        return day.replace(year=year, month=month + 1,
+                           day=min(day.day, calendar.monthrange(year, month + 1)[1])).isoformat()
+
+    errors, checked = [], 0
+    def expect(ok, message):
+        nonlocal checked
+        checked += 1
+        if not ok:
+            errors.append(message)
+
+    with sqlite3.connect(":memory:") as db:
+        db.row_factory = sqlite3.Row
+        for schema in ("canonical", "mart", "util"):
+            db.execute(f"ATTACH DATABASE ':memory:' AS {schema}")
+        db.create_function("DATEADD", 3, dateadd)
+        db.create_function("DATE_TRUNC", 2, lambda unit, value: value[:7] + "-01")
+        db.create_function("LAST_DAY", 1, lambda value: value[:8] + str(
+            calendar.monthrange(int(value[:4]), int(value[5:7]))[1]))
+        # Snowflake division is fractional; SQLite integer division is not.
+        db.create_function("DAY", 1, lambda value: float(value[8:10]))
+        db.create_function("IFF", 3, lambda condition, yes, no: yes if condition else no)
+        db.executescript("""
+            CREATE TABLE util.month_spine (month_date TEXT);
+            INSERT INTO util.month_spine VALUES ('2026-08-01');
+            CREATE TABLE canonical.oral_signal (
+                party_sk INTEGER, employer_id TEXT, captured_at TEXT,
+                signal_band TEXT, model_version TEXT, quality_passed INTEGER);
+            CREATE TABLE mart.party_department (
+                party_sk INTEGER, employer_id TEXT, department TEXT,
+                effective_date TEXT, end_date TEXT);
+            CREATE TABLE canonical.member_month (
+                party_sk INTEGER, employer_id TEXT, month_start TEXT,
+                eligibility_span_sk INTEGER, covered_days INTEGER, is_subscriber INTEGER);
+            CREATE TABLE canonical.eligibility_span (
+                eligibility_span_sk INTEGER, party_sk INTEGER, employer_id TEXT,
+                eligibility_episode_id INTEGER, snapshot_seq INTEGER);
+            CREATE TABLE claims_as_of_result (
+                party_sk INTEGER, employer_id TEXT, service_date TEXT, allowed_amount REAL);
+            INSERT INTO canonical.member_month VALUES (1, 'A', '2026-08-01', 1, 15, 1);
+            INSERT INTO canonical.member_month VALUES (1, 'A', '2026-08-01', 2, 16, 1);
+            INSERT INTO canonical.eligibility_span VALUES (1, 1, 'A', 1, 1);
+            INSERT INTO canonical.eligibility_span VALUES (2, 1, 'A', 2, 1);
+            INSERT INTO canonical.eligibility_span VALUES (3, 2, 'B', 1, 2);
+            INSERT INTO claims_as_of_result VALUES (1, 'A', '2026-08-12', 100.0);
+            INSERT INTO mart.party_department VALUES (1, 'A', 'Sales', '2026-01-01', NULL);
+            INSERT INTO mart.party_department VALUES (1, 'A', 'Finance', '2026-07-01', NULL);
+            CREATE TABLE mart.department_size (
+                employer_id TEXT, department TEXT, month_start TEXT, n INTEGER);
+        """)
+        fact = [dict(row) for row in db.execute(query("mart.person_month_fact"), {"as_of_seq": 2})]
+        expect(len(fact) == 1 and fact[0]["allowed"] == 100
+               and math.isclose(fact[0]["member_months"], 1.0)
+               and fact[0]["subscriber_rows"] == 1 and fact[0]["department"] == "Finance",
+               f"split eligibility spans must preserve money and person grain: {fact}")
+
+        signal = query("mart.person_signal_fact")
+        db.execute("INSERT INTO canonical.oral_signal VALUES (1,'A','2026-08-05','LOW','v1',1)")
+        db.execute("INSERT INTO canonical.oral_signal VALUES (1,'A','2026-08-07','PRIORITY','v1',0)")
+        before = [dict(row) for row in db.execute(signal) if row["employer_id"] == "A"]
+        db.execute("INSERT INTO canonical.oral_signal VALUES (1,'B','2026-08-06','PRIORITY','v1',1)")
+        after = [dict(row) for row in db.execute(signal) if row["employer_id"] == "A"]
+        expect(len(before) == 1 and after == before, "tenant B signal changed tenant A output")
+
+        db.execute("DELETE FROM canonical.oral_signal")
+        for person, captured in enumerate(("2025-08-31", "2025-09-01", "2026-08-31", "2026-09-01")):
+            db.execute("INSERT INTO canonical.oral_signal VALUES (?, 'A', ?, 'LOW', 'v1', 1)",
+                       (person, captured))
+        selected = {row["party_sk"] for row in db.execute(signal)}
+        expect(selected == {1, 2}, f"report-inclusive 12-month boundaries: {selected}")
+
+        suppress = query("mart.cell_suppression")
+        for cells, expected in (
+            ([("A", "Sales", "2026-07-01", 1000), ("A", "Sales", "2026-08-01", 1000)],
+             {("Sales", "2026-07-01"), ("Sales", "2026-08-01")}),
+            ([("A", "Sales", "2026-08-01", 1000), ("A", "All departments", "2026-08-01", 1019)],
+             {("Sales", "2026-08-01"), ("All departments", "2026-08-01")}),
+            ([("A", "Sales", "2026-08-01", 1000), ("A", "All departments", "2026-08-01", 1020)], set()),
+        ):
+            db.execute("DELETE FROM mart.department_size")
+            db.executemany("INSERT INTO mart.department_size VALUES (?, ?, ?, ?)", cells)
+            actual = {(row["department"], row["month_start"]) for row in db.execute(suppress)
+                      if row["suppressed_by_neighbour"]}
+            expect(actual == expected, f"suppression must cover both endpoints: {actual} != {expected}")
+    return errors, checked
+
+
 def main():
     if not DOC.exists():
         sys.exit(f"기술문서 없음: {DOC}")
@@ -141,6 +247,9 @@ def main():
         skipped |= skip
         all_errors += [f"블록 {i + 1}: {e}" for e in errs]
 
+    relational_errors, relational_checked = check_relational_behavior(text)
+    all_errors += relational_errors
+
     if total == 0:
         sys.exit(f"컬럼 참조를 한 건도 해석하지 못했다 — {len(blocks)}블록, "
                  f"{len(tables)}테이블을 읽고도 0건이면 해석기가 고장난 것이다")
@@ -153,6 +262,8 @@ def main():
 
     print(f"PASS — 선언된 테이블 {len(tables)}개, SQL 블록 {len(blocks)}개, "
           f"해석한 컬럼 참조 {total}건이 전부 실재")
+    print(f"  관계 연산 반례 {relational_checked}개 통과 "
+          "(SQLite 어댑터; Snowflake 정책 실행 아님)")
     if skipped:
         print(f"  해석하지 않은 별칭 {len(skipped)}개 (서브쿼리·CTE·컬럼 미선언 테이블): "
               f"{', '.join(sorted(skipped)[:12])}")

@@ -27,8 +27,8 @@ GitHub Issues and Milestones are the live backlog. PRD §3.2 and the Handoff Bri
 
 1. `/office-hours` on `docs/PRD.md` before any code. Premises broken there flow back into the PRD via PR.
 2. `/plan-ceo-review` → `/plan-eng-review` → `/plan-design-review` (end-user UI, so the design review applies).
-3. Either agent implements against PRD §3.3. WS0's booth consent text is gone with the capture. `app.html` does carry a consent surface — per person, per purpose — since 2026-08-15; it is the member's own, not the booth's.
+3. Either agent implements against PRD §3.3. Booth capture is cancelled. `screens/member.html.in` builds the separate member consent/profile demo; it is not a booth or employer individual-result surface.
 4. `/review` + `/qa` on every PR, by the model that did not write it. Before `/ship`, `make check` and the kill-ai-slop Mode B scan must pass.
-5. `/ship` → Pages deploy from the repo root.
+5. `/ship` prepares the PR; Jangwoo Kim decides the merge. Pages publishes only the approved root redirect after gates pass, not the local screens.
 
-**No hard dates.** The 8/25 freeze, the 8/26 rehearsal and the 8/27 event applied to a booth demo that was scrapped on 2026-08-13. The 9/5 freeze and the US-stay plan were v0.4 and were superseded before that. See the PRD status block; the next dated work is in the CEO plan, not here.
+**No event deadline.** The old freeze/rehearsal dates belonged to the cancelled booth demo. PRD §1.3 records the exclusion; current owners and dates belong in GitHub Issues, not a local CEO plan.

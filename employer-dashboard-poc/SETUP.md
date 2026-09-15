@@ -32,7 +32,7 @@ make install-hooks
 make serve
 ```
 
-Open `http://localhost:8000/`. Do not work from
+Open `http://localhost:8000/employer.html` or `/member.html`. Do not work from
 `employer-dashboard-poc/`; the shipped application and supported commands are at
 the repository root.
 
@@ -50,14 +50,13 @@ pushes and deployments that bypass `gates` are not part of the workflow.
 
 Install agent tooling from its own maintained instructions. It is not a runtime
 or test dependency of this repository. After installation, start the agent from
-the repository root so `AGENTS.md` and `CLAUDE.md` govern `index.html` and
-`app.html`.
+the repository root so `AGENTS.md` and `REBUILD-CHARTER.md` govern `screens/*.html.in`.
 
 ## Environment verification
 
 - [ ] `python3.14 --version` reports 3.14.7
 - [ ] `make setup` creates `.venv` and installs the exact versions in `requirements-dev.txt`
-- [ ] `make check` passes all ten gates
+- [ ] `make check` passes all eleven CI commands
 - [ ] `gh auth status` succeeds for maintainers
 - [ ] `make serve` opens the two demo surfaces over HTTP
 - [ ] `make install-hooks` installs the fast local guard

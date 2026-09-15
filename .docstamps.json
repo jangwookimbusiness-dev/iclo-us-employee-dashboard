@@ -1,9 +1,23 @@
 {
+ "architecture_v14_en": {
+  "artifact": "5df85dd51678c7a38b59f033e9619f9592402b3fbd3f9c94f031d4b02f825a31",
+  "pages": 16,
+  "sources": {
+   "output/proposal-v14/architecture-EN.md": "52c0322f44cdc91623d12fe5dcc9362bfc5bd264876dfb76bf63ae0a5a7d717b"
+  }
+ },
+ "architecture_v14_ko": {
+  "artifact": "a5f53453972fba6ddf57e6eb9dc805416ee9827c3445aabd0d91dd1d53b26065",
+  "pages": 14,
+  "sources": {
+   "output/proposal-v14/architecture-KO.md": "4c35996a062c63232001fe89b8ec2fe6a24d20c7dd3fb295599f55f38da4266e"
+  }
+ },
  "customer_analysis": {
-  "artifact": "07c5e41b0b51d7319fb4bb5fe7cd1e4303bb6ccefe365dab58471e9bd055acea",
+  "artifact": "f9fc0db55d8a4b58485578c3bfc9084f0d765e03064a69e66679814f77b8de8c",
   "pages": 12,
   "sources": {
-   "output/analysis/고객-비용-이익-분석-KO.md": "84cd97e263947c2cc5ffe17dc9f432c8b2e429d06a8d58092ce73a17d3f5a6d0"
+   "output/analysis/고객-비용-이익-분석-KO.md": "89b85364b5472337afb4e0932a8ead51e2d3da3715d613f5f5230a8aadfd174b"
   }
  },
  "proposal_v12": {
@@ -27,10 +41,24 @@
   }
  },
  "proposal_v13": {
-  "artifact": "150f7cd05a6eb468001aeb398f37916a6e7f18880aa0bda24d4a4938485f91bd",
+  "artifact": "d7118cb87867fd095346f9f76d35ef740a50ecc3f4c7d98805315c4e117c268d",
   "pages": 25,
   "sources": {
-   "output/proposal-v13/제안서-v13-KO.md": "ae917a1a51d970ca97fbc62fd155cf9e8cc316c074b8c72538c10e743aee6752"
+   "output/proposal-v13/제안서-v13-KO.md": "7b9118c201dcc3b1d0a2b01af24c8a1b57ab0ff2e157e392b18f2a6e4091524e"
+  }
+ },
+ "proposal_v14_en": {
+  "artifact": "2f19f072055dc2b392e788168df3a5ec068fc4641f7bd4d7488a35c70bd25184",
+  "pages": 12,
+  "sources": {
+   "output/proposal-v14/proposal-EN.md": "2e65f64ec12e589a5bfda85143b7fdde6168b5db1cb175e85f3072da1cfefce6"
+  }
+ },
+ "proposal_v14_ko": {
+  "artifact": "883557edd5ccc8c653b014c45fb02f6e11ce18adc730403da807f8edab53b46a",
+  "pages": 11,
+  "sources": {
+   "output/proposal-v14/proposal-KO.md": "50824b8589774d92d84c56042bef5f0184722f463a75c1038724c0da652ef815"
   }
  },
  "review_2026_08_30": {
@@ -48,17 +76,17 @@
   }
  },
  "status_2026_08_31": {
-  "artifact": "87ba2bc9e4e96b4e30ced90bff56aa5b310efccd3d325c5033c8f98cd9cd54ed",
-  "pages": 15,
+  "artifact": "69fc144c31a436ec9e61d91b4c7dc1c1a6674df8c64ab6c18c27da8b5faa2068",
+  "pages": 14,
   "sources": {
-   "output/status/STATUS-2026-08-31.md": "12a67b59e6c86cf347f286c187629f93bf48fd95474b256bccb63f0ff1813d5b"
+   "output/status/STATUS-2026-08-31.md": "125e0779cdcfcdc487852bc71d6849b873210a6f0376d9a6acb45d569ef66bbe"
   }
  },
  "tech": {
-  "artifact": "b9f9b270d72dcbeb59095262b953d2f8d826e04d7e2526b9bf1b8f442152d436",
-  "pages": 116,
+  "artifact": "223d524e4f7584c84f7586d93234ddf557fed8e164728cc1cb3e37992d93ecdc",
+  "pages": 118,
   "sources": {
-   "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md": "fab925b4d530146ee4828e60c5004ad1620cd0e42d85e77b5ed39367461beb64",
+   "output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md": "2a4409ab8f687ef18e4eedb3aff0db86eac4901d11c493fe8f10486bd63a6ff0",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-A-원천과정본.svg": "95f8e16d87f08d0f93d975e98d7f372b15348e206c07e5b2a9a1431acf7fd06a",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-B-통제와노출.svg": "24bc2b2a634066ddb763e68d979e195ccf4ab57081b7dad5947b9c9a47e3df80",
    "output/proposal-v10/06_Tech/ICLO-데이터흐름도-C-경계와미결.svg": "757723c8d5431d320813614b2cfe4ae213ab5f143f1e3d47a05af348b2e7bdc1"

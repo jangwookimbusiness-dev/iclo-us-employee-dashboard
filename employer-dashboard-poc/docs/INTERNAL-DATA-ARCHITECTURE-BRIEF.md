@@ -1,7 +1,7 @@
 # 내부 개발 논의용 데이터 아키텍처 브리프
 
 **작성일:** 2026-08-25<br>
-**상태:** Discussion draft, 구현 승인 문서 아님<br>
+**상태:** 2026-08-25 논의 초안. 현행 경로 정정: 2026-09-06. 구현 승인 문서 아님<br>
 **대상:** 애플리케이션·데이터·플랫폼·보안 개발자, 제품 책임자<br>
 **현재 단계:** `PROJECT_PHASE=demo`<br>
 **교차검토:** Claude 읽기 전용 저장소 리뷰 후 Codex가 계약·테스트·공식 문서와 대조
@@ -18,7 +18,7 @@
 
 | 확인된 결함 | 처리 | 검증 위치 |
 |---|---|---|
-| Pages가 저장소 전체를 artifact로 올림 | `_site` 공개 3파일 allowlist로 변경 | `scripts/build_pages_site.py`, `pages_boundary` 검사 |
+| Pages가 저장소 전체를 artifact로 올림 | `_site` allowlist 도입; 2026-08-26부터 리다이렉트 1파일만 공개 | `scripts/build_pages_site.py`, `pages_boundary` 검사 |
 | 그림이 집계 정책을 `CANONICAL`에 연결 | 정책 화살표를 `person-grain MART`에만 연결 | `diagrams/iclo-a3-data-architecture.mmd` |
 | 카탈로그 회차와 기업별 월 집합을 원자성 게이트가 검사하지 않음 | release envelope·월 집합 검사 추가 | `test_export_contract.py` |
 | 생성기 머리글 검사가 gitignored `tmp/`를 봄 | 추적된 `scripts/build/...` 경로로 수정 | `scripts/check-package-consistency.py` |
@@ -29,20 +29,20 @@
 
 ## 1. 먼저 맞춰야 할 현실
 
-현재 제품에는 데이터 플랫폼이 없다. `index.html`과 `app.html`은 브라우저 안의
-합성 값과 로컬 JSON으로 동작하며, 백엔드·인증·Snowflake 연결·실데이터 적재가
-없다. 따라서 현재 화면을 근거 레이어가 이미 운영 중인 것처럼 설명하면 안 된다.
+현재 실행 구조는 [ARCHITECTURE.md](ARCHITECTURE.md)가 소유한다. Python 빌더가
+`build/employer.html`과 `build/member.html` 및 정본 JSON을 생성한다. 백엔드·인증·
+Snowflake 연결·실데이터 적재는 없다. 따라서 현재 화면을 근거 레이어가 이미 운영 중인 것처럼 설명하면 안 된다.
 
 권장 단계 구분은 다음과 같다.
 
 | 구분 | 지금 `demo` | A3 근거 레이어 | A2 실데이터 파일럿 |
 |---|---|---|---|
 | 검증할 것 | 화면 규칙과 합성 시나리오 | Snowflake 변환·격리·최소 셀·내보내기 구조 | 법적 근거를 갖춘 실제 운영 경로 |
-| 입력 | 브라우저 상수, 로컬 합성 JSON | 3개 기업·36개월 합성 데이터 | 자격·부서·TPA 청구·앱·동의·신호 데이터 |
+| 입력 | 빌드 시 정본에서 추출한 값, 로컬 합성 JSON | 3개 기업·36개월 합성 데이터 | 자격·부서·TPA 청구·앱·동의·신호 데이터 |
 | Snowflake | 없음 | **Enterprise 이상 필요, 계정 에디션·리전 미확인** | **Business Critical 이상 + Snowflake BAA + 미국 리전 전제** |
-| 전달 | 공개 GitHub Pages | 공개 필드 검사를 통과한 기업 롤별 합성 JSON만 Pages allowlist에 추가 | 인증된 비공개 앱/API. Pages 경로 재사용 금지 |
+| 전달 | 로컬 HTTP (공개 Pages는 리다이렉트만) | 합성 JSON 전달 경로는 별도 구현·검토 필요 | 인증된 비공개 앱/API. Pages 경로 재사용 금지 |
 | 개인 단위 데이터 | 합성 개인 레코드 있음 (`data/member-demo.json`: 계정·보장·목적별 동의) | 합성 `party_sk`만 | 존재하되 기업에는 집계·밴드만 노출 |
-| 성공 기준 | 10개 저장소 게이트 | 정책이 걸린 쿼리와 내보내기 계약을 재현 가능하게 증명 | 착수 게이트·보안·감사·운영까지 서면/실측으로 증명 |
+| 성공 기준 | 11개 CI 명령 | 정책이 걸린 쿼리와 내보내기 계약을 재현 가능하게 증명 | 착수 게이트·보안·감사·운영까지 서면/실측으로 증명 |
 
 핵심은 A3와 A2를 같은 프로젝트 이름으로 섞지 않는 것이다. A3는 합성 데이터로
 통제 구조를 검증하는 단계이고, A2는 실데이터의 법적·운영 경계를 추가하는 별도
@@ -50,7 +50,7 @@
 
 또한 “내부용”은 독자 범위이지 보안 등급이 아니다. 이 저장소 자체가 공개이므로 이
 문서에는 비밀정보를 기록하지 않는다. Pages 배포는 저장소 루트가 아니라 `_site`의
-`index.html`, `app.html`, `data/member-demo.json`만 올리는 allowlist 방식으로
+리다이렉트 `index.html` 하나만 올리는 allowlist 방식으로
 제한한다. A3 export는 합성 여부와 공개 필드를 검사하는 별도 변경 전에는 여기에
 추가하지 않는다.
 
@@ -114,9 +114,11 @@ entity key가 있을 때 최소 그룹 크기는 행 수가 아니라 고유 ent
 |---|---|---|
 | Activated | 유효 참여 누적 분자와 보고월 자격 분모 | 소급 자격 정정으로 분모가 조용히 바뀌는가 |
 | Repeat | 누적이 아니라 rolling 12개월 | 시간이 지나며 자동으로 100%에 접근하지 않는가 |
-| Signal distribution | 사람별 보고월 최신 1건 | 이벤트 행 수가 사람 수처럼 집계되지 않는가 |
+| Signal distribution | 기업 맥락별 사람당 보고월 포함 12개월의 최신 유효 1건 | 이벤트 행 수가 사람 수처럼 집계되지 않는가 |
 | Open actions | 관측 창 안에서 아직 종료되지 않은 행동 | 취소·만료·미완료 상태를 한 값으로 섞지 않는가 |
 | Completed actions | 청구가 성숙한 코호트만 분모로 사용 | 최근 코호트가 포함돼 완료율을 인위적으로 낮추지 않는가 |
+
+참여 퍼널은 자격자→참여자→유효 촬영자만 포함한다. Open과 Completed는 별도 조치 수이며 완료율이 아니다. 롤링 창의 경계는 정본의 `[M-11, M+1)`이다.
 
 청구 지연 P90은 첫 실데이터 분기의 측정값이 필요하므로 아직 잠정값이다. 이를
 상수처럼 영구 고정하지 않는다.
@@ -167,7 +169,7 @@ entity key가 있을 때 최소 그룹 크기는 행 수가 아니라 고유 ent
 
 - 정적 JSON과 GitHub Pages는 런타임 테넌트 격리가 아니다. 세 합성 파일이 모두
   공개된다는 전제다.
-- Pages 배포 allowlist는 현재 데모 파일 3개만 포함하고 A3 export는 제외한다. 다만
+- Pages 배포 allowlist는 리다이렉트 한 파일만 포함하고 데모와 A3 export는 제외한다. 다만
   저장소 자체가 공개이므로 내부 회의 문서는 GitHub에서 비밀이 아니다.
 - `ACCESS_HISTORY`는 Snowflake 객체·컬럼 접근만 본다. 객체 저장소, 서명 URL,
   추론 API, 앱 프로필 전환, 관리자 차단 이벤트는 별도 감사 모델이 필요하다.
@@ -176,21 +178,10 @@ entity key가 있을 때 최소 그룹 크기는 행 수가 아니라 고유 ent
 
 ### A2 전에 닫을 착수 게이트
 
-| 게이트 | 열려 있으면 생기는 문제 | 이슈 |
-|---|---|---|
-| HIPAA 역할과 BAA chain | 누가 어떤 책임으로 PHI를 처리하는지 정할 수 없음 | #13 |
-| 기업–TPA 데이터 권리 | 데이터를 받아도 필드·목적별 사용 권리가 없음 | #14 |
-| 동의 이전 baseline 적재 | 끝내 동의하지 않는 사람의 PHI 처리 근거가 없음 | #15 |
-| 공통 식별키 | 자격·청구·앱을 같은 사람으로 연결할 수 없음 | #16 |
-
-`동의 철회의 과거 집계 처리`(#17)는 현재 정본의 네 착수 게이트가 아니라
-`awaiting_decision: CONSENT-WITHDRAWAL-RETRO`다. A2 착수 게이트로 승격할지는
-결정이 필요하며, 승격하면 계약과 대외 문서 노출 검사도 함께 바꾼다.
-
-게이트 총수 불일치는 문서 대 계약의 단순 차이가 아니다. 기술문서 §16은
-`12~21`을 “10개 항목”이라고 쓰지만 §16.1에는 11개를 나열하고, §17.1은
-22개(본문 11 + §16.1의 11)라고 쓴다. 계약 주석은 21개다. #11에서 §16 자체의
-계수부터 고친 뒤 하나의 수를 정본으로 삼는다.
+현행 목록은 정본 `start_gates`가 소유한다. HIPAA 역할, 데이터 권리, 동의 이전 baseline,
+공통 식별키, BAA·리전, California CMIA가 포함된다. 이 초안의 과거 4개 표는 최신 목록이 아니었다.
+동의 철회의 과거 집계 처리는 #17의 별도 결정이다. 법무 목록의 계수 정합성은 #11 이후
+`scripts/check-package-consistency.py`가 기술문서와 정본을 함께 검사한다.
 
 ## 5. 회의에서 확정할 결정
 
@@ -210,12 +201,12 @@ entity key가 있을 때 최소 그룹 크기는 행 수가 아니라 고유 ent
 ```text
 0. 고객 근거 + Snowflake edition/region 확인 책임자·기한     (#2–#4)
 1. Versioned DDL, roles, schemas, person-grain policy spike  (#5)
-2. 3기업 합성 생성기 + 기존 fixture의 KPI/19·20·21명 확장   (#6)
+2. 기존 합성 생성기와 fixture를 실제 SQL·정책에 연결         (#5/#7/#10)
 3. STAGED → CANONICAL → temporal/KPI MART                   (#7)
 4. 기업 역할별 atomic export + D8에서 정한 catalog          (#8)
 5. 대시보드 계산 → JSON 조회 전환                           (#9)
 6. single-source/isolation/suppression/failure 회귀 게이트   (#10)
-7. 계약·기술문서 gate register 일치                         (#11)
+7. 계약·기술문서 gate register 일치 유지 (기존 정합성 검사)
 ```
 
 1–4는 Snowflake SQL과 export schema를 공유하므로 순차성이 강하다. 생성기/fixture는
@@ -225,8 +216,8 @@ schema가 고정된 뒤 시작한다.
 기존 fixture 7종과 `test_fixtures.py`는 이미 존재하지만 `member_months`와
 `dental_pmpm` 중심의 기반 변환만 검증한다. Activated, rolling Repeat, 사람별 최신
 Signal, Open/Completed actions, 19/20/21명 억제는 아직 릴리스 증거가 아니다. #6의
-완료 조건은 새 파일 개수 자체가 아니라 이 시간 계약과 정책 경계를 손 계산 기대값으로
-검증하는 것이다.
+기존 완료 증거와 실제 Snowflake 정책 실행 증거를 구분한다. 로컬 관계 연산 반례는
+추가됐지만 정책 경계는 실제 계정에서 검증해야 한다.
 
 ## 7. 60분 개발자 회의 안
 

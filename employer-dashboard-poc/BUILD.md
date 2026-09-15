@@ -1,13 +1,13 @@
 # BUILD.md — Implementation handoff
 
 > **Superseded. Do not build from this file.** It specifies the Vite · React 18 · TypeScript · Tailwind
-> stack, and PRD §3.4 records that the stack was never adopted — the shipped code is a single vanilla
-> HTML file at the repo root. The capture app it also describes was deleted on 2026-08-12. The five-view
+> stack, which was never adopted. Current PRD §3.3 specifies the Python/PyYAML builder and vanilla
+> templates under `screens/`. The capture app was deleted on 2026-08-12. The five-view
 > structure, the `src/` file map and the T1–T9 task list below all belong to v0.4.
 > **Current spec: `docs/PRD.md` §3.3–3.5 and its Handoff Brief. There is no freeze date** — the 8/25
 > freeze belonged to the booth demo, scrapped 2026-08-13.
-> Kept for the §4 contracts (suppression, denominators, provenance), which still hold and are still
-> the ones the red-line checks enforce.
+> Kept as design history, not current enforcement documentation. Current metric contracts live in the
+> root canon; actual red-line enforcement and its limits are listed in PRD §5.4.
 
 **Historical reference only. Do not include this file in the implementation read order.**
 Current work starts from a GitHub Issue, then reads the root `AGENTS.md`, `docs/PRD.md`,

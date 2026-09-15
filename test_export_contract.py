@@ -16,10 +16,14 @@ matches its declared phase, not that a missing artifact was silently accepted.
 Exit: 0 phase contract met · 1 violated
 """
 import json
+import datetime as dt
+import math
 import os
 import re
 import sys
 from pathlib import Path
+
+import yaml
 
 ROOT = Path(__file__).resolve().parent
 CONTRACT = ROOT / "contracts" / "proposal-package-v11.yml"
@@ -38,11 +42,34 @@ def is_int(value):
 
 
 def is_number(value):
-    return isinstance(value, (int, float)) and not isinstance(value, bool)
+    return (isinstance(value, (int, float)) and not isinstance(value, bool)
+            and math.isfinite(value))
 
 
 def is_text(value):
     return isinstance(value, str) and bool(value.strip())
+
+
+def is_date(value):
+    if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        return False
+    try:
+        dt.date.fromisoformat(value)
+        return True
+    except ValueError:
+        return False
+
+
+def is_timestamp(value):
+    try:
+        return isinstance(value, str) and dt.datetime.fromisoformat(value).utcoffset() is not None
+    except ValueError:
+        return False
+
+
+def month_rows(doc):
+    rows = doc.get("months")
+    return [row for row in rows if isinstance(row, dict)] if isinstance(rows, list) else []
 
 
 def check_release_envelope(doc, name, phase, expected_employer=None):
@@ -51,7 +78,7 @@ def check_release_envelope(doc, name, phase, expected_employer=None):
         "schema_version": lambda value: is_int(value) and value > 0,
         "run_id": is_text,
         "report_snapshot_seq": lambda value: is_int(value) and value >= 0,
-        "exported_at": is_text,
+        "exported_at": is_timestamp,
         "synthetic": lambda value: isinstance(value, bool),
     }
     for key, valid in common.items():
@@ -84,32 +111,12 @@ def load_json(path):
 
 
 def contract_fields():
-    """Read the export contract without requiring PyYAML.
-
-    Same reasoning as check-package-consistency.py — this repo has no runtime
-    dependencies and a test is a bad place to introduce the first one.
-    """
-    t = CONTRACT.read_text(encoding="utf-8")
-    block = re.search(r"^export_contract:$(.*?)^\w", t, re.S | re.M)
-    if not block:
-        sys.exit("계약에 export_contract 블록이 없다 — 정본을 먼저 고쳐라")
-    b = block.group(1)
-
-    # The contract explains itself inline, so `why` and friends sit at the same
-    # indent as real keys. They are prose for the reader, not fields in the file.
-    PROSE = {"why", "note", "rule", "how", "grain", "suppressed_row", "keep", "per_field"}
-
-    def keys_under(name):
-        m = re.search(rf"^  {name}:.*?$(.*?)(?=^  \w|\Z)", b, re.S | re.M)
-        if not m:
-            return []
-        return [k for k in re.findall(r"^    ([a-z_]+):", m.group(1), re.M) if k not in PROSE]
-
-    fields = re.search(r"^    fields:\s*\[(.*?)\]", b, re.S | re.M)
+    """Use the same pinned YAML reader as the screen builder."""
+    contract = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))["export_contract"]
     return {
-        "envelope": keys_under("envelope"),
-        "freshness": keys_under("freshness"),
-        "months": [f.strip() for f in fields.group(1).replace("\n", " ").split(",")] if fields else [],
+        "envelope": list(contract["envelope"]),
+        "freshness": [key for key in contract["freshness"] if key != "why"],
+        "months": contract["months"]["fields"],
     }
 
 
@@ -130,7 +137,7 @@ def check_file(path, spec, phase):
         if key not in freshness:
             fail(name, f"freshness 에 {key} 없음")
     for key in ("eligibility_thru", "claims_thru"):
-        if key in freshness and not is_text(freshness[key]):
+        if key in freshness and not is_date(freshness[key]):
             fail(name, f"freshness.{key} 값/타입이 잘못됨: {freshness[key]!r}")
     if "lag_days" in freshness and not (
             is_int(freshness["lag_days"]) and freshness["lag_days"] >= 0):
@@ -147,8 +154,6 @@ def check_file(path, spec, phase):
     # The contract exports 36 months even though the screen reads the latest,
     # so Trend can arrive later without touching the pipeline. A shorter file
     # is a different contract.
-    if len(months) != 36:
-        fail(name, f"months 행이 36개여야 하는데 {len(months)}개")
     valid_rows = []
     for i, row in enumerate(months):
         if not isinstance(row, dict):
@@ -158,25 +163,39 @@ def check_file(path, spec, phase):
     span = {
         row.get("month_start")
         for _, row in valid_rows
-        if is_text(row.get("month_start"))
+        if is_date(row.get("month_start")) and row["month_start"].endswith("-01")
     }
     if len(span) != 36:
         fail(name, f"월이 36개여야 하는데 {len(span)}개 (month_start 기준)")
+    ordinals = sorted(int(day[:4]) * 12 + int(day[5:7]) for day in span)
+    if ordinals and ordinals != list(range(ordinals[0], ordinals[0] + len(ordinals))):
+        fail(name, "month_start 는 연속 월이어야 함")
 
+    seen = set()
+    measures = set(spec["months"]) - {"department", "employer_id", "month_start"}
     for i, row in valid_rows:
         missing = [f for f in spec["months"] if f not in row]
         if missing:
             fail(name, f"months[{i}] 에 {', '.join(missing)} 없음")
             continue
-        if not is_text(row.get("month_start")):
-            fail(name, f"months[{i}].month_start 가 비었거나 문자열이 아님")
+        if not is_date(row.get("month_start")) or not row["month_start"].endswith("-01"):
+            fail(name, f"months[{i}].month_start 는 유효한 월 첫날 YYYY-MM-DD 여야 함")
         if row.get("department") is not None and not is_text(row["department"]):
             fail(name, f"months[{i}].department 값/타입이 잘못됨")
         if row.get("employer_id") != doc.get("employer_id"):
             fail(name, f"months[{i}].employer_id 가 파일 소유자와 다름")
-        # A suppressed row keeps its place with nulls. Dropping it would hide
-        # that the department exists at all, which cell suppression never
-        # intended — it hides values, not the existence of a group.
+        if is_text(row["month_start"]) and (row["department"] is None or is_text(row["department"])):
+            key = (row["month_start"], row["department"])
+            if key in seen:
+                fail(name, f"중복 월·부서 행: {key!r}")
+            seen.add(key)
+        for field in sorted(measures):
+            value = row[field]
+            if value is not None and not (is_number(value) and value >= 0):
+                fail(name, f"months[{i}].{field} 값/타입이 잘못됨: {value!r}")
+        # Snowflake may combine one or more suppressed departments into a
+        # null-key remainder row. The separate catalog retains their names;
+        # this row retains only the fact that values were suppressed.
         if row.get("department") is None:
             # Every measure has to be null, not just the two obvious ones.
             # Checking a sample let activation, signal and action values leak
@@ -190,8 +209,8 @@ def check_file(path, spec, phase):
     # Reserved test employers must not reach an artifact. The row access policy
     # does not cover this: R_ENGINEER and R_ANALYST bypass it, so anything an
     # internal role produces can carry test rows. contracts employer_id_classes.
-    ids = {doc.get("employer_id")} | {r.get("employer_id") for _, r in valid_rows}
-    leaked = sorted(i for i in ids if isinstance(i, str) and i.startswith("_TEST_"))
+    ids = [doc.get("employer_id")] + [r.get("employer_id") for _, r in valid_rows]
+    leaked = sorted({i for i in ids if isinstance(i, str) and i.startswith("_TEST_")})
     if leaked:
         fail(name, f"내부 테스트 employer_id 가 산출물에 있음: {', '.join(leaked)}")
 
@@ -268,6 +287,28 @@ def main():
                         fail("departments.json", f"중복 부서 행: {employer_id!r}/{department!r}")
                     seen.add(key)
 
+            for doc in docs:
+                owner = doc.get("employer_id")
+                if not is_text(owner):
+                    continue
+                catalog_names = {department for employer, department in seen if employer == owner}
+                rows_by_month = {}
+                for row in month_rows(doc):
+                    department, month = row.get("department"), row.get("month_start")
+                    if department is not None and is_text(department) and department not in catalog_names:
+                        fail("release", f"{owner}: 카탈로그에 없는 부서 {department!r}")
+                    if is_text(month) and (department is None or is_text(department)):
+                        rows_by_month.setdefault(month, set()).add(department)
+                if not catalog_names:
+                    fail("departments.json", f"기업 {owner} 의 부서가 없음")
+                for month, names in rows_by_month.items():
+                    # A null-key remainder accounts for catalog departments
+                    # absent from this month without pretending to identify
+                    # which suppressed department contributed which values.
+                    if None not in names and catalog_names - names:
+                        fail("release", f"{owner}/{month}: 월에 부서 또는 억제 행이 없음: "
+                             f"{sorted(catalog_names - names)}")
+
     # One release, not three files that happen to share a directory. A manual
     # export can mix employer A from this run with B and C from the last one.
     release_docs = docs + ([catalog] if catalog is not None else [])
@@ -277,10 +318,8 @@ def main():
             fail("release", f"{key} 가 파일마다 다름: {sorted(map(repr, vals))}")
 
     month_sets = {
-        tuple(sorted(
-            row.get("month_start") for row in doc.get("months", [])
-            if isinstance(row, dict) and is_text(row.get("month_start"))
-        ))
+        tuple(sorted({row.get("month_start") for row in month_rows(doc)
+                      if is_text(row.get("month_start"))}))
         for doc in docs
     }
     if len(month_sets) > 1:

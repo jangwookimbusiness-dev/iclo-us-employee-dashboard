@@ -14,6 +14,17 @@ meta:
   package: proposal-v10
   updated: 2026-08-09
   owner: Jangwoo Kim
+  current_proposal_draft:
+    version: v14
+    status: review_draft
+    requested_on: 2026-09-07
+    issue: 79
+    sources:
+      - output/proposal-v14/proposal-KO.md
+      - output/proposal-v14/proposal-EN.md
+      - output/proposal-v14/architecture-KO.md
+      - output/proposal-v14/architecture-EN.md
+    note: 사용자 요청으로 재작성한 미발송 검토 초안. 기존 발송본과 과거 산출물 기록은 보존한다.
 
 # ─────────────────────────────────────────────────────────────
 # 산출물 — 무엇이 정본이고 무엇이 파생인가
@@ -76,7 +87,7 @@ artifacts:
 # ─────────────────────────────────────────────────────────────
 dashboard:
   title: ICLO HomeDen Employer Analytics
-  tabs:                     # index.html TABS 상수와 1:1
+  tabs:                     # screens/employer.html.in 이 빌드된 canon.json 에서 읽는다
     - key: overview
       label: Overview
       heading: Program overview
@@ -125,7 +136,7 @@ dashboard:
       key: open_actions
       const: FRAC.gap
       value: 0.095
-      definition_ko: 발생한 조치
+      definition_ko: 보고일 현재 미종료이며 유효기간 안에 있는 조치 수
       source: App events + TPA claims-confirmed
     - label: Completed actions
       key: closed_actions
@@ -175,7 +186,8 @@ dashboard:
   # 없다. 아래가 그 계약이다.
   # ───────────────────────────────────────────────────────────
   metric_time_contracts:
-    report_period: 보고월(report month). 모든 지표가 같은 보고월을 쓴다. 섞으면 퍼널이 겹치지 않는다.
+    report_period: 같은 보고월을 기준으로 산출하되 지표별 관측 창과 분모는 아래 정의를 따른다.
+    rolling_bounds: 보고월을 포함한 12개월. 보고월 시작 11개월 전 이상, 다음 달 시작 미만 [M-11, M+1).
 
     valid_capture:            # 모든 촬영 기반 지표가 이 정의를 공유한다
       quality: oral_signal.quality_passed = TRUE 인 것만
@@ -214,10 +226,11 @@ dashboard:
 
     open_care_actions:
       definition: 보고일 기준 closed_at IS NULL 이고 opened_at + window_days 가 아직 지나지 않은 조치
+      unit: 조치 수. 참여 퍼널의 사람 수나 완료율 분모가 아니다
       note: 창이 지난 조치는 EXPIRED 로 닫혀야 하며 open 이 아니다
 
     completed_actions:
-      numerator: close_reason = 'CLAIM_CONFIRMED' 이고 action_claim_match.confidence = 'HIGH'
+      numerator: 아래 성숙 코호트 중 close_reason = 'CLAIM_CONFIRMED' 이고 action_claim_match.confidence = 'HIGH' 인 조치 수
       denominator: |
         **성숙한 코호트만.** opened_at + window_days + 청구지연 P90 이 보고일 이전인 조치.
         미성숙 코호트는 분모에서 빼고 화면에 "집계 중" 으로 따로 표시한다.
@@ -232,8 +245,12 @@ dashboard:
       provisional_label: 잠정 — 청구지연 P90 실측 전
 
     funnel_nesting: |
-      Activated → Valid capture → Open action → Completed 는 같은 보고월과 같은 자격자
-      분모를 써야 겹친다. 하나라도 다른 창을 쓰면 뒤 단계가 앞 단계보다 커질 수 있다.
+      Activated → Valid capture 는 보고월 자격자 중 가입·첫 문진을 완료한 사람과
+      같은 사람 중 보고월에 유효 촬영을 한 사람을 센다. 자격자 → 참여자 → 유효 촬영자만 포개진다.
+    action_summary: |
+      Open은 보고일의 유효한 미완료 조치 수, Completed는 성숙 코호트 안에서 청구로 확인된 조치 수입니다.
+      두 수는 포함 관계가 아니며 완료율이 아닙니다. 데모는 조치당 서로 다른 한 사람을 가정한 합성 단면이며,
+      자격자에 곱한 배율은 예시 수를 만드는 데만 씁니다. 실제 완료율의 분모는 성숙 코호트 조치 수입니다.
 
     open_questions:           # 이 계약이 못 정한 것. 정하는 사람은 J. Kim.
       - 동의 철회자의 소급 처리 — 기술문서 §5.4 가 "이미 배포된 보고서와 이미 생성된
@@ -242,7 +259,7 @@ dashboard:
       - 청구지연 P90 의 값 — 파일럿 첫 6개월은 실측 전이라 합성 분포를 쓴다.
         실데이터에서 확정 전까지 completed_actions 는 "잠정" 으로 표시한다
 
-  signals:                  # PRD §4b 5항과 index.html SIGNALS 가 일치해야 한다
+  signals:                  # PRD §5.4; 같은 빌더를 거친 기업 화면의 밴드와 대조한다
     - {key: Low,      share: 52}
     - {key: Moderate, share: 33}
     - {key: Priority, share: 15}
@@ -271,7 +288,7 @@ dashboard:
     # 제시하는 것이 된다. A3 에서 export 가 부서별 값을 실으면 이 문구가 사라진다.
     caveat: 부서를 고르면 분모가 바뀝니다. 비율은 전사 기준이고 부서별 실측이 아닙니다.
 
-  scenarios:                # PRD §2, index.html SCEN, 기술문서 §14.4 세 곳 일치
+  scenarios:                # PRD §2.2: 기본 화면 A, B/C는 생성기·검사 입력
     - {key: A, employees: 10000, pmpm: 31.4, label: baseline}
     - {key: B, employees: 2500,  pmpm: 32.8, label: small}
     - {key: C, employees: 25000, pmpm: 30.9, label: large}
@@ -287,14 +304,14 @@ dashboard:
   # 부스 라이브 캡처 — 2026-08-12 결정 (J. Kim) 으로 폐기.
   # SWT Seoul 부스는 A/B/C 합성 시나리오만 띄운다. 방문자 촬영·명찰 QR·연락처 수집·
   # 부스 employer(LIVE) 를 전부 걷어냈고 index.html 과 capture.html 에서도 지웠다.
-  # PRD §2.5 의 "Seoul-only · 폐기" 열이 그대로 실행된 것이며, "survives" 열은 남는다.
+  # 당시 PRD v0.6 §2.5의 결정 기록이다. 현행 중단 범위는 PRD §1.3을 따른다.
   #
   # 여기서 같이 사라진 것: PIPA §23 민감정보 처리, 부스 동의문, 명찰 HMAC,
   # 5건 배치 갱신 가드, "U.S. GTM sample" 탭 이름, 촬영 앱.
   # 미국 PoC 에서는 기업·TPA·임직원 앱 실데이터로 대시보드를 채운다. 그 설계는
   # 기술문서와 start_gates 가 계속 관장한다.
 
-  colors:                   # PRD §3·§5.6 레드라인
+  colors:                   # PRD §3.3·§5.4 레드라인
     coral: "#C2333A"        # 원안 #FF7A79 는 흰 배경에서 2.53:1 로 WCAG AA 미달이었다.
                             # 2026-08-08 design review 에서 5.49:1 로 교체. PRD 갱신 완료.
     coral_dark_mode: "#FF8E8D"
@@ -317,7 +334,7 @@ dashboard:
     rule: 라이트 계열 정의(:root 와 :root[data-theme="light"])는 같은 coral 을 써야 한다
 
   implementation:
-    actual: 단일 vanilla HTML + 인라인 CSS/JS (index.html) 하나. capture.html 은 2026-08-12 삭제
+    actual: scripts/build_screens.py 가 screens/*.html.in 과 정본을 읽어 build/ 에 vanilla HTML·CSS·JS 및 허용된 JSON 을 생성한다
     store: 없음. 브라우저 안 합성 계산만 한다
     inference: 호출하지 않는다. Core AI 호출 계약은 미국 제품 몫으로 기술문서 §8.2 가 관장
     booth: |
@@ -326,11 +343,11 @@ dashboard:
       2026-08-13 — 부스 데모 자체 폐기. index.html 은 8/27 에 화면에 뜨지 않는다
       따라서 freeze(8/25)·리허설(8/26)·오프라인 번들·iPad 인수 경로가 모두 무효다.
       ICLO 는 덱·백월·영상으로 참가하며 그것들은 이 저장소 소관이 아니다.
-    current_purpose: 제안서 스크린샷 원본, 그리고 미국 근거 레이어(A3)의 출발 아티팩트
+    current_purpose: 로컬 합성 데모와 A3 화면의 출발점. 공개 Pages 는 외부 사이트 리다이렉트만 제공한다. 제안서 PNG 는 동결 자산이다
     touch: 모든 컨트롤 44px 무조건. hover:none 은 키보드 붙은 태블릿에서 안 걸리므로 입력 방식으로 크기를 정하지 않는다.
-    chips: 탭하면 적재 경로가 열린다. title 전용이면 태블릿에서 그 정보가 없는 것과 같다.
+    chips: 원천 칩은 A3 export 배선에서 복귀. 현재 화면은 원천별 신선도만 표시한다
     not: Vite + React 18 + TypeScript + Tailwind + Recharts
-    note: PRD 원안 스택은 미채택. package.json·src·dist 없음. AGENTS.md 의 npm 명령은 실행 불가.
+    note: 현행 구조와 실행 경로는 employer-dashboard-poc/docs/ARCHITECTURE.md. npm 애플리케이션은 없다
 
 # ─────────────────────────────────────────────────────────────
 # 절대 표현 — 범위를 좁히지 않으면 사실과 다른 주장이 된다
@@ -378,7 +395,7 @@ export_contract:
     schema_version: 정수. 렌더러가 모르는 버전이면 숫자를 그리지 말고 멈춘다
     run_id: 한 번의 내보내기 실행. 세 파일이 다르면 회차가 섞인 것이다
     report_snapshot_seq: 어느 스냅샷 기준인가
-    exported_at: 내보낸 시각 — **배달 신선도**
+    exported_at: UTC 오프셋을 포함한 ISO 8601 내보낸 시각 — **배달 신선도**
     employer_id: 이 파일의 주인
     synthetic: true 인 동안 화면은 합성 라벨을 지운 적이 없어야 한다
 
@@ -393,6 +410,7 @@ export_contract:
 
   months:                   # 36개월 전부. 화면은 최신만 쓴다
     grain: employer_id × month_start × department
+    rule: 연속된 36개 월. 월 첫날 YYYY-MM-DD 를 쓰며 같은 월·부서 키는 한 번만 나온다. 행 수는 부서 수에 따라 달라진다
     fields: [month_start, department, employer_id,
              eligible_employees, covered_members, member_months, dental_pmpm,
              activated, repeat_participation, signal_low, signal_moderate,
@@ -564,7 +582,7 @@ terminology:
     # 숫자를 주지 않기로 정했는데, PRD 는 그 뒤로도 "read their own score" 라고 쓰고
     # 있었다. 결정을 정본에만 적고 문서를 검사하지 않으면 결정이 문서에 도달하지 않는다.
     - {wrong: "read their own score", right: "read their own band and which way it moved", why: 개인에게 숫자를 주지 않는다 (surfaces.employee_app)}
-  disease_words_banned:      # PRD §5.6 · scripts/check-forbidden-terms.sh
+  disease_words_banned:      # PRD §5.4 · employer-dashboard-poc/scripts/check-forbidden-terms.sh
     [diagnos, cavit, caries, decay, gingivit, periodont, abscess, lesion]
   pairs:                     # 두 개념을 섞어 쓰지 않는다
     - payer / carrier:  payer 는 비용 부담 주체(self-funded 는 기업), carrier 는 보험 상품 제공자
@@ -584,7 +602,8 @@ terminology:
 # 을 넣어 넷에서 다섯이 되었고, 2026-08-28 에 state_health_privacy 를 넣어 여섯이
 # 되었다. 넷은 법무(§16), 하나는 기술(§17.1), 하나는 상업·계약(§9 가정 A5)이다.
 # 아래 kind 필드가 그 성질을 말한다.
-# 대외 문서(Report EN · Proposal EN)에 반드시 노출한다
+# 대외 문서에는 disclose: 대내를 제외한 다섯을 노출한다. 전체 착수 판단은 여섯이며,
+# baa_and_region의 계정별 준비 상태는 내부에서 관리한다. BAA 체인은 hipaa_roles로 다룬다.
 # ─────────────────────────────────────────────────────────────
 # 실데이터 적재 전에 서면으로 닫아야 하는 것. 아래 여섯이 전부가 아니라
 # **착수를 막는 부분집합**이다. 법무 게이트 전체 레지스터는 기술문서 §16 이며
@@ -691,7 +710,7 @@ status:
   # 항목 단위로 일치시킨다. 그림과 정본이 다르면 회의에서 둘 중 하나가 거짓이 된다.
   does_not_exist:
     items:
-      - '임직원 웹앱 — **화면은 2026-08-14 부터 있다** (`app.html`, surfaces 참조). 없는 것은 그 뒤의 전부다: 인증·백엔드·카메라·저장. 데모는 그것들을 대역으로 채운다'
+      - '임직원 웹앱 — **화면은 2026-08-14 부터 있다** (현재 `screens/member.html.in` → `build/member.html`, surfaces 참조). 없는 것은 그 뒤의 전부다: 인증·백엔드·카메라·저장. 데모는 그것들을 대역으로 채운다'
       - 'Core AI 호출 경로 (그림: "ICLO Core AI 연동")'
       - 급여 게이트웨이 (X12 270/271)
       - 급여 표 — 플랜 문서 SPD 는 피드가 없어 수기로 옮겨야 한다
@@ -706,8 +725,9 @@ status:
     data_boundary:
       file: data/member-demo.json
       rule: |
-        app.html 안에 회원 데이터가 없다. 계정·플랜·보장률·치과·동의가 전부 이 파일에서
-        오고, 파일이 없으면 화면은 오류를 띄우고 멈춘다. 대체 사본을 두지 않는다 —
+        screens/member.html.in 안에 회원 데이터가 없다. 계정·프로필·동의 등 합성 입력은
+        이 파일을 빌더가 build/member.json으로 복사해 제공한다. 보장률·치과 목록은 fixture에
+        남아 있으나 현재 화면에 표시하지 않는다. 입력을 못 읽으면 오류로 멈추며 대체 사본을 두지 않는다 —
         두면 "못 읽었다" 가 "정상" 으로 렌더되고, 이 저장소는 그 실패를 세 번 겪었다.
       enforced_by: test_consent.py
     consent_model:
@@ -825,6 +845,18 @@ awaiting_decision:
 # 무엇이 여전히 열려 있는지도 적는다 (still_open · revisit).
 # ─────────────────────────────────────────────────────────────
 decided:
+  - id: METRIC-GRAIN-CLARIFICATION
+    on: 2026-09-06
+    by: J. Kim (이슈 #78)
+    marker: 자격자 → 참여자 → 유효 촬영자만 포개진다
+    what: |
+      기존 미완료 잔량과 성숙 코호트 완료 정의를 유지하고 둘을 참여 퍼널에서 분리한다.
+      데모의 FRAC.gap·FRAC.closed 는 합성 조치 수를 만드는 배율이며 완료율이 아니다.
+      롤링 12개월은 보고월 포함 [M-11, M+1) 로 경계를 명시한다.
+    where: contracts/proposal-package-v11.yml dashboard.metric_time_contracts
+    evidence: test_build_reads_canon.py 의 빈 잔량 반례, test_tech_sql.py 의 기간 경계 반례
+    still_open: 실측 청구지연 P90 과 A3 성숙 코호트 MART 는 기존 #7/#18 범위다
+
   - id: REBUILD-FRAMEWORK
     on: 2026-08-26
     by: J. Kim (merge decision; Codex recommendation and spike)
@@ -955,8 +987,8 @@ decided:
     where: output/proposal-v10/06_Tech/ICLO-Evidence-Layer-DB-설계-KO.md §11.3
     note: |
       설계뿐이고 구현은 없다. 3번(이력 거부)이 ACCESS_HISTORY 를 요구하므로
-      에디션 판단(9절 A5)에 물린다. 2번(인접 억제)은 억제를 전염시켜 작은 기업
-      화면을 비운다 — 250명 하한이 여기서 다시 나온다. 넷을 겹쳐도 완전하지
+      에디션 판단(9절 A5)에 물린다. 2번(인접 억제)은 인원 차이가 0인 큰 기업의
+      연속 월도 가린다. 250명으로 보고 가능성을 보장하지 않는다. 넷을 겹쳐도 완전하지
       않으며, 하는 일은 공격 비용을 올리고 흔적을 남기는 것이다.
 
 # ─────────────────────────────────────────────────────────────
@@ -1009,8 +1041,9 @@ frozen:
     next_edition_must: |
       1. state_health_privacy (캘리포니아 CMIA, §16-23) 를 착수 게이트로 노출한다.
          2026-08-28 에 추가됐고 이 판은 그 이전에 동결됐다.
-      2. 게이트 수를 고친다. 이 판은 §7 세 곳에서 "게이트 4건" 이라 쓰고 정본은 여섯이다
-         (2026-08-25 에 다섯, 2026-08-28 에 여섯). 동결 문서이므로 소급 수정하지 않고
+      2. 게이트 수를 고친다. 이 판은 §7 세 곳에서 "게이트 4건" 이라 쓰지만 대외 협의
+         대상은 다섯이다. 내부 전용 baa_and_region을 포함한 전체 착수 판단은 여섯이며
+         대외 문서에 내부 계정 조건을 추가하지 않는다. 동결 문서이므로 소급 수정하지 않고
          여기 적는다 — 받은 쪽 사본과 저장소가 달라지는 것이 stale 한 숫자보다 나쁘다.
       3. 화면 서술을 고친다. 이 판은 루트 index.html·app.html 을 배포 화면으로 적고,
          둘은 2026-08-27 (#49) 에 지웠다.
@@ -1040,4 +1073,4 @@ superseded:
       제품에서 빠졌고 각각 규제·피해·불가능이 이유다. 부스에서 하지 않은 요청을
       했다고도 썼다 (부스는 2026-08-13 폐기). 정본 검사 밖에 있어서 정본이 이틀에
       세 번 바뀌는 동안 아무것도 안 걸렸다.
-    rule: Snowflake 제안은 이 저장소의 v12 한 판만 존재한다. 다른 곳에서 다시 만들지 않는다
+    rule: Snowflake 제안은 이 저장소에서만 관리한다. 발송된 v12는 보존하며 새 검토 초안은 meta.current_proposal_draft를 따른다. 다른 곳에서 다시 만들지 않는다.

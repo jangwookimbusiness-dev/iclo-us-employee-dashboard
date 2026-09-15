@@ -50,8 +50,7 @@ MEMBER_DATA = ROOT / "data/member-demo.json"
 OVERVIEW_CARDS = ("eligible_employees", "covered_members", "activated",
                   "repeat_participation", "pmpm_allowed")
 
-# 퍼널 단계와 그 순서. 정본 `metric_time_contracts.funnel_nesting` 이 이 다섯이 같은
-# 보고월·같은 자격자 분모를 써서 **겹쳐야** 한다고 정한다. 순서는 그 포개짐의 방향이다.
+# 같은 보고월 자격자를 세는 참여 단계만 포갠다. 조치 잔량·완료는 별 지표다.
 #
 # 첫 단계의 분수는 1.0 이다 — 자격자가 분모 자신이다. 정본에 `FRAC.eligible: 1.0` 을
 # 넣지 않는 이유는 그것이 측정값이 아니라 정의라는 것이다. 정본에 두면 누가 0.9 로
@@ -60,6 +59,8 @@ FUNNEL_STAGES = (
     ("eligible_employees", None),
     ("activated", "FRAC.activated"),
     ("valid_capture", "FRAC.valid"),
+)
+ACTION_MEASURES = (
     ("open_actions", "FRAC.gap"),
     ("closed_actions", "FRAC.closed"),
 )
@@ -89,10 +90,7 @@ def load_canon(path):
                "frac": 1.0 if const is None else kpi[const]}
               for k, const in FUNNEL_STAGES]
 
-    # **포개짐을 빌드가 거부한다.** 정본 `funnel_nesting` 이 다섯 단계가 같은 보고월과
-    # 같은 자격자 분모를 써서 겹쳐야 한다고 정한다. 그 말의 검사 가능한 내용은 뒤
-    # 단계가 앞 단계보다 클 수 없다는 것이다. 화면에 캡션으로 그 규칙을 적어두고
-    # 값은 안 보는 것이 R1 이다 — 규칙을 산문으로 쓰고 코드가 안 하는 것.
+    # 참여 퍼널에만 적용한다. 현재 미완료 잔량이 0이어도 과거 완료는 남을 수 있다.
     for prev, cur in zip(funnel, funnel[1:]):
         if cur["frac"] > prev["frac"]:
             sys.exit(
@@ -167,6 +165,9 @@ def load_canon(path):
         # Funnel 탭. 라벨은 kpis, 분수는 FRAC. 첫 단계는 분모 자신이라 1.0 이다.
         "funnel": funnel,
         "funnel_nesting": plain(mtc["funnel_nesting"]),
+        "actions": [{"key": k, "label": labels[k], "frac": kpi[const]}
+                    for k, const in ACTION_MEASURES],
+        "action_summary": plain(mtc["action_summary"]),
         # 부서 차원. 시나리오별로 인원이 다르므로 시나리오마다 분할한다.
         # `tiny` 는 의도적으로 최소 셀 미만이고 그것이 이 차원의 존재 이유다.
         "departments": [
@@ -285,7 +286,7 @@ def render(template, style):
     템플릿을 다시 손봐야 한다.
 
     대가는 하나. 화면이 `fetch` 를 쓰므로 `file://` 로 못 열고 HTTP 가 필요하다.
-    `app.html` 이 이미 그랬고 `scripts/serve.sh` 가 있다.
+    임직원 화면도 같은 fetch 경계를 쓰고 `scripts/serve.sh` 가 HTTP 로 제공한다.
 
     치환은 남는 자리를 허용하지 않는다. `{{navy}}` 가 그대로 산출물에 남으면 화면은
     그 색을 잃고 검사는 "새 값 없음" 으로 걸린다. 걸리기 전에 여기서 죽는다 —
