@@ -95,7 +95,7 @@ not the current build system.
 2. Work on a feature branch. Never commit directly to `main`.
 3. Run `make check` and record the result in the PR.
 4. A model other than the author checks the change against the repository.
-5. Jangwoo Kim makes the merge decision. GitHub deploys Pages only after gates pass.
+5. Jang Woo Kim makes the merge decision. GitHub deploys Pages only after gates pass.
 
 Ambiguity becomes a `type:decision` issue. Blocked work uses `status:blocked` and
 names the person or external event that can unblock it.
@@ -114,3 +114,7 @@ names the person or external event that can unblock it.
 
 Additional domain history lives in `employer-dashboard-poc/AGENTS.md`; this root
 file wins when instructions conflict.
+
+## 김장우 영문 이름 표기 (필수)
+
+- [사실] 사용자 지정: **김장우의 영문 이름은 반드시 `Jang Woo Kim`으로 표기한다.** 철자·대소문자·띄어쓰기·이름 순서를 바꾸거나 하이픈을 넣지 않는다.

@@ -49,7 +49,7 @@ A3 tenant exports must add runtime validation before rendering external values.
 ## Conduct
 - Ambiguity → open a `type:decision` issue. **Guessing is prohibited.**
 - YAGNI: no unrequested features; any new dependency needs a stated reason in the PR (ponytail ruleset applies).
-- Cross-review: the authoring agent never approves its own work. Human (Jangwoo Kim) merges — agents never self-merge.
+- Cross-review: the authoring agent never approves its own work. Human (Jang Woo Kim) merges — agents never self-merge.
 
 ## Before proposing anything, check the repo (PRD §3.1)
 Three greps, in this order. Each one has already caught a live defect.
@@ -80,3 +80,7 @@ Two things make the review worth having:
   against, and ask it to open them. Reviewers that only read the artifact agree with it.
 - Escalation: `status:blocked` label + mention the decision-maker.
 - Always work from the repository root. The root agent files govern the shipped application.
+
+## 김장우 영문 이름 표기 (필수)
+
+- [사실] 사용자 지정: **김장우의 영문 이름은 반드시 `Jang Woo Kim`으로 표기한다.** 철자·대소문자·띄어쓰기·이름 순서를 바꾸거나 하이픈을 넣지 않는다.

@@ -29,6 +29,6 @@ GitHub Issues and Milestones are the live backlog. PRD §3.2 and the Handoff Bri
 2. `/plan-ceo-review` → `/plan-eng-review` → `/plan-design-review` (end-user UI, so the design review applies).
 3. Either agent implements against PRD §3.3. Booth capture is cancelled. `screens/member.html.in` builds the separate member consent/profile demo; it is not a booth or employer individual-result surface.
 4. `/review` + `/qa` on every PR, by the model that did not write it. Before `/ship`, `make check` and the kill-ai-slop Mode B scan must pass.
-5. `/ship` prepares the PR; Jangwoo Kim decides the merge. Pages publishes only the approved root redirect after gates pass, not the local screens.
+5. `/ship` prepares the PR; Jang Woo Kim decides the merge. Pages publishes only the approved root redirect after gates pass, not the local screens.
 
 **No event deadline.** The old freeze/rehearsal dates belonged to the cancelled booth demo. PRD §1.3 records the exclusion; current owners and dates belong in GitHub Issues, not a local CEO plan.
